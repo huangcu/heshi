@@ -1,0 +1,5 @@
+db: 
+  database: heshi_dev
+  user: root
+  password: admin
+  port: 3306

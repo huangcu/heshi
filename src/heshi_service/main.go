@@ -2,6 +2,7 @@ package main
 
 import (
 	"db/mysql"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -10,7 +11,9 @@ import (
 
 func main() {
 	db, err := mysql.OpenDB()
-
+	if db == nil && err != nil {
+		fmt.Println(err.Error())
+	}
 }
 
 func startWebServer(port string) error {
