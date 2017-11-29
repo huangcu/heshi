@@ -8,50 +8,6 @@ import (
 	"github.com/jinzhu/configor"
 )
 
-// user_type: 0 admin, 1 agent, 2 customer
-const userDdl = `
-CREATE TABLE IF NOT EXISTS users
-(
-	id VARCHAR(255) PRIMARY KEY NOT NULL,
-	username VARCHAR(225),
-	cellphone VARCHAR(225),
-	email VARCHAR(225),
-	password VARCHAR(225),
-	user_type INTEGER NOT NULL,
-	real_name VARCHAR(225),
-	wechat_id VARCHAR(225),
-	wechat_name VARCHAR(225),
-	address VARCHAR(225),
-	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	icon VARCHAR(255) DEFAULT "beyourdiamond.jpg"
-);
-`
-const adminDdl = `
-CREATE TABLE IF NOT EXISTS admins
-(
-	id VARCHAR(255) PRIMARY KEY NOT NULL,
-	level INTEGER NOT NULL,
-	wechat_kefu VARCHAR(225)
-);
-`
-const agentDdl = `
-CREATE TABLE IF NOT EXISTS agents
-(
-	id VARCHAR(255) PRIMARY KEY NOT NULL,
-	level INTEGER NOT NULL,
-	discount float DEFAULT 0 NOT NULL
-);
-`
-
-// const customer_ddl= `
-// CREATE TABLE IF NOT EXISTS customers
-// (
-// 	id VARCHAR(255) PRIMARY KEY NOT NULL
-// 	level INTEGER NOT NULL,
-// );
-// `
-
 var Config = struct {
 	Db struct {
 		Database string
@@ -85,12 +41,15 @@ func OpenDB() (*sql.DB, error) {
 	// }
 
 	for table, ddl := range map[string]string{
-		"users":  userDdl,
-		"agents": agentDdl,
-		"admins": adminDdl,
+		"users":      userDdl,
+		"agents":     agentDdl,
+		"admins":     adminDdl,
+		"diamonds":   diamondDdl,
+		"promotions": promotionDdl,
+		"jewelrys":   jewelryDdl,
 	} {
 		if _, err := db.Exec(ddl); err != nil {
-			return nil, fmt.Errorf("fail to create table %s with %s", table, ddl)
+			return nil, fmt.Errorf("fail to create table %s with %s; err: %s", table, ddl, err.Error())
 		}
 	}
 

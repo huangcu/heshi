@@ -43,27 +43,27 @@ func NewPassword(length int) string {
 	// var username string
 	// q := fmt.Sprintf("SELECT password from users where username=%s", username)
 	// db.Exec(q)
-	return rand_char(length, StdChars)
+	return randChar(length, StdChars)
 }
 
-func rand_char(length int, chars []byte) string {
-	new_pword := make([]byte, length)
-	random_data := make([]byte, length+(length/4)) // storage for random bytes.
+func randChar(length int, chars []byte) string {
+	newPassword := make([]byte, length)
+	randomData := make([]byte, length+(length/4)) // storage for random bytes.
 	clen := byte(len(chars))
 	maxrb := byte(256 - (256 % len(chars)))
 	i := 0
 	for {
-		if _, err := io.ReadFull(rand.Reader, random_data); err != nil {
+		if _, err := io.ReadFull(rand.Reader, randomData); err != nil {
 			panic(err)
 		}
-		for _, c := range random_data {
+		for _, c := range randomData {
 			if c >= maxrb {
 				continue
 			}
-			new_pword[i] = chars[c%clen]
+			newPassword[i] = chars[c%clen]
 			i++
 			if i == length {
-				return string(new_pword)
+				return string(newPassword)
 			}
 		}
 	}

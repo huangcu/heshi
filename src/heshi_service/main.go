@@ -1,8 +1,10 @@
 package main
 
 import (
+	"crypto/tls"
 	"db/mysql"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
@@ -14,9 +16,18 @@ func main() {
 	if db == nil && err != nil {
 		fmt.Println(err.Error())
 	}
+	log.Fatal(startWebServer(":8443"))
 }
 
 func startWebServer(port string) error {
+	log.SetFlags(log.Lshortfile)
+
+	cer, err := tls.LoadX509KeyPair("server.crt", "server.key")
+	config := &tls.Config{Certificates: []tls.Certificate{cer}}
+	if err != nil {
+		log.Println(err)
+		return err
+	}
 	r := gin.New()
 	if os.Getenv("stage") == "dev" {
 		gin.SetMode(gin.DebugMode)
@@ -26,7 +37,7 @@ func startWebServer(port string) error {
 	}
 	r.Use(gin.Recovery())
 	configRoute(r)
-	webServer := &http.Server{Addr: port, Handler: r}
+	webServer := &http.Server{Addr: port, Handler: r, TLSConfig: config}
 	return webServer.ListenAndServe()
 }
 
