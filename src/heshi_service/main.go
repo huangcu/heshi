@@ -77,6 +77,6 @@ func configRoute(r *gin.Engine) {
 		r.Use(sessions.Sessions("mysession", store))
 		// store := sessions.NewMemcacheStore(memcache.New("localhost:11211"), "", []byte("secret"))
 		// r.Use(sessions.Sessions("mysession", store))
-		api.POST("/login", userLogin, sessions.Sessions("mysession"), store)
+		api.POST("/login", userLogin, sessions.Sessions("mysession", store))
 	}
 }

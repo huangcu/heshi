@@ -62,7 +62,7 @@ func userLogin(c *gin.Context) {
 	session := sessions.Default(c)
 	v := session.Get("mysession")
 	if v == nil {
-		session.Set("mysession", count)
+		session.Set("mysession", "count")
 	}
 	session.Save()
 
