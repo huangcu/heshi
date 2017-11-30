@@ -68,7 +68,7 @@ func userLogin(c *gin.Context) {
 	// }
 	// session.Save()
 
-	c.JSON(http.StatusOK, session)
+	c.JSON(http.StatusOK, "session")
 	// var usertype int
 	// switch usertype {
 	// case 0:
