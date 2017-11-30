@@ -14,6 +14,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/boj/redistore",
+			"repository": "https://github.com/boj/redistore",
+			"revision": "4562487a4bee9a7c272b72bfaeda4917d0a47ab9",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/dustin/go-broadcast",
 			"repository": "https://github.com/dustin/go-broadcast",
 			"revision": "3bdf6d4a7164a50bc19d5f230e2981d87d2584f1",
@@ -26,6 +32,20 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/garyburd/redigo/internal",
+			"repository": "https://github.com/garyburd/redigo",
+			"revision": "b389d5392e340092642eec4e36754e0280ad1f8e",
+			"branch": "master",
+			"path": "/internal"
+		},
+		{
+			"importpath": "github.com/garyburd/redigo/redis",
+			"repository": "https://github.com/garyburd/redigo",
+			"revision": "b389d5392e340092642eec4e36754e0280ad1f8e",
+			"branch": "master",
+			"path": "/redis"
+		},
+		{
 			"importpath": "github.com/gin-contrib/sse",
 			"repository": "https://github.com/gin-contrib/sse",
 			"revision": "22d885f9ecc78bf4ee5d72b937e4bbcdc58e8cae",
@@ -36,6 +56,13 @@
 			"repository": "https://github.com/gin-gonic/autotls",
 			"revision": "8ca25fbde72bb72a00466215b94b489c71fcb815",
 			"branch": "master"
+		},
+		{
+			"importpath": "github.com/gin-gonic/contrib/sessions",
+			"repository": "https://github.com/gin-gonic/contrib",
+			"revision": "8f08bc9b92a9734916abda03656c5f1b99ad10be",
+			"branch": "master",
+			"path": "/sessions"
 		},
 		{
 			"importpath": "github.com/gin-gonic/gin",

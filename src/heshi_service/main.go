@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -43,6 +44,7 @@ func startWebServer(port string) error {
 		return err
 	}
 	r := gin.New()
+
 	if os.Getenv("stage") == "dev" {
 		gin.SetMode(gin.DebugMode)
 		r.Use(gin.Logger())
@@ -64,12 +66,17 @@ func configRoute(r *gin.Engine) {
 			apiAdmin.POST("/users", newUser)
 			apiAdmin.GET("/users/:id", getUser)
 			apiAdmin.GET("/users", getAllUsers)
-			apiAdmin.POST("/users/:id", updateUser)
+			apiAdmin.PATCH("/users/:id", updateUser)
 			apiAdmin.DELETE("/users/:id", getUser)
 		}
 		//agent, customer
 		api.POST("/users", newUser)
-		api.POST("/users/:id", updateUser)
+		api.PATCH("/users/:id", updateUser)
 		api.GET("/users/:id", getUser)
+		store := sessions.NewCookieStore([]byte("secret"))
+		r.Use(sessions.Sessions("mysession", store))
+		// store := sessions.NewMemcacheStore(memcache.New("localhost:11211"), "", []byte("secret"))
+		// r.Use(sessions.Sessions("mysession", store))
+		api.POST("/login", userLogin, sessions.Sessions("mysession"), store)
 	}
 }

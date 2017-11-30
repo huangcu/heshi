@@ -49,7 +49,7 @@ func newUser(c *gin.Context) {
 	}
 
 	if _, errs := govalidator.ValidateStruct(nu); errs != nil {
-		c.String(http.StatusOK, "Hello %s", errs.Error())
+		c.String(http.StatusOK, errs.Error())
 		return
 	}
 	if nu.Username == "" && nu.Cellphone == "" && nu.Email == "" {
