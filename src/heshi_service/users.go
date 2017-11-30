@@ -1,17 +1,20 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"heshi/errors"
 	"net/http"
 	"util"
 
 	"github.com/asaskevich/govalidator"
+	uuid "github.com/satori/go.uuid"
 
 	"github.com/gin-gonic/gin"
 )
 
 type User struct {
+	ID             string `json:"id"`
 	Username       string `json:"username" valid:"length(6|40),matches(^[a-zA-Z0-9]*$),optional"`
 	Cellphone      string `json:"cellphone" valid:"matches(^[0-9]*$),optional"`
 	Email          string `json:"email" valid:"email,optional"`
@@ -30,6 +33,7 @@ type User struct {
 
 func newUser(c *gin.Context) {
 	nu := User{
+		ID:             uuid.NewV4().String(),
 		Username:       c.PostForm("username"),
 		Cellphone:      c.PostForm("cellphone"),
 		Email:          c.PostForm("email"),
@@ -52,10 +56,10 @@ func newUser(c *gin.Context) {
 		c.String(http.StatusBadRequest, "username, cellphone, email mustn't be empty")
 		return
 	}
-	q := `INSERT INTO users (password,user_type`
-	v := `VALUES (?,?`
+	q := `INSERT INTO users (id,password,user_type`
+	v := `VALUES (?,?,?`
+	p := []string{nu.ID, util.Encrypt(nu.Password), nu.UserType}
 
-	p := []string{util.Encrypt(nu.Password), nu.UserType}
 	if nu.Username != "" {
 		q = fmt.Sprintf("%s, username", q)
 		v = fmt.Sprintf("%s, ?", v)
@@ -107,7 +111,8 @@ func newUser(c *gin.Context) {
 	if _, err := dbExec(q, pv...); err != nil {
 		c.String(http.StatusBadRequest, errors.GetMessage(err))
 	}
-	c.String(http.StatusOK, nu.Username)
+	fmt.Println(nu.ID)
+	c.String(http.StatusOK, nu.ID)
 }
 
 func updateUser(c *gin.Context) {
@@ -120,9 +125,44 @@ func updateUser(c *gin.Context) {
 }
 
 func getUser(c *gin.Context) {
+	id := c.Param("id")
+	q := `SELECT username,cellphone,email,real_name, user_type,wechat_id,wechat_name,
+				wechat_qr,address,additional_info,icon FROM users WHERE id=?`
+	var userType, icon string
+	var username, cellphone, email, realName sql.NullString
+	var wechatID, wechatName, wechatQR, address, additionalInfo sql.NullString
+	if err := dbQueryRow(q, id).Scan(&username, &cellphone, &email, &realName, &userType, &wechatID,
+		&wechatName, &wechatQR, &address, &additionalInfo, &icon); err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+	}
 
+	c.JSON(http.StatusOK, User{id, username.String, cellphone.String, email.String, "", userType, realName.String,
+		wechatID.String, wechatName.String, wechatQR.String, address.String, additionalInfo.String, icon})
 }
 
 func getAllUsers(c *gin.Context) {
+	q := `SELECT id, username,cellphone,email,real_name, user_type,wechat_id,wechat_name,
+				wechat_qr,address,additional_info,icon FROM users`
+	rows, err := dbQuery(q)
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+		return
+	}
+	defer rows.Close()
+	var us []User
+	for rows.Next() {
+		var id, userType, icon string
+		var username, cellphone, email, realName sql.NullString
+		var wechatID, wechatName, wechatQR, address, additionalInfo sql.NullString
+		if err := rows.Scan(&id, &username, &cellphone, &email, &realName, &userType, &wechatID,
+			&wechatName, &wechatQR, &address, &additionalInfo, &icon); err != nil {
+			c.JSON(http.StatusInternalServerError, err.Error())
+			return
+		}
 
+		u := User{id, username.String, cellphone.String, email.String, "", userType, realName.String,
+			wechatID.String, wechatName.String, wechatQR.String, address.String, additionalInfo.String, icon}
+		us = append(us, u)
+	}
+	c.JSON(http.StatusOK, us)
 }

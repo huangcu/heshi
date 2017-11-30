@@ -93,6 +93,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/satori/go.uuid",
+			"repository": "https://github.com/satori/go.uuid",
+			"revision": "5bf94b69c6b68ee1b541973bb8e1144db23a194b",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/thinkerou/favicon",
 			"repository": "https://github.com/thinkerou/favicon",
 			"revision": "94a442a49da6e2d44bdd5e0d2e2e185c43a19d93",
