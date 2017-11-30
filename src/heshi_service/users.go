@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"heshi/errors"
 	"net/http"
+	"util"
 
 	"github.com/asaskevich/govalidator"
 
@@ -10,7 +12,7 @@ import (
 )
 
 type User struct {
-	Username       string `json:"username" valid:"length(6|40),matches(^[a-zA-Z]*$),optional"`
+	Username       string `json:"username" valid:"length(6|40),matches(^[a-zA-Z0-9]*$),optional"`
 	Cellphone      string `json:"cellphone" valid:"matches(^[0-9]*$),optional"`
 	Email          string `json:"email" valid:"email,optional"`
 	Password       string `json:"password" valid:"length(8|20),matches(^[a-zA-Z0-9_!@#$%^&.?()-=+]*$),required"`
@@ -33,7 +35,7 @@ func newUser(c *gin.Context) {
 		Email:          c.PostForm("email"),
 		Password:       c.PostForm("password"),
 		UserType:       c.PostForm("user_type"),
-		RealName:       c.PostForm("real_time"),
+		RealName:       c.PostForm("real_name"),
 		WechatID:       c.PostForm("wechat_id"),
 		WechatName:     c.PostForm("wechat_name"),
 		WechatQR:       c.PostForm("wechat_qr"),
@@ -46,15 +48,66 @@ func newUser(c *gin.Context) {
 		c.String(http.StatusOK, "Hello %s", errs.Error())
 		return
 	}
-	fmt.Println(nu)
-	c.String(http.StatusOK, nu.Username)
+	if nu.Username == "" && nu.Cellphone == "" && nu.Email == "" {
+		c.String(http.StatusBadRequest, "username, cellphone, email mustn't be empty")
+		return
+	}
+	q := `INSERT INTO users (password,user_type`
+	v := `VALUES (?,?`
 
-	// q := `INSERT INTO users (username, cellphone, email, password)
-	// 	VALUES (?,?,?,?)`
-	// if _, err := dbExec(q, c.PostForm("username"), c.PostForm("cellphone"), c.PostForm("email"),
-	// 	c.PostForm("password")); err != nil {
-	// 	c.String(status, errors.GetMessage(err))
-	// }
+	p := []string{util.Encrypt(nu.Password), nu.UserType}
+	if nu.Username != "" {
+		q = fmt.Sprintf("%s, username", q)
+		v = fmt.Sprintf("%s, ?", v)
+		p = append(p, nu.Username)
+	}
+	if nu.Cellphone != "" {
+		q = fmt.Sprintf("%s, cellphone", q)
+		v = fmt.Sprintf("%s, ?", v)
+		p = append(p, nu.Cellphone)
+	}
+	if nu.Email != "" {
+		q = fmt.Sprintf("%s, email", q)
+		v = fmt.Sprintf("%s, ?", v)
+		p = append(p, nu.Email)
+	}
+	if nu.RealName != "" {
+		q = fmt.Sprintf("%s, real_name", q)
+		v = fmt.Sprintf("%s, ?", v)
+	}
+	if nu.WechatID != "" {
+		q = fmt.Sprintf("%s, wechat_id", q)
+		v = fmt.Sprintf("%s, ?", v)
+	}
+	if nu.WechatName != "" {
+		q = fmt.Sprintf("%s, wechat_name", q)
+		v = fmt.Sprintf("%s, ?", v)
+	}
+	if nu.WechatQR != "" {
+		q = fmt.Sprintf("%s, wechat_qr", q)
+		v = fmt.Sprintf("%s, ?", v)
+	}
+	if nu.Address != "" {
+		q = fmt.Sprintf("%s, address", q)
+		v = fmt.Sprintf("%s, ?", v)
+	}
+	if nu.AdditionalInfo != "" {
+		q = fmt.Sprintf("%s, additional_info", q)
+		v = fmt.Sprintf("%s, ?", v)
+	}
+	if nu.Icon != "" {
+		q = fmt.Sprintf("%s, icon", q)
+		v = fmt.Sprintf("%s, ?", v)
+	}
+	q = fmt.Sprintf("%s) %s)", q, v)
+	pv := make([]interface{}, len(p))
+	for i, v := range p {
+		pv[i] = v
+	}
+	if _, err := dbExec(q, pv...); err != nil {
+		c.String(http.StatusBadRequest, errors.GetMessage(err))
+	}
+	c.String(http.StatusOK, nu.Username)
 }
 
 func updateUser(c *gin.Context) {

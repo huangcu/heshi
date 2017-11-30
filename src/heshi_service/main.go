@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"crypto/tls"
+	"database/sql"
 	"db/mysql"
 	"fmt"
 	"log"
@@ -11,8 +13,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var (
+	db                  *sql.DB
+	ctx                 context.Context
+	cancelFn            context.CancelFunc
+	serverIsInterrupted bool
+)
+
 func main() {
-	db, err := mysql.OpenDB()
+	var err error
+	db, err = mysql.OpenDB()
 	if db == nil && err != nil {
 		fmt.Println(err.Error())
 	}
@@ -23,6 +33,10 @@ func startWebServer(port string) error {
 	log.SetFlags(log.Lshortfile)
 
 	cer, err := tls.LoadX509KeyPair("server.crt", "server.key")
+	if err != nil {
+		log.Println(err.Error())
+		return err
+	}
 	config := &tls.Config{Certificates: []tls.Certificate{cer}}
 	if err != nil {
 		log.Println(err)
