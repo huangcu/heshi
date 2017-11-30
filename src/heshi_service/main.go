@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -73,10 +72,11 @@ func configRoute(r *gin.Engine) {
 		api.POST("/users", newUser)
 		api.PATCH("/users/:id", updateUser)
 		api.GET("/users/:id", getUser)
-		store := sessions.NewCookieStore([]byte("secret"))
-		r.Use(sessions.Sessions("mysession", store))
+		// store := sessions.NewCookieStore([]byte("secret"))
+		// r.Use(sessions.Sessions("mysession", store))
 		// store := sessions.NewMemcacheStore(memcache.New("localhost:11211"), "", []byte("secret"))
 		// r.Use(sessions.Sessions("mysession", store))
-		api.POST("/login", userLogin, sessions.Sessions("mysession", store))
+		api.POST("/login", userLogin)
+		// api.POST("/login", userLogin, sessions.Sessions("mysession", store))
 	}
 }

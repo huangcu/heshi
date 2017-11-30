@@ -37,34 +37,36 @@ func userLogin(c *gin.Context) {
 	}
 	var q string
 	if nu.Username != "" {
-		q = fmt.Sprintf(`SELECT password FROM users where username=%s`, nu.Username)
+		q = fmt.Sprintf(`SELECT password FROM users where username='%s'`, nu.Username)
 	}
-	if nu.Username != "" {
-		q = fmt.Sprintf(`SELECT password FROM users where cellphone=%s`, nu.Cellphone)
+	if nu.Cellphone != "" {
+		q = fmt.Sprintf(`SELECT password FROM users where cellphone='%s'`, nu.Cellphone)
 	}
-	if nu.Username != "" {
-		q = fmt.Sprintf(`SELECT password FROM users where email=%s`, nu.Email)
+	if nu.Email != "" {
+		q = fmt.Sprintf(`SELECT password FROM users where email='%s'`, nu.Email)
 	}
 
 	var password string
 	if err := dbQueryRow(q).Scan(&password); err != nil {
 		if err == sql.ErrNoRows {
-			c.JSON(http.StatusOK, "login info not correct, wrong user or password")
+			c.JSON(http.StatusOK, "Error: login info not correct, wrong user or password")
 			return
 		}
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
+	fmt.Println(nu.Password)
+	fmt.Println(password)
 	if !util.IsPassOK(nu.Password, password) {
 		c.JSON(http.StatusOK, "login info not correct, wrong user or password")
 		return
 	}
-	session := sessions.Default(c)
-	v := session.Get("mysession")
-	if v == nil {
-		session.Set("mysession", "count")
-	}
-	session.Save()
+	// session := sessions.Default(c)
+	// v := session.Get("mysession")
+	// if v == nil {
+	// 	session.Set("mysession", "count")
+	// }
+	// session.Save()
 
 	c.JSON(http.StatusOK, session)
 	// var usertype int
