@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"crypto/tls"
 	"database/sql"
 	"db/mysql"
 	"fmt"
@@ -32,16 +31,13 @@ func main() {
 func startWebServer(port string) error {
 	log.SetFlags(log.Lshortfile)
 
-	cer, err := tls.LoadX509KeyPair("server.crt", "server.key")
-	if err != nil {
-		log.Println(err.Error())
-		return err
-	}
-	config := &tls.Config{Certificates: []tls.Certificate{cer}}
-	if err != nil {
-		log.Println(err)
-		return err
-	}
+	// cer, err := tls.LoadX509KeyPair("server.crt", "server.key")
+	// if err != nil {
+	// 	log.Println(err.Error())
+	// 	return err
+	// }
+	// config := &tls.Config{Certificates: []tls.Certificate{cer}}
+
 	r := gin.New()
 
 	if os.Getenv("stage") == "dev" {
@@ -52,8 +48,10 @@ func startWebServer(port string) error {
 	}
 	r.Use(gin.Recovery())
 	configRoute(r)
-	webServer := &http.Server{Addr: port, Handler: r, TLSConfig: config}
-	return webServer.ListenAndServe()
+	// webServer := &http.Server{Addr: port, Handler: r, TLSConfig: config}
+	webServer := &http.Server{Addr: port, Handler: r}
+	// return webServer.ListenAndServe()
+	return webServer.ListenAndServeTLS("server.crt", "server.key")
 }
 
 func configRoute(r *gin.Engine) {
@@ -66,7 +64,7 @@ func configRoute(r *gin.Engine) {
 			apiAdmin.GET("/users/:id", getUser)
 			apiAdmin.GET("/users", getAllUsers)
 			apiAdmin.PATCH("/users/:id", updateUser)
-			apiAdmin.DELETE("/users/:id", getUser)
+			apiAdmin.DELETE("/users/:id", removeUser)
 		}
 		//agent, customer
 		api.POST("/users", newUser)

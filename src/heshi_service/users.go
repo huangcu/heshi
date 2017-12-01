@@ -4,13 +4,11 @@ import (
 	"database/sql"
 	"fmt"
 	"heshi/errors"
+	"math/rand"
 	"net/http"
-	"util"
-
-	"github.com/asaskevich/govalidator"
-	uuid "github.com/satori/go.uuid"
 
 	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 )
 
 type User struct {
@@ -20,7 +18,7 @@ type User struct {
 	Email          string `json:"email" valid:"email,optional"`
 	Password       string `json:"password" valid:"length(8|20),matches(^[a-zA-Z0-9_!@#$%^&.?()-=+]*$),required"`
 	UserType       string `json:"user_type" valid:"in(admin|agent|customer),required"`
-	RealName       string `json:"real_time" valid:"-"`
+	RealName       string `json:"real_name" valid:"-"`
 	WechatID       string `json:"wechat_id" valid:"-"`
 	WechatName     string `json:"wechat_name" valid:"-"`
 	WechatQR       string `json:"wechat_qr" valid:"-"`
@@ -29,6 +27,18 @@ type User struct {
 	Icon           string `json:"icon" valid:"-"`
 	// CreatedAt      time.Time `json:"created_at"`
 	// UpdatedAt      time.Time `json:"updated_at"`
+}
+
+type Admin struct {
+	UserInfo   User   `json:"user"`
+	Level      int    `json:"level"`
+	WechatKefu string `json:"wechat_kefu"`
+}
+
+type Agent struct {
+	UserInfo User    `json:"user"`
+	Level    int     `json:"level"`
+	Discount float64 `json:"discount"`
 }
 
 func newUser(c *gin.Context) {
@@ -48,80 +58,108 @@ func newUser(c *gin.Context) {
 		Icon:           c.PostForm("icon"),
 	}
 
-	if _, errs := govalidator.ValidateStruct(nu); errs != nil {
-		c.String(http.StatusOK, errs.Error())
+	if vemsg := preValidateNewUser(nu); vemsg != "" {
+		c.String(http.StatusOK, vemsg)
 		return
 	}
-	if nu.Username == "" && nu.Cellphone == "" && nu.Email == "" {
-		c.String(http.StatusBadRequest, "username, cellphone, email mustn't be empty")
-		return
+	if nu.Username == "" {
+		var count int
+		q := "SELECT count(*) FROM users"
+		if err := dbQueryRow(q).Scan(&count); err != nil {
+			c.String(http.StatusOK, errors.GetMessage(err))
+			return
+		}
+		nu.Username = fmt.Sprintf("heshi_%d%d", rand.Intn(3), count)
 	}
-	q := `INSERT INTO users (id,password,user_type`
-	v := `VALUES (?,?,?`
-	p := []string{nu.ID, util.Encrypt(nu.Password), nu.UserType}
 
-	if nu.Username != "" {
-		q = fmt.Sprintf("%s, username", q)
-		v = fmt.Sprintf("%s, ?", v)
-		p = append(p, nu.Username)
+	var q string
+	var err error
+	if err, q = composeUserQuery(nu); err != nil {
+		c.String(http.StatusOK, errors.GetMessage(err))
+		return
 	}
-	if nu.Cellphone != "" {
-		q = fmt.Sprintf("%s, cellphone", q)
-		v = fmt.Sprintf("%s, ?", v)
-		p = append(p, nu.Cellphone)
-	}
-	if nu.Email != "" {
-		q = fmt.Sprintf("%s, email", q)
-		v = fmt.Sprintf("%s, ?", v)
-		p = append(p, nu.Email)
-	}
-	if nu.RealName != "" {
-		q = fmt.Sprintf("%s, real_name", q)
-		v = fmt.Sprintf("%s, ?", v)
-	}
-	if nu.WechatID != "" {
-		q = fmt.Sprintf("%s, wechat_id", q)
-		v = fmt.Sprintf("%s, ?", v)
-	}
-	if nu.WechatName != "" {
-		q = fmt.Sprintf("%s, wechat_name", q)
-		v = fmt.Sprintf("%s, ?", v)
-	}
-	if nu.WechatQR != "" {
-		q = fmt.Sprintf("%s, wechat_qr", q)
-		v = fmt.Sprintf("%s, ?", v)
-	}
-	if nu.Address != "" {
-		q = fmt.Sprintf("%s, address", q)
-		v = fmt.Sprintf("%s, ?", v)
-	}
-	if nu.AdditionalInfo != "" {
-		q = fmt.Sprintf("%s, additional_info", q)
-		v = fmt.Sprintf("%s, ?", v)
-	}
-	if nu.Icon != "" {
-		q = fmt.Sprintf("%s, icon", q)
-		v = fmt.Sprintf("%s, ?", v)
-	}
-	q = fmt.Sprintf("%s) %s)", q, v)
-	pv := make([]interface{}, len(p))
-	for i, v := range p {
-		pv[i] = v
-	}
-	if _, err := dbExec(q, pv...); err != nil {
+	fmt.Println(q)
+	if _, err := dbExec(q); err != nil {
 		c.String(http.StatusBadRequest, errors.GetMessage(err))
+		return
 	}
-	fmt.Println(nu.ID)
+
 	c.String(http.StatusOK, nu.ID)
 }
 
-func updateUser(c *gin.Context) {
-	var usertype int
-	switch usertype {
-	case 0:
-	case 1:
-	case 2:
+func removeUser(c *gin.Context) {
+	uid := c.Param("id")
+	q := "SELECT user_type from users WHERE id=?"
+	var userType string
+	if err := dbQueryRow(q, uid).Scan(&userType); err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusOK, "wrong user")
+			return
+		}
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
 	}
+	switch userType {
+	case "admin":
+		q = `DELETE FROM admins WHERE user_id=?`
+		if _, err := dbExec(q, uid); err != nil {
+			c.JSON(http.StatusInternalServerError, err.Error())
+			return
+		}
+	case "agent":
+		q = `DELETE FROM agents WHERE user_id=?`
+		if _, err := dbExec(q, uid); err != nil {
+			c.JSON(http.StatusInternalServerError, err.Error())
+			return
+		}
+	default:
+		q = `DELETE FROM users WHERE id=?`
+		if _, err := dbExec(q, uid); err != nil {
+			c.JSON(http.StatusInternalServerError, err.Error())
+			return
+		}
+	}
+}
+
+func updateUser(c *gin.Context) {
+	uu := User{
+		ID:             c.Param("id"),
+		Username:       c.PostForm("username"),
+		Cellphone:      c.PostForm("cellphone"),
+		Email:          c.PostForm("email"),
+		Password:       c.PostForm("password"),
+		UserType:       c.PostForm("user_type"),
+		RealName:       c.PostForm("real_name"),
+		WechatID:       c.PostForm("wechat_id"),
+		WechatName:     c.PostForm("wechat_name"),
+		WechatQR:       c.PostForm("wechat_qr"),
+		Address:        c.PostForm("address"),
+		AdditionalInfo: c.PostForm("additional_info"),
+		Icon:           c.PostForm("icon"),
+	}
+
+	var q string
+	var err error
+	//TODO validate updated user info too!!!
+	if err, q = composeUserUpdate(uu); err != nil {
+		c.String(http.StatusOK, errors.GetMessage(err))
+		return
+	}
+
+	fmt.Println(q)
+	//TODO admin,agent update!!!!
+	// var userType string
+	// switch userType {
+	// case "admin":
+	// case "agent":
+	// default:
+	// }
+	if _, err := dbExec(q); err != nil {
+		c.String(http.StatusBadRequest, errors.GetMessage(err))
+		return
+	}
+
+	c.String(http.StatusOK, uu.ID)
 }
 
 func getUser(c *gin.Context) {
