@@ -1,3 +1,12 @@
+# heshi
+
+declare -x http_proxy=xxx
+declare -x https_proxy=xx
+gb vendor restore
+gb build
+./bin/heshi_service
+
+
 http://localhost:8443/api/users
 post
 Form: (required fields)
