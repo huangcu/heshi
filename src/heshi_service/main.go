@@ -77,4 +77,5 @@ func configRoute(r *gin.Engine) {
 		api.POST("/login", userLogin)
 		// api.POST("/login", userLogin, sessions.Sessions("mysession", store))
 	}
+	api.Static("../webpage", "webpage")
 }
