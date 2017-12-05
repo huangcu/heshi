@@ -76,6 +76,19 @@ func configRoute(r *gin.Engine) {
 		// r.Use(sessions.Sessions("mysession", store))
 		api.POST("/login", userLogin)
 		// api.POST("/login", userLogin, sessions.Sessions("mysession", store))
+
+		//products
+		api.GET("/products", getAllProducts)
+		api.GET("/products/diamonds", getAllDiamonds)
+		api.GET("/products/small_diamonds", getAllSmallDiamonds)
+		api.GET("/products/jewelrys", getAllJewelrys)
+		api.GET("/products/diamonds/:id", getDiamond)
+		api.GET("/products/small_diamonds/:id", getSmallDiamond)
+		api.GET("/products/jewelrys/:id", getJewelry)
+
+		api.POST("/products/diamonds", newDiamond)
+		api.POST("/products/small_diamonds", newSmallDiamond)
+		api.POST("/products/jewelrys", newJewelry)
 	}
 	api.Static("../webpage", "webpage")
 }

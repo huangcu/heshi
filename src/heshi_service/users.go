@@ -13,18 +13,18 @@ import (
 
 type User struct {
 	ID             string `json:"id"`
-	Username       string `json:"username" valid:"length(6|40),matches(^[a-zA-Z0-9]*$),optional"`
-	Cellphone      string `json:"cellphone" valid:"matches(^[0-9]*$),optional"`
-	Email          string `json:"email" valid:"email,optional"`
-	Password       string `json:"password" valid:"length(8|20),matches(^[a-zA-Z0-9_!@#$%^&.?()-=+]*$),required"`
-	UserType       string `json:"user_type" valid:"in(admin|agent|customer),required"`
-	RealName       string `json:"real_name" valid:"-"`
-	WechatID       string `json:"wechat_id" valid:"-"`
-	WechatName     string `json:"wechat_name" valid:"-"`
-	WechatQR       string `json:"wechat_qr" valid:"-"`
-	Address        string `json:"address" valid:"-"`
-	AdditionalInfo string `json:"additional_info" valid:"-"`
-	Icon           string `json:"icon" valid:"-"`
+	Username       string `json:"username"`
+	Cellphone      string `json:"cellphone"`
+	Email          string `json:"email"`
+	Password       string `json:"password"`
+	UserType       string `json:"user_type"`
+	RealName       string `json:"real_name"`
+	WechatID       string `json:"wechat_id"`
+	WechatName     string `json:"wechat_name"`
+	WechatQR       string `json:"wechat_qr"`
+	Address        string `json:"address"`
+	AdditionalInfo string `json:"additional_info"`
+	Icon           string `json:"icon"`
 	// CreatedAt      time.Time `json:"created_at"`
 	// UpdatedAt      time.Time `json:"updated_at"`
 }
@@ -58,7 +58,7 @@ func newUser(c *gin.Context) {
 		Icon:           c.PostForm("icon"),
 	}
 
-	if vemsg := preValidateNewUser(nu); vemsg != "" {
+	if vemsg := nu.preValidateNewUser(); vemsg != "" {
 		c.String(http.StatusOK, vemsg)
 		return
 	}
@@ -74,7 +74,7 @@ func newUser(c *gin.Context) {
 
 	var q string
 	var err error
-	if err, q = composeUserQuery(nu); err != nil {
+	if err, q = nu.composeInsertQuery(); err != nil {
 		c.String(http.StatusOK, errors.GetMessage(err))
 		return
 	}
@@ -141,7 +141,7 @@ func updateUser(c *gin.Context) {
 	var q string
 	var err error
 	//TODO validate updated user info too!!!
-	if err, q = composeUserUpdate(uu); err != nil {
+	if err, q = uu.composeUpdateQuery(); err != nil {
 		c.String(http.StatusOK, errors.GetMessage(err))
 		return
 	}

@@ -6,10 +6,10 @@ import (
 	"util"
 )
 
-func composeUserQuery(nu User) (error, string) {
-	params := userKV(nu)
+func (u *User) composeInsertQuery() (error, string) {
+	params := u.paramsKV()
 	q := `INSERT INTO users (id, user_type, password`
-	va := fmt.Sprintf(`VALUES ('%s', '%s', '%s'`, nu.ID, nu.UserType, util.Encrypt(nu.Password))
+	va := fmt.Sprintf(`VALUES ('%s', '%s', '%s'`, u.ID, u.UserType, util.Encrypt(u.Password))
 	for k, v := range params {
 		q = fmt.Sprintf("%s, %s", q, k)
 		va = fmt.Sprintf("%s, '%s'", va, v)
@@ -18,52 +18,52 @@ func composeUserQuery(nu User) (error, string) {
 	return nil, q
 }
 
-func composeUserUpdate(uu User) (error, string) {
-	params := userKV(uu)
-	if uu.Password != "" {
-		params["password"] = util.Encrypt(uu.Password)
+func (u *User) composeUpdateQuery() (error, string) {
+	params := u.paramsKV()
+	if u.Password != "" {
+		params["password"] = util.Encrypt(u.Password)
 	}
 	q := `UPDATE users SET`
 	for k, v := range params {
 		q = fmt.Sprintf("%s %s='%s',", q, k, v)
 	}
 
-	q = fmt.Sprintf("%s WHERE id='%s'", strings.TrimSuffix(q, ","), uu.ID)
+	q = fmt.Sprintf("%s WHERE id='%s'", strings.TrimSuffix(q, ","), u.ID)
 	return nil, q
 }
 
-func userKV(nu User) map[string]string {
-	params := make(map[string]string)
+func (u *User) paramsKV() map[string]interface{} {
+	params := make(map[string]interface{})
 
-	if nu.Username != "" {
-		params["username"] = nu.Username
+	if u.Username != "" {
+		params["username"] = u.Username
 	}
-	if nu.Cellphone != "" {
-		params["cellphone"] = nu.Cellphone
+	if u.Cellphone != "" {
+		params["cellphone"] = u.Cellphone
 	}
-	if nu.Email != "" {
-		params["email"] = nu.Email
+	if u.Email != "" {
+		params["email"] = u.Email
 	}
-	if nu.RealName != "" {
-		params["real_name"] = nu.RealName
+	if u.RealName != "" {
+		params["real_name"] = u.RealName
 	}
-	if nu.WechatID != "" {
-		params["wechat_id"] = nu.WechatID
+	if u.WechatID != "" {
+		params["wechat_id"] = u.WechatID
 	}
-	if nu.WechatName != "" {
-		params["wechat_name"] = nu.WechatName
+	if u.WechatName != "" {
+		params["wechat_name"] = u.WechatName
 	}
-	if nu.WechatQR != "" {
-		params["wechat_qr"] = nu.WechatQR
+	if u.WechatQR != "" {
+		params["wechat_qr"] = u.WechatQR
 	}
-	if nu.Address != "" {
-		params["address"] = nu.Address
+	if u.Address != "" {
+		params["address"] = u.Address
 	}
-	if nu.AdditionalInfo != "" {
-		params["additional_info"] = nu.AdditionalInfo
+	if u.AdditionalInfo != "" {
+		params["additional_info"] = u.AdditionalInfo
 	}
-	if nu.Icon != "" {
-		params["icon"] = nu.Icon
+	if u.Icon != "" {
+		params["icon"] = u.Icon
 	}
 	return params
 }
