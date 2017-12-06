@@ -48,3 +48,16 @@ func Base64EncodePng(path string) (string, error) {
 	s := base64.StdEncoding.EncodeToString(bs)
 	return s, nil
 }
+
+func GetFileSize(zf string) (int64, error) {
+	f, err := os.Open(zf)
+	if err != nil {
+		return 0, err
+	}
+	defer f.Close()
+	fi, err := f.Stat()
+	if err != nil {
+		return 0, err
+	}
+	return fi.Size(), nil
+}
