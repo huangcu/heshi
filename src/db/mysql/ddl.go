@@ -1,6 +1,5 @@
 package mysql
 
-// user_type: 0 admin, 1 agent, 2 customer
 const userDdl = `
 CREATE TABLE IF NOT EXISTS users
 (
@@ -16,6 +15,7 @@ CREATE TABLE IF NOT EXISTS users
 	wechat_qr VARCHAR(225) UNIQUE,
 	address VARCHAR(225),
 	additional_info TEXT,
+	recommended_by VARCHAR(225),
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	icon VARCHAR(255) DEFAULT "beyourdiamond.jpg"
@@ -38,17 +38,10 @@ CREATE TABLE IF NOT EXISTS agents
 	user_id VARCHAR(225) NOT NULL UNIQUE,
 	level INT NOT NULL,
 	discount FLOAT DEFAULT 0 NOT NULL,
+	invitation_code VARCHAR(20) NOT NULL UNIQUE,
 	FOREIGN KEY (user_id) REFERENCES users (id)
 ) ENGINE=INNODB;
 `
-
-// const customer_ddl= `
-// CREATE TABLE IF NOT EXISTS customers
-// (
-// 	id VARCHAR(255) PRIMARY KEY NOT NULL
-// 	level INT NOT NULL,
-// );
-// `
 const diamondDdl = `
 CREATE TABLE IF NOT EXISTS diamonds
 (

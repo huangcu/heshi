@@ -24,6 +24,7 @@ type User struct {
 	WechatQR       string `json:"wechat_qr"`
 	Address        string `json:"address"`
 	AdditionalInfo string `json:"additional_info"`
+	RecommendedBy  string `json:"recommended_by"`
 	Icon           string `json:"icon"`
 	// CreatedAt      time.Time `json:"created_at"`
 	// UpdatedAt      time.Time `json:"updated_at"`
@@ -55,6 +56,7 @@ func newUser(c *gin.Context) {
 		WechatQR:       c.PostForm("wechat_qr"),
 		Address:        c.PostForm("address"),
 		AdditionalInfo: c.PostForm("additional_info"),
+		RecommendedBy:  c.PostForm("recommended_by"),
 		Icon:           c.PostForm("icon"),
 	}
 
@@ -135,6 +137,7 @@ func updateUser(c *gin.Context) {
 		WechatQR:       c.PostForm("wechat_qr"),
 		Address:        c.PostForm("address"),
 		AdditionalInfo: c.PostForm("additional_info"),
+		RecommendedBy:  c.PostForm("recommended_by"),
 		Icon:           c.PostForm("icon"),
 	}
 
@@ -165,22 +168,35 @@ func updateUser(c *gin.Context) {
 func getUser(c *gin.Context) {
 	id := c.Param("id")
 	q := `SELECT username,cellphone,email,real_name, user_type,wechat_id,wechat_name,
-				wechat_qr,address,additional_info,icon FROM users WHERE id=?`
+				wechat_qr,address,additional_info,recommended_by,icon FROM users WHERE id=?`
 	var userType, icon string
-	var username, cellphone, email, realName sql.NullString
+	var username, cellphone, email, realName, recommandedBy sql.NullString
 	var wechatID, wechatName, wechatQR, address, additionalInfo sql.NullString
 	if err := dbQueryRow(q, id).Scan(&username, &cellphone, &email, &realName, &userType, &wechatID,
-		&wechatName, &wechatQR, &address, &additionalInfo, &icon); err != nil {
+		&wechatName, &wechatQR, &address, &additionalInfo, &recommandedBy, &icon); err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	c.JSON(http.StatusOK, User{id, username.String, cellphone.String, email.String, "", userType, realName.String,
-		wechatID.String, wechatName.String, wechatQR.String, address.String, additionalInfo.String, icon})
+	u := User{
+		ID:             id,
+		Username:       username.String,
+		Cellphone:      cellphone.String,
+		Email:          email.String,
+		UserType:       userType,
+		WechatID:       wechatID.String,
+		WechatName:     wechatName.String,
+		WechatQR:       wechatID.String,
+		Address:        address.String,
+		AdditionalInfo: additionalInfo.String,
+		RecommendedBy:  recommandedBy.String,
+		Icon:           icon,
+	}
+	c.JSON(http.StatusOK, u)
 }
 
 func getAllUsers(c *gin.Context) {
-	q := `SELECT id, username,cellphone,email,real_name, user_type,wechat_id,wechat_name,
-				wechat_qr,address,additional_info,icon FROM users`
+	q := `SELECT id, username,cellphone,email,real_name,user_type,wechat_id,wechat_name,
+				wechat_qr,address,additional_info,recommended_by,icon FROM users`
 	rows, err := dbQuery(q)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
@@ -190,16 +206,27 @@ func getAllUsers(c *gin.Context) {
 	var us []User
 	for rows.Next() {
 		var id, userType, icon string
-		var username, cellphone, email, realName sql.NullString
+		var username, cellphone, email, realName, recommandedBy sql.NullString
 		var wechatID, wechatName, wechatQR, address, additionalInfo sql.NullString
 		if err := rows.Scan(&id, &username, &cellphone, &email, &realName, &userType, &wechatID,
-			&wechatName, &wechatQR, &address, &additionalInfo, &icon); err != nil {
+			&wechatName, &wechatQR, &address, &additionalInfo, &recommandedBy, &icon); err != nil {
 			c.JSON(http.StatusInternalServerError, err.Error())
 			return
 		}
-
-		u := User{id, username.String, cellphone.String, email.String, "", userType, realName.String,
-			wechatID.String, wechatName.String, wechatQR.String, address.String, additionalInfo.String, icon}
+		u := User{
+			ID:             id,
+			Username:       username.String,
+			Cellphone:      cellphone.String,
+			Email:          email.String,
+			UserType:       userType,
+			WechatID:       wechatID.String,
+			WechatName:     wechatName.String,
+			WechatQR:       wechatID.String,
+			Address:        address.String,
+			AdditionalInfo: additionalInfo.String,
+			RecommendedBy:  recommandedBy.String,
+			Icon:           icon,
+		}
 		us = append(us, u)
 	}
 	c.JSON(http.StatusOK, us)
