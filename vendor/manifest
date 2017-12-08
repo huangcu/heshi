@@ -20,6 +20,18 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/chanxuehong/rand",
+			"repository": "https://github.com/chanxuehong/rand",
+			"revision": "b54bf7f93440da0b6c81b05276d69cdcbf32c918",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/chanxuehong/util",
+			"repository": "https://github.com/chanxuehong/util",
+			"revision": "00a36f7ea8773cee5da9389513bf78bbcbdb09ed",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/dustin/go-broadcast",
 			"repository": "https://github.com/dustin/go-broadcast",
 			"revision": "3bdf6d4a7164a50bc19d5f230e2981d87d2584f1",
@@ -197,6 +209,12 @@
 			"revision": "fd80eb99c8f653c847d294a001bdf2a3a6f768f5",
 			"branch": "master",
 			"path": "/errgroup"
+		},
+		{
+			"importpath": "gopkg.in/chanxuehong/wechat.v2",
+			"repository": "https://gopkg.in/chanxuehong/wechat.v2",
+			"revision": "f2a2945c9226e98a5933cdbf93a2e79608e04dc5",
+			"branch": "v2"
 		},
 		{
 			"importpath": "gopkg.in/go-playground/validator.v8",
