@@ -16,6 +16,10 @@ CREATE TABLE IF NOT EXISTS users
 	address VARCHAR(225),
 	additional_info TEXT,
 	recommended_by VARCHAR(225),
+	invitation_code VARCHAR(225) NOT NULL UNIQUE,
+	discount INT NOT NULL DEFAULT 98,
+	point INT NOT NULL DEFAULT 0,
+	total_purchase_amount FLOAT NOT NULL DEFAULT 0,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	icon VARCHAR(255) DEFAULT "beyourdiamond.jpg"
@@ -31,6 +35,8 @@ CREATE TABLE IF NOT EXISTS admins
 	FOREIGN KEY (user_id) REFERENCES users (id)
 ) ENGINE=INNODB;
 	`
+
+//user VS agent
 const agentDdl = `
 CREATE TABLE IF NOT EXISTS agents
 (
@@ -40,6 +46,17 @@ CREATE TABLE IF NOT EXISTS agents
 	discount FLOAT DEFAULT 0 NOT NULL,
 	invitation_code VARCHAR(20) NOT NULL UNIQUE,
 	FOREIGN KEY (user_id) REFERENCES users (id)
+) ENGINE=INNODB;
+`
+
+//invitation code in user table VS seperate table????
+const invitationCodeDdl = `
+CREAT TABLE IF NOT EXISTS invitation_codes
+(
+	id VARCHAR(225) PRIMARY KEY NOT NULL,
+	user_id VARCHAR(225) NOT NULL,
+	invitation_code VARCHAR(225) NOT NULL UNIQUE,
+	discount NOT NULL
 ) ENGINE=INNODB;
 `
 const diamondDdl = `

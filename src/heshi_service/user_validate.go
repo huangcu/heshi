@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 	"util"
@@ -30,6 +31,10 @@ func (u *User) preValidateNewUser() string {
 
 	if !util.IsInArrayString(u.UserType, VALID_USERTYPE) {
 		vmsgs = append(vmsgs, VEMSG_USER_USERTYPE_NOT_VALID)
+	}
+
+	if vmsg = u.validRecommnadedBy(); vmsg != "" {
+		vmsgs = append(vmsgs, vmsg)
 	}
 
 	if len(vmsgs) != 0 {
@@ -73,5 +78,20 @@ func (u *User) validPhone() string {
 	if !regex.MatchString(u.Cellphone) {
 		return VEMSG_USER_CELLPHONE_NOT_VALID
 	}
+	return ""
+}
+
+func (u *User) validRecommnadedBy() string {
+	if u.RecommendedBy != "" {
+		var count int
+		q := fmt.Sprintf("SELECT COUNT(*) FROM users WHERE invitation_code=%s", u.RecommendedBy)
+		if err := dbQueryRow(q).Scan(&count); err != nil {
+			return VEMSG_USER_ERROR_RECOMMAND_CODE
+		}
+		if count == 0 {
+			return VEMSG_USER_ERROR_RECOMMAND_CODE
+		}
+	}
+
 	return ""
 }

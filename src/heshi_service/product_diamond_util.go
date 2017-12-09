@@ -16,8 +16,10 @@ func (d *diamond) composeInsertQuery() (string, error) {
 			va = fmt.Sprintf("%s, '%s'", va, v.(string))
 		case float64:
 			va = fmt.Sprintf("%s, '%f'", va, v.(float64))
-		case int, int64:
+		case int:
 			va = fmt.Sprintf("%s, '%d'", va, v.(int))
+		case int64:
+			va = fmt.Sprintf("%s, '%d'", va, v.(int64))
 		}
 	}
 	q = fmt.Sprintf("%s) %s)", q, va)

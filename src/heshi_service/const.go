@@ -1,11 +1,11 @@
 package main
 
 const (
-	VEMSG_SHOULD_BE_JSON         = "should be JSON"
-	VEMSG_SHOULD_NOT_BE_EMPTY    = "should not be empty"
-	VEMSG_ALREADY_EXIST          = "already exists."
-	VEMSG_SERVER_ERROR           = "something is wrong, please try later"
-	VEMSG_ERROR_RECOMMAND_CODE   = "您的推荐码不正确，请核实"
+	VEMSG_SHOULD_BE_JSON      = "should be JSON"
+	VEMSG_SHOULD_NOT_BE_EMPTY = "should not be empty"
+	VEMSG_ALREADY_EXIST       = "already exists."
+	VEMSG_SERVER_ERROR        = "something is wrong, please try later"
+	// VEMSG_ERROR_RECOMMAND_CODE   = "您的推荐码不正确，请核实"
 	VEMSG_ALREADY_RECOMMANDED    = "您以前已经输入过一次推荐码，不需要再用其他推荐码了"
 	VEMSG_NONEED_RECOMMANDED     = "您的用户级别已经很高，不需要再被别人推荐了"
 	VEMSG_CANNOT_RECOMMAND       = "被您推荐的人不能再推荐您"
@@ -24,6 +24,7 @@ const (
 	VEMSG_USER_USERTYPE_NOT_VALID    = "user_type value is not valid;"
 	VEMSG_USER_EMAIL_NOT_VALID       = "email input is not a valid email address;"
 	VEMSG_USER_CELLPHONE_NOT_VALID   = "cellphone input is not a valid cellphone number;"
+	VEMSG_USER_ERROR_RECOMMAND_CODE  = "your invitation code is not correct, please verify;"
 
 	VEMSG_CURRENCY_NOT_VALID_SYMBOL = "input is not a valid currency symbol;"
 	VEMSG_CURRENCY_NOT_VALID_RATE   = "currency exchange rate should be float;"
