@@ -203,12 +203,12 @@ import (
 // }
 
 type currency struct {
-	ID        string   `json:"id"`
+	ID        string   `json:"-"`
 	Note      string   `json:"note"`
 	Base      string   `json:"base"`
 	Timestamp int64    `json:"timestamp"`
 	Rates     Rate     `json:"rates"`
-	RatesFluc RateFluc `json:"rates_fluc"`
+	RatesFluc RateFluc `json:"-"`
 }
 
 type Rate struct {
