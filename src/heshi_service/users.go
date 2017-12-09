@@ -74,12 +74,7 @@ func newUser(c *gin.Context) {
 		nu.Username = fmt.Sprintf("heshi_%d%d", rand.Intn(3), count)
 	}
 
-	var q string
-	var err error
-	if err, q = nu.composeInsertQuery(); err != nil {
-		c.String(http.StatusOK, errors.GetMessage(err))
-		return
-	}
+	q := nu.composeInsertQuery()
 	fmt.Println(q)
 	if _, err := dbExec(q); err != nil {
 		c.String(http.StatusBadRequest, errors.GetMessage(err))
@@ -141,14 +136,8 @@ func updateUser(c *gin.Context) {
 		Icon:           c.PostForm("icon"),
 	}
 
-	var q string
-	var err error
 	//TODO validate updated user info too!!!
-	if err, q = uu.composeUpdateQuery(); err != nil {
-		c.String(http.StatusOK, errors.GetMessage(err))
-		return
-	}
-
+	q := uu.composeUpdateQuery()
 	fmt.Println(q)
 	//TODO admin,agent update!!!!
 	// var userType string

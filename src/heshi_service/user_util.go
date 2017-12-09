@@ -6,7 +6,7 @@ import (
 	"util"
 )
 
-func (u *User) composeInsertQuery() (error, string) {
+func (u *User) composeInsertQuery() string {
 	params := u.paramsKV()
 	q := `INSERT INTO users (id, user_type, password`
 	va := fmt.Sprintf(`VALUES ('%s', '%s', '%s'`, u.ID, u.UserType, util.Encrypt(u.Password))
@@ -15,10 +15,10 @@ func (u *User) composeInsertQuery() (error, string) {
 		va = fmt.Sprintf("%s, '%s'", va, v)
 	}
 	q = fmt.Sprintf("%s) %s)", q, va)
-	return nil, q
+	return q
 }
 
-func (u *User) composeUpdateQuery() (error, string) {
+func (u *User) composeUpdateQuery() string {
 	params := u.paramsKV()
 	if u.Password != "" {
 		params["password"] = util.Encrypt(u.Password)
@@ -29,7 +29,7 @@ func (u *User) composeUpdateQuery() (error, string) {
 	}
 
 	q = fmt.Sprintf("%s WHERE id='%s'", strings.TrimSuffix(q, ","), u.ID)
-	return nil, q
+	return q
 }
 
 func (u *User) paramsKV() map[string]interface{} {

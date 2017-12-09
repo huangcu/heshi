@@ -41,16 +41,17 @@ func OpenDB() (*sql.DB, error) {
 	// }
 
 	for table, ddl := range map[string]string{
-		"users":          userDdl,
-		"agents":         agentDdl,
-		"admins":         adminDdl,
-		"diamonds":       diamondDdl,
-		"jewelrys":       jewelryDdl,
-		"small_diamonds": smallDiamondDdl,
-		"promotions":     promotionDdl,
-		"suppliers":      supplierDdl,
-		"appointments":   appointmentDdl,
-		"orders":         orderDdl,
+		"users":                   userDdl,
+		"agents":                  agentDdl,
+		"admins":                  adminDdl,
+		"diamonds":                diamondDdl,
+		"jewelrys":                jewelryDdl,
+		"small_diamonds":          smallDiamondDdl,
+		"promotions":              promotionDdl,
+		"suppliers":               supplierDdl,
+		"appointments":            appointmentDdl,
+		"orders":                  orderDdl,
+		"currency_exchange_rates": currencyExchangeRateDdl,
 	} {
 		if _, err := db.Exec(ddl); err != nil {
 			return nil, fmt.Errorf("fail to create table %s with %s; err: %s", table, ddl, err.Error())

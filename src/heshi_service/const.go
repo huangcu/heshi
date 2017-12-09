@@ -24,8 +24,12 @@ const (
 	VEMSG_USER_USERTYPE_NOT_VALID    = "user_type value is not valid;"
 	VEMSG_USER_EMAIL_NOT_VALID       = "email input is not a valid email address;"
 	VEMSG_USER_CELLPHONE_NOT_VALID   = "cellphone input is not a valid cellphone number;"
+
+	VEMSG_CURRENCY_NOT_VALID_SYMBOL = "input is not a valid currency symbol;"
+	VEMSG_CURRENCY_NOT_VALID_RATE   = "currency exchange rate should be float;"
 )
 
 var (
-	VALID_USERTYPE = []string{"admin", "customer", "agent"}
+	VALID_USERTYPE        = []string{"admin", "customer", "agent"}
+	VALID_CURRENCY_SYMBOL = []string{"USD", "CNY", "EUR", "CAD", "AUD", "CHF", "RUB", "NZD"}
 )

@@ -67,3 +67,17 @@ func CurrencyExchangeAlert() {
 	mCurrency.To = []string{"cunying.huang@hpe.com", "huang372923@hotmail.com"}
 	email.Send("smtp3.hp.com:25", nil, mCurrency)
 }
+
+func FailToGetCurrencyExchangeAlert() {
+	subject := "FAIL TO GET CURRENCY EXCHANGE RATE FROM UI"
+	body := `PLEASE MANUAL UPDATE TODAY CURRENCY EXCHANGE RATE AND CHECK.`
+
+	add, err := mail.ParseAddress("ADMIN@heshi.com")
+	if err != nil {
+		return
+	}
+	mCurrency := email.NewMessage(subject, body)
+	mCurrency.From = *add
+	mCurrency.To = []string{"cunying.huang@hpe.com", "huang372923@hotmail.com"}
+	email.Send("smtp3.hp.com:25", nil, mCurrency)
+}

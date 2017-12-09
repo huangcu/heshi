@@ -5,19 +5,26 @@ import (
 	"strings"
 )
 
-func (d *diamond) composeInsertQuery(nu User) (error, string) {
+func (d *diamond) composeInsertQuery() (string, error) {
 	params := d.parmsKV()
-	q := `INSERT INTO diamonds (id, `
-	va := fmt.Sprintf(`VALUES ('%s',`, d.ID)
+	q := `INSERT INTO diamonds (id`
+	va := fmt.Sprintf(`VALUES ('%s'`, d.ID)
 	for k, v := range params {
 		q = fmt.Sprintf("%s, %s", q, k)
-		va = fmt.Sprintf("%s, '%s'", va, v)
+		switch v.(type) {
+		case string:
+			va = fmt.Sprintf("%s, '%s'", va, v.(string))
+		case float64:
+			va = fmt.Sprintf("%s, '%f'", va, v.(float64))
+		case int, int64:
+			va = fmt.Sprintf("%s, '%d'", va, v.(int))
+		}
 	}
 	q = fmt.Sprintf("%s) %s)", q, va)
-	return nil, q
+	return q, nil
 }
 
-func (d *diamond) composeUpdateQuery() (error, string) {
+func (d *diamond) composeUpdateQuery() (string, error) {
 	params := d.parmsKV()
 	q := `UPDATE users SET`
 	for k, v := range params {
@@ -25,7 +32,7 @@ func (d *diamond) composeUpdateQuery() (error, string) {
 	}
 
 	q = fmt.Sprintf("%s WHERE id='%s'", strings.TrimSuffix(q, ","), d.ID)
-	return nil, q
+	return q, nil
 }
 
 // 	params := make(map[string]interface{})

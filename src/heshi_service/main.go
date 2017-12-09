@@ -8,6 +8,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
+	"util"
 
 	"github.com/gin-gonic/gin"
 )
@@ -25,6 +27,26 @@ func main() {
 	if db == nil && err != nil {
 		fmt.Println(err.Error())
 	}
+
+	ticker := time.NewTicker(time.Hour * 8)
+	stop := make(chan bool)
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				if err := getLatestRates(); err != nil {
+					util.FailToGetCurrencyExchangeAlert()
+				}
+			case <-stop:
+				return
+			}
+		}
+	}()
+	defer func() {
+		ticker.Stop()
+		stop <- true
+	}()
+
 	log.Fatal(startWebServer(":8443"))
 }
 
@@ -65,6 +87,9 @@ func configRoute(r *gin.Engine) {
 			apiAdmin.GET("/users", getAllUsers)
 			apiAdmin.PATCH("/users/:id", updateUser)
 			apiAdmin.DELETE("/users/:id", removeUser)
+
+			//currency rate
+			apiAdmin.POST("/exchangerate", currencyRateReqValidator(newCurrencyRate))
 		}
 		//agent, customer
 		api.POST("/users", newUser)
@@ -85,10 +110,13 @@ func configRoute(r *gin.Engine) {
 		api.GET("/products/diamonds/:id", getDiamond)
 		api.GET("/products/small_diamonds/:id", getSmallDiamond)
 		api.GET("/products/jewelrys/:id", getJewelry)
-
 		api.POST("/products/diamonds", newDiamond)
 		api.POST("/products/small_diamonds", newSmallDiamond)
 		api.POST("/products/jewelrys", newJewelry)
+
+		//get the latest in db
+		api.GET("/exchangerate", getCurrencyRate)
+
 	}
 	api.Static("../webpage", "webpage")
 }
