@@ -44,7 +44,7 @@ type diamond struct {
 
 func getAllDiamonds(c *gin.Context) {
 	q := selectDiamondQuery("")
-	rows, err := dbQuery(q)
+	rows, err := db.Query(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
@@ -61,7 +61,7 @@ func getAllDiamonds(c *gin.Context) {
 
 func getDiamond(c *gin.Context) {
 	q := selectDiamondQuery(c.Param("id"))
-	rows, err := dbQuery(q)
+	rows, err := db.Query(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return

@@ -276,7 +276,7 @@ func getCurrencyRate(c *gin.Context) {
 	var usd, cny, eur, cad, aud, chf, rub, nzd float64
 	var createdAt time.Time
 	q := `SELECT base,note,usd,cny,eur,cad,aud,chf,rub,nzd,created_at FROM currency_exchange_rates ORDER BY created_at DESC LIMIT 1`
-	if err := dbQueryRow(q).Scan(&base, &note, &usd, &cny, &eur, &cad, &aud, &chf, &rub, &nzd, &createdAt); err != nil {
+	if err := db.QueryRow(q).Scan(&base, &note, &usd, &cny, &eur, &cad, &aud, &chf, &rub, &nzd, &createdAt); err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	currencyRate := currency{
@@ -301,7 +301,7 @@ func newCurrencyRate(c *gin.Context) {
 	currencyRate := c.MustGet("currency").(*currency)
 	q := currencyRate.composeInsertQuery()
 	fmt.Println(q)
-	if _, err := dbExec(q); err != nil {
+	if _, err := db.Exec(q); err != nil {
 		c.String(http.StatusBadRequest, errors.GetMessage(err))
 		return
 	}

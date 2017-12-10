@@ -48,7 +48,7 @@ type jewelry struct {
 
 func getAllJewelrys(c *gin.Context) {
 	q := selectJewelryQuery("")
-	rows, err := dbQuery(q)
+	rows, err := db.Query(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
@@ -65,7 +65,7 @@ func getAllJewelrys(c *gin.Context) {
 
 func getJewelry(c *gin.Context) {
 	q := selectJewelryQuery(c.Param("id"))
-	rows, err := dbQuery(q)
+	rows, err := db.Query(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
@@ -86,7 +86,7 @@ func getJewelry(c *gin.Context) {
 
 func newJewelry(c *gin.Context) {
 	q := selectJewelryQuery(c.Param("id"))
-	rows, err := dbQuery(q)
+	rows, err := db.Query(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
@@ -143,7 +143,7 @@ func selectJewelryQuery(id string) string {
 	 totally_scanned, free_acc, last_scan_at,offline_at FROM jewelrys`
 
 	if id != "" {
-		q = fmt.Sprintf("%s WHERE id=%s", q, id)
+		q = fmt.Sprintf("%s WHERE id='%s'", q, id)
 	}
 	return q
 }

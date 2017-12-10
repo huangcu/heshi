@@ -19,7 +19,7 @@ type smallDiamond struct {
 
 func getAllSmallDiamonds(c *gin.Context) {
 	q := selectSmallDiamondQuery("")
-	rows, err := dbQuery(q)
+	rows, err := db.Query(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
@@ -57,7 +57,7 @@ func getSmallDiamond(c *gin.Context) {
 
 func newSmallDiamond(c *gin.Context) {
 	q := selectSmallDiamondQuery(c.Param("id"))
-	rows, err := dbQuery(q)
+	rows, err := db.Query(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return

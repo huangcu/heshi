@@ -72,7 +72,7 @@ func newUser(c *gin.Context) {
 	if nu.Username == "" {
 		var count int
 		q := "SELECT count(*) FROM users"
-		if err := dbQueryRow(q).Scan(&count); err != nil {
+		if err := db.QueryRow(q).Scan(&count); err != nil {
 			c.String(http.StatusOK, errors.GetMessage(err))
 			return
 		}
@@ -84,7 +84,7 @@ func newUser(c *gin.Context) {
 
 	q := nu.composeInsertQuery()
 	fmt.Println(q)
-	if _, err := dbExec(q); err != nil {
+	if _, err := db.Exec(q); err != nil {
 		c.String(http.StatusBadRequest, errors.GetMessage(err))
 		return
 	}
@@ -96,7 +96,7 @@ func removeUser(c *gin.Context) {
 	uid := c.Param("id")
 	q := "SELECT user_type from users WHERE id=?"
 	var userType string
-	if err := dbQueryRow(q, uid).Scan(&userType); err != nil {
+	if err := db.QueryRow(q, uid).Scan(&userType); err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusOK, "wrong user")
 			return
@@ -107,19 +107,19 @@ func removeUser(c *gin.Context) {
 	switch userType {
 	case "admin":
 		q = `DELETE FROM admins WHERE user_id=?`
-		if _, err := dbExec(q, uid); err != nil {
+		if _, err := db.Exec(q, uid); err != nil {
 			c.JSON(http.StatusInternalServerError, err.Error())
 			return
 		}
 	case "agent":
 		q = `DELETE FROM agents WHERE user_id=?`
-		if _, err := dbExec(q, uid); err != nil {
+		if _, err := db.Exec(q, uid); err != nil {
 			c.JSON(http.StatusInternalServerError, err.Error())
 			return
 		}
 	default:
 		q = `DELETE FROM users WHERE id=?`
-		if _, err := dbExec(q, uid); err != nil {
+		if _, err := db.Exec(q, uid); err != nil {
 			c.JSON(http.StatusInternalServerError, err.Error())
 			return
 		}
@@ -154,7 +154,7 @@ func updateUser(c *gin.Context) {
 	// case "agent":
 	// default:
 	// }
-	if _, err := dbExec(q); err != nil {
+	if _, err := db.Exec(q); err != nil {
 		c.String(http.StatusBadRequest, errors.GetMessage(err))
 		return
 	}
@@ -162,77 +162,9 @@ func updateUser(c *gin.Context) {
 	c.String(http.StatusOK, uu.ID)
 }
 
-/*
-func getUser(c *gin.Context) {
-	id := c.Param("id")
-	q := `SELECT username,cellphone,email,real_name, user_type,wechat_id,wechat_name,
-				wechat_qr,address,additional_info,recommended_by,icon FROM users WHERE id=?`
-	var userType, icon string
-	var username, cellphone, email, realName, recommandedBy sql.NullString
-	var wechatID, wechatName, wechatQR, address, additionalInfo sql.NullString
-	if err := dbQueryRow(q, id).Scan(&username, &cellphone, &email, &realName, &userType, &wechatID,
-		&wechatName, &wechatQR, &address, &additionalInfo, &recommandedBy, &icon); err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
-	}
-
-	u := User{
-		ID:             id,
-		Username:       username.String,
-		Cellphone:      cellphone.String,
-		Email:          email.String,
-		UserType:       userType,
-		WechatID:       wechatID.String,
-		WechatName:     wechatName.String,
-		WechatQR:       wechatID.String,
-		Address:        address.String,
-		AdditionalInfo: additionalInfo.String,
-		RecommendedBy:  recommandedBy.String,
-		Icon:           icon,
-	}
-	c.JSON(http.StatusOK, u)
-}
-// */
-// func getAllUsers(c *gin.Context) {
-// 	q := `SELECT id, username,cellphone,email,real_name,user_type,wechat_id,wechat_name,
-// 				wechat_qr,address,additional_info,recommended_by,icon FROM users`
-// 	rows, err := dbQuery(q)
-// 	if err != nil {
-// 		c.String(http.StatusInternalServerError, err.Error())
-// 		return
-// 	}
-// 	defer rows.Close()
-// 	var us []User
-// 	for rows.Next() {
-// 		var id, userType, icon string
-// 		var username, cellphone, email, realName, recommandedBy sql.NullString
-// 		var wechatID, wechatName, wechatQR, address, additionalInfo sql.NullString
-// 		if err := rows.Scan(&id, &username, &cellphone, &email, &realName, &userType, &wechatID,
-// 			&wechatName, &wechatQR, &address, &additionalInfo, &recommandedBy, &icon); err != nil {
-// 			c.JSON(http.StatusInternalServerError, err.Error())
-// 			return
-// 		}
-// 		u := User{
-// 			ID:             id,
-// 			Username:       username.String,
-// 			Cellphone:      cellphone.String,
-// 			Email:          email.String,
-// 			UserType:       userType,
-// 			WechatID:       wechatID.String,
-// 			WechatName:     wechatName.String,
-// 			WechatQR:       wechatID.String,
-// 			Address:        address.String,
-// 			AdditionalInfo: additionalInfo.String,
-// 			RecommendedBy:  recommandedBy.String,
-// 			Icon:           icon,
-// 		}
-// 		us = append(us, u)
-// 	}
-// 	c.JSON(http.StatusOK, us)
-// }
-
 func getUser(c *gin.Context) {
 	q := selectUserQuery(c.Param("id"))
-	rows, err := dbQuery(q)
+	rows, err := db.Query(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
@@ -253,7 +185,7 @@ func getUser(c *gin.Context) {
 
 func getAllUsers(c *gin.Context) {
 	q := selectUserQuery("")
-	rows, err := dbQuery(q)
+	rows, err := db.Query(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
