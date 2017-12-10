@@ -116,7 +116,8 @@ func configRoute(r *gin.Engine) {
 
 		//get the latest in db
 		api.GET("/exchangerate", getCurrencyRate)
-
+		api.GET("/wechat/auth", wechatAuth)
+		api.GET("/wechat/token", wechatToken)
 	}
 	api.Static("../webpage", "webpage")
 }
