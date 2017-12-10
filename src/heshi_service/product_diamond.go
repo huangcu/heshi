@@ -183,7 +183,7 @@ func selectDiamondQuery(id string) string {
 	 sold, sold_price, profitable FROM diamonds`
 
 	if id != "" {
-		q = fmt.Sprintf("%s WHERE id=%s", q, id)
+		q = fmt.Sprintf("%s WHERE id='%s'", q, id)
 	}
 	return q
 }

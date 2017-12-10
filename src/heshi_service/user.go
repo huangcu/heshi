@@ -17,7 +17,7 @@ type User struct {
 	Username            string  `json:"username"`
 	Cellphone           string  `json:"cellphone"`
 	Email               string  `json:"email"`
-	Password            string  `json:"password"`
+	Password            string  `json:"-"`
 	UserType            string  `json:"user_type"`
 	RealName            string  `json:"real_name"`
 	WechatID            string  `json:"wechat_id"`
@@ -239,7 +239,7 @@ func getUser(c *gin.Context) {
 	}
 	defer rows.Close()
 
-	us, err := composeDiamond(rows)
+	us, err := composeUser(rows)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusOK, fmt.Sprintf("Fail to find product with id: %s", c.Param("id")))
@@ -260,7 +260,7 @@ func getAllUsers(c *gin.Context) {
 	}
 	defer rows.Close()
 
-	us, err := composeDiamond(rows)
+	us, err := composeUser(rows)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusOK, fmt.Sprintf("Fail to find product with id: %s", c.Param("id")))
@@ -310,12 +310,12 @@ func composeUser(rows *sql.Rows) ([]User, error) {
 }
 
 func selectUserQuery(id string) string {
-	q := `SELECT id, username,cellphone,email,real_name,user_type,wechat_id,wechat_name,
-				wechat_qr,address,additional_info,recommended_by,invitation_code,
-				discount,point,total_purchase_amount,icon FROM users`
+	q := `SELECT id,username,cellphone,email,real_name,user_type,wechat_id,
+	wechat_name,wechat_qr,address,additional_info,recommended_by,invitation_code,
+	discount,point,total_purchase_amount,icon FROM users`
 
 	if id != "" {
-		q = fmt.Sprintf("%s WHERE id=%s", q, id)
+		q = fmt.Sprintf("%s WHERE id='%s'", q, id)
 	}
 	return q
 }
