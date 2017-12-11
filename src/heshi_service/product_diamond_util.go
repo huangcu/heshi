@@ -28,11 +28,19 @@ func (d *diamond) composeInsertQuery() (string, error) {
 
 func (d *diamond) composeUpdateQuery() (string, error) {
 	params := d.parmsKV()
-	q := `UPDATE users SET`
+	q := `UPDATE diamonds SET`
 	for k, v := range params {
-		q = fmt.Sprintf("%s %s='%s',", q, k, v)
+		switch v.(type) {
+		case string:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(string))
+		case float64:
+			q = fmt.Sprintf("%s %s='%f',", q, k, v.(float64))
+		case int:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int))
+		case int64:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
+		}
 	}
-
 	q = fmt.Sprintf("%s WHERE id='%s'", strings.TrimSuffix(q, ","), d.ID)
 	return q, nil
 }

@@ -20,7 +20,8 @@ func (u *User) preValidateNewUser() string {
 		vmsgs = append(vmsgs, vmsg)
 	}
 	if u.Email != "" {
-		if govalidator.IsEmail(u.Email) {
+		fmt.Println(u.Email)
+		if !govalidator.IsEmail(u.Email) {
 			vmsgs = append(vmsgs, VEMSG_USER_EMAIL_NOT_VALID)
 		}
 	}

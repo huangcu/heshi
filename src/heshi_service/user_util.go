@@ -34,10 +34,6 @@ func (u *User) composeUpdateQuery() string {
 	}
 	q := `UPDATE users SET`
 	for k, v := range params {
-		q = fmt.Sprintf("%s %s='%s',", q, k, v)
-	}
-	for k, v := range params {
-		q = fmt.Sprintf("%s, %s", q, k)
 		switch v.(type) {
 		case string:
 			q = fmt.Sprintf("%s %s='%s',", q, k, v.(string))
