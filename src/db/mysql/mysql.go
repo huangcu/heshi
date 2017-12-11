@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -40,24 +41,19 @@ func OpenDB() (*sql.DB, error) {
 	// 	return nil, err
 	// }
 
-	for table, ddl := range map[string]string{
-		"users":                   userDdl,
-		"agents":                  agentDdl,
-		"admins":                  adminDdl,
-		"diamonds":                diamondDdl,
-		"jewelrys":                jewelryDdl,
-		"small_diamonds":          smallDiamondDdl,
-		"promotions":              promotionDdl,
-		"suppliers":               supplierDdl,
-		"appointments":            appointmentDdl,
-		"orders":                  orderDdl,
-		"currency_exchange_rates": currencyExchangeRateDdl,
-	} {
+	tableName := []string{"users", "agents", "admins", "diamonds", "jewelrys", "small_diamonds", "promotions", "suppliers", "appointments", "orders", "currency_exchange_rates"}
+	tableDdl := []string{userDdl, agentDdl, adminDdl, diamondDdl, jewelryDdl, smallDiamondDdl, promotionDdl, supplierDdl, appointmentDdl, orderDdl, currencyExchangeRateDdl}
+	if len(tableName) != len(tableDdl) {
+		return nil, errors.New("db DDL number is not a match to table number")
+	}
+
+	for i := 0; i < len(tableName); i++ {
+		table := tableName[i]
+		ddl := tableDdl[i]
 		if _, err := db.Exec(ddl); err != nil {
 			return nil, fmt.Errorf("fail to create table %s with %s; err: %s", table, ddl, err.Error())
 		}
 	}
-
 	db.Close()
 
 	db, err = sql.Open("mysql", fmt.Sprintf("%s:%s@/%s?parseTime=true",
