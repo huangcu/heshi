@@ -34,12 +34,11 @@ func wechatToken(c *gin.Context) {
 		return
 	}
 
-	queryState := c.Query("state")
-	if queryState == "" {
-		log.Println("state 参数为空")
-		c.JSON(http.StatusOK, "state 参数为空")
-		return
-	}
+	// if queryState == "" {
+	// 	log.Println("state 参数为空")
+	// 	c.JSON(http.StatusOK, "state 参数为空")
+	// 	return
+	// }
 	//TODO session, state
 	// if savedState != queryState {
 	// 	str := fmt.Sprintf("state 不匹配, session 中的为 %q, url 传递过来的是 %q", savedState, queryState)

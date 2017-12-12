@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"db/mysql"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -22,7 +23,18 @@ var (
 )
 
 func main() {
-	var err error
+	lf, err := os.OpenFile("heshi.log", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer lf.Close()
+
+	if util.ShouldTrace() {
+		log.SetOutput(io.MultiWriter(os.Stdout, lf))
+		util.Logger = log.New(io.MultiWriter(os.Stdout, lf), "", log.LstdFlags)
+	}
+	log.SetFlags(log.LstdFlags)
+
 	db, err = mysql.OpenDB()
 	if db == nil && err != nil {
 		fmt.Println(err.Error())
@@ -51,8 +63,6 @@ func main() {
 }
 
 func startWebServer(port string) error {
-	log.SetFlags(log.Lshortfile)
-
 	// cer, err := tls.LoadX509KeyPair("server.crt", "server.key")
 	// if err != nil {
 	// 	log.Println(err.Error())
@@ -62,11 +72,12 @@ func startWebServer(port string) error {
 
 	r := gin.New()
 
-	if os.Getenv("stage") == "dev" {
+	if os.Getenv("stage") != "pro" {
 		gin.SetMode(gin.DebugMode)
-		r.Use(gin.Logger())
 	} else {
 		gin.SetMode(gin.ReleaseMode)
+		r.Use(gin.Logger())
+		r.Use(AuthMiddleWare())
 	}
 	r.Use(gin.Recovery())
 	configRoute(r)
