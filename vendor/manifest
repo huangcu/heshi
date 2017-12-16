@@ -20,6 +20,19 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/bradfitz/gomemcache/memcache",
+			"repository": "https://github.com/bradfitz/gomemcache",
+			"revision": "1952afaa557dc08e8e0d89eafab110fb501c1a2b",
+			"branch": "master",
+			"path": "/memcache"
+		},
+		{
+			"importpath": "github.com/bradleypeabody/gorilla-sessions-memcache",
+			"repository": "https://github.com/bradleypeabody/gorilla-sessions-memcache",
+			"revision": "75ee37df8664a47cd5d9eb84d41e1f2b08086893",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/chanxuehong/rand",
 			"repository": "https://github.com/chanxuehong/rand",
 			"revision": "b54bf7f93440da0b6c81b05276d69cdcbf32c918",
@@ -56,6 +69,12 @@
 			"revision": "b389d5392e340092642eec4e36754e0280ad1f8e",
 			"branch": "master",
 			"path": "/redis"
+		},
+		{
+			"importpath": "github.com/gin-contrib/sessions",
+			"repository": "https://github.com/gin-contrib/sessions",
+			"revision": "cccdeef56346e7037ca92de250c2b55ef5e7ffe3",
+			"branch": "master"
 		},
 		{
 			"importpath": "github.com/gin-contrib/sse",
@@ -129,6 +148,12 @@
 			"importpath": "github.com/jinzhu/configor",
 			"repository": "https://github.com/jinzhu/configor",
 			"revision": "6ecfe629230f24c2e92c7894c6ab21b83b757a39",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/kidstuff/mongostore",
+			"repository": "https://github.com/kidstuff/mongostore",
+			"revision": "256d65ac5b0e35e7c5ebb3f175c0bed1e5c2b253",
 			"branch": "master"
 		},
 		{
@@ -221,6 +246,12 @@
 			"repository": "https://gopkg.in/go-playground/validator.v8",
 			"revision": "5f1438d3fca68893a817e4a66806cea46a9e4ebf",
 			"branch": "master"
+		},
+		{
+			"importpath": "gopkg.in/mgo.v2",
+			"repository": "https://gopkg.in/mgo.v2",
+			"revision": "3f83fa5005286a7fe593b055f0d7771a7dce4655",
+			"branch": "v2"
 		},
 		{
 			"importpath": "gopkg.in/yaml.v2",

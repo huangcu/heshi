@@ -33,4 +33,6 @@ const (
 var (
 	VALID_USERTYPE        = []string{"admin", "customer", "agent"}
 	VALID_CURRENCY_SYMBOL = []string{"USD", "CNY", "EUR", "CAD", "AUD", "CHF", "RUB", "NZD"}
+	USER_SESSION_KEY      = "userid"
+	ADMIN_KEY             = "admin"
 )

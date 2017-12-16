@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"util"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
 )
@@ -88,6 +89,10 @@ func newUser(c *gin.Context) {
 		c.String(http.StatusBadRequest, errors.GetMessage(err))
 		return
 	}
+
+	s := sessions.Default(c)
+	s.Set(USER_SESSION_KEY, nu.ID)
+	s.Save()
 
 	c.String(http.StatusOK, nu.ID)
 }

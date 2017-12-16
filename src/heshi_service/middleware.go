@@ -1,8 +1,10 @@
 package main
 
 import (
+	"net/http"
 	"util"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -30,5 +32,31 @@ func AuthMiddleWare() gin.HandlerFunc {
 		} else {
 			c.AbortWithStatus(401)
 		}
+	}
+}
+
+func UserSessionMiddleWare() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		s := sessions.Default(c)
+		if s.Get(USER_SESSION_KEY) == nil {
+			c.JSON(http.StatusForbidden, "must login first")
+			return
+		}
+		c.Set("id", s.Get(USER_SESSION_KEY))
+	}
+}
+
+func AdminSessionMiddleWare() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		s := sessions.Default(c)
+		if s.Get(USER_SESSION_KEY) == nil {
+			c.JSON(http.StatusForbidden, "must login first")
+			return
+		}
+		if s.Get(ADMIN_KEY) == nil {
+			c.JSON(http.StatusForbidden, "not authorized")
+			return
+		}
+		c.Set("id", s.Get(USER_SESSION_KEY))
 	}
 }

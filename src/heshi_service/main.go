@@ -12,6 +12,7 @@ import (
 	"time"
 	"util"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,6 +21,7 @@ var (
 	ctx                 context.Context
 	cancelFn            context.CancelFunc
 	serverIsInterrupted bool
+	store               sessions.CookieStore
 )
 
 func main() {
@@ -79,6 +81,12 @@ func startWebServer(port string) error {
 		r.Use(gin.Logger())
 		r.Use(AuthMiddleWare())
 	}
+	store = sessions.NewCookieStore([]byte("secret"))
+	store.Options(sessions.Options{
+		MaxAge: int(30 * time.Minute), //30min
+		Path:   "/",
+	})
+	r.Use(sessions.Sessions("sessionid", store))
 	r.Use(gin.Recovery())
 	configRoute(r)
 	// webServer := &http.Server{Addr: port, Handler: r, TLSConfig: config}
@@ -94,24 +102,20 @@ func configRoute(r *gin.Engine) {
 		{
 			//admin user -
 			apiAdmin.POST("/users", newUser)
-			apiAdmin.GET("/users/:id", getUser)
-			apiAdmin.GET("/users", getAllUsers)
-			apiAdmin.PATCH("/users/:id", updateUser)
-			apiAdmin.DELETE("/users/:id", removeUser)
+			apiAdmin.GET("/users/:id", AdminSessionMiddleWare(), getUser)
+			apiAdmin.GET("/users", AdminSessionMiddleWare(), getAllUsers)
+			apiAdmin.PATCH("/users/:id", AdminSessionMiddleWare(), updateUser)
+			apiAdmin.DELETE("/users/:id", AdminSessionMiddleWare(), removeUser)
 
 			//currency rate
-			apiAdmin.POST("/exchangerate", currencyRateReqValidator(newCurrencyRate))
+			apiAdmin.POST("/exchangerate", AdminSessionMiddleWare(), currencyRateReqValidator(newCurrencyRate))
 		}
 		//agent, customer
 		api.POST("/users", newUser)
-		api.PATCH("/users/:id", updateUser)
-		api.GET("/users/:id", getUser)
-		// store := sessions.NewCookieStore([]byte("secret"))
-		// r.Use(sessions.Sessions("mysession", store))
-		// store := sessions.NewMemcacheStore(memcache.New("localhost:11211"), "", []byte("secret"))
-		// r.Use(sessions.Sessions("mysession", store))
+		api.PATCH("/users/:id", UserSessionMiddleWare(), updateUser)
+		api.GET("/users/:id", UserSessionMiddleWare(), getUser)
 		api.POST("/login", userLogin)
-		// api.POST("/login", userLogin, sessions.Sessions("mysession", store))
+		api.POST("/logout/:id", userLogout)
 
 		//products
 		api.GET("/products", getAllProducts)

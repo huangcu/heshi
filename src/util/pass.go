@@ -29,10 +29,11 @@ func IsPassOK(pass, hash string) bool {
 	// Comparing the password with the hash
 	if err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(pass)); err != nil {
 		// TODO: Properly handle error
-		log.Fatal(err)
+		// log.Fatal(err)
 		if strings.Contains(err.Error(), "not right") {
 			return false
 		}
+		return false
 	}
 	return true
 }
