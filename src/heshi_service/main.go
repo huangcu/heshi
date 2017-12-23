@@ -115,6 +115,10 @@ func configRoute(r *gin.Engine) {
 			apiAdmin.GET("/discount/:id", AdminSessionMiddleWare(), getDiscount)
 			apiAdmin.GET("/discount", AdminSessionMiddleWare(), getDiscounts)
 			apiAdmin.POST("/discount", AdminSessionMiddleWare(), newDiscount)
+
+			//config
+			apiAdmin.GET("/config", getConfig)
+			apiAdmin.POST("/config", newConfig)
 		}
 		//agent, customer
 		api.POST("/users", newUser)
