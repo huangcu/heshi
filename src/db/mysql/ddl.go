@@ -78,3 +78,10 @@ CREATE TABLE IF NOT EXISTS currency_exchange_rates
 
 //  exchange fluctuations
 // deposit, balance
+const discountDdl = `
+CREATE TABLE IF NOT EXISTS discounts (
+id VARCHAR(225) PRIMARY KEY NOT NULL,
+discount_code VARCHAR(225) NOT NULL,
+discount INT NOT NULL DEFAULT 98,
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+) ENGINE=INNODB`

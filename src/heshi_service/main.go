@@ -61,7 +61,7 @@ func main() {
 		stop <- true
 	}()
 
-	log.Fatal(startWebServer(":8443"))
+	log.Fatal(startWebServer(":443"))
 }
 
 func startWebServer(port string) error {
@@ -108,7 +108,13 @@ func configRoute(r *gin.Engine) {
 			apiAdmin.DELETE("/users/:id", AdminSessionMiddleWare(), removeUser)
 
 			//currency rate
+			apiAdmin.GET("/exchangerate", AdminSessionMiddleWare(), getCurrencyRate)
 			apiAdmin.POST("/exchangerate", AdminSessionMiddleWare(), currencyRateReqValidator(newCurrencyRate))
+
+			//discount
+			apiAdmin.GET("/discount/:id", AdminSessionMiddleWare(), getDiscount)
+			apiAdmin.GET("/discount", AdminSessionMiddleWare(), getDiscounts)
+			apiAdmin.POST("/discount", AdminSessionMiddleWare(), newDiscount)
 		}
 		//agent, customer
 		api.POST("/users", newUser)
@@ -116,6 +122,8 @@ func configRoute(r *gin.Engine) {
 		api.GET("/users/:id", UserSessionMiddleWare(), getUser)
 		api.POST("/login", userLogin)
 		api.POST("/logout/:id", userLogout)
+
+		api.GET("/users/:id/contactinfo", UserSessionMiddleWare(), agentContactInfo)
 
 		//products
 		api.GET("/products", getAllProducts)
@@ -129,11 +137,9 @@ func configRoute(r *gin.Engine) {
 		api.POST("/products/small_diamonds", newSmallDiamond)
 		api.POST("/products/jewelrys", newJewelry)
 
-		//get the latest in db
-		api.GET("/exchangerate", getCurrencyRate)
-
 		api.GET("/wechat/auth", wechatAuth)
 		api.GET("/wechat/token", wechatToken)
+		api.GET("/wechat/verify", checkSignature)
 	}
 	api.Static("../webpage", "webpage")
 }

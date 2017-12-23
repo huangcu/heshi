@@ -42,12 +42,6 @@ type Admin struct {
 	WechatKefu string `json:"wechat_kefu"`
 }
 
-type Agent struct {
-	UserInfo User    `json:"user"`
-	Level    int     `json:"level"`
-	Discount float64 `json:"discount"`
-}
-
 func newUser(c *gin.Context) {
 	nu := User{
 		ID:             uuid.NewV4().String(),

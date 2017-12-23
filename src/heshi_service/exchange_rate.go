@@ -278,6 +278,7 @@ func getCurrencyRate(c *gin.Context) {
 	q := `SELECT base,note,usd,cny,eur,cad,aud,chf,rub,nzd,created_at FROM currency_exchange_rates ORDER BY created_at DESC LIMIT 1`
 	if err := db.QueryRow(q).Scan(&base, &note, &usd, &cny, &eur, &cad, &aud, &chf, &rub, &nzd, &createdAt); err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
+		return
 	}
 	currencyRate := currency{
 		Base:      base,

@@ -40,9 +40,10 @@ func OpenDB() (*sql.DB, error) {
 	// if err := createDatabase(db, Config.Db.Database); err != nil {
 	// 	return nil, err
 	// }
-
 	tableName := []string{"users", "agents", "admins", "diamonds", "jewelrys", "small_diamonds", "promotions", "suppliers", "appointments", "orders", "currency_exchange_rates"}
+	tableName = append(tableName, "invitation_codes", "wechat_users", "discounts")
 	tableDdl := []string{userDdl, agentDdl, adminDdl, diamondDdl, jewelryDdl, smallDiamondDdl, promotionDdl, supplierDdl, appointmentDdl, orderDdl, currencyExchangeRateDdl}
+	tableDdl = append(tableDdl, invitationCodeDdl, wechatUserDdl, discountDdl)
 	if len(tableName) != len(tableDdl) {
 		return nil, errors.New("db DDL number is not a match to table number")
 	}
