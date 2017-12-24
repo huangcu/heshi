@@ -25,23 +25,6 @@ var (
 )
 
 func main() {
-	lf, err := os.OpenFile("heshi.log", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer lf.Close()
-
-	if util.ShouldTrace() {
-		log.SetOutput(io.MultiWriter(os.Stdout, lf))
-		util.Logger = log.New(io.MultiWriter(os.Stdout, lf), "", log.LstdFlags)
-	}
-	log.SetFlags(log.LstdFlags)
-
-	db, err = mysql.OpenDB()
-	if db == nil && err != nil {
-		fmt.Println(err.Error())
-	}
-
 	ticker := time.NewTicker(time.Hour * 8)
 	stop := make(chan bool)
 	go func() {
@@ -61,7 +44,8 @@ func main() {
 		stop <- true
 	}()
 
-	log.Fatal(startWebServer(":443"))
+	// log.Fatal(startWebServer(":443"))
+	log.Fatal(startWebServer(":80"))
 }
 
 func startWebServer(port string) error {
@@ -73,7 +57,6 @@ func startWebServer(port string) error {
 	// config := &tls.Config{Certificates: []tls.Certificate{cer}}
 
 	r := gin.New()
-
 	if os.Getenv("stage") != "pro" {
 		gin.SetMode(gin.DebugMode)
 	} else {
@@ -81,18 +64,14 @@ func startWebServer(port string) error {
 		r.Use(gin.Logger())
 		r.Use(AuthMiddleWare())
 	}
-	store = sessions.NewCookieStore([]byte("secret"))
-	store.Options(sessions.Options{
-		MaxAge: int(30 * time.Minute), //30min
-		Path:   "/",
-	})
+
 	r.Use(sessions.Sessions("sessionid", store))
 	r.Use(gin.Recovery())
 	configRoute(r)
 	// webServer := &http.Server{Addr: port, Handler: r, TLSConfig: config}
 	webServer := &http.Server{Addr: port, Handler: r}
-	// return webServer.ListenAndServe()
-	return webServer.ListenAndServeTLS("server.crt", "server.key")
+	return webServer.ListenAndServe()
+	// return webServer.ListenAndServeTLS("server.crt", "server.key")
 }
 
 func configRoute(r *gin.Engine) {
@@ -118,6 +97,7 @@ func configRoute(r *gin.Engine) {
 
 			//config
 			apiAdmin.GET("/config", AdminSessionMiddleWare(), getConfig)
+			apiAdmin.GET("/configs", AdminSessionMiddleWare(), getConfigs)
 			apiAdmin.POST("/config", AdminSessionMiddleWare(), newConfig)
 		}
 		//agent, customer
@@ -146,4 +126,33 @@ func configRoute(r *gin.Engine) {
 		api.GET("/wechat/verify", checkSignature)
 	}
 	api.Static("../webpage", "webpage")
+}
+
+func init() {
+	os.Setenv("stage", "dev")
+	lf, err := os.OpenFile("heshi.log", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer lf.Close()
+
+	if util.ShouldTrace() {
+		log.SetOutput(io.MultiWriter(os.Stdout, lf))
+		util.Logger = log.New(io.MultiWriter(os.Stdout, lf), "", log.LstdFlags)
+	}
+	log.SetFlags(log.LstdFlags)
+
+	db, err = mysql.OpenDB()
+	if db == nil && err != nil {
+		fmt.Println(err.Error())
+	}
+	store = sessions.NewCookieStore([]byte("secret"))
+	store.Options(sessions.Options{
+		MaxAge: int(30 * time.Minute), //30min
+		Path:   "/",
+	})
+	// if err := getLatestRates(); err != nil {
+	// 	log.Fatalf("init fail. err: %s;", err.Error())
+	// }
+	activeConfig = config{Rate: 0.01, CreatedBy: "system", CreatedAt: time.Now().Local()}
 }

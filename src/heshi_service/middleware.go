@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 	"util"
 
 	"github.com/gin-contrib/sessions"
@@ -37,6 +38,9 @@ func AuthMiddleWare() gin.HandlerFunc {
 
 func UserSessionMiddleWare() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if os.Getenv("stage") == "dev" {
+			return
+		}
 		s := sessions.Default(c)
 		if s.Get(USER_SESSION_KEY) == nil {
 			c.JSON(http.StatusForbidden, "must login first")
@@ -48,6 +52,9 @@ func UserSessionMiddleWare() gin.HandlerFunc {
 
 func AdminSessionMiddleWare() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if os.Getenv("stage") == "dev" {
+			return
+		}
 		s := sessions.Default(c)
 		if s.Get(USER_SESSION_KEY) == nil {
 			c.JSON(http.StatusForbidden, "must login first")

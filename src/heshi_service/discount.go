@@ -12,16 +12,16 @@ import (
 )
 
 type discount struct {
-	DiscountCode string `json:"discount_code"`
-	Discount     int    `json:"discount"`
-	CreatedAt    int64  `json:"created_at"`
+	DiscountCode string    `json:"discount_code"`
+	Discount     int       `json:"discount"`
+	CreatedAt    time.Time `json:"created_at"`
 }
 
 func newDiscount(c *gin.Context) {
 	discountCode := c.PostForm("discount_code")
 	discountNumber := c.PostForm("discount")
 	id := uuid.NewV4().String()
-	q := fmt.Sprintf(`INSERT INTO discounts (id, discount_code, discount) VALUES(%s, %s，%s)`, id, discountCode, discountNumber)
+	q := fmt.Sprintf(`INSERT INTO discounts (id, discount_code, discount) VALUES ('%s', '%s', '%s')`, id, discountCode, discountNumber)
 	fmt.Println(q)
 	if _, err := db.Exec(q); err != nil {
 		c.String(http.StatusBadRequest, errors.GetMessage(err))
@@ -32,11 +32,11 @@ func newDiscount(c *gin.Context) {
 }
 
 func getDiscount(c *gin.Context) {
-	id := c.Query("id")
+	id := c.Param("id")
 	var discountCode string
 	var discountNumber int
 	var createdAt time.Time
-	q := fmt.Sprintf(`SELECT discount_code, discount,created_at FROM discounts WHERE id = %s`, id)
+	q := fmt.Sprintf(`SELECT discount_code, discount,created_at FROM discounts WHERE id = '%s'`, id)
 	if err := db.QueryRow(q).Scan(&discountCode, &discountNumber, &createdAt); err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
@@ -44,7 +44,7 @@ func getDiscount(c *gin.Context) {
 	d := discount{
 		DiscountCode: discountCode,
 		Discount:     discountNumber,
-		CreatedAt:    createdAt.Unix(),
+		CreatedAt:    createdAt.Local(),
 	}
 	c.JSON(http.StatusOK, d)
 }
@@ -57,18 +57,18 @@ func getDiscounts(c *gin.Context) {
 		return
 	}
 	var ds []discount
-	if rows.Next() {
+	for rows.Next() {
 		var discountCode string
 		var discountNumber int
 		var createdAt time.Time
-		if err := rows.Scan(&discountCode, &discountCode, &createdAt); err != nil {
+		if err := rows.Scan(&discountCode, &discountNumber, &createdAt); err != nil {
 			c.JSON(http.StatusInternalServerError, err.Error())
 			return
 		}
 		d := discount{
 			DiscountCode: discountCode,
 			Discount:     discountNumber,
-			CreatedAt:    createdAt.Unix(),
+			CreatedAt:    createdAt.Local(),
 		}
 		ds = append(ds, d)
 	}
