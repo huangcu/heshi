@@ -71,6 +71,12 @@
 			"path": "/redis"
 		},
 		{
+			"importpath": "github.com/gin-contrib/cors",
+			"repository": "https://github.com/gin-contrib/cors",
+			"revision": "51f0ef8b07e973afb8b6c192bf90d5c3e575c01a",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/gin-contrib/sessions",
 			"repository": "https://github.com/gin-contrib/sessions",
 			"revision": "cccdeef56346e7037ca92de250c2b55ef5e7ffe3",
