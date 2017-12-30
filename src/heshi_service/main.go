@@ -14,6 +14,7 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis"
 )
 
 var (
@@ -23,6 +24,11 @@ var (
 	serverIsInterrupted bool
 	store               sessions.CookieStore
 )
+var redisClient = redis.NewClient(&redis.Options{
+	Addr:     "localhost:6379",
+	Password: "", // no password set
+	DB:       0,  // use default DB
+})
 
 func main() {
 	ticker := time.NewTicker(time.Hour * 8)
@@ -45,7 +51,7 @@ func main() {
 	}()
 
 	// log.Fatal(startWebServer(":443"))
-	log.Fatal(startWebServer(":80"))
+	log.Fatal(startWebServer(":8080"))
 }
 
 func startWebServer(port string) error {
@@ -121,14 +127,23 @@ func configRoute(r *gin.Engine) {
 		api.POST("/products/small_diamonds", newSmallDiamond)
 		api.POST("/products/jewelrys", newJewelry)
 
+		//wechat
 		api.GET("/wechat/auth", wechatAuth)
 		api.GET("/wechat/token", wechatToken)
+		api.GET("/wechat/qrcode", wechatQrCode)
+		api.POST("/wechat/status", wechatQrCodeStatus)
 		api.GET("/wechat/verify", checkSignature)
 	}
 	api.Static("../webpage", "webpage")
 }
 
 func init() {
+	// u, err := qrCodePic()
+	// if err != nil {
+	// 	log.Fatalf("qr code pic error %s", err.Error())
+	// }
+	// log.Println(u)
+
 	os.Setenv("stage", "dev")
 	lf, err := os.OpenFile("heshi.log", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
 	if err != nil {
@@ -146,6 +161,8 @@ func init() {
 	if db == nil && err != nil {
 		fmt.Println(err.Error())
 	}
+
+	store, _ := sessions.NewRedisStore(10, "tcp", "localhost:6379", "", []byte("secret"))
 	store = sessions.NewCookieStore([]byte("secret"))
 	store.Options(sessions.Options{
 		MaxAge: int(30 * time.Minute), //30min

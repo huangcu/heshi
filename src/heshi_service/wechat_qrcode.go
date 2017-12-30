@@ -1,6 +1,16 @@
 package main
 
 import (
+	"log"
+	"math"
+	"net/http"
+
+	"github.com/chanxuehong/rand"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis"
+	QRCODE "github.com/skip2/go-qrcode"
+	mpoauth2 "gopkg.in/chanxuehong/wechat.v2/mp/oauth2"
 	"gopkg.in/chanxuehong/wechat.v2/mp/qrcode"
 )
 
@@ -12,15 +22,50 @@ import (
 // ⑥建立用户userid与微信用户openid的对应关系；
 // ⑦给用户的微信客户端推送“绑定成功”的提示；
 // ⑧通知前台页面，绑定已完成，刷新页面，并返回一些微信账户信息。完成绑定
-func qrCodePic() (string, error) {
-	//sceneID
-	tempQRCode, err := qrcode.CreateTempQrcode(wechatClient, 10000, 60)
-	if err != nil {
-		return "", err
+var sceneID int32
+
+type TempQrCode struct {
+	SceneID   int32  `json:"scene_id"`
+	QrCodeURL string `json:"qr_code_url"`
+}
+
+func wechatQrCode(c *gin.Context) {
+	state := string(rand.NewHex())
+	s := sessions.Default(c)
+	s.Set(USER_SESSION_KEY, state)
+	s.Save()
+	authURL := mpoauth2.AuthCodeURL(wxAppIDDebug, redirectURI, "snsapi_userinfo", state)
+	log.Println("qrcode AuthCodeURL:", authURL)
+	QRCODE.WriteFile(authURL, QRCODE.Medium, 256, "qr.png")
+}
+
+func wechatTempQrCode(c *gin.Context) {
+	// 临时二维码的scene_id为32位非0整型->是32位的二进制数，即最大值是2的32次方减1也就是4294967295
+	if sceneID > math.MaxInt32 || sceneID == 0 {
+		sceneID = sceneID + 1
+	} else {
+		sceneID = 1
 	}
 
-	return qrcode.QrcodePicURL(tempQRCode.Ticket), nil
+	tempQRCode, err := qrcode.CreateTempQrcode(wechatClient, sceneID, 120)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	qrcodeURL := qrcode.QrcodePicURL(tempQRCode.Ticket)
+	t := TempQrCode{
+		SceneID:   sceneID,
+		QrCodeURL: qrcodeURL,
+	}
+	c.JSON(http.StatusOK, t)
 }
-func end() {
-	endPoint.ExchangeTokenURL("")
+
+func wechatQrCodeStatus(c *gin.Context) {
+	sceneID := c.PostForm("scene_id")
+	openID, err := redisClient.Get(sceneID).Result()
+	if err == redis.Nil {
+		c.JSON(http.StatusOK, "")
+		return
+	}
+	c.JSON(http.StatusOK, openID)
 }

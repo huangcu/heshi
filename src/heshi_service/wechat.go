@@ -1,12 +1,9 @@
 package main
 
 import (
-	"crypto/sha1"
 	"fmt"
 	"log"
 	"net/http"
-	"sort"
-	"strings"
 
 	"gopkg.in/chanxuehong/wechat.v2/oauth2"
 
@@ -134,34 +131,6 @@ func wechatToken(c *gin.Context) {
 	s.Set(USER_SESSION_KEY, token.OpenId)
 	log.Println("redirect to login page " + redirectLogin)
 	c.Redirect(http.StatusFound, redirectLogin)
-}
-
-//微信公众号平台接入验证
-func checkSignature(c *gin.Context) {
-	token := "BEYOU_SIHUI"
-	signature := c.Query("signature")
-	echostr := c.Query("echostr")
-
-	tmpArr := []string{token, c.Query("timestamp"), c.Query("nonce")}
-	sort.Strings(tmpArr)
-	h := sha1.New()
-	_, err := h.Write([]byte(strings.Join(tmpArr, "")))
-	if err != nil {
-		fmt.Println(err.Error())
-		c.JSON(http.StatusInternalServerError, err.Error())
-		return
-	}
-	bs := h.Sum(nil)
-	s := fmt.Sprintf("%x", bs)
-
-	if s == signature {
-		//accessed
-		c.String(http.StatusOK, echostr)
-		return
-	}
-
-	//not same , denied
-	c.JSON(http.StatusForbidden, "not accessed")
 }
 
 // subscribe	用户是否订阅该公众号标识，值为0时，代表此用户没有关注该公众号，拉取不到其余信息。

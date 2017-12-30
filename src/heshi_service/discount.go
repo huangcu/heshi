@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"heshi/errors"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/satori/go.uuid"
@@ -12,16 +13,23 @@ import (
 )
 
 type discount struct {
-	DiscountCode string    `json:"discount_code"`
-	Discount     int       `json:"discount"`
+	DiscountCode string    `form:"discount_code" json:"discount_code" binding:"required"`
+	Discount     int       `form:"discount" json:"discount" binding:"required"`
 	CreatedAt    time.Time `json:"created_at"`
 }
 
 func newDiscount(c *gin.Context) {
-	discountCode := c.PostForm("discount_code")
-	discountNumber := c.PostForm("discount")
+	var nd discount
+	if err := c.ShouldBind(&nd); err != nil {
+		emsg := errors.GetMessage(err)
+		if strings.Contains(emsg, "ParseInt") {
+			emsg = "invalid discount value"
+		}
+		c.String(http.StatusBadRequest, emsg)
+		return
+	}
 	id := uuid.NewV4().String()
-	q := fmt.Sprintf(`INSERT INTO discounts (id, discount_code, discount) VALUES ('%s', '%s', '%s')`, id, discountCode, discountNumber)
+	q := fmt.Sprintf(`INSERT INTO discounts (id, discount_code, discount) VALUES ('%s', '%s', '%d')`, id, nd.DiscountCode, nd.Discount)
 	fmt.Println(q)
 	if _, err := db.Exec(q); err != nil {
 		c.String(http.StatusBadRequest, errors.GetMessage(err))
