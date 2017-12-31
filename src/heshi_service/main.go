@@ -131,8 +131,10 @@ func configRoute(r *gin.Engine) {
 		api.GET("/wechat/auth", wechatAuth)
 		api.GET("/wechat/token", wechatToken)
 		api.GET("/wechat/qrcode", wechatQrCode)
+		api.GET("/wechat/temp_qrcode", wechatTempQrCode)
 		api.POST("/wechat/status", wechatQrCodeStatus)
-		api.GET("/wechat/verify", checkSignature)
+		api.GET("/wechat/callback", wechatCallback)
+		api.POST("/wechat/callback", wechatCallback)
 	}
 	api.Static("../webpage", "webpage")
 }
@@ -162,7 +164,6 @@ func init() {
 		fmt.Println(err.Error())
 	}
 
-	store, _ := sessions.NewRedisStore(10, "tcp", "localhost:6379", "", []byte("secret"))
 	store = sessions.NewCookieStore([]byte("secret"))
 	store.Options(sessions.Options{
 		MaxAge: int(30 * time.Minute), //30min
@@ -172,4 +173,9 @@ func init() {
 	// 	log.Fatalf("init fail. err: %s;", err.Error())
 	// }
 	activeConfig = config{Rate: 0.01, CreatedBy: "system", CreatedAt: time.Now().Local()}
+	val, err := redisClient.FlushAll().Result()
+	if err != nil {
+		log.Printf("fail to flush redis db. err: %s", err.Error())
+	}
+	log.Printf("flushed redis db. %s", val)
 }

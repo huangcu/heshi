@@ -41,8 +41,8 @@ const (
 )
 
 var (
-	redirectURI                              = "http://fc71f7f2.ngrok.io/api/wechat/token"
-	redirectLogin                            = "http://fc71f7f2.ngrok.io/webpage/login.html"
+	redirectURI                              = "http://721e2175.ngrok.io/api/wechat/token"
+	redirectLogin                            = "http://721e2175.ngrok.io/webpage/login.html"
 	endPoint                                 = mpoauth2.NewEndpoint(wxAppIDDebug, wxAppSecretDebug) //*mpoauth2.Endpoint
 	accessTokenServer core.AccessTokenServer = core.NewDefaultAccessTokenServer(wxAppIDDebug, wxAppSecretDebug, nil)
 	wechatClient                             = core.NewClient(accessTokenServer, nil) //*core.Client

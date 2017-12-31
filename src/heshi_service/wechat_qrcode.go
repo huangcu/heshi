@@ -57,6 +57,7 @@ func wechatTempQrCode(c *gin.Context) {
 		SceneID:   sceneID,
 		QrCodeURL: qrcodeURL,
 	}
+	log.Printf("%v", t)
 	c.JSON(http.StatusOK, t)
 }
 
@@ -66,6 +67,9 @@ func wechatQrCodeStatus(c *gin.Context) {
 	if err == redis.Nil {
 		c.JSON(http.StatusOK, "")
 		return
+	}
+	if _, err := redisClient.Del(sceneID).Result(); err != nil {
+		log.Printf("fail to clean key %s from redis db", sceneID)
 	}
 	c.JSON(http.StatusOK, openID)
 }

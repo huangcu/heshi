@@ -120,6 +120,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/go-redis/redis",
+			"repository": "https://github.com/go-redis/redis",
+			"revision": "73b70592cdaa9e6abdfcfbf97b4a90d80728c836",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/go-sql-driver/mysql",
 			"repository": "https://github.com/go-sql-driver/mysql",
 			"revision": "cd4cb909ce1a31435164be29bf3682031f61539a",
@@ -184,6 +190,12 @@
 			"importpath": "github.com/satori/go.uuid",
 			"repository": "https://github.com/satori/go.uuid",
 			"revision": "5bf94b69c6b68ee1b541973bb8e1144db23a194b",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/skip2/go-qrcode",
+			"repository": "https://github.com/skip2/go-qrcode",
+			"revision": "cf5f9fa2f0d847edb8e038db7ed975e239095e1a",
 			"branch": "master"
 		},
 		{
