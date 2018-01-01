@@ -1,0 +1,30 @@
+uint8  : 0 to 255 
+uint16 : 0 to 65535 
+uint32 : 0 to 4294967295 
+uint64 : 0 to 18446744073709551615 
+int8   : -128 to 127 
+int16  : -32768 to 32767 
+int32  : -2147483648 to 2147483647 
+int64  : -9223372036854775808 to 9223372036854775807
+golang int 
+
+int is a signed integer type that is at least 32 bits in size. It is a distinct type, however, and not an alias for, say, int32.
+uint和int情况差不多。翻译一下，就是说这个整形最少占32位，int和int32是两码事。
+
+uint is a variable sized type, on your 64 bit computer uint is 64 bits wide.
+uint类型长度取决于 CPU，如果是32位CPU就是4个字节，如果是64位就是8个字节。我的电脑是64位的，而 playground 是32位的，问题就出在这里。
+
+这里就会出现一个情况，int和uint是根据 CPU 变化的，如何知道当前系统的情况
+CPU 型号：runtime.GOARCH
+int的长度：strconv.IntSize
+
+go get -u -v github.com/nsf/gocode
+go get -u -v github.com/rogpeppe/godef
+go get -u -v github.com/lukehoban/go-outline
+go get -u -v github.com/tpng/gopkgs
+
+go get -u -v github.com/golang/lint/golint
+go get -u -v golang.org/x/tools/cmd/guru
+go get -u -v github.com/newhook/go-symbols
+go get -u -v golang.org/x/tools/cmd/gorename
+go get -u -v sourcegraph.com/sqs/goreturns
