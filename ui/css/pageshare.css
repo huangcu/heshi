@@ -1,0 +1,317 @@
+div.highlighted-products{
+	position:relative;
+	display:block;
+	padding:0;
+	margin:0;
+	background-color:#FAf2f0;
+}
+div#main-col2{
+	background-color:#c6e3e1;
+}
+.highlighted-products h2, .highlighted-products p{
+	margin:0;
+}
+
+div#main-col1-1, div#main-col1-2, div#main-col2-1, div#main-col2-2{
+	float:left;
+	display:block;
+	width:50%;
+	margin:0;
+	padding:0;
+	height:398px;
+}
+div#main-col1-1{
+	background-color:#F2f2f2;
+}
+div#main-col1-1, div#main-col2-1{
+	text-align:right;
+}
+div#main-col2-1 div.highlight-txt-box{
+	background-color:#b2e0d8;
+	height:398px;
+}
+div#main-col1-2, div#main-col2-2, div.highlight-txt-box{
+	width:490px;
+	text-align:center;
+}
+div.highlight-txt-box{
+	padding:0;
+	margin:0;
+	display:inline-block;
+}
+div#main-col1-2{
+	background-color:rgba(255, 228, 227, 1);
+}
+a.linker-imageholder-featured{
+	position:relative;
+	display:inline-block;
+	position:relative;
+	width:490px;
+	height:398px;
+	background-position:center center;
+	background-size: auto 398px;
+	background-repeat:no-repeat;
+	background-color:#FFF;
+	overflow:hidden;
+}
+span.big-pic-holder-outer{
+	position:absolute;
+	width:550px;
+	height:458px;
+	display:block;
+	top:-30px;
+	left:-30px;
+}
+span.big-pic-holder-middle{
+	position:relative;
+	width:550px;
+	height:458px;
+	display:table-cell;
+	table-layout:fixed;
+	top:0;
+	left:0;
+	text-align:center;
+	vertical-align:middle;
+}
+span.big-pic-holder-inner{
+	display:inline-block;
+	width:490px;
+	height:398px;
+	position:relative;
+	background-size: auto 100%;
+	background-repeat:no-repeat;
+	background-color:#FFF;
+	transition: 0.3s all ease-in;
+	-moz-transition: 0.3s all ease-in;
+	-ms-transition: 0.3s all ease-in;
+	-o-transition: 0.3s all ease-in;
+	-webkit-transition: 0.3s all ease-in;
+}
+span.big-pic-holder-inner:hover{
+	width:550px;
+	height:458px;
+}
+
+
+.highlight-txt-box h2{
+	position:relative;
+	margin-top:152px;
+	margin-bottom:15px;
+	padding:0 98px;
+}
+.highlight-txt-box p{
+	font-size:16px;
+	padding:0 98px;
+}
+
+
+div.recommended-products{
+	position:relative;
+	text-align:center;
+	max-width:1000px;
+	margin:0 auto;
+	padding-bottom:50px;
+}
+.recommended-products h2{
+	padding:58px 0 25px 0;
+}
+div.reco{
+	position:relative;
+	display:block;
+	float:left;
+	width:230px;
+	height:355px;
+	padding:0;
+	margin:0 10px 30px 10px;
+	background-color:#f2f2f2;
+}
+a.jew-pic-reco-holder{
+	display:inline-block;
+	width:230px;
+	height:268px;
+	background-position:center center;
+	background-repeat:no-repeat;
+	background-size: auto 268px;
+	padding:0;
+	margin:0;
+	background-color:#fff;
+	border-style:solid;
+	border-width:3px;
+	border-color:#f2f2f2;
+}
+.reco h3{
+	font-size:16px;
+}
+
+
+div.infobloc{
+	position:relative;
+	background-color:#333;
+	padding:75px 50px 50px 50px;
+	margin:0;
+}
+.leftblock{
+	position:relative;
+	width:50%;
+	float:left;
+	text-align:right;
+}
+.leftblock img{
+	width:388px;
+	margin:0 50px;
+	border-color:#f2f2f2;
+	border-width:2px;
+	border-style:solid;
+}
+.rightblock{
+	position:relative;
+	width:480px;
+	float:left;
+	color:#FFF;
+}
+
+.infobloc h2{
+	margin-top:0;
+	margin-bottom:30px;
+}
+.infobloc p{
+	margin-bottom:20px;
+	line-height:26px;
+	font-size:14px;
+}
+p.diamondcenterwords{
+	width:388px;
+	margin:20px 50px 0 auto;
+	font-size:11px;
+	color:#CCC;
+	font-style:italic;
+	text-align:left;
+	line-height:15px;
+}
+
+.featuredtxt a{
+	color:#000;
+	text-decoration:none;
+}
+h3.why-expl, h3.slogan, .color-txt{
+	color:#b2e0d8;
+	font-size:18px;
+}
+h3.slogan{	
+	margin-top:0;
+}
+
+
+p.more-reco-btnbox{
+	position:relative;
+	text-align:center;
+	margin:25px 0;
+	font-size:18px;
+}
+p.btn-top-big-img-box{
+	position:absolute;
+	width:100%;
+	bottom:98px;
+	left:0;
+	text-align:center;
+}
+span#cus-btn, span#comp-jew-btn{
+	display:inline-block;
+	padding:8px 35px;
+	color:#FFF;
+	border-style:solid;
+	border-width:1px;
+	border-color:#FFF;
+	font-size:14px;
+}
+span#comp-jew-btn{
+	color:#000;
+	border-color:#000;
+}
+
+
+
+@media (max-width: 1080px){
+	#infobloc div.leftblock, 	#infobloc div.rightblock{
+		float:none;
+		display:block;
+		max-width:720px;
+		padding:20px 35px;
+		margin:0 auto;
+		width:auto;
+		text-align:left;
+	}
+	p.diamondcenterwords{
+		margin-left:0;
+	}
+	.leftblock img{
+		margin-left:0;
+	}
+}
+
+
+@media (max-width: 1012px){
+	div#recommend-col{
+		width:750px;
+	}
+}
+
+@media (max-width: 995px){
+	div#main-col1, div#main-col2{
+		padding-top:20px;
+	}
+	div#main-col1-1, div#main-col1-2, div#main-col2-1, div#main-col2-2{
+		float:none;
+		display:block;
+		width:490px;
+		text-align:center;
+		margin:0 auto;
+	}
+}
+
+@media (max-width: 762px){
+	div#recommend-col{
+		width:500px;
+	}
+}
+
+@media (max-width: 538px){
+	div#main-col1-1, div#main-col1-2, div#main-col2-1, div#main-col2-2, div.highlight-txt-box{
+		width:auto;
+	}
+	a.linker-imageholder-featured{
+		width:100%;
+	}
+	span.big-pic-holder-outer{
+		display:none;
+	}
+	.leftblock img{
+		width:100%;
+		margin-right:0;
+	}
+	p.diamondcenterwords{
+		width:auto;
+	}
+	div.infobloc{
+		padding:50px 0;
+	}
+}
+
+@media (max-width: 512px){
+	div#recommend-col{
+		width:auto;
+	}
+	div.reco{
+		display:block;
+		float:none;
+		margin:10px auto;
+	}
+}
+
+/*! * IE10 viewport hack for Surface/desktop Windows 8 bug * Copyright 2014-2015 Twitter, Inc.  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE) */
+		/* * See the Getting Started docs for more information: * http://getbootstrap.com/getting-started/#support-ie10-width */
+@-webkit-viewport { width: device-width; }
+@-moz-viewport    { width: device-width; }
+@-ms-viewport     { width: device-width; }
+@-o-viewport      { width: device-width; }
+@viewport         { width: device-width; }

@@ -1,0 +1,278 @@
+<<!DOCTYPE html>
+<html lang="zh-cn">
+	<head>
+			<title>BEYOU DIAMOND|合适钻石 Login</title>
+			<meta charset="UTF-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+			<meta content="安特卫普钻石,比利时钻石" name="keywords">
+			<meta content="合适钻石立足于比利时安特卫普钻石交易所，以最为实惠的价格和最优质的服务，为您提供最适合您的钻石和首饰。华人购买钻石的理想选择，无与伦比的性价比，值得信赖的品质" name="description">
+			<meta name="keywords"   content="BEYOU DIAMOND,比利时钻石, 安特卫普钻石, 合适钻石" />
+			<meta name="description"    content="BEYOU DIAMOND,比利时钻石, 安特卫普钻石, 合适钻石"/>
+			<meta name="author" content="Maggie Ma @2018">
+			<link rel="stylesheet" href="css/style.css">
+			<link rel="icon" href="./pic/favicon.ico">
+			<link rel="stylesheet" href="./css/bootstrap.css">
+			<link rel="stylesheet" href="./css/bootstrap-theme.css">
+			<link rel="stylesheet" href="./css/main.css">
+			<link rel="stylesheet" href="./css/pageshare.css">
+			<link rel="stylesheet" href="./css/loginform.css">
+			<script async="" src="./js/analytics.js"></script><script>
+			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+			})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+		
+			ga('create', 'UA-72076137-1', 'auto');
+			ga('send', 'pageview');
+		
+			</script>
+			<script src="//code.jquery.com/jquery.js"></script>
+			<script src="js/bootstrap.min.js"></script>
+		</head>
+	<style type="text/css">
+
+	</style>
+	</head>
+	
+	<body>
+	
+	
+	<div class="navbar-wrapper">
+	  <div class="container">
+	  
+		<a class="logobox" href="http://www.beyoudiamond.com/"><img id="site-logo" alt="比利时钻石" src="./pic/beyoudiamond-logo.png"></a>
+	  
+		<div class="small-buttons-container">
+		
+			  <a id="shoppingcartbtn" href="http://www.beyoudiamond.com/shoppinglist.php">
+		  <span class="glyphicon glyphicon-heart" aria-hidden="true"></span> 我的收藏 
+		  <span id="num-shoppinglist-container" style="display:none;"><span id="num-shoppinglist">0</span></span>      </a>
+			 
+		<a id="myaccountbtn" href="http://www.beyoudiamond.com/myaccount.php"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> 
+		登录 | 注册    </a>
+		
+		</div>
+		
+				
+		<div class="small-buttons-container-mobile">
+		
+			  <a id="shoppingcartbtn-mobile" href="http://www.beyoudiamond.com/shoppinglist.php">
+		  <span class="glyphicon glyphicon-heart" aria-hidden="true"></span> 收藏 
+		  <span id="num-shoppinglist-container-mobile" style="display:none;"><span id="num-shoppinglist-mobile">0</span></span>      </a>
+			<a id="myaccountbtn-mobile" href="http://www.beyoudiamond.com/myaccount.php"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> 
+			</a>
+		<br>
+		</div><!-- small-buttons-container-mobile -->
+	
+		<nav class="navbar navbar-default navbar-static-top">
+		  <div class="container">
+			
+			<div class="navbar-header">
+			  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			  </button>
+			  <!-- <a class="navbar-brand" href="#"></a> -->
+			</div>
+			
+			<div id="navbar" class="navbar-collapse collapse">
+			  <ul class="nav navbar-nav">
+				<li><a href="http://www.beyoudiamond.com/"><span class="glyphicon glyphicon-home"></span> 首页</a></li>
+				<li><a href="./login.html">注册 | 登陆</a></li>
+				<li><a href="http://www.beyoudiamond.com/diamonds.php">钻石</a></li>
+				<li><a href="http://www.beyoudiamond.com/jewelry.php?class=mounting">空托</a></li>
+				<li><a href="http://www.beyoudiamond.com/jewelry.php">首饰</a></li>
+				<li><a href="http://www.beyoudiamond.com/colored-gems.php">彩宝</a></li>
+				<li><a href="http://www.beyoudiamond.com/jewelry-custom.php">定制</a></li>
+				
+				<li id="appobtnbox"><a href="http://www.beyoudiamond.com/appointment.php">在线预约</a></li>
+				<li id="contactbtnbox"><a href="http://www.beyoudiamond.com/contact.php">联系我们</a></li>
+				<li id="brandstorybtnbox"><a href="http://www.beyoudiamond.com/brandstory.php">关于我们</a></li>            
+			  </ul>
+			</div>
+		  </div>
+		</nav>
+	
+	  </div>
+	  <!--
+	  <div class="header-deco-box deco-left"></div>
+	  <div class="header-deco-box deco-right"></div>
+	  -->
+	</div>
+	<div id="messagenotification" class="messagenotibox">
+	<p id="message-noti-txt"><span class="glyphicon glyphicon-comment"></span>&nbsp; 您收到 <strong>0</strong> 条新消息 <a id="messageopenlinker" href="http://www.beyoudiamond.com/message.php">查看 »</a></p>
+	</div>
+	<div id="maincontentbox">
+	
+	<div id="userloginform">
+	<h4>我的合适账户</h4>
+	
+	<p class="weixin-sign-title"><img id="weixin-indi" src="./pic/weixin2.png"> 使用微信注册、登录</p>
+	<p class="weixin-sign-expl">请用微信扫(或长按)二维码</p>
+	
+	 <!--
+	 update QR pic geration process 
+	  -->
+	<div id="qrcode-img-container">
+	<span id="loading-txt">生成二维码中...</span>
+	<img id="the_account_qrcode" src="./sign_qr.html">
+	</div>
+	<p class="expire_expl">两分钟内有效</p>	
+	<form action="http://www.beyoudiamond.com/qr_sign.php" method="post" id="sign-form">
+	<input type="hidden" id="signID" value="34505">
+	<input type="hidden" name="wechatopenID" id="wechatopenID" value="">
+	</form>
+	<!-- userloginform -->
+		
+	<form action="http://www.beyoudiamond.com/login_byemail.php" method="post">
+	<input name="email" type="text" class="inputtextforloginform" placeholder="电子邮箱|手机|QQ">
+	<input name="accountpassword" type="password" class="inputtextforloginform" placeholder="密码">
+	<input name="loginformsubmit" type="submit" id="loginbtn" value="登录">
+				
+	<p class="getbackpassword">忘记密码了？<a href="./retrievepass.html">点击找回 »</a></p>
+	</form>
+	<p class="registerindibox">还没有合适账户? <a id="registeropenbtn" href="./register.html">立即注册</a></p>
+	</div>
+		
+	<div id="sign_status" style="display:none;"><p id="status">empty</p></div>
+	
+	
+	<!-- FOOTER -->
+	
+	
+	<div id="loadingcover">
+	<span id="loadingindicontainer">
+	<img id="loadingindiicon" src="./pic/loading-icon.gif">
+	<span id="loadingtxt">载入中...</span>
+	</span>
+	</div>
+	
+	<div id="bottom-infobloc" class="bottom-infobloc">
+	<div id="bottom-infobloc-inner" class="bottom-infobloc-inner">
+	<div id="why_heshi_box">
+	<span class="whyquestion">为何选择合适钻石?</span>
+	<span class="whyanswer"><span class="glyphicon glyphicon-check"></span> 性价比绝对优势</span>
+	<span class="whyanswer"><span class="glyphicon glyphicon-check"></span> 安特卫普手工品质</span>
+	<span class="whyanswer"><span class="glyphicon glyphicon-check"></span> 三年内可退可换</span>
+	<span class="whyanswer"><span class="glyphicon glyphicon-check"></span> 全球保险包邮</span>
+	</div>
+	
+	
+	<div class="blocksmall1"><img class="bottomlogo" src="./pic/beyoudiamondlogo.png" alt="比利时钻石">
+	<p style="font-size:10px; margin-top:8px;"><a href="http://beyoudiamond.com/press/">比利时钻石</a> <a href="http://beyoudiamond.com/press/">安特卫普钻石</a></p>
+	</div>
+	
+	
+	<div class="blocksmall2">
+	<h4><a href="http://www.beyoudiamond.com/press">客服中心</a></h4>
+	<p><a href="http://www.beyoudiamond.com/press/category/knowledge/">钻石知识</a></p>
+	<p><a href="http://www.beyoudiamond.com/press/category/buying-guide/">购买指南</a></p>
+	<p><a href="http://www.beyoudiamond.com/press/category/faq/">常见问题</a></p>
+	</div>
+	
+	<div class="blocksmall3">
+	<h4>欢迎来访</h4>
+	<p>
+	Hovennierstraat 2, 1202室<br>
+	2018 Antwerpen (比利时安特卫普)<br><br>
+	</p>
+	
+	
+	<h4>咨询热线</h4>
+	<p>
+	电话：+32 (0)485 939 508<br>
+	</p>
+	</div>
+	
+	<div class="blocksmall4">
+	<!--
+	
+	-->
+	<p class="qrcodebox"><img style="width:108px;" src="./pic/WechatIMG299.jpg" alt="安特卫普钻石"><br><span>客服微信</span></p>
+	<p class="qrcodebox"><img style="width:108px;" src="./pic/qrcode.jpg" alt="安特卫普钻石"><br><span>微信公众号</span></p>
+	</div>
+	
+	
+	
+	<br class="clear">
+	</div>
+	</div>
+	
+	
+	<a class="livechatlinker" href="http://www.beyoudiamond.com/contact.php">
+	<span class="messagebtntxt new-0">联系客服
+	<!--
+	<span id="newmessagenumindi-normal-btn" class="m-n-0">0</span>
+	-->
+	</span>  
+	
+	<span class="livechatlinkertxt-smallversion">
+	<span class="glyphicon glyphicon-comment"></span>  <span class="livechatlinkertxt-smallversion-txt">在线咨询</span>
+	</span>
+	</a>
+	
+	
+	
+	<footer>
+	  <p class="pull-right"><a href="http://www.beyoudiamond.com/login.php#">Back to top</a></p>
+	  <p>© 2017 合适钻石 | BEYOU DIAMOND . <strong>比利时</strong> <strong>安特卫普</strong> All rights reserved <!-- &middot; --></p>
+	</footer>
+	<!-- here place all the js files for a better performance -->
+	<script type="text/javascript">
+	/*! * IE10 viewport hack for Surface/desktop Windows 8 bug * Copyright 2014-2015 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE) */
+	(function () {
+	  'use strict';
+	
+	  if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
+		var msViewportStyle = document.createElement('style')
+		msViewportStyle.appendChild(
+		  document.createTextNode(
+			'@-ms-viewport{width:auto!important}'
+		  )
+		)
+		document.querySelector('head').appendChild(msViewportStyle)
+	  }
+	
+	})();
+	</script>
+	
+	
+	<script type="text/javascript" src="./js/placeholder.js"></script>
+	<script type="text/javascript">
+	$('input, textarea').placeholder();
+	</script>
+	<script type="text/javascript">
+	var qrCounter=0;
+	
+	$(document).ready(function(){	
+		qrCounter=setTimeout(checkQRresult, 2000);	
+	});
+	
+	function checkQRresult(){
+		var the_signID=$('input#signID').val();
+		
+		$.post( 
+		  "/_content/ajax/weixin-sign-status.php", 
+			{signID:the_signID},
+			
+			function( data ) {
+			console.log(data);
+			$('#sign_status').html(data);
+			
+			var signed_status=$('#sign_status #status').html();
+			if(signed_status=='signed'){
+				clearTimeout(qrCounter);
+				$('input#wechatopenID').val($('#sign_status #wxoid').html());
+				$('form#sign-form').submit();
+			}else{
+				clearTimeout(qrCounter);
+				qrCounter=setTimeout(checkQRresult, 1280);
+			}
+		});
+	}
+	</script>
+		
+	</body>
+</html>
