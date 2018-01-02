@@ -1,0 +1,288 @@
+#maincontentbox{
+    background-color:#c6e3e1;
+    padding:2px;
+}
+    
+p#recommend-ticket-box{
+    margin:0;
+    padding:8px 0;
+}
+#recommend-ticket-box label{
+    margin-bottom:0;
+    padding-bottom:3px;
+    color:#555;
+}
+#recommend-ticket-box label span.glyphicon{
+    color:#FC0;
+}
+input#therecommendticketcode{
+    text-align:center;
+    padding:2px;
+    margin:0 auto;
+    color:#999;
+    border-style:none;
+    position:relative;
+    left:0;
+    display:inline-block;
+    font-size:10px;
+    background-color:#EFFCEF;
+    max-width:88px;
+}
+
+p.loginfeedbackwords, p.registerfeedbackmessage{
+    color:#C00;
+}
+
+
+p.registerfeedbackmessage{
+    font-size:18px;
+    text-align:center;
+    margin-top:25px;
+    margin-bottom:-35px;
+}
+
+p.weixin-sign-title{
+    font-size:14px;
+    margin-bottom:0px;
+}
+p.weixin-sign-expl{
+    font-size:12px;
+    margin:0 0 8px 0;
+    color:#999;
+}
+
+
+p.no_weixin, p.expire_expl{
+    margin-top:22px;
+    color:#999;
+    font-size:12px;
+}
+
+span#loading-txt{
+    display:inline-block;
+    position:absolute;
+    bottom:5px;
+    width:100%;
+    text-align:center;
+    z-index:0;
+    left:0;
+    font-size:12px;
+}
+
+div#userloginform.forpreviewer{
+    padding:12px;
+    width:auto;
+    max-width:388px;
+}
+#userloginform.forpreviewer ul{
+    padding-left:15px;
+}
+li.share-instruction-line{
+    font-size:16px;
+    text-align:left;
+    padding:7px 0;
+}
+.share-instruction-line strong{
+    color:#01934d;
+}
+p.share-info{
+    margin:25px 0 0 0;
+    font-size:14px;
+    text-align:left;
+}
+
+img#weixin-indi{
+    display:inline-block;
+    height:26px;
+    margin-right:3px;
+    position:relative;
+}
+
+body.previewercontent{
+    background-color:#c6e3e1;
+}
+
+@media (max-width: 388px){
+    div#userloginform.forpreviewer{
+        width:100%;
+    }
+}
+
+div.loginform-cover{
+    display:block;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index:1888;
+    background-color:rgba(88,125,108, 0.92);
+}
+div#userloginform, div#signupform{
+    position:relative;
+    width:268px;
+    padding:35px 20px 3px 20px;
+    margin:88px auto;
+    background-color:#FFF;
+    text-align:center;
+}
+#userloginform h4, #signupform h4{
+    margin-top:0px;
+}
+
+input.inputtextforloginform{
+    width:200px;
+    padding:5px 8px;
+    margin:12px auto;
+    background-color:#EFFCEF;
+    border-style:solid;
+    border-width:1px;
+    border-color:#363;
+    display:block;
+}
+input#loginbtn, #registeropenbtn, #registerformsubmitbtn{
+    position: relative;
+    background-color: #01934d;
+    color: #FFF;
+    border-style: solid;
+    border-bottom-width: 1px;
+    border-color: #01934d;
+    border-radius: 6px;
+    padding: 5px 18px;
+    margin-top:15px;
+}
+#registeropenbtn{
+    display:inline-block;
+}
+#registerformsubmitbtn{
+    margin-bottom:35px;
+}
+p.registerindibox{
+    position:relative;
+    margin:3px 25px 25px 25px;
+    font-size:12px;
+    padding-top:15px;
+    color:#999;
+    border-top-style:solid;
+    border-width:1px;
+    border-color:#01934d;
+}
+#registeropenbtn{
+    background-color:#FFF;
+    color:#01934d;
+    border-color:#01934d;
+    border-width:1px;
+    padding:2px 8px;
+    margin-left:5px;
+}
+#loginformclose{
+    position:absolute;
+    top:98px;
+    left:50%;
+    margin-left:138px;
+    color:#FFF;
+    font-size:32px;
+}
+p.getbackpassword{
+    margin:15px 0 5px 0;
+    font-size:12px;
+    color:#999;
+}
+
+#registeropenbtn{
+	display:inline-block;
+}
+#registerformsubmitbtn{
+	margin-bottom:35px;
+}
+p.registerindibox{
+	position:relative;
+	margin:3px 25px 25px 25px;
+	font-size:12px;
+	padding-top:15px;
+	color:#999;
+	border-top-style:solid;
+	border-width:1px;
+	border-color:#01934d;
+}
+#registeropenbtn{
+	background-color:#FFF;
+	color:#01934d;
+	border-color:#01934d;
+	border-width:1px;
+	padding:2px 8px;
+	margin-left:5px;
+}
+#loginformclose{
+	position:absolute;
+	top:98px;
+	left:50%;
+	margin-left:138px;
+	color:#FFF;
+	font-size:32px;
+}
+p.getbackpassword{
+	margin:15px 0 5px 0;
+	font-size:12px;
+	color:#999;
+}
+.loginfeedbackwords{
+	color:#C00;
+}
+
+p#recommend-ticket-box{
+	margin:0;
+	padding:8px 0;
+}
+#recommend-ticket-box label{
+	margin-bottom:0;
+	padding-bottom:3px;
+	color:#555;
+}
+#recommend-ticket-box label span.glyphicon{
+	color:#FC0;
+}
+input#therecommendticketcode{
+	text-align:center;
+	width:200px;
+	padding:5px 8px;
+	margin:0 auto;
+	background-color:#FffFDF;
+	color:#999;
+	border-style:solid;
+	border-width:1px;
+	border-color:#360;
+	position:relative;
+	left:0;
+	display:block;
+}
+
+p.loginfeedbackwords, p.registerfeedbackmessage{
+	color:#C00;
+}
+
+#qrcode-img-container{
+    position:relative;
+    padding:0;
+    margin:0 auto;
+    width:135px;
+    height:135px;
+    background-image:url('/pic/constant/circle-loading-icon.gif');
+    background-size:88px auto;
+    background-position:center;
+    background-repeat:no-repeat;
+    background-color:#F3FCFF;
+    border-style:solid;
+    border-width:3px;
+    border-color:#86c610;
+	}
+#the_account_qrcode{
+    width:129px;
+    z-index:8;
+    position:relative;
+    background-color:#FFF;
+    background-image:url('/pic/constant/circle-loading-icon.gif');
+    background-size:88px auto;
+    background-position:center;
+    background-repeat:no-repeat;
+	}
