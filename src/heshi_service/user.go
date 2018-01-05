@@ -61,14 +61,14 @@ func newUser(c *gin.Context) {
 	}
 
 	if vemsg := nu.preValidateNewUser(); vemsg != "" {
-		c.String(http.StatusOK, vemsg)
+		c.String(http.StatusBadRequest, vemsg)
 		return
 	}
 	if nu.Username == "" {
 		var count int
 		q := "SELECT count(*) FROM users"
 		if err := db.QueryRow(q).Scan(&count); err != nil {
-			c.String(http.StatusOK, errors.GetMessage(err))
+			c.String(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 		nu.Username = fmt.Sprintf("heshi_%d%d", rand.Intn(3), count)
