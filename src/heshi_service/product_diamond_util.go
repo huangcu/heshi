@@ -1,11 +1,15 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
+	"strconv"
 	"strings"
+
+	"github.com/satori/go.uuid"
 )
 
-func (d *diamond) composeInsertQuery() (string, error) {
+func (d *diamond) composeInsertQuery() string {
 	params := d.parmsKV()
 	q := `INSERT INTO diamonds (id`
 	va := fmt.Sprintf(`VALUES ('%s'`, d.ID)
@@ -23,10 +27,10 @@ func (d *diamond) composeInsertQuery() (string, error) {
 		}
 	}
 	q = fmt.Sprintf("%s) %s)", q, va)
-	return q, nil
+	return q
 }
 
-func (d *diamond) composeUpdateQuery() (string, error) {
+func (d *diamond) composeUpdateQuery() string {
 	params := d.parmsKV()
 	q := `UPDATE diamonds SET`
 	for k, v := range params {
@@ -42,7 +46,7 @@ func (d *diamond) composeUpdateQuery() (string, error) {
 		}
 	}
 	q = fmt.Sprintf("%s WHERE id='%s'", strings.TrimSuffix(q, ","), d.ID)
-	return q, nil
+	return q
 }
 
 // 	params := make(map[string]interface{})
@@ -52,7 +56,7 @@ func (d *diamond) parmsKV() map[string]interface{} {
 		params["stock_ref"] = d.StockRef
 	}
 	if d.Shape != "" {
-		params["cellphone"] = d.Shape
+		params["shape"] = d.Shape
 	}
 	if d.Carat != 0 {
 		params["carat"] = d.Carat
@@ -130,4 +134,130 @@ func (d *diamond) parmsKV() map[string]interface{} {
 		params["profitable"] = d.Profitable
 	}
 	return params
+}
+
+func importDiamonds(headers map[string]string, records [][]string) ([][]string, error) {
+	originalHeaders := []string{}
+	ignoredRows := [][]string{}
+	//get headers
+	for index := 0; index < len(records); index++ {
+		if index == 0 {
+			originalHeaders = records[0]
+		}
+	}
+	for index := 0; index < len(records); index++ {
+		//process records
+		if index != 0 {
+			ignored := false
+			d := diamond{}
+			record := records[index]
+			fmt.Println("processsing " + strconv.Itoa(index))
+			for header, oriheader := range headers {
+				for i := 0; i < len(originalHeaders); i++ {
+					if originalHeaders[i] == oriheader {
+						fmt.Println(oriheader + record[i])
+						switch header {
+						case "stock_ref":
+							d.StockRef = record[i]
+						case "shape":
+							d.Shape = record[i]
+						case "carat":
+							cValue, err := strconv.ParseFloat(record[i], 64)
+							if err != nil {
+								ignoredRows = append(ignoredRows, record)
+								ignored = true
+							}
+							if cValue == 0 {
+								ignored = true
+							}
+							d.Carat = cValue
+						case "color":
+							d.Color = record[i]
+						case "clarity":
+							d.Clarity = record[i]
+						case "grading_lab":
+							cValue, err := strconv.Atoi(record[i])
+							if err != nil {
+								ignoredRows = append(ignoredRows, record)
+								ignored = true
+							}
+							if cValue == 0 {
+								ignored = true
+							}
+							d.GradingLab = cValue
+						case "certificate_number":
+							d.CertificateNumber = record[i]
+						case "cut_grade":
+							d.CutGrade = record[i]
+						case "polish":
+							d.Polish = record[i]
+						case "symmetry":
+							d.Symmetry = record[i]
+						case "fluorescence_intensity":
+							fmt.Println(record[i])
+							d.FluorescenceIntensity = record[i]
+						case "country":
+							d.Country = record[i]
+						case "supplier":
+							d.Supplier = record[i]
+						case "price_no_added_value":
+							fmt.Println(record[i])
+							cValue, err := strconv.ParseFloat(strings.Replace(record[i], ",", "", -1), 64)
+							if err != nil {
+								ignoredRows = append(ignoredRows, record)
+								ignored = true
+							}
+							if cValue == 0 {
+								ignored = true
+							}
+							d.PriceNoAddedValue = cValue
+						case "price_retail":
+							cValue, err := strconv.ParseFloat(strings.Replace(record[i], ",", "", -1), 64)
+							if err != nil {
+								ignoredRows = append(ignoredRows, record)
+								ignored = true
+							}
+							if cValue == 0 {
+								ignored = true
+							}
+							d.PriceRetail = cValue
+						case "clarity_number":
+							d.ClarityNumber = record[i]
+						case "cut_number":
+							d.CutNumber = record[i]
+						}
+						break
+					}
+				}
+			}
+			//insert into db
+			if !ignored {
+				fmt.Printf("%#v", d)
+				var id string
+				if err := db.QueryRow(fmt.Sprintf("SELECT id FROM diamonds WHERE stock_ref='%s'", d.StockRef)).Scan(&id); err != nil {
+					if err == sql.ErrNoRows {
+						d.ID = uuid.NewV4().String()
+						q := d.composeInsertQuery()
+						fmt.Println(q)
+						if _, err := db.Exec(q); err != nil {
+							return nil, err
+							// ignoredRows = append(ignoredRows, record)
+						}
+					} else {
+						// ignoredRows = append(ignoredRows, record)
+						return nil, err
+					}
+				}
+
+				d.ID = id
+				q := d.composeUpdateQuery()
+				if _, err := db.Exec(q); err != nil {
+					// ignoredRows = append(ignoredRows, record)
+					return nil, err
+				}
+			}
+			fmt.Println("finish process")
+		}
+	}
+	return ignoredRows, nil
 }

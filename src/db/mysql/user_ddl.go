@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS users
 	username VARCHAR(225) UNIQUE,
 	cellphone VARCHAR(225) UNIQUE,
 	email VARCHAR(225) UNIQUE,
-	password VARCHAR(225),
+	password VARCHAR(225) NOT NULL,
 	user_type VARCHAR(25) NOT NULL,
 	real_name VARCHAR(225),
 	wechat_openid VARCHAR(225) UNIQUE,

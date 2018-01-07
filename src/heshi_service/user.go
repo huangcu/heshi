@@ -173,7 +173,7 @@ func getUser(c *gin.Context) {
 	us, err := composeUser(rows)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			c.JSON(http.StatusOK, fmt.Sprintf("Fail to find product with id: %s", c.Param("id")))
+			c.JSON(http.StatusOK, fmt.Sprintf("Fail to find user with id: %s", c.Param("id")))
 			return
 		}
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))

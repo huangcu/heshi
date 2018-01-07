@@ -247,11 +247,39 @@
 			"path": "/context"
 		},
 		{
+			"importpath": "golang.org/x/net/html",
+			"repository": "https://go.googlesource.com/net",
+			"revision": "42fe2e1c20de1054d3d30f82cc9fb5b41e2e3767",
+			"branch": "master",
+			"path": "/html"
+		},
+		{
+			"importpath": "golang.org/x/net/websocket",
+			"repository": "https://go.googlesource.com/net",
+			"revision": "42fe2e1c20de1054d3d30f82cc9fb5b41e2e3767",
+			"branch": "master",
+			"path": "/websocket"
+		},
+		{
 			"importpath": "golang.org/x/sync/errgroup",
 			"repository": "https://go.googlesource.com/sync",
 			"revision": "fd80eb99c8f653c847d294a001bdf2a3a6f768f5",
 			"branch": "master",
 			"path": "/errgroup"
+		},
+		{
+			"importpath": "golang.org/x/tools/cmd/html2article",
+			"repository": "https://go.googlesource.com/tools",
+			"revision": "8cab8a1319f0be9798e7fe78b15da75e5f94b2e9",
+			"branch": "master",
+			"path": "/cmd/html2article"
+		},
+		{
+			"importpath": "golang.org/x/tools/cmd/present",
+			"repository": "https://go.googlesource.com/tools",
+			"revision": "8cab8a1319f0be9798e7fe78b15da75e5f94b2e9",
+			"branch": "master",
+			"path": "/cmd/present"
 		},
 		{
 			"importpath": "gopkg.in/chanxuehong/wechat.v2",

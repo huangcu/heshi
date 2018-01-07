@@ -5,7 +5,11 @@ import (
 	"fmt"
 	"heshi/errors"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
+	"util"
 
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
@@ -186,4 +190,63 @@ func selectDiamondQuery(id string) string {
 		q = fmt.Sprintf("%s WHERE id='%s'", q, id)
 	}
 	return q
+}
+
+func processDiamonds(c *gin.Context) {
+	id := c.MustGet("id").(string)
+	headers := make(map[string]string)
+	headers["stock_ref"] = c.PostForm("stock_ref")
+	headers["shape"] = c.PostForm("shape")
+	headers["carat"] = c.PostForm("carat")
+	headers["color"] = c.PostForm("color")
+	headers["clarity"] = c.PostForm("clarity")
+	headers["grading_lab"] = c.PostForm("grading_lab")
+	headers["certificate_number"] = c.PostForm("certificate_number")
+	headers["cut_grade"] = c.PostForm("cut_grade")
+	headers["polish"] = c.PostForm("polish")
+	headers["symmetry"] = c.PostForm("symmetry")
+	headers["fluorescence_intensity"] = c.PostForm("fluorescence_intensity")
+	headers["country"] = c.PostForm("country")
+	headers["supplier"] = c.PostForm("supplier")
+	headers["price_no_added_value"] = c.PostForm("price_no_added_value")
+	headers["price_retail"] = c.PostForm("price_retail")
+	headers["clarity_number"] = c.PostForm("clarity_number")
+	headers["cut_number"] = c.PostForm("cut_number")
+
+	vmsg := []string{}
+	for k, v := range headers {
+		if v == "" {
+			vmsg = append(vmsg, k+" has no mapped column\n")
+		}
+	}
+	if len(vmsg) != 0 {
+		c.JSON(http.StatusBadRequest, strings.Join(vmsg, ""))
+		return
+	}
+
+	file := filepath.Join(os.TempDir(), id, c.PostForm("filename"))
+	if !util.PathExists(file) {
+		c.JSON(http.StatusInternalServerError, fmt.Sprintf("fail to find products file :%s", file))
+		return
+	}
+
+	records, err := util.ParseCSVToArrays(file)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, fmt.Sprintf("fail to parse uploaded file :%s", file))
+		return
+	}
+	ignoredrows, err := importDiamonds(headers, records)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, fmt.Sprintf("fail to process uploaded file :%s", file))
+		return
+	}
+	if len(ignoredrows) != 0 {
+		// var msg string
+		// for i := 0; i < len(ignoredrows); i++ {
+		// 	msg := msg + strings.Join(ignoredrows[i], ",") + "\n"
+		// }
+		c.JSON(http.StatusOK, gin.H{"IngoredRows": ignoredrows})
+		return
+	}
+	c.JSON(http.StatusOK, "success processed uploaded file!")
 }

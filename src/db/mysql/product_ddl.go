@@ -4,7 +4,7 @@ const diamondDdl = `
 CREATE TABLE IF NOT EXISTS diamonds
 (
 	id VARCHAR(225) PRIMARY KEY NOT NULL,
-	stock_ref VARCHAR(225) NOT NULL,
+	stock_ref VARCHAR(225) NOT NULL unique,
 	shape VARCHAR(225),
 	carat FLOAT NOT NULL,
 	color VARCHAR(225),
@@ -22,15 +22,15 @@ CREATE TABLE IF NOT EXISTS diamonds
 	certificate_link TEXT,
 	clarity_number VARCHAR(5) NOT NULL,
 	cut_number VARCHAR(5) NOT NULL,
-	featured VARCHAR(5) NOT NULL,
+	featured VARCHAR(5),
 	recommand_words TEXT,
 	extra_words VARCHAR(255),
-	status VARCHAR(58) NOT NULL,
+	status VARCHAR(58) NOT NULL DEFAULT "AVAIABLE",
 	ordered_by INT,
-	picked_up VARCHAR(8) NOT NULL,
-	sold VARCHAR(5) NOT NULL,
+	picked_up VARCHAR(8),
+	sold VARCHAR(5),
 	sold_price FLOAT,
-	profitable varchar(5) NOT NULL,
+	profitable varchar(5),
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 ) ENGINE=INNODB;

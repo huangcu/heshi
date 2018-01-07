@@ -35,7 +35,6 @@ func OpenDB() (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	createDatabase(db, Config.Db.Database)
 	// if err := createDatabase(db, Config.Db.Database); err != nil {
 	// 	return nil, err
