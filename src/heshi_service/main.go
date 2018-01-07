@@ -105,6 +105,10 @@ func configRoute(r *gin.Engine) {
 			apiAdmin.GET("/config", AdminSessionMiddleWare(), getConfig)
 			apiAdmin.GET("/configs", AdminSessionMiddleWare(), getConfigs)
 			apiAdmin.POST("/config", AdminSessionMiddleWare(), newConfig)
+
+			//products
+			apiAdmin.POST("/upload", AdminSessionMiddleWare(), uploadProducts)
+			apiAdmin.POST("/process/diamond", AdminSessionMiddleWare(), processDiamonds)
 		}
 		//agent, customer
 		api.POST("/users", newUser)
@@ -145,7 +149,6 @@ func init() {
 	// 	log.Fatalf("qr code pic error %s", err.Error())
 	// }
 	// log.Println(u)
-
 	os.Setenv("stage", "dev")
 	lf, err := os.OpenFile("heshi.log", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
 	if err != nil {
