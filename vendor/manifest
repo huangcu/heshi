@@ -228,14 +228,14 @@
 		{
 			"importpath": "golang.org/x/crypto/bcrypt",
 			"repository": "https://go.googlesource.com/crypto",
-			"revision": "94eea52f7b742c7cbe0b03b22f0c4c8631ece122",
+			"revision": "0fcca4842a8d74bfddc2c96a073bd2a4d2a7a2e8",
 			"branch": "master",
 			"path": "/bcrypt"
 		},
 		{
 			"importpath": "golang.org/x/crypto/blowfish",
 			"repository": "https://go.googlesource.com/crypto",
-			"revision": "94eea52f7b742c7cbe0b03b22f0c4c8631ece122",
+			"revision": "0fcca4842a8d74bfddc2c96a073bd2a4d2a7a2e8",
 			"branch": "master",
 			"path": "/blowfish"
 		},
@@ -274,7 +274,7 @@
 		{
 			"importpath": "gopkg.in/yaml.v2",
 			"repository": "https://gopkg.in/yaml.v2",
-			"revision": "287cf08546ab5e7e37d55a84f7ed3fd1db036de5",
+			"revision": "0e4404da71227dcc02fb1deee803d93e86d08f72",
 			"branch": "v2"
 		}
 	]
