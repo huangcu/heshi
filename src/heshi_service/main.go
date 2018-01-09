@@ -139,6 +139,10 @@ func configRoute(r *gin.Engine) {
 		api.POST("/wechat/status", wechatQrCodeStatus)
 		api.GET("/wechat/callback", wechatCallback)
 		api.POST("/wechat/callback", wechatCallback)
+
+		//token
+		api.GET("/token", GetToken)
+		api.POST("/token", VerifyToken)
 	}
 	api.Static("../webpage", "webpage")
 }

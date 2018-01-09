@@ -6,7 +6,9 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/pem"
+	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 )
 
@@ -56,8 +58,29 @@ func VerfiyToken(token string) bool {
 		return false
 	}
 
-	if string(tokenPair) == "" {
+	if string(tokenPair) == "BEYOU_DIAMOND" {
 		return true
 	}
-	return true
+	return false
+}
+
+func GenerateToken() (string, error) {
+	publicKey, err := ioutil.ReadFile("token_pk.pem")
+	if err != nil {
+		return "", err
+	}
+	block, _ := pem.Decode(publicKey)
+	if block == nil {
+		return "", errors.New("public key error")
+	}
+	pubInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		return "", err
+	}
+	pub := pubInterface.(*rsa.PublicKey)
+	bs, err := rsa.EncryptPKCS1v15(rand.Reader, pub, []byte("BEYOU_DIAMOND"))
+	if err != nil {
+		return "", err
+	}
+	return base64.StdEncoding.EncodeToString(bs), nil
 }
