@@ -1,10 +1,92 @@
  //Get inContact Token
- var accessToken = '';
- var baseURI = '';
+ var accessToken = '123123';
+ var baseURI = 'http://localhost:8080/';
+
+ function userregister()
+ {
+		var auth_token = 'AppName@VendorName:BusinessUnit';
+		
+		var url_base = baseURI + 'api/users';
+		
+		var requestPayload = {
+			'cellphone': $('input#tel').val(),
+			'username': $('input#realname').val(),
+			'password':  $('input#newaccountpassword').val(),
+			'email': $('input#newaccountemail').val(),
+			'user_type': 'admin'
+		};
+
+	$.ajax({
+		'url': url_base,
+		'type': 'POST',
+		'content-Type': 'multipart/form-data',
+		'headers': {
+			// Use access_token previously retrieved from inContact token 
+			// service.
+			'Authorization': 'basic ' + auth_token
+		},
+		'data': requestPayload,
+		'success': function (result) {
+			//Process success actions
+		//	accessToken = result.access_token;
+			baseURI = result.resource_server_base_uri;
+			document.getElementById('userloginform').innerHTML = "注册成功！";
+			setTimeout(document.location.href = 'login.html',"5000")
+			return result;
+		},
+		'error': function (XMLHttpRequest, responseText) {
+			//Process error actions
+			document.getElementById('userloginform').innerHTML ='Error: ' + XMLHttpRequest.responseText ;
+			sleep(2000);
+			document.location.href = 'register.html';
+			return false;
+		}
+ 	});
+}
+
+
+ function userlogin()
+ {
+		var auth_token = 'AppName@VendorName:BusinessUnit';
+		
+		var url_base = baseURI + '/api/login';
+		
+		var requestPayload = {
+			'userinfor': $('input#infor').val(),
+			'password':  $('input#newaccountpassword').val(),
+		};
+
+	$.ajax({
+		'url': url_base,
+		'type': 'POST',
+		'content-Type': 'multipart/form-data',
+		'headers': {
+			// Use access_token previously retrieved from inContact token 
+			// service.
+			'Authorization': 'basic ' + auth_token
+		},
+		'data': requestPayload,
+		'success': function (result) {
+			//Process success actions
+		//	accessToken = result.access_token;
+			baseURI = result.resource_server_base_uri;
+			document.getElementById('userloginform').innerHTML = "注册成功！";
+			setTimeout(document.location.href = 'login.html',"5000")
+			return result;
+		},
+		'error': function (XMLHttpRequest, responseText) {
+			//Process error actions
+			document.getElementById('userloginform').innerHTML ='Error: ' + XMLHttpRequest.responseText ;
+			sleep(2000);
+			document.location.href = 'register.html';
+			return false;
+		}
+ 	});
+}
 
  function getToken() {
 	 var url_base = 
-		'https://api.incontact.com/InContactAuthorizationServer/Token';
+		'';
 
 	 // The auth_token is the base64 encoded string for the API 
 	 // application.
@@ -84,35 +166,8 @@
  }
   
  //END CALL ABOVE HERE
+ 
+ 
+ 
+ 
 
-
-
-
-// JavaScript Document
-function processthesignupform(){
-	if($.trim($('input#newaccountemail').val())==''){
-		alert('请输入您的邮箱!');
-		return;
-	}
-	if($.trim($('input#newaccountpassword').val())==''){
-		alert('请设定您的密码!');
-		return;
-	}
-	if($.trim($('input#newaccountpassword').val()).length<6){
-		alert('密码太短，请输入至少6位!');
-		return;
-	}
-	if($.trim($('input#newaccountpassword').val())!=$.trim($('input#newaccountpasswordagain').val())){
-		alert('两次输入的密码不一致，请重新输入');
-		return;
-	}
-	if($.trim($('input#realname').val())==''){
-		alert('请留下您的姓名！');
-		return;
-	}
-	if($.trim($('input#wechatid').val())=='' && $.trim($('input#tel').val())==''){
-		alert('请留下您的微信ID或电话号码，以确保我们能够联系到您');
-		return;
-	}
-	$('form#the_signup_form').submit();
-}
