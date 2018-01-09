@@ -45,10 +45,11 @@ func UserSessionMiddleWare() gin.HandlerFunc {
 		}
 		s := sessions.Default(c)
 		if s.Get(USER_SESSION_KEY) == nil {
-			c.JSON(http.StatusForbidden, "must login first")
+			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
 		c.Set("id", s.Get(USER_SESSION_KEY))
+		c.Next()
 	}
 }
 
@@ -59,13 +60,14 @@ func AdminSessionMiddleWare() gin.HandlerFunc {
 		}
 		s := sessions.Default(c)
 		if s.Get(USER_SESSION_KEY) == nil {
-			c.JSON(http.StatusForbidden, "must login first")
+			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
 		if s.Get(ADMIN_KEY) == nil {
-			c.JSON(http.StatusForbidden, "not authorized")
+			c.AbortWithStatus(http.StatusForbidden)
 			return
 		}
 		c.Set("id", s.Get(USER_SESSION_KEY))
+		c.Next()
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"db/mysql"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -30,7 +31,13 @@ var redisClient = redis.NewClient(&redis.Options{
 	DB:       0,  // use default DB
 })
 
+var env string
+
 func main() {
+	flag.StringVar(&env, "env", "dev", "specifiy env dev or pro, default env - dev.")
+	flag.Parse()
+	os.Setenv("stage", env)
+
 	ticker := time.NewTicker(time.Hour * 8)
 	stop := make(chan bool)
 	go func() {
@@ -153,7 +160,6 @@ func init() {
 	// 	log.Fatalf("qr code pic error %s", err.Error())
 	// }
 	// log.Println(u)
-	os.Setenv("stage", "dev")
 	lf, err := os.OpenFile("heshi.log", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
 	if err != nil {
 		log.Fatal(err)
