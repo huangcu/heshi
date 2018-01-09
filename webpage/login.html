@@ -44,7 +44,8 @@
 		  	<span class="glyphicon glyphicon-heart" aria-hidden="true"></span> 我的收藏 
 		  	<span id="num-shoppinglist-container" style="display:none;"><span id="num-shoppinglist">0</span></span></a>
 	    	<a id="myaccountbtn" href="http://www.beyoudiamond.com/myaccount.html"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>登录 | 注册</a>
-		  </div>
+		   </div>
+		  
 			<div class="small-buttons-container-mobile">
 				<a id="shoppingcartbtn-mobile" href="http://www.beyoudiamond.com/shoppinglist.html">
 		  	<span class="glyphicon glyphicon-heart" aria-hidden="true"></span> 收藏 
@@ -54,23 +55,25 @@
 			</div>
 
 		
-			<nav class="navbar navbar-wrapper navbar-expand-lg navbar-light bg-light navbar-default navbar-static-top">
+			<nav class="navbar navbar-default navbar-static-top">
 		  	<div class="container">
-					<button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
-						<span class="sr-only">Toggle navigation</span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
 					</button>
+					<!-- <a class="navbar-brand" href="#"></a> -->
+				</div>
 					<div id="navbar" class="collapse navbar-collapse">
-						<ul class="navbar-nav">
+						<ul class="nav navbar-nav">
 						<li><a href="http://www.beyoudiamond.com/"><span class="glyphicon glyphicon-home"></span> 首页</a></li>
 						<li><a href="http://www.beyoudiamond.com/diamonds.php">钻石</a></li>
 						<li><a href="http://www.beyoudiamond.com/jewelry.php?class=mounting">空托</a></li>
 						<li><a href="http://www.beyoudiamond.com/jewelry.php">首饰</a></li>
 						<li><a href="http://www.beyoudiamond.com/colored-gems.php">彩宝</a></li>
 						<li><a href="http://www.beyoudiamond.com/jewelry-custom.php">定制</a></li>
-						
 						<li id="appobtnbox"><a href="http://www.beyoudiamond.com/appointment.php">在线预约</a></li>
 						<li id="contactbtnbox"><a href="http://www.beyoudiamond.com/contact.php">联系我们</a></li>
 						<li id="brandstorybtnbox"><a href="http://www.beyoudiamond.com/brandstory.php">关于我们</a></li>            
@@ -110,12 +113,13 @@
 	<!-- userloginform -->
 		
 	<form>
-	<input name="email" id="loginkey" type="text" class="inputtextforloginform" placeholder="电子邮箱|手机|QQ">
+	<input name="loginkey" id="loginkey" type="text" class="inputtextforloginform" placeholder="电子邮箱|手机|QQ">
 	<input name="accountpassword" id="accountpassword" type="password" class="inputtextforloginform" placeholder="密码">
-	<button name="loginformsubmit" type="submit" id="loginbtn"  value="登录">
-				
+	<button type="button" id="loginformsubmitbtn" onclick="userlogin()">登陆</button>
+	</form>			
+	
 	<p class="getbackpassword">忘记密码了？<a href="./retrievepass.html">点击找回 »</a></p>
-	</form>
+
 	<p class="registerindibox">还没有合适账户? <a id="registeropenbtn" href="./register.html">立即注册</a></p>
 	</div>
 	

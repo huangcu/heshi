@@ -49,11 +49,11 @@
  {
 		var auth_token = 'AppName@VendorName:BusinessUnit';
 		
-		var url_base = baseURI + '/api/login';
+		var url_base = baseURI + 'api/login';
 		
 		var requestPayload = {
-			'userinfor': $('input#infor').val(),
-			'password':  $('input#newaccountpassword').val(),
+			'username': $('input#loginkey').val(),
+			'password':  $('input#accountpassword').val(),
 		};
 
 	$.ajax({
@@ -70,15 +70,15 @@
 			//Process success actions
 		//	accessToken = result.access_token;
 			baseURI = result.resource_server_base_uri;
-			document.getElementById('userloginform').innerHTML = "注册成功！";
-			setTimeout(document.location.href = 'login.html',"5000")
+			//document.getElementById('userloginform').innerHTML = "注册成功！";
+			setTimeout(document.location.href = 'home.html',"5000")
 			return result;
 		},
 		'error': function (XMLHttpRequest, responseText) {
 			//Process error actions
 			document.getElementById('userloginform').innerHTML ='Error: ' + XMLHttpRequest.responseText ;
 			sleep(2000);
-			document.location.href = 'register.html';
+			document.location.href = 'login.html';
 			return false;
 		}
  	});
