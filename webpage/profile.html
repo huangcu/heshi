@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+	<head>
+			<title>BEYOU DIAMOND|合适钻石 myaccount</title>
+			<meta charset="UTF-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+			<meta name="description" content="合适钻石立足于比利时安特卫普钻石交易所，以最为实惠的价格和最优质的服务，为您提供最适合您的钻石和首饰。华人购买钻石的理想选择，无与伦比的性价比，值得信赖的品质">
+			<meta name="keywords"   content="BEYOU DIAMOND,比利时钻石, 安特卫普钻石, 合适钻石" />
+			<meta name="description"    content="BEYOU DIAMOND,比利时钻石, 安特卫普钻石, 合适钻石"/>
+			<meta name="author" content="Maggie Ma @2018">
+			<link rel="stylesheet" href="css/style.css">
+			<link rel="icon" href="./pic/favicon.ico">
+			<link rel="stylesheet" href="./css/bootstrap.min.css">
+			<link rel="stylesheet" href="./css/bootstrap-theme.css">
+			<link rel="stylesheet" href="./css/main.css">
+			<link rel="stylesheet" href="./css/profile.css">
+			<link rel="stylesheet" href="./css/pageshare.css">
+			<link rel="stylesheet" href="./css/loginform.css">
+			<script async="" src="./js/analytics.js"></script><script>
+			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+			})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+		
+			ga('create', 'UA-72076137-1', 'auto');
+			ga('send', 'pageview');
+		
+			</script>
+			<script src="//code.jquery.com/jquery.js"></script>
+			<script src="js/bootstrap.min.js"></script>
+			<script src="js/restrequest.js"></script>
+		</head>
+
+	</head>
+	
+	<body>
+	
+	
+	<div class="navbar-wrapper">
+	  <div class="container">
+			<a class="logobox" href="http://www.beyoudiamond.com/"><img id="site-logo" alt="比利时钻石" src="./pic/beyoudiamond-logo.png"></a>
+	  
+			<div class="small-buttons-container">
+				<a id="shoppingcartbtn" href="http://www.beyoudiamond.com/shoppinglist.html">
+		  	<span class="glyphicon glyphicon-heart" aria-hidden="true"></span> 我的收藏 
+		  	<span id="num-shoppinglist-container" style="display:none;"><span id="num-shoppinglist">0</span></span></a>
+	    	<a id="myaccountbtn" href="http://www.beyoudiamond.com/myaccount.html"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>登录 | 注册</a>
+		   </div>
+		  
+			<div class="small-buttons-container-mobile">
+				<a id="shoppingcartbtn-mobile" href="http://www.beyoudiamond.com/shoppinglist.html">
+		  	<span class="glyphicon glyphicon-heart" aria-hidden="true"></span> 收藏 
+		  	<span id="num-shoppinglist-container-mobile" style="display:none;"><span id="num-shoppinglist-mobile">0</span></span>      </a>
+				<a id="myaccountbtn-mobile" href="http://www.beyoudiamond.com/myaccount.html"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>登录 | 注册</a>
+				<br>
+			</div>
+
+		
+			<nav class="navbar navbar-default navbar-static-top">
+		  	<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					</button>
+					<!-- <a class="navbar-brand" href="#"></a> -->
+				</div>
+					<div id="navbar" class="collapse navbar-collapse">
+						<ul class="nav navbar-nav">
+						<li><a href="http://www.beyoudiamond.com/"><span class="glyphicon glyphicon-home"></span> 首页</a></li>
+						<li><a href="http://www.beyoudiamond.com/diamonds.php">钻石</a></li>
+						<li><a href="http://www.beyoudiamond.com/jewelry.php?class=mounting">空托</a></li>
+						<li><a href="http://www.beyoudiamond.com/jewelry.php">首饰</a></li>
+						<li><a href="http://www.beyoudiamond.com/colored-gems.php">彩宝</a></li>
+						<li><a href="http://www.beyoudiamond.com/jewelry-custom.php">定制</a></li>
+						<li id="appobtnbox"><a href="http://www.beyoudiamond.com/appointment.php">在线预约</a></li>
+						<li id="contactbtnbox"><a href="http://www.beyoudiamond.com/contact.php">联系我们</a></li>
+						<li id="brandstorybtnbox"><a href="http://www.beyoudiamond.com/brandstory.php">关于我们</a></li>            
+						</ul>
+					</div>
+		  	</div>
+			</nav>
+		</div> 
+	  <!--
+	  <div class="header-deco-box deco-left"></div>
+	  <div class="header-deco-box deco-right"></div>
+	  -->
+	<div id="messagenotification" class="messagenotibox">
+		<p id="message-noti-txt"><span class="glyphicon glyphicon-comment"></span>&nbsp; 您收到 <strong>0</strong> 条新消息 <a id="messageopenlinker" href="http://beyoudiamond.com/message.php">查看 »</a></p>
+	</div>
+	<div class="contentmainwrapper">
+	<h2>
+		<span id="thetxtofpagetitle">我的合适账户</span>	
+	</h2>
+	<h3>高级用户
+		<span class="accountlevelstars">
+			<span class="glyphicon glyphicon-star"></span>
+		</span>
+	</h3>
+
+	<p class="inpage-navi-box">
+	<button class="inpage-navi" id="inpage-navi_generalinfo" onclick="goToSection(&#39;generalinfo&#39;)">基本信息</button>
+	<button class="inpage-navi" id="inpage-navi_mypoints" onclick="goToSection(&#39;mypoints&#39;)">我的积分</button>
+	<button class="inpage-navi" id="inpage-navi_myclients" onclick="goToSection(&#39;myclients&#39;)">我的客人</button>
+	<button class="inpage-navi" id="inpage-navi_coupon" onclick="goToSection(&#39;coupon&#39;)">打折／代金券</button>
+	<button class="inpage-navi active" id="inpage-navi_personalinfo" onclick="goToSection(&#39;personalinfo&#39;)">个人信息</button>
+	</p>
+
+	<!-- offerticket box -->
+	<div class="generalinfo discountbox" id="generalinfo" style="display: none;">
+	<h3 class="g-info-title">您好，MGJ<form method="post" action="http://beyoudiamond.com/myaccount.php" id="logoutform">
+	<input type="hidden" name="logout" value="confirmed">
+	<input type="submit" value="登出账号" name="logoutbtn" id="logoutbtn">
+	</form>
+	</h3>
+	<h4 class="g-info-content">价格折扣: <span style="font-weight:bold; font-size:16px;">0.98</span></h4>
+
+	<h4>我的积分：(一年内) 总购买金额: <strong>0</strong>欧元<button id="mypointdetailbtn" href="/myaccount.php#section-mypoints" onclick="goToSection(&#39;mypoints&#39;)">详情 »</button></h4>
+
+	<p class="ticket-question" onclick="showRegulation()">折扣、积分规则 »</p>
+	<div class="ticket-answer">
+	<p>您的购买折扣是根据您和您推荐的用户一年内购买合适商品的总金额折算出来的:</p>
+		从一年前到现在为止
+	<ul>
+	<li>消费满5000欧元: 95折</li>
+	<li>消费满50000欧元: 93折</li>
+	<li>消费满100000欧元: 90折</li>
+	</ul>
+	</div>
+
+
+
+	<div id="myreferenceticketbox">
+	<p id="titleformyreference" onclick="openRecoContent();">
+	轻松推荐 赚取酬金 »
+	</p>
+
+	<div id="reco-contentbox">
+	推荐您的朋友成为合适会员，惊喜等您拿！如果您推荐的会员购买了任何商品，合适总部都会把该商品的价格的1%作为酬金奖励给您。<br>且他们的积分都算作您的积分。
+
+	<div class="share-ticket-tools">
+	<span class="glyphicon glyphicon-hand-right"></span> 推荐方法:
+	<p id="toolexpl">点击打开下面链接中的页面，然后把该页面分享到微信朋友圈(或发送给朋友)。也可以拷贝这个链接，邮件等方式发给朋友。就这么简单！</p>
+	<p><a target="_blank" href="http://beyoudiamond.com/login.php?ref=106953Xh0MGI7nzT" id="recommenduserurl">http://beyoudiamond.com/login.php?ref=106953Xh0MGI7nzT</a></p>
+	</div>
+	</div><!-- end roco-contentbox -->
+
+	</div>
+	</div><!-- end generalinfo -->
+
+	<!-- history -->
+	<div class="history" id="mypoints" style="display: none;">
+	<!--
+	<h3>购买历史纪录</h3>
+	-->
+	<div class="historybox history-diamond">
+	<h4>钻石购买历史纪录</h4>
+	<ul>
+	  <li class="no-order">尚未购买任何可积分的钻石</li>
+	  </ul>
+	</div>
+
+	<div class="historybox history-diamond">
+	<h4>首饰购买历史记录</h4>
+	<ul>
+	  <li class="no-order">尚未购买任何首饰</li>
+	  </ul>
+	</div>
+
+	<div class="historysummary">
+	<p>您一年内总的购买金额为 <span class="thepricevalue">0</span>欧元</p>
+	<p>您的全部购买金额为 <span class="thepricevalue">0</span>欧元</p>
+
+	<!--
+	<p>您尚未收到的返点金额为 <span class="thepricevalue"></span>欧元, 合 元人民币, 美元</p>
+	-->
+	</div>
+
+	</div>
+
+
+	<!-- history recommended users-->
+	<div class="history-recommenedusers" id="myclients" style="display: none;">
+	<h3>历史纪录: 我推荐的用户</h3>
+	<div class="theuserslist">
+	<p>您尚未推荐任何用户</p>
+	</div>
+	</div>
+
+
+
+
+
+	<!-- discount ticket -->
+
+	<!-- heshibi -->
+	<div class="generalinfo heshibi-box" style="display: none;">
+	<h3>我的合适币（代金劵）</h3>
+	<div class="my-heshibi">
+	<div class="my-heshibi-amount-box">
+	余额: 0€
+	</div>
+	</div>
+	<p>合适币余额: 0欧元 (0元人民币, 0美元)</p>
+
+	<p class="heshibitranferbtnbox">您的合适币可以代替现金购买任何合适商品，也可以<a target="_blank" href="http://beyoudiamond.com/press/2016/03/29/%E5%A6%82%E4%BD%95%E5%B0%86%E5%90%88%E9%80%82%E5%B8%81%E5%85%91%E6%8D%A2%E6%88%90%E7%8E%B0%E9%87%91%EF%BC%9F/">兑换成现金</a>。</p>
+
+	</div>
+
+	<!-- account info -->
+	<div class="accountinfobox" id="personalinfo" style="display: block;">
+	<h3>个人信息</h3>
+	<p id="updatewarning"><span class="glyphicon glyphicon-exclamation-sign"></span> 为了交易顺利，请更新这里的信息 </p>
+	<div>
+	<form action="http://beyoudiamond.com/myaccount.php" method="post">
+	<p><label>姓名</label><input type="text" name="name_new" id="account_name" value=""></p>
+	<p><label>电话</label><input type="text" name="tel_new" id="account_tel" value="-"></p>
+	<p><label>微信ID</label><input type="text" name="wechatid_new" id="account_wechatid" value="-"></p>
+	<p><label>地址</label><input type="text" name="address_new" id="account_address" value=""></p>
+	<p><label>邮箱</label><input type="text" name="email" value=" "></p>
+	<p><label>密码</label><input type="text" name="website_password" value=""></p>
+
+	<p><input type="submit" id="changeinfosavebtn" value="保存修改"></p>
+	</form>
+	<!--
+	<p><a href="changepassword.php">修改登录密码</a></p>
+	-->
+	</div>
+	</div>
+
+
+	<div class="logoutbtnbox">
+
+	</div>
+
+	</div>
+
+	
+	
+	
+	<!-- FOOTER -->
+
+	<div id="loadingcover">
+	<span id="loadingindicontainer">
+	<img id="loadingindiicon" src="./pic/loading-icon.gif">
+	<span id="loadingtxt">载入中...</span>
+	</span>
+	</div>
+	
+	<div id="bottom-infobloc" class="bottom-infobloc">
+	<div id="bottom-infobloc-inner" class="bottom-infobloc-inner">
+	<div id="why_heshi_box">
+	<span class="whyquestion">为何选择合适钻石?</span>
+	<span class="whyanswer"><span class="glyphicon glyphicon-check"></span> 性价比绝对优势</span>
+	<span class="whyanswer"><span class="glyphicon glyphicon-check"></span> 安特卫普手工品质</span>
+	<span class="whyanswer"><span class="glyphicon glyphicon-check"></span> 三年内可退可换</span>
+	<span class="whyanswer"><span class="glyphicon glyphicon-check"></span> 全球保险包邮</span>
+	</div>
+	
+	
+	<div class="blocksmall1"><img class="bottomlogo" src="./pic/beyoudiamondlogo.png" alt="比利时钻石">
+	<p style="font-size:10px; margin-top:8px;"><a href="http://beyoudiamond.com/press/">比利时钻石</a> <a href="http://beyoudiamond.com/press/">安特卫普钻石</a></p>
+	</div>
+	
+	
+	<div class="blocksmall2">
+	<h4><a href="http://www.beyoudiamond.com/press">客服中心</a></h4>
+	<p><a href="http://www.beyoudiamond.com/press/category/knowledge/">钻石知识</a></p>
+	<p><a href="http://www.beyoudiamond.com/press/category/buying-guide/">购买指南</a></p>
+	<p><a href="http://www.beyoudiamond.com/press/category/faq/">常见问题</a></p>
+	</div>
+	
+	<div class="blocksmall3">
+	<h4>欢迎来访</h4>
+	<p>
+	Hovennierstraat 2, 1202室<br>
+	2018 Antwerpen (比利时安特卫普)<br><br>
+	</p>
+	
+	
+	<h4>咨询热线</h4>
+	<p>
+	电话：+32 (0)485 939 508<br>
+	</p>
+	</div>
+	
+	<div class="blocksmall4">
+	<!--
+	
+	-->
+	<p class="qrcodebox"><img style="width:108px;" src="./pic/WechatIMG299.jpg" alt="安特卫普钻石"><br><span>客服微信</span></p>
+	<p class="qrcodebox"><img style="width:108px;" src="./pic/qrcode.jpg" alt="安特卫普钻石"><br><span>微信公众号</span></p>
+	</div>
+	
+	
+	
+	<br class="clear">
+	</div>
+	</div>
+	
+	
+	<a class="livechatlinker" href="http://www.beyoudiamond.com/contact.php">
+	<span class="messagebtntxt new-0">联系客服
+	<!--
+	<span id="newmessagenumindi-normal-btn" class="m-n-0">0</span>
+	-->
+	</span>  
+	
+	<span class="livechatlinkertxt-smallversion">
+	<span class="glyphicon glyphicon-comment"></span>  <span class="livechatlinkertxt-smallversion-txt">在线咨询</span>
+	</span>
+	</a>
+	
+	
+	
+	<footer>
+	  <p class="pull-right"><a href="http://www.beyoudiamond.com/login.php#">Back to top</a></p>
+	  <p>© 2017 合适钻石 | BEYOU DIAMOND . <strong>比利时</strong> <strong>安特卫普</strong> All rights reserved <!-- &middot; --></p>
+	</footer>
+	<!-- here place all the js files for a better performance -->
+	<script type="text/javascript">
+	/*! * IE10 viewport hack for Surface/desktop Windows 8 bug * Copyright 2014-2015 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE) */
+	(function () {
+	  'use strict';
+	
+	  if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
+		var msViewportStyle = document.createElement('style')
+		msViewportStyle.appendChild(
+		  document.createTextNode(
+			'@-ms-viewport{width:auto!important}'
+		  )
+		)
+		document.querySelector('head').appendChild(msViewportStyle)
+	  }
+	
+	})();
+	</script>
+	
+	
+	<script type="text/javascript" src="./js/placeholder.js"></script>
+	<script type="text/javascript">
+	$('input, textarea').placeholder();
+	</script>
+	<script type="text/javascript">
+	var qrCounter=0;
+	
+	$(document).ready(function(){	
+		qrCounter=setTimeout(checkQRresult, 2000);	
+	});
+	
+	function checkQRresult(){
+		var the_signID=$('input#signID').val();
+		
+		$.post( 
+		  "/_content/ajax/weixin-sign-status.php", 
+			{signID:the_signID},
+			
+			function( data ) {
+			console.log(data);
+			$('#sign_status').html(data);
+			
+			var signed_status=$('#sign_status #status').html();
+			if(signed_status=='signed'){
+				clearTimeout(qrCounter);
+				$('input#wechatopenID').val($('#sign_status #wxoid').html());
+				$('form#sign-form').submit();
+			}else{
+				clearTimeout(qrCounter);
+				qrCounter=setTimeout(checkQRresult, 1280);
+			}
+		});
+	}
+	</script>
+		
+	</body>
+</html>
