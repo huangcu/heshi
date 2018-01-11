@@ -75,10 +75,8 @@ func startWebServer(port string) error {
 	} else {
 		gin.SetMode(gin.ReleaseMode)
 		r.Use(gin.Logger())
-		r.Use(AuthMiddleWare())
 	}
 
-	r.Use(sessions.Sessions("sessionid", store))
 	r.Use(gin.Recovery())
 	configRoute(r)
 	// webServer := &http.Server{Addr: port, Handler: r, TLSConfig: config}
@@ -89,6 +87,11 @@ func startWebServer(port string) error {
 
 func configRoute(r *gin.Engine) {
 	api := r.Group("/api")
+	if os.Getenv("stage") == "pro" {
+		api.Use(AuthMiddleWare())
+		api.Use(sessions.Sessions("sessionid", store))
+	}
+
 	{
 		apiAdmin := api.Group("admin")
 		{
@@ -151,7 +154,7 @@ func configRoute(r *gin.Engine) {
 		api.GET("/token", GetToken)
 		api.POST("/token", VerifyToken)
 	}
-	api.Static("../webpage", "webpage")
+	r.Static("../webpage", "webpage")
 }
 
 func init() {
