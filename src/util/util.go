@@ -1,5 +1,12 @@
 package util
 
+import (
+	"math/rand"
+	"time"
+)
+
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+
 func IsInArrayString(item string, items []string) bool {
 	inFlag := false
 	for _, v := range items {
@@ -20,4 +27,14 @@ func IsInArrayInt(item int, items []int) bool {
 		}
 	}
 	return inFlag
+}
+
+func RandStringRunes(n int) string {
+	rand.Seed(time.Now().UnixNano())
+
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
 }

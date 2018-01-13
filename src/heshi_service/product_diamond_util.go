@@ -157,6 +157,8 @@ func importDiamonds(headers map[string]string, records [][]string) ([][]string, 
 					if originalHeaders[i] == oriheader {
 						fmt.Println(oriheader + record[i])
 						switch header {
+						case "diamond_id":
+							d.DiamondID = record[i]
 						case "stock_ref":
 							d.StockRef = record[i]
 						case "shape":

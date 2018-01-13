@@ -74,11 +74,12 @@ func getJewelry(c *gin.Context) {
 
 	ds, err := composeJewelry(rows)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			c.JSON(http.StatusOK, fmt.Sprintf("Fail to find product with id: %s", c.Param("id")))
-			return
-		}
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	if ds == nil {
+		VEMSG_NOT_EXIST.Message = fmt.Sprintf("Fail to find jewelry with id: %s", c.Param("id"))
+		c.JSON(http.StatusOK, VEMSG_NOT_EXIST)
 		return
 	}
 	c.JSON(http.StatusOK, ds)

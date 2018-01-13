@@ -51,23 +51,23 @@ func (c *currency) parmsKV() map[string]interface{} {
 func currencyRateReqValidator(h gin.HandlerFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// if !util.IsInArrayString(c.PostForm("base"), VALID_CURRENCY_SYMBOL) {
-		// 	msg := fmt.Sprintf("currency exchange rate base: %s %s", c.PostForm("base"), VEMSG_CURRENCY_NOT_VALID_SYMBOL)
-		// 	c.String(http.StatusBadRequest, msg)
+		// 	c.String(http.StatusOK, VEMSG_CURRENCY_NOT_VALID_SYMBOL)
 		// 	return
 		// }
 		//NOTES: so far currency exchange rate base is USD.
 		if c.PostForm("base") != "USD" {
-			c.String(http.StatusBadRequest, "currency exchange rate base can only be USD for now!")
+			c.JSON(http.StatusOK, VEMSG_CURRENCY_BASE_NOT_VALID)
 			return
 		}
+		//TODO
 		cny, err := strconv.ParseFloat(c.PostForm("cny"), 6)
 		if err != nil {
-			c.String(http.StatusBadRequest, err.Error())
+			c.JSON(http.StatusOK, VEMSG_CURRENCY_RATE_CNY_NOT_VALID)
 			return
 		}
 		eur, err := strconv.ParseFloat(c.PostForm("eur"), 6)
 		if err != nil {
-			c.String(http.StatusBadRequest, err.Error())
+			c.JSON(http.StatusOK, VEMSG_CURRENCY_RATE_CNY_NOT_VALID)
 			return
 		}
 		//NOTES: so far only need cny & eur

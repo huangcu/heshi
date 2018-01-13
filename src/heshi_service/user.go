@@ -4,9 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"heshi/errors"
-	"math/rand"
 	"net/http"
-	"util"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -36,20 +34,22 @@ type User struct {
 	// UpdatedAt      time.Time `json:"updated_at"`
 }
 
-type Admin struct {
-	UserInfo   User   `json:"user"`
-	Level      int    `json:"level"`
-	WechatKefu string `json:"wechat_kefu"`
-}
+func newAdminAgentUser(c *gin.Context) {
+	adminID := c.MustGet("id").(string)
+	userType := c.PostForm("user_type")
+	if userType != AGENT && userType != ADMIN {
+		VEMSG_USER_USERTYPE_NOT_VALID.Message = fmt.Sprintf("user type can only be %s or %s", ADMIN, AGENT)
+		c.JSON(http.StatusOK, VEMSG_USER_USERTYPE_NOT_VALID)
+		return
+	}
 
-func newUser(c *gin.Context) {
 	nu := User{
 		ID:             uuid.NewV4().String(),
 		Username:       c.PostForm("username"),
 		Cellphone:      c.PostForm("cellphone"),
 		Email:          c.PostForm("email"),
 		Password:       c.PostForm("password"),
-		UserType:       c.PostForm("user_type"),
+		UserType:       userType,
 		RealName:       c.PostForm("real_name"),
 		WechatID:       c.PostForm("wechat_id"),
 		WechatName:     c.PostForm("wechat_name"),
@@ -60,27 +60,93 @@ func newUser(c *gin.Context) {
 		Icon:           c.PostForm("icon"),
 	}
 
-	if vemsg := nu.preValidateNewUser(); vemsg != "" {
-		c.String(http.StatusBadRequest, vemsg)
-		return
-	}
-	if nu.Username == "" {
-		var count int
-		q := "SELECT count(*) FROM users"
-		if err := db.QueryRow(q).Scan(&count); err != nil {
-			c.String(http.StatusInternalServerError, errors.GetMessage(err))
+	if userType == AGENT {
+		a := Agent{
+			UserInfo:    nu,
+			Level:       c.PostForm("level"),
+			DiscountStr: c.PostForm("discount"),
+			SetBy:       adminID,
+		}
+		if vemsg, err := a.prevalidateNewAgent(); err != nil {
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			return
+		} else if len(vemsg) != 0 {
+			c.JSON(http.StatusOK, vemsg)
 			return
 		}
-		nu.Username = fmt.Sprintf("heshi_%d%d", rand.Intn(3), count)
+
+		q := nu.composeInsertQuery()
+		fmt.Println(q)
+		if _, err := db.Exec(q); err != nil {
+			c.JSON(http.StatusBadRequest, errors.GetMessage(err))
+			return
+		}
+		if err := a.newAgent(); err != nil {
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			return
+		}
+		c.JSON(http.StatusOK, a.UserInfo.ID)
 	}
-	//TODO ideally double check db is needed to ensure the code is indeed unique, to avoid fail of insert
-	//though the chance of duplication is extream low
-	nu.InvitationCode = util.NewUniqueId()
+
+	if userType == ADMIN {
+		a := Admin{
+			UserInfo:   nu,
+			Level:      c.PostForm("level"),
+			WechatKefu: c.PostForm("wechat_kefu"),
+			CreatedBy:  adminID,
+		}
+		if vemsg, err := a.prevalidateNewAdmin(); err != nil {
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			return
+		} else if len(vemsg) != 0 {
+			c.JSON(http.StatusOK, vemsg)
+			return
+		}
+
+		q := nu.composeInsertQuery()
+		fmt.Println(q)
+		if _, err := db.Exec(q); err != nil {
+			c.JSON(http.StatusBadRequest, errors.GetMessage(err))
+			return
+		}
+		if err := a.newAgent(); err != nil {
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			return
+		}
+		c.JSON(http.StatusOK, a.UserInfo.ID)
+	}
+}
+
+func newUser(c *gin.Context) {
+	nu := User{
+		ID:             uuid.NewV4().String(),
+		Username:       c.PostForm("username"),
+		Cellphone:      c.PostForm("cellphone"),
+		Email:          c.PostForm("email"),
+		Password:       c.PostForm("password"),
+		UserType:       CUSTOMER,
+		RealName:       c.PostForm("real_name"),
+		WechatID:       c.PostForm("wechat_id"),
+		WechatName:     c.PostForm("wechat_name"),
+		WechatQR:       c.PostForm("wechat_qr"),
+		Address:        c.PostForm("address"),
+		AdditionalInfo: c.PostForm("additional_info"),
+		RecommendedBy:  c.PostForm("recommended_by"),
+		Icon:           c.PostForm("icon"),
+	}
+
+	if vemsg, err := nu.validNewUser(); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	} else if len(vemsg) != 0 {
+		c.JSON(http.StatusOK, vemsg)
+		return
+	}
 
 	q := nu.composeInsertQuery()
 	fmt.Println(q)
 	if _, err := db.Exec(q); err != nil {
-		c.String(http.StatusBadRequest, errors.GetMessage(err))
+		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 		return
 	}
 
@@ -88,46 +154,16 @@ func newUser(c *gin.Context) {
 	s.Set(USER_SESSION_KEY, nu.ID)
 	s.Save()
 
-	c.String(http.StatusOK, nu.ID)
-}
-
-func removeUser(c *gin.Context) {
-	uid := c.Param("id")
-	q := "SELECT user_type from users WHERE id=?"
-	var userType string
-	if err := db.QueryRow(q, uid).Scan(&userType); err != nil {
-		if err == sql.ErrNoRows {
-			c.JSON(http.StatusOK, "wrong user")
-			return
-		}
-		c.JSON(http.StatusInternalServerError, err.Error())
-		return
-	}
-	switch userType {
-	case "admin":
-		q = `DELETE FROM admins WHERE user_id=?`
-		if _, err := db.Exec(q, uid); err != nil {
-			c.JSON(http.StatusInternalServerError, err.Error())
-			return
-		}
-	case "agent":
-		q = `DELETE FROM agents WHERE user_id=?`
-		if _, err := db.Exec(q, uid); err != nil {
-			c.JSON(http.StatusInternalServerError, err.Error())
-			return
-		}
-	default:
-		q = `DELETE FROM users WHERE id=?`
-		if _, err := db.Exec(q, uid); err != nil {
-			c.JSON(http.StatusInternalServerError, err.Error())
-			return
-		}
-	}
+	c.JSON(http.StatusOK, nu.ID)
 }
 
 func updateUser(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		id = c.MustGet("id").(string)
+	}
 	uu := User{
-		ID:             c.Param("id"),
+		ID:             id,
 		Username:       c.PostForm("username"),
 		Cellphone:      c.PostForm("cellphone"),
 		Email:          c.PostForm("email"),
@@ -144,6 +180,7 @@ func updateUser(c *gin.Context) {
 	}
 
 	//TODO validate updated user info too!!!
+	//TODO what info can be updated!!
 	q := uu.composeUpdateQuery()
 	fmt.Println(q)
 	//TODO admin,agent update!!!!
@@ -154,15 +191,20 @@ func updateUser(c *gin.Context) {
 	// default:
 	// }
 	if _, err := db.Exec(q); err != nil {
-		c.String(http.StatusBadRequest, errors.GetMessage(err))
+		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 		return
 	}
 
-	c.String(http.StatusOK, uu.ID)
+	c.JSON(http.StatusOK, uu.ID)
 }
 
 func getUser(c *gin.Context) {
-	q := selectUserQuery(c.Param("id"))
+	id := c.Param("id")
+	if id == "" {
+		id = c.MustGet("id").(string)
+	}
+	q := selectUserQuery(id)
+
 	rows, err := db.Query(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
@@ -172,11 +214,12 @@ func getUser(c *gin.Context) {
 
 	us, err := composeUser(rows)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			c.JSON(http.StatusOK, fmt.Sprintf("Fail to find user with id: %s", c.Param("id")))
-			return
-		}
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	if us == nil {
+		VEMSG_USER_NOT_EXIST.Message = fmt.Sprintf("Fail to find user with id: %s", c.Param("id"))
+		c.JSON(http.StatusOK, VEMSG_USER_NOT_EXIST)
 		return
 	}
 	c.JSON(http.StatusOK, us)
@@ -193,14 +236,50 @@ func getAllUsers(c *gin.Context) {
 
 	us, err := composeUser(rows)
 	if err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	if us == nil {
+		VEMSG_USER_NOT_EXIST.Message = "Fail to find users"
+		c.JSON(http.StatusOK, VEMSG_USER_NOT_EXIST)
+		return
+	}
+	c.JSON(http.StatusOK, us)
+}
+
+//TODO
+func removeUser(c *gin.Context) {
+	uid := c.Param("id")
+	q := "SELECT user_type from users WHERE id=?"
+	var userType string
+	if err := db.QueryRow(q, uid).Scan(&userType); err != nil {
 		if err == sql.ErrNoRows {
-			c.JSON(http.StatusOK, fmt.Sprintf("Fail to find product with id: %s", c.Param("id")))
+			c.JSON(http.StatusOK, "wrong user")
 			return
 		}
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
-	c.JSON(http.StatusOK, us)
+	switch userType {
+	case "admin":
+		q = `DELETE FROM admins WHERE user_id=?`
+		if _, err := db.Exec(q, uid); err != nil {
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			return
+		}
+	case "agent":
+		q = `DELETE FROM agents WHERE user_id=?`
+		if _, err := db.Exec(q, uid); err != nil {
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			return
+		}
+	default:
+		q = `DELETE FROM users WHERE id=?`
+		if _, err := db.Exec(q, uid); err != nil {
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			return
+		}
+	}
 }
 
 func composeUser(rows *sql.Rows) ([]User, error) {

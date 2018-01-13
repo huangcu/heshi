@@ -37,24 +37,49 @@ CREATE TABLE IF NOT EXISTS diamonds
 ) ENGINE=INNODB;
 	`
 
+// category
+// <option value="JR">素金戒指</option>
+// <option value="JE">素金耳环／耳钉</option>
+// <option value="JP">素金吊坠／项链</option>
+// <option value="ZR">镶碎钻戒指</option>
+// <option value="ZE">镶碎钻耳环／耳钉</option>
+// <option value="ZP">镶碎钻吊坠／项链</option>
+// <option value="CR">成品戒指</option>
+// <option value="CE">成品耳环／耳钉</option>
+// <option value="CP">成品吊坠／项链</option>
+
+// <td width="88">唯一商品号(StockID)</td>
+// <td width="88">货号(Name)</td>
+// <td width="88">材料</td> material
+// <td width="88">金重</td>     metal_weight
+// <td width="88">是否空托</td>  need_diamond
+// <td width="88">最小钻石尺寸</td> dia_size_min
+// <td width="88">最大钻石尺寸</td> dia_size_max
+// <td width="88">镶碎钻</td>
+// <td width="88">小钻数量</td>
+// <td width="88">小钻总重</td>
+// <td width="88">镶嵌方式</td>  mounting_type
+// <td width="88">价格</td> price
 const jewelryDdl = `
 CREATE TABLE IF NOT EXISTS jewelrys
 (
 	id VARCHAR(225) PRIMARY KEY NOT NULL,
 	category INT NOT NULL,
-	unit_number VARCHAR(28) NOT NULL,
-	dia_shape VARCHAR(18),
-	material VARCHAR(15),
-	metal_weight DECIMAL(12,2),
-	need_diamond VARCHAR(5) NOT NULL,
 	name VARCHAR(58) NOT NULL,
 	name_suffix INT,
+	stock_id VARCHAR(225) NOT NULL unique,
+	metal_weight DECIMAL(12,2),
+	material VARCHAR(15),
+	need_diamond VARCHAR(5) NOT NULL,
 	dia_size_min FLOAT NOT NULL,
 	dia_size_max FLOAT NOT NULL,
+	mounting_type VARCHAR(225),
+	price DECIMAL(12,2),
+	unit_number VARCHAR(28) NOT NULL,
+	dia_shape VARCHAR(18),
 	small_dias VARCHAR(8),
 	small_dia_num INT,
 	small_dia_carat DECIMAL(5,3),
-	mounting_type VARCHAR(225),
 	main_dia_num INT NOT NULL,
 	main_dia_size VARCHAR(225),
 	video_link VARCHAR(225),
@@ -63,7 +88,6 @@ CREATE TABLE IF NOT EXISTS jewelrys
 	verified VARCHAR(12) NOT NULL,
 	in_stock VARCHAR(5) NOT NULL,
 	featured VARCHAR(28) NOT NULL,
-	price DECIMAL(12,2),
 	stock_quantity TINYINT(4) NOT NULL,
 	profitable varchar(5) NOT NULL,
 	clarity_number VARCHAR(5) NOT NULL,

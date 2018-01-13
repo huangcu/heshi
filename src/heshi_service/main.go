@@ -96,10 +96,10 @@ func configRoute(r *gin.Engine) {
 		apiAdmin := api.Group("admin")
 		{
 			//admin user -
-			apiAdmin.POST("/users", newUser)
+			apiAdmin.POST("/users", AdminSessionMiddleWare(), newAdminAgentUser)
 			apiAdmin.GET("/users/:id", AdminSessionMiddleWare(), getUser)
 			apiAdmin.GET("/users", AdminSessionMiddleWare(), getAllUsers)
-			apiAdmin.PATCH("/users/:id", AdminSessionMiddleWare(), updateUser)
+			apiAdmin.PATCH("/users/:id", AdminSessionMiddleWare(), configAgent)
 			apiAdmin.DELETE("/users/:id", AdminSessionMiddleWare(), removeUser)
 
 			//currency rate
@@ -122,10 +122,10 @@ func configRoute(r *gin.Engine) {
 		}
 		//agent, customer
 		api.POST("/users", newUser)
-		api.PATCH("/users/:id", UserSessionMiddleWare(), updateUser)
-		api.GET("/users/:id", UserSessionMiddleWare(), getUser)
+		api.PATCH("/users", UserSessionMiddleWare(), updateUser)
+		api.GET("/users", UserSessionMiddleWare(), getUser)
 		api.POST("/login", userLogin)
-		api.POST("/logout/:id", userLogout)
+		api.POST("/logout", userLogout)
 
 		api.GET("/users/:id/contactinfo", UserSessionMiddleWare(), agentContactInfo)
 

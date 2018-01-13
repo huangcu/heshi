@@ -28,21 +28,18 @@ func userLogin(c *gin.Context) {
 	var id, password string
 	if err := dbQueryRow(q).Scan(&id, &password); err != nil {
 		if err == sql.ErrNoRows {
-			c.JSON(http.StatusOK, "Error: login info not correct, wrong user or password")
+			c.JSON(http.StatusOK, VEMSG_LOGIN_ERROR_USERNAME)
 			return
 		}
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	fmt.Println(loginUser.Password)
-	fmt.Println(password)
 	if !util.IsPassOK(loginUser.Password, password) {
-		c.JSON(http.StatusOK, "login info not correct, wrong user or password")
+		c.JSON(http.StatusOK, VEMSG_LOGIN_ERROR_USERNAME)
 		return
 	}
 
-	// c.MustGet("github.com/gin-contrib/sessions").(Session)
 	s := sessions.Default(c)
 	s.Set(USER_SESSION_KEY, id)
 	s.Save()

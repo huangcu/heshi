@@ -1,10 +1,10 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"heshi/errors"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/satori/go.uuid"
@@ -21,22 +21,18 @@ type discount struct {
 func newDiscount(c *gin.Context) {
 	var nd discount
 	if err := c.ShouldBind(&nd); err != nil {
-		emsg := errors.GetMessage(err)
-		if strings.Contains(emsg, "ParseInt") {
-			emsg = "invalid discount value"
-		}
-		c.String(http.StatusBadRequest, emsg)
+		c.JSON(http.StatusBadRequest, VEMSG_AGENT_DISCOUNT_NOT_VALID)
 		return
 	}
 	id := uuid.NewV4().String()
 	q := fmt.Sprintf(`INSERT INTO discounts (id, discount_code, discount) VALUES ('%s', '%s', '%d')`, id, nd.DiscountCode, nd.Discount)
 	fmt.Println(q)
 	if _, err := db.Exec(q); err != nil {
-		c.String(http.StatusBadRequest, errors.GetMessage(err))
+		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 		return
 	}
 
-	c.String(http.StatusOK, id)
+	c.JSON(http.StatusOK, id)
 }
 
 func getDiscount(c *gin.Context) {
@@ -46,6 +42,10 @@ func getDiscount(c *gin.Context) {
 	var createdAt time.Time
 	q := fmt.Sprintf(`SELECT discount_code, discount,created_at FROM discounts WHERE id = '%s'`, id)
 	if err := db.QueryRow(q).Scan(&discountCode, &discountNumber, &createdAt); err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusOK, VEMSG_DISCOUNT_NOT_EXIST)
+			return
+		}
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -79,6 +79,10 @@ func getDiscounts(c *gin.Context) {
 			CreatedAt:    createdAt.Local(),
 		}
 		ds = append(ds, d)
+	}
+	if ds == nil {
+		c.JSON(http.StatusOK, VEMSG_DISCOUNT_NOT_EXIST)
+		return
 	}
 	c.JSON(http.StatusOK, ds)
 }

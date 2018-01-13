@@ -55,6 +55,8 @@ func (u *User) paramsKV() map[string]interface{} {
 
 	if u.Username != "" {
 		params["username"] = u.Username
+	} else {
+		params["username"] = fmt.Sprintf("hs_%s", util.RandStringRunes(13))
 	}
 	if u.Cellphone != "" {
 		params["cellphone"] = u.Cellphone
@@ -85,6 +87,8 @@ func (u *User) paramsKV() map[string]interface{} {
 	}
 	if u.InvitationCode != "" {
 		params["invitation_code"] = u.InvitationCode
+	} else {
+		params["invitation_code"] = util.NewUniqueId()
 	}
 	if u.Icon != "" {
 		params["icon"] = u.Icon

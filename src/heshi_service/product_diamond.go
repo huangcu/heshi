@@ -17,6 +17,7 @@ import (
 
 type diamond struct {
 	ID                    string  `json:"id"`
+	DiamondID             string  `json:"diamond_id"`
 	StockRef              string  `json:"stock_ref"`
 	Shape                 string  `json:"shape"`
 	Carat                 float64 `json:"carat"`
@@ -74,11 +75,12 @@ func getDiamond(c *gin.Context) {
 
 	ds, err := composeDiamond(rows)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			c.JSON(http.StatusOK, fmt.Sprintf("Fail to find product with id: %s", c.Param("id")))
-			return
-		}
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	if ds == nil {
+		VEMSG_NOT_EXIST.Message = fmt.Sprintf("Fail to find diamond with id: %s", c.Param("id"))
+		c.JSON(http.StatusOK, VEMSG_NOT_EXIST)
 		return
 	}
 	c.JSON(http.StatusOK, ds)
@@ -155,7 +157,8 @@ func newDiamond(c *gin.Context) {
 }
 
 func composeDiamond(rows *sql.Rows) ([]diamond, error) {
-	var id, stockRef, country, supplier, clarityNumber, cutNumber, featured, status, pickedUp, sold, profitable string
+	var id, diamondID, stockRef, country, supplier, clarityNumber string
+	var cutNumber, featured, status, pickedUp, sold, profitable string
 	var shape, color, clarity, certificateNumber, cutGrade, polish, symmetry, fluorescenceIntensity sql.NullString
 	var certificateLink, recommandWords, extraWords sql.NullString
 	var soldPrice sql.NullFloat64
@@ -165,13 +168,13 @@ func composeDiamond(rows *sql.Rows) ([]diamond, error) {
 
 	var ds []diamond
 	for rows.Next() {
-		if err := rows.Scan(&id, &stockRef, &shape, &carat, &color, &clarity, &gradingLab, &certificateNumber,
+		if err := rows.Scan(&id, &diamondID, &stockRef, &shape, &carat, &color, &clarity, &gradingLab, &certificateNumber,
 			&cutGrade, &polish, &symmetry, &fluorescenceIntensity, &country, &supplier, &priceNoAddedValue, &priceRetail,
 			&certificateLink, &clarityNumber, &cutNumber, &featured, &recommandWords, &extraWords, &status, &orderedBy, &pickedUp,
 			&sold, &soldPrice, &profitable); err != nil {
 			return nil, err
 		}
-		d := diamond{id, stockRef, shape.String, carat, color.String, clarity.String, gradingLab, certificateNumber.String,
+		d := diamond{id, diamondID, stockRef, shape.String, carat, color.String, clarity.String, gradingLab, certificateNumber.String,
 			cutGrade.String, polish.String, symmetry.String, fluorescenceIntensity.String, country, supplier, priceNoAddedValue,
 			priceRetail, certificateLink.String, clarityNumber, cutNumber, featured, recommandWords.String, extraWords.String,
 			status, orderedBy.Int64, pickedUp, sold, soldPrice.Float64, profitable}
@@ -181,7 +184,7 @@ func composeDiamond(rows *sql.Rows) ([]diamond, error) {
 }
 
 func selectDiamondQuery(id string) string {
-	q := `SELECT id, stock_ref, shape, carat, color, clarity, grading_lab, certificate_number, cut_grade,
+	q := `SELECT id, diamond_id, stock_ref, shape, carat, color, clarity, grading_lab, certificate_number, cut_grade,
 	 polish, symmetry, fluorescence_intensity, country, supplier, price_no_added_value, price_retail, 
 	 certificate_link, clarity_number, cut_number, featured, recommand_words, extra_words, status, ordered_by, picked_up, 
 	 sold, sold_price, profitable FROM diamonds`
@@ -195,6 +198,7 @@ func selectDiamondQuery(id string) string {
 func processDiamonds(c *gin.Context) {
 	id := c.MustGet("id").(string)
 	headers := make(map[string]string)
+	headers["diamond_id"] = c.PostForm("diamond_id")
 	headers["stock_ref"] = c.PostForm("stock_ref")
 	headers["shape"] = c.PostForm("shape")
 	headers["carat"] = c.PostForm("carat")

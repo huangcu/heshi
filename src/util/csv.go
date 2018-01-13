@@ -3,7 +3,6 @@ package util
 import (
 	"bufio"
 	"encoding/csv"
-	"fmt"
 	"heshi/errors"
 	"io"
 	"os"
@@ -49,7 +48,6 @@ func ParseCSVToArrays(file string) ([][]string, error) {
 		return nil, err
 	}
 	defer f.Close()
-	fmt.Println("test1")
 
 	// Create a new reader.
 	rows := [][]string{}

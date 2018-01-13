@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"heshi/errors"
@@ -256,7 +257,6 @@ func getLatestRates() error {
 		return err
 	}
 
-	fmt.Println(string(b))
 	var c currency
 	if err := json.Unmarshal(b, &c); err != nil {
 		return err
@@ -264,9 +264,7 @@ func getLatestRates() error {
 	c.Note = "FROM Open Exchange Rates API"
 	c.ID = uuid.NewV4().String()
 
-	fmt.Println(c)
 	q := c.composeInsertQuery()
-	fmt.Println(q)
 	_, err = dbExec(q)
 	return err
 }
@@ -277,6 +275,10 @@ func getCurrencyRate(c *gin.Context) {
 	var createdAt time.Time
 	q := `SELECT base,note,usd,cny,eur,cad,aud,chf,rub,nzd,created_at FROM currency_exchange_rates ORDER BY created_at DESC LIMIT 1`
 	if err := db.QueryRow(q).Scan(&base, &note, &usd, &cny, &eur, &cad, &aud, &chf, &rub, &nzd, &createdAt); err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusOK, VEMSG_EXCHANGE_RATE_NOT_EXIST)
+			return
+		}
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -303,7 +305,7 @@ func newCurrencyRate(c *gin.Context) {
 	q := currencyRate.composeInsertQuery()
 	fmt.Println(q)
 	if _, err := db.Exec(q); err != nil {
-		c.String(http.StatusBadRequest, errors.GetMessage(err))
+		c.String(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 

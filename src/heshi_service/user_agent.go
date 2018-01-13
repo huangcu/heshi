@@ -3,16 +3,20 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"heshi/errors"
 	"net/http"
+	"strconv"
+	"util"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Agent struct {
-	ID       string  `json"-"`
-	UserInfo User    `json:"user"`
-	Level    int     `json:"level"`
-	Discount float64 `json:"discount"`
+	UserInfo    User   `json:"user"`
+	Level       string `json:"level"`
+	Discount    int    `json:"discount"`
+	DiscountStr string `json:"-"`
+	SetBy       string `json:"set_by"`
 }
 
 type ContactInfo struct {
@@ -27,8 +31,25 @@ type ContactInfo struct {
 	AdditionalInfo string `json:"additional_info"`
 }
 
+func configAgent(c *gin.Context) {
+	adminID := c.MustGet("id").(string)
+	level := c.PostForm("level")
+	if !util.IsInArrayString(level, VALID_AGENTLEVEL) {
+		c.JSON(http.StatusOK, VEMSG_AGENT_LEVEL_NOT_VALID)
+		return
+	}
+	agentID := c.Param("id")
+	q := fmt.Sprintf(`UPDATE Agents set (level, set_by) VALUES ('%s', '%s') WHERE user_id='%s'`, level, agentID, adminID)
+	if _, err := db.Exec(q); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	c.JSON(http.StatusOK, "success")
+}
+
 func (a *Agent) newAgent() error {
-	q := fmt.Sprintf(`INSERT INTO Agents (id, user_id, level, discount) VALUES(%s, %s, %d, %f)`, a.ID, a.UserInfo.ID, a.Level, a.Discount)
+	q := fmt.Sprintf(`INSERT INTO Agents (user_id, level, discount, set_by) VALUES (%s', '%s', '%d', '%s')`,
+		a.UserInfo.ID, a.Level, a.Discount, a.SetBy)
 	_, err := db.Exec(q)
 	return err
 }
@@ -39,12 +60,12 @@ func agentContactInfo(c *gin.Context) {
 	q := fmt.Sprintf(`SELECT recommanded_by from Users where id=%s`, id)
 	var recommandedBy string
 	if err := db.QueryRow(q).Scan(&recommandedBy); err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	ci, err := getUserContactInfoInvitationCode(recommandedBy)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	c.JSON(http.StatusOK, *ci)
@@ -72,4 +93,27 @@ func getUserContactInfoInvitationCode(code string) (*ContactInfo, error) {
 		Address:        address.String,
 		AdditionalInfo: additionalInfo.String,
 	}, nil
+}
+
+func (a *Agent) prevalidateNewAgent() ([]errors.HSMessage, error) {
+	var vemsg []errors.HSMessage
+	if !util.IsInArrayString(a.Level, VALID_AGENTLEVEL) {
+		vemsg = append(vemsg, VEMSG_AGENT_LEVEL_NOT_VALID)
+	}
+
+	discount, err := strconv.Atoi(a.DiscountStr)
+	if err != nil {
+		vemsg = append(vemsg, VEMSG_AGENT_DISCOUNT_NOT_VALID)
+	} else if discount < 0 || discount > 100 {
+		vemsg = append(vemsg, VEMSG_AGENT_DISCOUNT_NOT_VALID)
+	} else {
+		a.Discount = discount
+	}
+	vmsg, err := a.UserInfo.validNewUser()
+	if err != nil {
+		return nil, err
+	} else if len(vmsg) != 0 {
+		vemsg = append(vemsg, vmsg...)
+	}
+	return vemsg, nil
 }
