@@ -67,7 +67,7 @@ func (d *diamond) parmsKV() map[string]interface{} {
 	if d.Clarity != "" {
 		params["clarity"] = d.Clarity
 	}
-	if d.GradingLab != 0 {
+	if d.GradingLab != "" {
 		params["grading_lab"] = d.GradingLab
 	}
 	if d.CertificateNumber != "" {
@@ -178,15 +178,7 @@ func importDiamonds(headers map[string]string, records [][]string) ([][]string, 
 						case "clarity":
 							d.Clarity = record[i]
 						case "grading_lab":
-							cValue, err := strconv.Atoi(record[i])
-							if err != nil {
-								ignoredRows = append(ignoredRows, record)
-								ignored = true
-							}
-							if cValue == 0 {
-								ignored = true
-							}
-							d.GradingLab = cValue
+							d.GradingLab = record[i]
 						case "certificate_number":
 							d.CertificateNumber = record[i]
 						case "cut_grade":

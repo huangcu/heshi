@@ -53,9 +53,8 @@ var (
 )
 
 var (
-	letterRunes           = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-	VALID_USERTYPE        = []string{"admin", "customer", "agent"}
-	VALID_AGENTLEVEL      = []string{"1", "2", "3"}
+	VALID_USERTYPE        = []string{CUSTOMER, AGENT, ADMIN}
+	VALID_AGENTLEVEL      = []string{LEVEL1, LEVEL2, LEVEL3}
 	VALID_CURRENCY_SYMBOL = []string{"USD", "CNY", "EUR", "CAD", "AUD", "CHF", "RUB", "NZD"}
 	USER_SESSION_KEY      = "hs_sessionuserid"
 	ADMIN_KEY             = "hs_sessionadmin"

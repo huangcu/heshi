@@ -23,7 +23,7 @@ type diamond struct {
 	Carat                 float64 `json:"carat"`
 	Color                 string  `json:"color"`
 	Clarity               string  `json:"clarity"`
-	GradingLab            int     `json:"grading_lab"`
+	GradingLab            string  `json:"grading_lab"`
 	CertificateNumber     string  `json:"certificate_number"`
 	CutGrade              string  `json:"cut_grade"`
 	Polish                string  `json:"polish"`
@@ -93,11 +93,6 @@ func newDiamond(c *gin.Context) {
 		c.JSON(http.StatusOK, "invalid carat input")
 		return
 	}
-	gValue, err := strconv.Atoi(c.PostForm("grading_lab"))
-	if err != nil {
-		c.JSON(http.StatusOK, "invalid grading_lab input")
-		return
-	}
 	pValue, err := strconv.ParseFloat(c.PostForm("price_no_added_value"), 64)
 	if err != nil {
 		c.JSON(http.StatusOK, "invalid carat input")
@@ -126,7 +121,7 @@ func newDiamond(c *gin.Context) {
 		Carat:                 cValue,
 		Color:                 c.PostForm("color"),
 		Clarity:               c.PostForm("clarity"),
-		GradingLab:            gValue,
+		GradingLab:            c.PostForm("grading_lab"),
 		CertificateNumber:     c.PostForm("certificate_number"),
 		CutGrade:              c.PostForm("cut_grade"),
 		Polish:                c.PostForm("polish"),
@@ -157,14 +152,13 @@ func newDiamond(c *gin.Context) {
 }
 
 func composeDiamond(rows *sql.Rows) ([]diamond, error) {
-	var id, diamondID, stockRef, country, supplier, clarityNumber string
+	var id, diamondID, stockRef, country, supplier, clarityNumber, gradingLab string
 	var cutNumber, featured, status, pickedUp, sold, profitable string
 	var shape, color, clarity, certificateNumber, cutGrade, polish, symmetry, fluorescenceIntensity sql.NullString
 	var certificateLink, recommandWords, extraWords sql.NullString
 	var soldPrice sql.NullFloat64
 	var orderedBy sql.NullInt64
 	var carat, priceNoAddedValue, priceRetail float64
-	var gradingLab int
 
 	var ds []diamond
 	for rows.Next() {

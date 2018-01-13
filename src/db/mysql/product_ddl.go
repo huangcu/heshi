@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS diamonds
 	carat FLOAT NOT NULL,
 	color VARCHAR(225),
 	clarity VARCHAR(225),
-	grading_lab INT NOT NULL,
+	grading_lab VARCHAR(58) NOT NULL,
 	certificate_number VARCHAR(225),
 	cut_grade VARCHAR(225),
 	polish VARCHAR(58),

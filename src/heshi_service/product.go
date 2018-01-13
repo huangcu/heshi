@@ -16,11 +16,6 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-var PRODUCTS = []string{"diamond", "small_diamond", "jewelry"}
-var diamondHeaders = []string{"diamond_id", "stock_ref", "shape", "carat", "color", "clarity", "grading_lab",
-	"certificate_number", "cut_grade", "polish", "symmetry", "fluorescence_intensity", "country",
-	"supplier", "price_no_added_value", "price_retail", "clarity_number", "cut_number"}
-
 type product struct {
 	Diamond      []diamond      `json:"diamond"`
 	Jewelry      []jewelry      `json:"jewelry"`
@@ -151,15 +146,7 @@ func importDiamondProducts(file string) ([][]string, error) {
 					case "clarity":
 						d.Clarity = record[i]
 					case "grading_lab":
-						cValue, err := strconv.Atoi(record[i])
-						if err != nil {
-							ignoredRows = append(ignoredRows, record)
-							ignored = true
-						}
-						if cValue == 0 {
-							ignored = true
-						}
-						d.GradingLab = cValue
+						d.GradingLab = record[i]
 					case "certificate_number":
 						d.CertificateNumber = record[i]
 					case "cut_grade":
@@ -260,10 +247,6 @@ func validateDiamondHeaders(headers []string) []string {
 
 func validateSmallDiamondHeaders(headers []string) []string {
 	var missingHeaders []string
-	smallDiamondHeaders := []string{"diamond_id", "stock_ref", "shape", "carat", "color", "clarity", "grading_lab",
-		"certificate_number", "cut_grade", "polish", "symmetry", "fluorescence_intensity", "country",
-		"supplier", "price_no_added_value", "price_retail", "clarity_number", "cut_number"}
-
 	for _, header := range smallDiamondHeaders {
 		if !util.IsInArrayString(header, headers) {
 			missingHeaders = append(missingHeaders, header)
@@ -274,10 +257,6 @@ func validateSmallDiamondHeaders(headers []string) []string {
 
 func validateJewelryHeaders(headers []string) []string {
 	var missingHeaders []string
-	jewelryHeaders := []string{"diamond_id", "stock_ref", "shape", "carat", "color", "clarity", "grading_lab",
-		"certificate_number", "cut_grade", "polish", "symmetry", "fluorescence_intensity", "country",
-		"supplier", "price_no_added_value", "price_retail", "clarity_number", "cut_number"}
-
 	for _, header := range jewelryHeaders {
 		if !util.IsInArrayString(header, headers) {
 			missingHeaders = append(missingHeaders, header)
