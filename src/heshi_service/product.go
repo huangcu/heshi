@@ -28,10 +28,6 @@ func getAllProducts(c *gin.Context) {
 
 }
 
-func searchProducts(c *gin.Context) {
-
-}
-
 //TODO customize header
 func uploadAndGetFileHeaders(c *gin.Context) {
 	id := c.MustGet("id").(string)

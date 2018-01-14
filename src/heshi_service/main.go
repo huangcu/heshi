@@ -158,9 +158,12 @@ func configRoute(r *gin.Engine) {
 		api.POST("/products/diamonds", newDiamond)
 		api.POST("/products/small_diamonds", newSmallDiamond)
 		api.POST("/products/jewelrys", newJewelry)
-		api.POST("/products/search", searchProducts)
-		api.POST("/products/diamonds/search", searchProducts)
-		api.POST("/products/jewelrys/search", searchProducts)
+
+		//product search - diamond or jewelry
+		api.POST("/products/:category/search", searchProducts)
+		// api.POST("/products/diamonds/search", searchProducts)
+		// api.POST("/products/jewelrys/search", searchProducts)
+
 		//wechat
 		api.GET("/wechat/auth", wechatAuth)
 		api.GET("/wechat/token", wechatToken)
