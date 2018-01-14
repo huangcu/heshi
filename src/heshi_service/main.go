@@ -142,8 +142,10 @@ func configRoute(r *gin.Engine) {
 		api.GET("/users", UserSessionMiddleWare(), getUser)
 		api.POST("/login", userLogin)
 		api.POST("/logout", userLogout)
-
 		api.GET("/users/:id/contactinfo", UserSessionMiddleWare(), agentContactInfo)
+
+		//action- > add, delete
+		api.POST("/shoppingList/:action", UserSessionMiddleWare(), toShoppingList)
 
 		//products
 		api.GET("/products", getAllProducts)

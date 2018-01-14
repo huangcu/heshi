@@ -84,7 +84,7 @@ func updateSupplier(c *gin.Context) {
 	c.JSON(http.StatusOK, s.ID)
 }
 
-//TODO check return row number
+//TODO check return row number?
 func removeSupplier(c *gin.Context) {
 	id := c.Param("id")
 	q := "DELETE FROM suppliers WHERE id=?"
