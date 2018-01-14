@@ -6,10 +6,10 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"sort"
 	"strings"
+	"util"
 
 	"github.com/gin-gonic/gin"
 	"gopkg.in/chanxuehong/wechat.v2/mp/message/template"
@@ -17,9 +17,9 @@ import (
 
 //微信公众号平台Callback - 接入验证
 func wechatCallback(c *gin.Context) {
-	log.Println("entry: wechatCallback")
+	util.Println("entry: wechatCallback")
 
-	// log.Printf("request: %#v", c.Request)
+	// util.Printf("request: %#v", c.Request)
 	//接入验证
 	echostr := c.Query("echostr")
 	if echostr != "" {
@@ -39,13 +39,13 @@ func wechatCallback(c *gin.Context) {
 		return
 	}
 	var msg MixedMsg
-	log.Printf("msg body received from wechat server: %s", string(bs))
+	util.Printf("msg body received from wechat server: %s", string(bs))
 	err = xml.Unmarshal(bs, &msg)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	log.Printf("response msg from wechat %v", msg)
+	util.Printf("response msg from wechat %v", msg)
 	switch msg.MsgType {
 	case "event":
 		wechatEventHandler(msg)
@@ -71,7 +71,7 @@ func checkSignature(signature, timestamp, nonce string) bool {
 	h := sha1.New()
 	_, err := h.Write([]byte(strings.Join(tmpArr, "")))
 	if err != nil {
-		log.Printf("check signature failed. error: %s", err.Error())
+		util.Printf("check signature failed. error: %s", err.Error())
 		return false
 	}
 	bs := h.Sum(nil)
@@ -88,7 +88,7 @@ func wechatEventHandler(msg MixedMsg) error {
 	switch msg.EventType {
 	case EventTypeSubscribe, EventTypeScan:
 		if err := redisClient.Set(msg.EventKey, msg.FromUserName, 0).Err(); err != nil {
-			log.Printf("fail to write to redis db. err: %s", err.Error())
+			util.Printf("fail to write to redis db. err: %s", err.Error())
 			return err
 		}
 		sendTemplateMsg(msg.FromUserName, "http://721e2175.ngrok.io/api/wechat/auth")
@@ -120,6 +120,6 @@ func sendTemplateMsg(toUser, url string) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("message: %v sent out. msgid: %d", templateMessage, msgID)
+	util.Printf("message: %v sent out. msgid: %d", templateMessage, msgID)
 	return nil
 }

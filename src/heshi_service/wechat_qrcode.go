@@ -1,9 +1,9 @@
 package main
 
 import (
-	"log"
 	"math"
 	"net/http"
+	"util"
 
 	"github.com/chanxuehong/rand"
 	"github.com/gin-contrib/sessions"
@@ -35,7 +35,7 @@ func wechatQrCode(c *gin.Context) {
 	s.Set(USER_SESSION_KEY, state)
 	s.Save()
 	authURL := mpoauth2.AuthCodeURL(wxAppIDDebug, redirectURI, "snsapi_userinfo", state)
-	log.Println("qrcode AuthCodeURL:", authURL)
+	util.Println("qrcode AuthCodeURL:", authURL)
 	QRCODE.WriteFile(authURL, QRCODE.Medium, 256, "qr.png")
 }
 
@@ -57,7 +57,7 @@ func wechatTempQrCode(c *gin.Context) {
 		SceneID:   sceneID,
 		QrCodeURL: qrcodeURL,
 	}
-	log.Printf("%v", t)
+	util.Printf("%v", t)
 	c.JSON(http.StatusOK, t)
 }
 
@@ -69,7 +69,7 @@ func wechatQrCodeStatus(c *gin.Context) {
 		return
 	}
 	if _, err := redisClient.Del(sceneID).Result(); err != nil {
-		log.Printf("fail to clean key %s from redis db", sceneID)
+		util.Printf("fail to clean key %s from redis db", sceneID)
 	}
 	c.JSON(http.StatusOK, openID)
 }

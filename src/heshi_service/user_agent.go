@@ -39,7 +39,7 @@ func configAgent(c *gin.Context) {
 		return
 	}
 	agentID := c.Param("id")
-	q := fmt.Sprintf(`UPDATE Agents set (level, set_by) VALUES ('%s', '%s') WHERE user_id='%s'`, level, agentID, adminID)
+	q := fmt.Sprintf(`UPDATE agents SET level='%s', set_by='%s' WHERE user_id='%s'`, level, agentID, adminID)
 	if _, err := db.Exec(q); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
@@ -48,7 +48,7 @@ func configAgent(c *gin.Context) {
 }
 
 func (a *Agent) newAgent() error {
-	q := fmt.Sprintf(`INSERT INTO Agents (user_id, level, discount, set_by) VALUES (%s', '%s', '%d', '%s')`,
+	q := fmt.Sprintf(`INSERT INTO agents (user_id, level, discount, set_by) VALUES (%s', '%s', '%d', '%s')`,
 		a.UserInfo.ID, a.Level, a.Discount, a.SetBy)
 	_, err := db.Exec(q)
 	return err
@@ -57,7 +57,7 @@ func (a *Agent) newAgent() error {
 func agentContactInfo(c *gin.Context) {
 	id := c.MustGet("id").(string)
 
-	q := fmt.Sprintf(`SELECT recommanded_by from Users where id=%s`, id)
+	q := fmt.Sprintf(`SELECT recommanded_by from users where id=%s`, id)
 	var recommandedBy string
 	if err := db.QueryRow(q).Scan(&recommandedBy); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))

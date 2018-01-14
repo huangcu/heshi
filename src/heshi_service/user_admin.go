@@ -14,7 +14,7 @@ type Admin struct {
 }
 
 func (a *Admin) newAgent() error {
-	q := fmt.Sprintf(`INSERT INTO Admins (user_id, level, wechat_kefu, created_by) VALUES ('%s', '%s', '%s', '%s')`,
+	q := fmt.Sprintf(`INSERT INTO admins (user_id, level, wechat_kefu, created_by) VALUES ('%s', '%s', '%s', '%s')`,
 		a.UserInfo.ID, a.Level, a.WechatKefu, a.CreatedBy)
 	_, err := db.Exec(q)
 	return err

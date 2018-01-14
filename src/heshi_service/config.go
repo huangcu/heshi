@@ -3,9 +3,9 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"net/http"
 	"time"
+	"util"
 
 	"github.com/satori/go.uuid"
 
@@ -68,7 +68,7 @@ func (ac *config) getActiveConfig() {
 	q := "SELECT rate,created_by,created_at FROM configs ORDER BY created_at DESC LIMIT 1"
 	if err := db.QueryRow(q).Scan(&rate, &createdBy, &createdAt); err != nil {
 		if err == sql.ErrNoRows {
-			log.Println("fail to get active config, use default config")
+			util.Println("fail to get active config, use default config")
 		}
 	}
 	ac.Rate = rate

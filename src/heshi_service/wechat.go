@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
+	"util"
 
 	"gopkg.in/chanxuehong/wechat.v2/oauth2"
 
@@ -41,8 +41,8 @@ const (
 )
 
 var (
-	redirectURI                              = "http://721e2175.ngrok.io/api/wechat/token"
-	redirectLogin                            = "http://721e2175.ngrok.io/webpage/login.html"
+	redirectURI                              = "http://44c4412e.ngrok.io/api/wechat/token"
+	redirectLogin                            = "http://44c4412e.ngrok.io/webpage/login.html"
 	endPoint                                 = mpoauth2.NewEndpoint(wxAppIDDebug, wxAppSecretDebug) //*mpoauth2.Endpoint
 	accessTokenServer core.AccessTokenServer = core.NewDefaultAccessTokenServer(wxAppIDDebug, wxAppSecretDebug, nil)
 	wechatClient                             = core.NewClient(accessTokenServer, nil) //*core.Client
@@ -65,23 +65,23 @@ func wechatAuth(c *gin.Context) {
 	s.Set(USER_SESSION_KEY, state)
 	s.Save()
 	authURL := mpoauth2.AuthCodeURL(wxAppIDDebug, redirectURI, "snsapi_userinfo", state)
-	log.Println("AuthCodeURL:", authURL)
+	util.Println("AuthCodeURL:", authURL)
 	c.Redirect(http.StatusFound, authURL)
 }
 
 //TODO not UI related should
 func wechatToken(c *gin.Context) {
 	code := c.Query("code")
-	log.Println("code", code)
+	util.Println("code", code)
 	if code == "" {
-		log.Println("用户禁止授权")
+		util.Println("用户禁止授权")
 		c.Redirect(http.StatusFound, redirectLogin)
 		return
 	}
 	queryState := c.Query("state")
-	log.Println("state", queryState)
+	util.Println("state", queryState)
 	if queryState == "" {
-		log.Println("state 参数为空")
+		util.Println("state 参数为空")
 		c.Redirect(http.StatusFound, redirectLogin)
 		return
 	}
@@ -90,7 +90,7 @@ func wechatToken(c *gin.Context) {
 	savedState := s.Get(USER_SESSION_KEY)
 	if savedState != queryState {
 		str := fmt.Sprintf("state 不匹配, session 中的为 %q, url 传递过来的是 %q", savedState, queryState)
-		log.Println(str)
+		util.Println(str)
 		c.Redirect(http.StatusFound, redirectLogin)
 		return
 	}
@@ -98,16 +98,16 @@ func wechatToken(c *gin.Context) {
 	oauth2Client := oauth2.Client{
 		Endpoint: endPoint,
 	}
-	log.Println("get access token")
+	util.Println("get access token")
 	// https://api.weixin.qq.com/sns/oauth2/access_token?appid=%s&secret=%s&code=%s&grant_type=authorization_code
 	token, err := oauth2Client.ExchangeToken(code)
 
 	if err != nil {
-		log.Println("error to get access token", err)
+		util.Println("error to get access token", err)
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	log.Printf("token: %+v\r\n", token)
+	util.Printf("token: %+v\r\n", token)
 	exist, err := isWechatUserExist(token.OpenId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
@@ -126,10 +126,10 @@ func wechatToken(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, err.Error())
 			return
 		}
-		log.Printf("userinfo: %+v\r\n", userinfo)
+		util.Printf("userinfo: %+v\r\n", userinfo)
 	}
 	s.Set(USER_SESSION_KEY, token.OpenId)
-	log.Println("redirect to login page " + redirectLogin)
+	util.Println("redirect to login page " + redirectLogin)
 	c.Redirect(http.StatusFound, redirectLogin)
 }
 

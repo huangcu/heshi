@@ -6,7 +6,7 @@ const (
 	JEWELRY      = "jewelry"
 )
 
-var PRODUCTS = []string{DIAMOND, SMALLDIAMOND, JEWELRY}
+var VALID_PRODUCTS = []string{DIAMOND, SMALLDIAMOND, JEWELRY}
 var diamondHeaders = []string{
 	"diamond_id",
 	"stock_ref",
@@ -33,25 +33,6 @@ var smallDiamondHeaders = []string{
 	"size_to",
 	"price",
 	"quantity",
-}
-
-var jewelryHeaders = []string{
-	"category",
-	"unit_number",
-	"dia_shape",
-	"material",
-	"metal_weight",
-	"need_diamond",
-	"name",
-	"name_suffix",
-	"dia_size_min",
-	"dia_size_max",
-	"small_dias",
-	"small_dia_num",
-	"small_dia_carat",
-	"mounting_type",
-	"main_dia_num",
-	"main_dia_size",
 }
 
 //  "BR" :"圆形" /_images/constant/ico-stones.png

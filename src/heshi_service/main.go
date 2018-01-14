@@ -5,11 +5,11 @@ import (
 	"database/sql"
 	"db/mysql"
 	"flag"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 	"util"
 
@@ -94,31 +94,34 @@ func configRoute(r *gin.Engine) {
 
 	{
 		apiAdmin := api.Group("admin")
+		apiAdmin.Use(AdminSessionMiddleWare())
 		{
 			//admin user -
-			apiAdmin.POST("/users", AdminSessionMiddleWare(), newAdminAgentUser)
-			apiAdmin.GET("/users/:id", AdminSessionMiddleWare(), getUser)
-			apiAdmin.GET("/users", AdminSessionMiddleWare(), getAllUsers)
-			apiAdmin.PATCH("/users/:id", AdminSessionMiddleWare(), configAgent)
-			apiAdmin.DELETE("/users/:id", AdminSessionMiddleWare(), removeUser)
+			apiAdmin.POST("/users", newAdminAgentUser)
+			apiAdmin.GET("/users/:id", getUser)
+			apiAdmin.GET("/users", getAllUsers)
+			apiAdmin.PATCH("/users/:id", configAgent)
+			apiAdmin.DELETE("/users/:id", removeUser)
 
 			//currency rate
-			apiAdmin.GET("/exchangerate", AdminSessionMiddleWare(), getCurrencyRate)
-			apiAdmin.POST("/exchangerate", AdminSessionMiddleWare(), currencyRateReqValidator(newCurrencyRate))
+			apiAdmin.GET("/exchangerate", getCurrencyRate)
+			apiAdmin.POST("/exchangerate", currencyRateReqValidator(newCurrencyRate))
 
 			//discount
-			apiAdmin.GET("/discount/:id", AdminSessionMiddleWare(), getDiscount)
-			apiAdmin.GET("/discount", AdminSessionMiddleWare(), getDiscounts)
-			apiAdmin.POST("/discount", AdminSessionMiddleWare(), newDiscount)
+			apiAdmin.GET("/discount/:id", getDiscount)
+			apiAdmin.GET("/discount", getDiscounts)
+			apiAdmin.POST("/discount", newDiscount)
 
 			//config
-			apiAdmin.GET("/config", AdminSessionMiddleWare(), getConfig)
-			apiAdmin.GET("/configs", AdminSessionMiddleWare(), getConfigs)
-			apiAdmin.POST("/config", AdminSessionMiddleWare(), newConfig)
+			apiAdmin.GET("/config", getConfig)
+			apiAdmin.GET("/configs", getConfigs)
+			apiAdmin.POST("/config", newConfig)
 
 			//products
-			apiAdmin.POST("/upload", AdminSessionMiddleWare(), uploadProducts)
-			apiAdmin.POST("/process/diamond", AdminSessionMiddleWare(), processDiamonds)
+			apiAdmin.POST("/upload", uploadAndGetFileHeaders)
+			apiAdmin.POST("/process/diamond", processDiamonds)
+			//upload products by csv file
+			apiAdmin.POST("/products/upload", uploadAndProcessProducts)
 		}
 		//agent, customer
 		api.POST("/users", newUser)
@@ -140,7 +143,9 @@ func configRoute(r *gin.Engine) {
 		api.POST("/products/diamonds", newDiamond)
 		api.POST("/products/small_diamonds", newSmallDiamond)
 		api.POST("/products/jewelrys", newJewelry)
-
+		api.POST("/products/search", searchProducts)
+		api.POST("/products/diamonds/search", searchProducts)
+		api.POST("/products/jewelrys/search", searchProducts)
 		//wechat
 		api.GET("/wechat/auth", wechatAuth)
 		api.GET("/wechat/token", wechatToken)
@@ -163,6 +168,10 @@ func init() {
 	// 	log.Fatalf("qr code pic error %s", err.Error())
 	// }
 	// log.Println(u)
+	os.Setenv("TRACE", "true")
+	if err := chdir(); err != nil {
+		log.Fatal(err)
+	}
 	lf, err := os.OpenFile("heshi.log", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
 	if err != nil {
 		log.Fatal(err)
@@ -177,8 +186,16 @@ func init() {
 
 	db, err = mysql.OpenDB()
 	if db == nil && err != nil {
-		fmt.Println(err.Error())
+		util.Println(err.Error())
+		os.Exit(1)
 	}
+
+	activeConfig = config{Rate: 0.01, CreatedBy: "system", CreatedAt: time.Now().Local()}
+	val, err := redisClient.FlushAll().Result()
+	if err != nil {
+		util.Printf("fail to flush redis db. err: %s", err.Error())
+	}
+	util.Printf("flushed redis db. %s", val)
 
 	store = sessions.NewCookieStore([]byte("secret"))
 	store.Options(sessions.Options{
@@ -188,10 +205,12 @@ func init() {
 	// if err := getLatestRates(); err != nil {
 	// 	log.Fatalf("init fail. err: %s;", err.Error())
 	// }
-	activeConfig = config{Rate: 0.01, CreatedBy: "system", CreatedAt: time.Now().Local()}
-	val, err := redisClient.FlushAll().Result()
+}
+
+func chdir() error {
+	pwd, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
-		log.Printf("fail to flush redis db. err: %s", err.Error())
+		return err
 	}
-	log.Printf("flushed redis db. %s", val)
+	return os.Chdir(pwd)
 }

@@ -44,6 +44,9 @@ var (
 	VEMSG_AGENT_LEVEL_NOT_VALID    = errors.HSMessage{Code: 20012, Message: "agent level is notvalid"}
 	VEMSG_AGENT_DISCOUNT_NOT_VALID = errors.HSMessage{Code: 20013, Message: "discount is not valid"}
 
+	//UPLOAD PRODUCTS(30-39)
+	VEMSG_UPLOAD_PRODUCTS_CATEGORY_NOT_VALID = errors.HSMessage{Code: 20090, Message: "product category not valid"}
+
 	//Currency(90-99)
 	VEMSG_CURRENCY_SYMBOL_NOT_VALID   = errors.HSMessage{Code: 20090, Message: "input is not a valid currency symbol;"}
 	VEMSG_CURRENCY_RATE_NOT_VALID     = errors.HSMessage{Code: 20091, Message: "currency exchange rate should be float;"}
@@ -58,6 +61,7 @@ var (
 	VALID_CURRENCY_SYMBOL = []string{"USD", "CNY", "EUR", "CAD", "AUD", "CHF", "RUB", "NZD"}
 	USER_SESSION_KEY      = "hs_sessionuserid"
 	ADMIN_KEY             = "hs_sessionadmin"
+	UPLOADFILEDIR         = ".uploaded"
 )
 
 const (

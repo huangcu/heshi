@@ -136,7 +136,7 @@ func (d *diamond) parmsKV() map[string]interface{} {
 	return params
 }
 
-func importDiamonds(headers map[string]string, records [][]string) ([][]string, error) {
+func importDiamondsCustomizeHeaders(headers map[string]string, records [][]string) ([][]string, error) {
 	originalHeaders := []string{}
 	ignoredRows := [][]string{}
 	//get headers

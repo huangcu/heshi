@@ -13,12 +13,12 @@ import (
 
 type jewelry struct {
 	ID             string    `json:"id"`
+	StockID        string    `json:"stock_id"`
 	Category       int       `json:"category"`
 	UnitNumber     string    `json:"unit_number"`
 	DiaShape       string    `json:"dia_shape"`
 	Material       string    `json:"material"`
 	MetalWeight    float64   `json:"metal_weight"`
-	GradingLab     int       `json:"grading_lab"`
 	NeedDiamond    string    `json:"need_diamond"`
 	Name           string    `json:"name "`
 	NameSuffix     int64     `json:"name_suffix"`
@@ -28,8 +28,8 @@ type jewelry struct {
 	SmallDiaNum    int64     `json:"small_dia_num"`
 	SmallDiaCarat  float64   `json:"small_dia_carat"`
 	MountingType   string    `json:"mounting_type"`
-	MainDiaNum     int       `json:"main_dia_num"`
-	MainDiaSize    string    `json:"main_dia_size"`
+	MainDiaNum     int64     `json:"main_dia_num"`
+	MainDiaSize    float64   `json:"main_dia_size"`
 	VideoLink      string    `json:"video_link"`
 	Text           string    `json:"text"`
 	Online         string    `json:"online"`
@@ -39,7 +39,6 @@ type jewelry struct {
 	Price          float64   `json:"price"`
 	StockQuantity  int       `json:"stock_quantity"`
 	Profitable     string    `json:"profitable"`
-	ClarityNumber  string    `json:"clarity_number"`
 	TotallyScanned int       `json:"totally_scanned"`
 	FreeAcc        string    `json:"free_acc"`
 	LastScanAt     time.Time `json:"last_scan_at"`
@@ -85,6 +84,7 @@ func getJewelry(c *gin.Context) {
 	c.JSON(http.StatusOK, ds)
 }
 
+//TODO
 func newJewelry(c *gin.Context) {
 	q := selectJewelryQuery(c.Param("id"))
 	rows, err := db.Query(q)
@@ -107,30 +107,29 @@ func newJewelry(c *gin.Context) {
 }
 
 func composeJewelry(rows *sql.Rows) ([]jewelry, error) {
-	var id, unitNumber, needDiamond, name, online, verified, inStock, featured, profitable, clarityNumber, freeAcc string
-	var diaShape, material, smallDias, mountingType, mainDiaSize, videoLink, text sql.NullString
-	var metalWeight, price sql.NullFloat64
-	var nameSuffix, smallDiaNum sql.NullInt64
-	var diaSizeMin, diaSizeMax, smallDiaCarat float64
-	var category, mainDiaNum, stockQuantity, totallyScanned int
+	var id, stockID, needDiamond, name, online, verified, inStock, featured, profitable, freeAcc string
+	var unitNumber, diaShape, material, smallDias, mountingType, videoLink, text sql.NullString
+	var metalWeight, mainDiaSize, diaSizeMin, diaSizeMax, smallDiaCarat, price sql.NullFloat64
+	var nameSuffix, mainDiaNum, smallDiaNum sql.NullInt64
+	var category, stockQuantity, totallyScanned int
 	var lastScanAt time.Time
 	var offlineAt sql_patch.NullTime
 
 	var ds []jewelry
 	for rows.Next() {
-		if err := rows.Scan(&id, &category, &unitNumber, &diaShape, &material, &metalWeight, &needDiamond, &name, &nameSuffix,
+		if err := rows.Scan(&id, &stockID, &category, &unitNumber, &diaShape, &material, &metalWeight, &needDiamond, &name, &nameSuffix,
 			&diaSizeMin, &diaSizeMax, &smallDias, &smallDiaNum, &smallDiaCarat, &mountingType, &mainDiaNum, &mainDiaSize,
-			&videoLink, &text, &online, &verified, &inStock, &featured, &price, &stockQuantity, &profitable, &clarityNumber,
+			&videoLink, &text, &online, &verified, &inStock, &featured, &price, &stockQuantity, &profitable,
 			&totallyScanned, &freeAcc, &lastScanAt, &offlineAt); err != nil {
 			return nil, err
 		}
-		d := jewelry{ID: id, Category: category, UnitNumber: unitNumber, DiaShape: diaShape.String,
+		d := jewelry{ID: id, StockID: stockID, Category: category, UnitNumber: unitNumber.String, DiaShape: diaShape.String,
 			Material: material.String, MetalWeight: metalWeight.Float64, NeedDiamond: needDiamond, Name: name,
-			NameSuffix: nameSuffix.Int64, DiaSizeMin: diaSizeMin, DiaSizeMax: diaSizeMax, SmallDias: smallDias.String,
-			SmallDiaCarat: smallDiaCarat, SmallDiaNum: smallDiaNum.Int64, MountingType: mountingType.String,
-			MainDiaNum: mainDiaNum, MainDiaSize: mainDiaSize.String, VideoLink: videoLink.String, Text: text.String,
-			Online: online, Verified: verified, InStock: inStock, Featured: featured, Price: price.Float64,
-			StockQuantity: stockQuantity, Profitable: profitable, ClarityNumber: clarityNumber, TotallyScanned: totallyScanned,
+			NameSuffix: nameSuffix.Int64, DiaSizeMin: diaSizeMin.Float64, DiaSizeMax: diaSizeMax.Float64,
+			SmallDias: smallDias.String, SmallDiaCarat: smallDiaCarat.Float64, SmallDiaNum: smallDiaNum.Int64,
+			MountingType: mountingType.String, MainDiaNum: mainDiaNum.Int64, MainDiaSize: mainDiaSize.Float64,
+			VideoLink: videoLink.String, Text: text.String, Online: online, Verified: verified, InStock: inStock, Featured: featured, Price: price.Float64,
+			StockQuantity: stockQuantity, Profitable: profitable, TotallyScanned: totallyScanned,
 			FreeAcc: freeAcc, LastScanAt: lastScanAt.Local(), OfflineAt: offlineAt.Time}
 		ds = append(ds, d)
 	}
@@ -138,9 +137,9 @@ func composeJewelry(rows *sql.Rows) ([]jewelry, error) {
 }
 
 func selectJewelryQuery(id string) string {
-	q := `SELECT id, category, unit_number, dia_shape, material, metal_weight, need_diamond, name, name_suffix,
+	q := `SELECT id, stock_id, category, unit_number, dia_shape, material, metal_weight, need_diamond, name, name_suffix,
 	 dia_size_min, dia_size_max, small_dias, small_dia_num, small_dia_carat, mounting_type, main_dia_num, main_dia_size, 
-	 video_link, text, online, verified, in_stock, featured, price, stock_quantity, profitable, clarity_number,
+	 video_link, text, online, verified, in_stock, featured, price, stock_quantity, profitable,
 	 totally_scanned, free_acc, last_scan_at,offline_at FROM jewelrys`
 
 	if id != "" {

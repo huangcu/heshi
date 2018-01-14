@@ -189,6 +189,7 @@ func selectDiamondQuery(id string) string {
 	return q
 }
 
+//TODO
 func processDiamonds(c *gin.Context) {
 	id := c.MustGet("id").(string)
 	headers := make(map[string]string)
@@ -233,7 +234,7 @@ func processDiamonds(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, fmt.Sprintf("fail to parse uploaded file :%s", file))
 		return
 	}
-	ignoredrows, err := importDiamonds(headers, records)
+	ignoredrows, err := importDiamondsCustomizeHeaders(headers, records)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, fmt.Sprintf("fail to process uploaded file :%s", file))
 		return

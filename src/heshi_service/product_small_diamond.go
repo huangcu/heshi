@@ -56,6 +56,7 @@ func getSmallDiamond(c *gin.Context) {
 	c.JSON(http.StatusOK, ds)
 }
 
+//TODO
 func newSmallDiamond(c *gin.Context) {
 	q := selectSmallDiamondQuery(c.Param("id"))
 	rows, err := db.Query(q)
