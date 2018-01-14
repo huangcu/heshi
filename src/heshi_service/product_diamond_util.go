@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"util"
 
 	"github.com/satori/go.uuid"
 )
@@ -151,11 +152,10 @@ func importDiamondsCustomizeHeaders(headers map[string]string, records [][]strin
 			ignored := false
 			d := diamond{}
 			record := records[index]
-			fmt.Println("processsing " + strconv.Itoa(index))
+			util.Println("processsing " + strconv.Itoa(index))
 			for header, oriheader := range headers {
 				for i := 0; i < len(originalHeaders); i++ {
 					if originalHeaders[i] == oriheader {
-						fmt.Println(oriheader + record[i])
 						switch header {
 						case "diamond_id":
 							d.DiamondID = record[i]
@@ -188,14 +188,12 @@ func importDiamondsCustomizeHeaders(headers map[string]string, records [][]strin
 						case "symmetry":
 							d.Symmetry = record[i]
 						case "fluorescence_intensity":
-							fmt.Println(record[i])
 							d.FluorescenceIntensity = record[i]
 						case "country":
 							d.Country = record[i]
 						case "supplier":
 							d.Supplier = record[i]
 						case "price_no_added_value":
-							fmt.Println(record[i])
 							cValue, err := strconv.ParseFloat(strings.Replace(record[i], ",", "", -1), 64)
 							if err != nil {
 								ignoredRows = append(ignoredRows, record)
@@ -226,13 +224,11 @@ func importDiamondsCustomizeHeaders(headers map[string]string, records [][]strin
 			}
 			//insert into db
 			if !ignored {
-				fmt.Printf("%#v", d)
 				var id string
 				if err := db.QueryRow(fmt.Sprintf("SELECT id FROM diamonds WHERE stock_ref='%s'", d.StockRef)).Scan(&id); err != nil {
 					if err == sql.ErrNoRows {
 						d.ID = uuid.NewV4().String()
 						q := d.composeInsertQuery()
-						fmt.Println(q)
 						if _, err := db.Exec(q); err != nil {
 							return nil, err
 							// ignoredRows = append(ignoredRows, record)
@@ -250,7 +246,7 @@ func importDiamondsCustomizeHeaders(headers map[string]string, records [][]strin
 					return nil, err
 				}
 			}
-			fmt.Println("finish process")
+			util.Println("finish process")
 		}
 	}
 	return ignoredRows, nil

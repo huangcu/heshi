@@ -21,12 +21,11 @@ type discount struct {
 func newDiscount(c *gin.Context) {
 	var nd discount
 	if err := c.ShouldBind(&nd); err != nil {
-		c.JSON(http.StatusBadRequest, VEMSG_AGENT_DISCOUNT_NOT_VALID)
+		c.JSON(http.StatusOK, VEMSG_AGENT_DISCOUNT_NOT_VALID)
 		return
 	}
 	id := uuid.NewV4().String()
 	q := fmt.Sprintf(`INSERT INTO discounts (id, discount_code, discount) VALUES ('%s', '%s', '%d')`, id, nd.DiscountCode, nd.Discount)
-	fmt.Println(q)
 	if _, err := db.Exec(q); err != nil {
 		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 		return
@@ -57,7 +56,7 @@ func getDiscount(c *gin.Context) {
 	c.JSON(http.StatusOK, d)
 }
 
-func getDiscounts(c *gin.Context) {
+func getAllDiscounts(c *gin.Context) {
 	q := `SELECT discount_code, discount,created_at FROM discounts ORDER BY created_at DESC`
 	rows, err := db.Query(q)
 	if err != nil {

@@ -76,7 +76,6 @@ func newAdminAgentUser(c *gin.Context) {
 		}
 
 		q := nu.composeInsertQuery()
-		fmt.Println(q)
 		if _, err := db.Exec(q); err != nil {
 			c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 			return
@@ -104,7 +103,6 @@ func newAdminAgentUser(c *gin.Context) {
 		}
 
 		q := nu.composeInsertQuery()
-		fmt.Println(q)
 		if _, err := db.Exec(q); err != nil {
 			c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 			return
@@ -144,7 +142,6 @@ func newUser(c *gin.Context) {
 	}
 
 	q := nu.composeInsertQuery()
-	fmt.Println(q)
 	if _, err := db.Exec(q); err != nil {
 		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 		return
@@ -182,7 +179,6 @@ func updateUser(c *gin.Context) {
 	//TODO validate updated user info too!!!
 	//TODO what info can be updated!!
 	q := uu.composeUpdateQuery()
-	fmt.Println(q)
 	//TODO admin,agent update!!!!
 	// var userType string
 	// switch userType {

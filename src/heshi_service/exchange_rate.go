@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"heshi/errors"
 	"io/ioutil"
 	"net/http"
@@ -270,11 +269,8 @@ func getLatestRates() error {
 }
 
 func getCurrencyRate(c *gin.Context) {
-	var base, note string
-	var usd, cny, eur, cad, aud, chf, rub, nzd float64
-	var createdAt time.Time
-	q := `SELECT base,note,usd,cny,eur,cad,aud,chf,rub,nzd,created_at FROM currency_exchange_rates ORDER BY created_at DESC LIMIT 1`
-	if err := db.QueryRow(q).Scan(&base, &note, &usd, &cny, &eur, &cad, &aud, &chf, &rub, &nzd, &createdAt); err != nil {
+	currencyRate, err := getAcitveCurrencyRate()
+	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusOK, VEMSG_EXCHANGE_RATE_NOT_EXIST)
 			return
@@ -282,7 +278,29 @@ func getCurrencyRate(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	currencyRate := currency{
+	c.JSON(http.StatusOK, currencyRate)
+}
+
+func newCurrencyRate(c *gin.Context) {
+	currencyRate := c.MustGet("currency").(*currency)
+	q := currencyRate.composeInsertQuery()
+	if _, err := db.Exec(q); err != nil {
+		c.String(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+
+	c.String(http.StatusOK, currencyRate.ID)
+}
+
+func getAcitveCurrencyRate() (*currency, error) {
+	var base, note string
+	var usd, cny, eur, cad, aud, chf, rub, nzd float64
+	var createdAt time.Time
+	q := `SELECT base,note,usd,cny,eur,cad,aud,chf,rub,nzd,created_at FROM currency_exchange_rates ORDER BY created_at DESC LIMIT 1`
+	if err := db.QueryRow(q).Scan(&base, &note, &usd, &cny, &eur, &cad, &aud, &chf, &rub, &nzd, &createdAt); err != nil {
+		return nil, err
+	}
+	currencyRate := &currency{
 		Base:      base,
 		Note:      note,
 		Timestamp: createdAt.Unix(),
@@ -297,17 +315,5 @@ func getCurrencyRate(c *gin.Context) {
 			NZD: nzd,
 		},
 	}
-	c.JSON(http.StatusOK, currencyRate)
-}
-
-func newCurrencyRate(c *gin.Context) {
-	currencyRate := c.MustGet("currency").(*currency)
-	q := currencyRate.composeInsertQuery()
-	fmt.Println(q)
-	if _, err := db.Exec(q); err != nil {
-		c.String(http.StatusInternalServerError, errors.GetMessage(err))
-		return
-	}
-
-	c.String(http.StatusOK, currencyRate.ID)
+	return currencyRate, nil
 }

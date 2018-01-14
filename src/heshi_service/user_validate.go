@@ -31,7 +31,6 @@ func (u *User) preValidateNewUser() []errors.HSMessage {
 		vmsgs = append(vmsgs, vmsg...)
 	}
 	if u.Email != "" {
-		fmt.Println(u.Email)
 		if !govalidator.IsEmail(u.Email) {
 			vmsgs = append(vmsgs, VEMSG_USER_EMAIL_NOT_VALID)
 		}

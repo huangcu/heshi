@@ -24,7 +24,6 @@ func userLogin(c *gin.Context) {
 	q := fmt.Sprintf(`SELECT id, password FROM users where username='%s' or cellphone='%s' or email='%s'`,
 		loginUser.Username, loginUser.Username, loginUser.Username)
 
-	fmt.Println(q)
 	var id, password string
 	if err := dbQueryRow(q).Scan(&id, &password); err != nil {
 		if err == sql.ErrNoRows {

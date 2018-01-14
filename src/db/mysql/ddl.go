@@ -14,41 +14,6 @@ CREATE TABLE IF NOT EXISTS promotions
 	) ENGINE=INNODB;
 	`
 
-// FOREIGN KEY (diamond_id) REFERENCES diamonds (id),
-const supplierDdl = `
-CREATE TABLE IF NOT EXISTS suppliers
-(
-	id VARCHAR(225) PRIMARY KEY NOT NULL,
-	name VARCHAR(255) NOT NULL,
-	prefix VARCHAR(8) NOT NULL,
-	connected VARCHAR(5) NOT NULL,
-	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-) ENGINE=INNODB;
-`
-
-const appointmentDdl = `
-CREATE TABLE IF NOT EXISTS appointments
-(
-	id VARCHAR(225) PRIMARY KEY NOT NULL,
-	item_id INT NOT NULL,
-	item_price FLOAT NOT NULL,
-	item_category INT NOT NULL,
-	buyer_id TINYINT(4) NOT NULL,
-	chosen_by VARCHAR(28) NOT NULL,
-	extra_info VARCHAR(255),
-	ordered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-) ENGINE=INNODB;
-`
-const orderDdl = `
-CREATE TABLE IF NOT EXISTS orders
-(
-	id VARCHAR(225) PRIMARY KEY NOT NULL,
-	appointment_id VARCHAR(225) NOT NULL,
-	FOREIGN KEY (appointment_id) REFERENCES appointments (id)
-) ENGINE=INNODB;
-`
-
 //note: where rate comes from
 const currencyExchangeRateDdl = `
 CREATE TABLE IF NOT EXISTS currency_exchange_rates

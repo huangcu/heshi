@@ -24,6 +24,7 @@ var (
 	cancelFn            context.CancelFunc
 	serverIsInterrupted bool
 	store               sessions.CookieStore
+	activeCurrencyRate  *currency
 )
 var redisClient = redis.NewClient(&redis.Options{
 	Addr:     "localhost:6379",
@@ -46,6 +47,11 @@ func main() {
 			case <-ticker.C:
 				if err := getLatestRates(); err != nil {
 					util.FailToGetCurrencyExchangeAlert()
+				}
+				var err error
+				activeCurrencyRate, err = getAcitveCurrencyRate()
+				if err != nil {
+					util.Println("fail to get latest active currency rate")
 				}
 			case <-stop:
 				return
@@ -108,20 +114,27 @@ func configRoute(r *gin.Engine) {
 			apiAdmin.POST("/exchangerate", currencyRateReqValidator(newCurrencyRate))
 
 			//discount
-			apiAdmin.GET("/discount/:id", getDiscount)
-			apiAdmin.GET("/discount", getDiscounts)
+			apiAdmin.GET("/discounts/:id", getDiscount)
+			apiAdmin.GET("/discounts", getAllDiscounts)
 			apiAdmin.POST("/discount", newDiscount)
 
 			//config
 			apiAdmin.GET("/config", getConfig)
-			apiAdmin.GET("/configs", getConfigs)
+			apiAdmin.GET("/configs", getAllConfigs)
 			apiAdmin.POST("/config", newConfig)
 
-			//products
+			//products with customize header
 			apiAdmin.POST("/upload", uploadAndGetFileHeaders)
 			apiAdmin.POST("/process/diamond", processDiamonds)
+
 			//upload products by csv file
 			apiAdmin.POST("/products/upload", uploadAndProcessProducts)
+
+			//supplier
+			apiAdmin.POST("/supplier", newSupplier)
+			apiAdmin.GET("/suppliers", getAllSuppliers)
+			apiAdmin.PUT("/suppliers/:id", updateSupplier)
+			apiAdmin.DELETE("/suppliers/:id", removeSupplier)
 		}
 		//agent, customer
 		api.POST("/users", newUser)
@@ -169,9 +182,10 @@ func init() {
 	// }
 	// log.Println(u)
 	os.Setenv("TRACE", "true")
-	if err := chdir(); err != nil {
-		log.Fatal(err)
-	}
+	//running dir
+	// if err := chdir(); err != nil {
+	// 	log.Fatal(err)
+	// }
 	lf, err := os.OpenFile("heshi.log", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
 	if err != nil {
 		log.Fatal(err)

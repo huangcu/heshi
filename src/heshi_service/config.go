@@ -44,7 +44,7 @@ func newConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, "config set")
 }
 
-func getConfigs(c *gin.Context) {
+func getAllConfigs(c *gin.Context) {
 	rows, err := db.Query("SELECT rate,created_by,created_at FROM configs ORDER BY created_at")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())

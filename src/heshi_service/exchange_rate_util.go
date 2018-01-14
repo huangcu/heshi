@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/satori/go.uuid"
 
@@ -116,13 +115,4 @@ func currencyRateReqValidator(h gin.HandlerFunc) gin.HandlerFunc {
 		c.Set("currency", currencyRate)
 		h(c)
 	}
-}
-
-func parseTimestamp() {
-	i, err := strconv.ParseInt("1512799203", 10, 64)
-	if err != nil {
-		panic(err)
-	}
-	tm := time.Unix(i, 0)
-	fmt.Println(tm)
 }

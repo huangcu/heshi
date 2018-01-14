@@ -41,11 +41,13 @@ var (
 	VEMSG_USER_ERROR_RECOMMAND_CODE  = errors.HSMessage{Code: 20011, Message: "your invitation code is not correct, please verify;"}
 
 	//AGENT (11-19)
-	VEMSG_AGENT_LEVEL_NOT_VALID    = errors.HSMessage{Code: 20012, Message: "agent level is notvalid"}
-	VEMSG_AGENT_DISCOUNT_NOT_VALID = errors.HSMessage{Code: 20013, Message: "discount is not valid"}
+	VEMSG_AGENT_LEVEL_NOT_VALID    = errors.HSMessage{Code: 20012, Message: "agent level is not valid"}
+	VEMSG_AGENT_DISCOUNT_NOT_VALID = errors.HSMessage{Code: 20013, Message: "agent discount is not valid"}
 
 	//UPLOAD PRODUCTS(30-39)
 	VEMSG_UPLOAD_PRODUCTS_CATEGORY_NOT_VALID = errors.HSMessage{Code: 20090, Message: "product category not valid"}
+
+	VEMSG_SUPPLIER_NOT_VALID = errors.HSMessage{Code: 20080, Message: "supplier is not valid"}
 
 	//Currency(90-99)
 	VEMSG_CURRENCY_SYMBOL_NOT_VALID   = errors.HSMessage{Code: 20090, Message: "input is not a valid currency symbol;"}
