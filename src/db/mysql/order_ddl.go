@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS interested_items
 	item_id VARCHAR(58) NOT NULL,
 	item_accessory int(11),
 	confirmed_for_check VARCHAR(8) NOT NULL DEFAULT 'No',
-	available VARCHAR(8) NOT NULL DEFAULT 'TOBECHECKED',
+	available VARCHAR(25) NOT NULL DEFAULT 'TOBECHECKED',
 	special_notice VARCHAR(225),
 	event_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 ) ENGINE=INNODB;
