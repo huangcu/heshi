@@ -59,3 +59,26 @@ created_by VARCHAR(225) NOT NULL,
 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 ) ENGINE=INNODB;
 `
+
+//to track use activity - pages
+const userActiveRecordDdl = `
+CREATE TABLE IF NOT EXISTS user_active_records (
+id VARCHAR(225) PRIMARY KEY NOT NULL,
+user_id VARCHAR(225) NOT NULL,
+page VARCHAR(225) NOT NULL,
+action_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+) ENGINE=INNODB;
+`
+
+//userusingrecord - track browser items (which diamond, which jewerly etc ) using PC MOBILE etc
+//item_id (diamond stock_ref, jewelry stock_id, item_type: diamond or jewelry)
+const userUsingRecordDdl = `
+CREATE TABLE IF NOT EXISTS user_using_records (
+id VARCHAR(225) PRIMARY KEY NOT NULL,
+user_id VARCHAR(225) NOT NULL,
+item_id VARCHAR(225) NOT NULL,
+item_type VARCHAR(225) NOT NULL,
+device VARCHAR(25) NOT NULL,
+action_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+) ENGINE=INNODB;
+`

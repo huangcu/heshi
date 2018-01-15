@@ -213,3 +213,16 @@ func sortDiamondsByQuery(sortBy, direction string) string {
 func searchJewelrys() {
 
 }
+
+// class:mounting
+// category:2
+// size:
+// material:
+// price:
+// mounting_type:
+// sds:
+// diashape:
+// crrpage:
+func composeSearchJewelryQuery(c *gin.Context) {
+
+}

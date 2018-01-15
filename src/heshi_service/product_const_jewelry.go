@@ -32,6 +32,14 @@ var jewelryHeaders = []string{
 // <option value="CR">成品戒指</option>
 // <option value="CE">成品耳环／耳钉</option>
 // <option value="CP">成品吊坠／项链</option>
+
+// |  1 | pendant      | 吊坠          |                1 |
+// |  2 | ring         | 戒指          |                1 |
+// |  3 | earring      | 耳环&耳钉     |                2 |
+// |  9 | bracelet     | 手链          |                1 |
+// |  5 | necklace     | 项链          |                1 |
+// | 10 | precious-gem | 彩宝          |                1 |
+
 var VALID_CATEGORY = []int{
 	1,
 	2,
