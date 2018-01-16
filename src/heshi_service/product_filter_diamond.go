@@ -14,13 +14,16 @@ import (
 
 //TODO search
 func searchProducts(c *gin.Context) {
+}
+
+func filterProducts(c *gin.Context) {
 	category := c.Param("category")
 	if util.IsInArrayString(category, []string{"diamonds", "jewelrys"}) {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 	if category == "diamonds" {
-		ds, err := searchDiamonds(c)
+		ds, err := filterDiamonds(c)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
@@ -29,12 +32,18 @@ func searchProducts(c *gin.Context) {
 		return
 	}
 	if category == "jewelrys" {
-		searchJewelrys()
+		ds, err := filterJewelrys(c)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			return
+		}
+		c.JSON(http.StatusOK, ds)
+		return
 	}
 }
 
-func searchDiamonds(c *gin.Context) ([]diamond, error) {
-	q, err := composeSearchDiamondsQuery(c)
+func filterDiamonds(c *gin.Context) ([]diamond, error) {
+	q, err := composeFilterDiamondsQuery(c)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +75,7 @@ func searchDiamonds(c *gin.Context) ([]diamond, error) {
 // sorting_direction:ASC
 // crr_page:1
 // vat_choice:NO /
-func composeSearchDiamondsQuery(c *gin.Context) (string, error) {
+func composeFilterDiamondsQuery(c *gin.Context) (string, error) {
 	var querys []string
 	if c.PostForm("shape") != "" {
 		querys = append(querys, c.PostForm("shape"))
@@ -208,21 +217,4 @@ func sortDiamondsByQuery(sortBy, direction string) string {
 	default:
 		return "ORDER BY supplier ASC, price_retail ASC"
 	}
-}
-
-func searchJewelrys() {
-
-}
-
-// class:mounting
-// category:2
-// size:
-// material:
-// price:
-// mounting_type:
-// sds:
-// diashape:
-// crrpage:
-func composeSearchJewelryQuery(c *gin.Context) {
-
 }

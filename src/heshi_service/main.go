@@ -174,8 +174,10 @@ func configRoute(r *gin.Engine) {
 		api.POST("/products/small_diamonds", newSmallDiamond)
 		api.POST("/products/jewelrys", newJewelry)
 
-		//product search - diamond or jewelry
+		//product search - diamond or jewelry by id or name
 		api.POST("/products/search/:category", searchProducts)
+		//product filter by fields value
+		api.POST("/products/filter/:category", filterProducts)
 		// api.POST("/products/diamonds/search", searchProducts)
 		// api.POST("/products/jewelrys/search", searchProducts)
 

@@ -22,7 +22,7 @@ var jewelryHeaders = []string{
 	"unit_number",
 }
 
-//TODO
+//TODO ref
 // <option value="JR">素金戒指</option>
 // <option value="JE">素金耳环／耳钉</option>
 // <option value="JP">素金吊坠／项链</option>
@@ -48,6 +48,10 @@ var VALID_CATEGORY = []int{
 	9,
 	10,
 }
+
+// Request URL:http://www.beyoudiamond.com/jewelry.php?class=mounting (kongtuo)
+// Request URL:http://www.beyoudiamond.com/jewelry.php (chengpin)
+// Request URL:http://www.beyoudiamond.com/colored-gems.php
 
 var VALID_MATERIAL = []string{
 	"PT",
