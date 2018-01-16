@@ -8,6 +8,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/Shaked/gomobiledetect",
+			"repository": "https://github.com/Shaked/gomobiledetect",
+			"revision": "25f014f665680d424817c814f3d2982a13f0985a",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/asaskevich/govalidator",
 			"repository": "https://github.com/asaskevich/govalidator",
 			"revision": "852d82c746b23d9b357b210ea470d99f4e023b72",
@@ -48,6 +54,12 @@
 			"importpath": "github.com/dustin/go-broadcast",
 			"repository": "https://github.com/dustin/go-broadcast",
 			"revision": "3bdf6d4a7164a50bc19d5f230e2981d87d2584f1",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/erizocosmico/detect.git",
+			"repository": "https://github.com/erizocosmico/detect.git",
+			"revision": "c0c2ff5e57333d5703a0f4f432d9de7e7f3a5d56",
 			"branch": "master"
 		},
 		{
@@ -184,6 +196,12 @@
 			"importpath": "github.com/mattn/go-isatty",
 			"repository": "https://github.com/mattn/go-isatty",
 			"revision": "6ca4dbf54d38eea1a992b3c722a76a5d1c4cb25c",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mvader/useragent",
+			"repository": "https://github.com/mvader/useragent",
+			"revision": "8a6137f931b1dcaa7c5232a2607336d00b9c8f07",
 			"branch": "master"
 		},
 		{

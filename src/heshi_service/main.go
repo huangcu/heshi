@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"db/mysql"
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -38,6 +39,19 @@ func main() {
 	flag.StringVar(&env, "env", "dev", "specifiy env dev or pro, default env - dev.")
 	flag.Parse()
 	os.Setenv("stage", env)
+	os.Setenv("TRACE", "true")
+
+	lf, err := os.OpenFile("heshi.log", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer lf.Close()
+
+	if util.ShouldTrace() {
+		log.SetOutput(io.MultiWriter(os.Stdout, lf))
+		util.Logger = log.New(io.MultiWriter(os.Stdout, lf), "", log.LstdFlags)
+	}
+	log.SetFlags(log.LstdFlags)
 
 	ticker := time.NewTicker(time.Hour * 8)
 	stop := make(chan bool)
@@ -80,7 +94,6 @@ func startWebServer(port string) error {
 		gin.SetMode(gin.DebugMode)
 	} else {
 		gin.SetMode(gin.ReleaseMode)
-		r.Use(gin.Logger())
 	}
 
 	r.Use(gin.Recovery())
@@ -97,6 +110,8 @@ func configRoute(r *gin.Engine) {
 		api.Use(AuthMiddleWare())
 		api.Use(sessions.Sessions("sessionid", store))
 	}
+	api.Use(sessions.Sessions("sessionid", store))
+	api.Use(RequestLogger())
 
 	{
 		apiAdmin := api.Group("admin")
@@ -186,23 +201,11 @@ func init() {
 	// 	log.Fatalf("qr code pic error %s", err.Error())
 	// }
 	// log.Println(u)
-	os.Setenv("TRACE", "true")
 	//running dir
 	// if err := chdir(); err != nil {
 	// 	log.Fatal(err)
 	// }
-	lf, err := os.OpenFile("heshi.log", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer lf.Close()
-
-	if util.ShouldTrace() {
-		log.SetOutput(io.MultiWriter(os.Stdout, lf))
-		util.Logger = log.New(io.MultiWriter(os.Stdout, lf), "", log.LstdFlags)
-	}
-	log.SetFlags(log.LstdFlags)
-
+	var err error
 	db, err = mysql.OpenDB()
 	if db == nil && err != nil {
 		util.Println(err.Error())
@@ -212,9 +215,9 @@ func init() {
 	activeConfig = config{Rate: 0.01, CreatedBy: "system", CreatedAt: time.Now().Local()}
 	val, err := redisClient.FlushAll().Result()
 	if err != nil {
-		util.Printf("fail to flush redis db. err: %s", err.Error())
+		fmt.Printf("fail to flush redis db. err: %s", err.Error())
 	}
-	util.Printf("flushed redis db. %s", val)
+	fmt.Printf("flushed redis db. %s \n", val)
 
 	store = sessions.NewCookieStore([]byte("secret"))
 	store.Options(sessions.Options{

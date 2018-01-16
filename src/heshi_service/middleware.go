@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"heshi/errors"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 	"time"
 	"util"
 
+	detect "github.com/erizocosmico/detect.git"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -80,10 +82,18 @@ func RequestLogger() gin.HandlerFunc {
 		buf, _ := ioutil.ReadAll(c.Request.Body)
 		rdr1 := ioutil.NopCloser(bytes.NewBuffer(buf))
 		rdr2 := ioutil.NopCloser(bytes.NewBuffer(buf)) //We have to create a new Buffer, because rdr1 will be read.
-
-		util.Println(c.Request.URL)
-		util.Println(readBody(rdr1)) // Print request body
-
+		platform := detect.Platform(c.Request.Header.Get("User-Agent")).String()
+		util.Printf("=======GOT REQUEST - METHOD: %s; FROM: %s,; URL %s=====", c.Request.URL, platform, c.Request.Method)
+		util.Printf("=======REQUEST BODY: %s========", readBody(rdr1)) // Print request body
+		s := sessions.Default(c)
+		user := s.Get(USER_SESSION_KEY)
+		if user == nil {
+			user = "guest"
+		}
+		if err := userUsingRecord(c.Request.URL.Path, user.(string), platform); err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, errors.GetMessage(err))
+			return
+		}
 		c.Request.Body = rdr2
 		c.Next()
 	}
