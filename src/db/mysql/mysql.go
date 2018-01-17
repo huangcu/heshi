@@ -39,10 +39,14 @@ func OpenDB() (*sql.DB, error) {
 	// if err := createDatabase(db, Config.Db.Database); err != nil {
 	// 	return nil, err
 	// }
-	tableName := []string{"users", "agents", "admins", "diamonds", "jewelrys", "small_diamonds", "promotions", "suppliers", "appointments", "orders", "currency_exchange_rates"}
+	tableName := []string{"users", "agents", "admins"}
+	tableName = append(tableName, "diamonds", "jewelrys", "small_diamonds", "gems")
+	tableName = append(tableName, "promotions", "suppliers", "appointments", "orders", "currency_exchange_rates")
 	tableName = append(tableName, "invitation_codes", "wechat_users", "discounts", "configs")
 	tableName = append(tableName, "interested_items", "user_using_records", "user_active_record")
-	tableDdl := []string{userDdl, agentDdl, adminDdl, diamondDdl, jewelryDdl, smallDiamondDdl, promotionDdl, supplierDdl, appointmentDdl, orderDdl, currencyExchangeRateDdl}
+	tableDdl := []string{userDdl, agentDdl, adminDdl}
+	tableDdl = append(tableDdl, diamondDdl, jewelryDdl, smallDiamondDdl, gemDdl)
+	tableDdl = append(tableDdl, promotionDdl, supplierDdl, appointmentDdl, orderDdl, currencyExchangeRateDdl)
 	tableDdl = append(tableDdl, invitationCodeDdl, wechatUserDdl, discountDdl, configDdl)
 	tableDdl = append(tableDdl, interestedItemDdl, userUsingRecordDdl, userActiveRecordDdl)
 	if len(tableName) != len(tableDdl) {

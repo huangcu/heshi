@@ -32,12 +32,21 @@ func filterProducts(c *gin.Context) {
 		return
 	}
 	if category == "jewelrys" {
-		ds, err := filterJewelrys(c)
+		js, err := filterJewelrys(c)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
-		c.JSON(http.StatusOK, ds)
+		c.JSON(http.StatusOK, js)
+		return
+	}
+	if category == "gems" {
+		gs, err := filterGems(c)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			return
+		}
+		c.JSON(http.StatusOK, gs)
 		return
 	}
 }
