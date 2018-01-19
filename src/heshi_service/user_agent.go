@@ -14,9 +14,9 @@ import (
 type Agent struct {
 	User
 	// UserInfo    User   `json:"user"`
-	Level       int    `json:"level"`
+	Level       int    `json:"agent_level"`
 	LevelStr    string `json:"-"`
-	Discount    int    `json:"discount"`
+	Discount    int    `json:"agent_discount"`
 	DiscountStr string `json:"-"`
 	CreatedBy   string `json:"created_by"`
 }

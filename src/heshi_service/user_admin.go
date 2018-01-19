@@ -13,7 +13,7 @@ import (
 type Admin struct {
 	User
 	// UserInfo   User   `json:"user"`
-	Level      int    `json:"level"`
+	Level      int    `json:"admin_level"`
 	LevelStr   string `json:"-"`
 	WechatKefu string `json:"wechat_kefu"`
 	CreatedBy  string `json:"created_by"`

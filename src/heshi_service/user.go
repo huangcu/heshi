@@ -27,7 +27,7 @@ type User struct {
 	RecommendedBy       string  `json:"recommended_by"`
 	InvitationCode      string  `json:"invitation_code"`
 	UserLevel           int     `json:"user_level"`
-	Discount            float64 `json:"discount"`
+	UserDiscount        float64 `json:"user_discount"`
 	Point               int     `json:"point"`
 	TotalPurchaseAmount float64 `json:"total_purchase_amount"`
 	Icon                string  `json:"icon"`
@@ -329,14 +329,14 @@ func composeUser(rows *sql.Rows) ([]User, error) {
 	var id, userType, icon, invitationCode string
 	var username, cellphone, email, realName, recommandedBy sql.NullString
 	var wechatID, wechatName, wechatQR, address, additionalInfo sql.NullString
-	var discount, point int
+	var level, discount, point int
 	var totalPurchaseAmount float64
 
 	var us []User
 	for rows.Next() {
 		if err := rows.Scan(&id, &username, &cellphone, &email, &realName, &userType, &wechatID,
 			&wechatName, &wechatQR, &address, &additionalInfo, &recommandedBy, &invitationCode,
-			&discount, &point, &totalPurchaseAmount, &icon); err != nil {
+			&level, &discount, &point, &totalPurchaseAmount, &icon); err != nil {
 			return nil, err
 		}
 		u := User{
@@ -352,7 +352,8 @@ func composeUser(rows *sql.Rows) ([]User, error) {
 			AdditionalInfo:      additionalInfo.String,
 			RecommendedBy:       recommandedBy.String,
 			InvitationCode:      invitationCode,
-			Discount:            float64(discount) / 100,
+			UserLevel:           level,
+			UserDiscount:        float64(discount) / 100,
 			Point:               point,
 			TotalPurchaseAmount: totalPurchaseAmount,
 			Icon:                icon,
@@ -365,7 +366,7 @@ func composeUser(rows *sql.Rows) ([]User, error) {
 func selectUserQuery(id string) string {
 	q := `SELECT id,username,cellphone,email,real_name,user_type,wechat_id,
 	wechat_name,wechat_qr,address,additional_info,recommended_by,invitation_code,
-	discount,point,total_purchase_amount,icon FROM users`
+	level,discount,point,total_purchase_amount,icon FROM users`
 
 	if id != "" {
 		q = fmt.Sprintf("%s WHERE status='active' AND id='%s'", q, id)
