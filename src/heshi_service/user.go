@@ -302,27 +302,6 @@ func disableUser(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, "SUCCESS")
-	//won't remove, just do a disable, set status to "0"
-	// switch userType {
-	// case "admin":
-	// 	q = `DELETE FROM admins WHERE user_id=?`
-	// 	if _, err := db.Exec(q, uid); err != nil {
-	// 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
-	// 		return
-	// 	}
-	// case "agent":
-	// 	q = `DELETE FROM agents WHERE user_id=?`
-	// 	if _, err := db.Exec(q, uid); err != nil {
-	// 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
-	// 		return
-	// 	}
-	// default:
-	// 	q = `DELETE FROM users WHERE id=?`
-	// 	if _, err := db.Exec(q, uid); err != nil {
-	// 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
-	// 		return
-	// 	}
-	// }
 }
 
 func composeUser(rows *sql.Rows) ([]User, error) {
