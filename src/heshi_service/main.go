@@ -121,8 +121,10 @@ func configRoute(r *gin.Engine) {
 			apiAdmin.POST("/users", newAdminAgentUser)
 			apiAdmin.PATCH("/users/:id", updateAdminAgent)
 
-			//user
+			//user - by id, can be admin. agent.customer
 			apiAdmin.GET("/users/:id", getUser)
+
+			//pass ?type="user_type" for admin/agent/customer
 			apiAdmin.GET("/users", getAllUsers)
 
 			//customer, agent, admin disable
@@ -156,7 +158,7 @@ func configRoute(r *gin.Engine) {
 			apiAdmin.POST("/products/upload", uploadAndProcessProducts)
 
 		}
-		//agent, customer
+		//customer
 		api.POST("/users", newUser)
 		api.PATCH("/users", UserSessionMiddleWare(), updateUser)
 		api.GET("/users", UserSessionMiddleWare(), getUser)

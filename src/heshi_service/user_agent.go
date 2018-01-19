@@ -12,12 +12,13 @@ import (
 )
 
 type Agent struct {
-	UserInfo    User   `json:"user"`
+	User
+	// UserInfo    User   `json:"user"`
 	Level       int    `json:"level"`
 	LevelStr    string `json:"-"`
 	Discount    int    `json:"discount"`
 	DiscountStr string `json:"-"`
-	SetBy       string `json:"set_by"`
+	CreatedBy   string `json:"created_by"`
 }
 
 type ContactInfo struct {
@@ -30,6 +31,21 @@ type ContactInfo struct {
 	WechatQR       string `json:"wechat_qr"`
 	Address        string `json:"address"`
 	AdditionalInfo string `json:"additional_info"`
+}
+
+func getAgent(uid string) (*Agent, error) {
+	var level, discount int
+	var createdBy string
+	q := fmt.Sprintf("SELECT level, discount, created_by FROM agents WHERE user_id='%s'", uid)
+	if err := dbQueryRow(q).Scan(&level, &discount, &createdBy); err != nil {
+		return nil, err
+	}
+	a := &Agent{
+		Level:     level,
+		Discount:  discount,
+		CreatedBy: createdBy,
+	}
+	return a, nil
 }
 
 func updateAgent(c *gin.Context) {
@@ -73,7 +89,7 @@ func updateAgent(c *gin.Context) {
 
 func (a *Agent) newAgent() error {
 	q := fmt.Sprintf(`INSERT INTO agents (user_id, level, discount, created_by) VALUES (%s', '%d', '%d', '%s')`,
-		a.UserInfo.ID, a.Level, a.Discount, a.SetBy)
+		a.ID, a.Level, a.Discount, a.CreatedBy)
 	_, err := dbExec(q)
 	return err
 }
@@ -145,7 +161,7 @@ func (a *Agent) prevalidateNewAgent() ([]errors.HSMessage, error) {
 	} else {
 		a.Discount = discount
 	}
-	vmsg, err := a.UserInfo.validNewUser()
+	vmsg, err := a.validNewUser()
 	if err != nil {
 		return nil, err
 	} else if len(vmsg) != 0 {

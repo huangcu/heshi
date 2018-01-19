@@ -46,6 +46,8 @@ func AuthMiddleWare() gin.HandlerFunc {
 func UserSessionMiddleWare() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if os.Getenv("stage") == "dev" {
+			c.Set("id", "system_dev_user")
+			c.Next()
 			return
 		}
 		s := sessions.Default(c)
@@ -61,6 +63,8 @@ func UserSessionMiddleWare() gin.HandlerFunc {
 func AdminSessionMiddleWare() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if os.Getenv("stage") == "dev" {
+			c.Set("id", "system_dev_admin")
+			c.Next()
 			return
 		}
 		s := sessions.Default(c)

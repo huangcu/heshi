@@ -11,11 +11,27 @@ import (
 )
 
 type Admin struct {
-	UserInfo   User   `json:"user"`
+	User
+	// UserInfo   User   `json:"user"`
 	Level      int    `json:"level"`
 	LevelStr   string `json:"-"`
 	WechatKefu string `json:"wechat_kefu"`
 	CreatedBy  string `json:"created_by"`
+}
+
+func getAdmin(uid string) (*Admin, error) {
+	var level int
+	var wechatKefu, createdBy string
+	q := fmt.Sprintf("SELECT level, wechat_kefu, created_by FROM admins WHERE user_id='%s'", uid)
+	if err := dbQueryRow(q).Scan(&level, &wechatKefu, &createdBy); err != nil {
+		return nil, err
+	}
+	a := &Admin{
+		Level:      level,
+		WechatKefu: wechatKefu,
+		CreatedBy:  createdBy,
+	}
+	return a, nil
 }
 
 func updateAdmin(c *gin.Context) {
@@ -50,7 +66,7 @@ func updateAdmin(c *gin.Context) {
 
 func (a *Admin) newAdmin() error {
 	q := fmt.Sprintf(`INSERT INTO admins (user_id, level, wechat_kefu, created_by) VALUES ('%s', '%d', '%s', '%s')`,
-		a.UserInfo.ID, a.Level, a.WechatKefu, a.CreatedBy)
+		a.ID, a.Level, a.WechatKefu, a.CreatedBy)
 	_, err := dbExec(q)
 	return err
 }
@@ -72,7 +88,7 @@ func (a *Admin) prevalidateNewAdmin() ([]errors.HSMessage, error) {
 		a.Level = level
 	}
 
-	if vmsg, err := a.UserInfo.validNewUser(); err != nil {
+	if vmsg, err := a.validNewUser(); err != nil {
 		return nil, err
 	} else if len(vmsg) != 0 {
 		vemsg = append(vemsg, vmsg...)

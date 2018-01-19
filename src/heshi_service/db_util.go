@@ -57,7 +57,7 @@ func dbQueryContext(query string, args ...interface{}) (*sql.Rows, error) {
 
 func dbQueryRow(query string, args ...interface{}) *sql.Row {
 	traceSQL(query, args)
-	return db.QueryRowContext(context.Background(), query, args...)
+	return db.QueryRow(query, args...)
 }
 
 func dbQueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row {
