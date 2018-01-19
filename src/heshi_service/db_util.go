@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strings"
 
-	"heshi/errors"
 	"util"
 
 	"github.com/fatih/color"
@@ -24,7 +23,7 @@ func dbExec(query string, args ...interface{}) (sql.Result, error) {
 	traceSQL(query, args)
 	r, err := db.Exec(query, args...)
 	if err != nil {
-		return r, errors.WrapDBError(err, query, args)
+		return r, err
 	}
 	return r, nil
 }
@@ -33,7 +32,7 @@ func dbExecContext(query string, args ...interface{}) (sql.Result, error) {
 	traceSQL(query, args)
 	r, err := db.ExecContext(ctx, query, args...)
 	if err != nil {
-		return r, errors.WrapDBError(err, query, args)
+		return r, err
 	}
 	return r, nil
 }
@@ -42,7 +41,7 @@ func dbQuery(query string, args ...interface{}) (*sql.Rows, error) {
 	traceSQL(query, args)
 	r, err := db.Query(query, args...)
 	if err != nil {
-		return r, errors.WrapDBError(err, query, args)
+		return r, err
 	}
 	return r, nil
 }
@@ -51,7 +50,7 @@ func dbQueryContext(query string, args ...interface{}) (*sql.Rows, error) {
 	traceSQL(query, args)
 	r, err := db.QueryContext(ctx, query, args...)
 	if err != nil {
-		return r, errors.WrapDBError(err, query, args)
+		return r, err
 	}
 	return r, nil
 }

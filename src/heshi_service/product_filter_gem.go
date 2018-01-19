@@ -13,7 +13,7 @@ func filterGems(c *gin.Context) ([]gem, error) {
 	}
 	q := fmt.Sprintf(`SELECT * FROM gems WHERE stock_quantity > 0 ORDER BY price %s`, direction)
 
-	rows, err := db.Query(q)
+	rows, err := dbQuery(q)
 	if err != nil {
 		return nil, err
 	}

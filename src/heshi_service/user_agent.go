@@ -13,7 +13,8 @@ import (
 
 type Agent struct {
 	UserInfo    User   `json:"user"`
-	Level       string `json:"level"`
+	Level       int    `json:"level"`
+	LevelStr    string `json:"-"`
 	Discount    int    `json:"discount"`
 	DiscountStr string `json:"-"`
 	SetBy       string `json:"set_by"`
@@ -31,16 +32,39 @@ type ContactInfo struct {
 	AdditionalInfo string `json:"additional_info"`
 }
 
-func configAgent(c *gin.Context) {
+func updateAgent(c *gin.Context) {
 	adminID := c.MustGet("id").(string)
-	level := c.PostForm("level")
-	if !util.IsInArrayString(level, VALID_AGENTLEVEL) {
-		c.JSON(http.StatusOK, VEMSG_AGENT_LEVEL_NOT_VALID)
-		return
+	levelStr := c.PostForm("level")
+	discountStr := c.PostForm("discount")
+	if levelStr == "" && discountStr == "" {
+		c.JSON(http.StatusOK, VEMSG_NOT_VALID)
 	}
 	agentID := c.Param("id")
-	q := fmt.Sprintf(`UPDATE agents SET level='%s', set_by='%s' WHERE user_id='%s'`, level, agentID, adminID)
-	if _, err := db.Exec(q); err != nil {
+	q := fmt.Sprintf(`UPDATE agents SET created_by='%s'`, agentID)
+
+	if levelStr != "" {
+		if !util.IsInArrayString(levelStr, VALID_AGENTLEVEL) {
+			c.JSON(http.StatusOK, VEMSG_AGENT_LEVEL_NOT_VALID)
+			return
+		}
+		level, _ := strconv.Atoi(levelStr)
+		q = fmt.Sprintf("%s, level='%d'", q, level)
+	}
+
+	if discountStr != "" {
+		discount, err := strconv.Atoi(discountStr)
+		if err != nil {
+			c.JSON(http.StatusOK, VEMSG_AGENT_LEVEL_NOT_VALID)
+			return
+		} else if discount < 0 || discount > 100 {
+			c.JSON(http.StatusOK, VEMSG_AGENT_LEVEL_NOT_VALID)
+			return
+		} else {
+			q = fmt.Sprintf("%s, discount='%d'", q, discount)
+		}
+	}
+	q = fmt.Sprintf("%s WHERE user_id='%s'", q, adminID)
+	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
@@ -48,18 +72,21 @@ func configAgent(c *gin.Context) {
 }
 
 func (a *Agent) newAgent() error {
-	q := fmt.Sprintf(`INSERT INTO agents (user_id, level, discount, set_by) VALUES (%s', '%s', '%d', '%s')`,
+	q := fmt.Sprintf(`INSERT INTO agents (user_id, level, discount, created_by) VALUES (%s', '%d', '%d', '%s')`,
 		a.UserInfo.ID, a.Level, a.Discount, a.SetBy)
-	_, err := db.Exec(q)
+	_, err := dbExec(q)
 	return err
 }
 
+//find user is recommanded by (using invitation code)
+//from invitation code, get which user recommanded this
+// if the recommand is agent ???
 func agentContactInfo(c *gin.Context) {
 	id := c.MustGet("id").(string)
 
 	q := fmt.Sprintf(`SELECT recommanded_by from users where id=%s`, id)
 	var recommandedBy string
-	if err := db.QueryRow(q).Scan(&recommandedBy); err != nil {
+	if err := dbQueryRow(q).Scan(&recommandedBy); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
@@ -73,13 +100,13 @@ func agentContactInfo(c *gin.Context) {
 
 func getUserContactInfoInvitationCode(code string) (*ContactInfo, error) {
 	var userID string
-	if err := db.QueryRow("SELECT user_id from invitation_codes WHERE invitation_code=?", code).Scan(&userID); err != nil {
+	if err := dbQueryRow("SELECT user_id from invitation_codes WHERE invitation_code=?", code).Scan(&userID); err != nil {
 		return nil, err
 	}
 	var cellphone, email, realName sql.NullString
 	var wechatID, wechatName, wechatQR, address, additionalInfo sql.NullString
 	q := `SELECT cellphone, email, realname, wechat_id, wechat_name, wechat_qr, address, additional_info from users where id=?`
-	if err := db.QueryRow(q, userID).Scan(&cellphone, &email, &realName, &wechatID, &wechatName, &wechatQR, &address, &additionalInfo); err != nil {
+	if err := dbQueryRow(q, userID).Scan(&cellphone, &email, &realName, &wechatID, &wechatName, &wechatQR, &address, &additionalInfo); err != nil {
 		return nil, err
 	}
 	return &ContactInfo{
@@ -97,8 +124,17 @@ func getUserContactInfoInvitationCode(code string) (*ContactInfo, error) {
 
 func (a *Agent) prevalidateNewAgent() ([]errors.HSMessage, error) {
 	var vemsg []errors.HSMessage
-	if !util.IsInArrayString(a.Level, VALID_AGENTLEVEL) {
+	if !util.IsInArrayString(a.LevelStr, VALID_AGENTLEVEL) {
 		vemsg = append(vemsg, VEMSG_AGENT_LEVEL_NOT_VALID)
+	}
+
+	level, err := strconv.Atoi(a.LevelStr)
+	if err != nil {
+		vemsg = append(vemsg, VEMSG_AGENT_LEVEL_NOT_VALID)
+	} else if level < 0 || level > 10 {
+		vemsg = append(vemsg, VEMSG_AGENT_LEVEL_NOT_VALID)
+	} else {
+		a.Level = level
 	}
 
 	discount, err := strconv.Atoi(a.DiscountStr)

@@ -63,7 +63,7 @@ func newAdminAgentUser(c *gin.Context) {
 	if userType == AGENT {
 		a := Agent{
 			UserInfo:    nu,
-			Level:       c.PostForm("level"),
+			LevelStr:    c.PostForm("level"),
 			DiscountStr: c.PostForm("discount"),
 			SetBy:       adminID,
 		}
@@ -90,7 +90,7 @@ func newAdminAgentUser(c *gin.Context) {
 	if userType == ADMIN {
 		a := Admin{
 			UserInfo:   nu,
-			Level:      c.PostForm("level"),
+			LevelStr:   c.PostForm("level"),
 			WechatKefu: c.PostForm("wechat_kefu"),
 			CreatedBy:  adminID,
 		}
@@ -107,7 +107,7 @@ func newAdminAgentUser(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 			return
 		}
-		if err := a.newAgent(); err != nil {
+		if err := a.newAdmin(); err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
@@ -152,6 +152,23 @@ func newUser(c *gin.Context) {
 	s.Save()
 
 	c.JSON(http.StatusOK, nu.ID)
+}
+
+func updateAdminAgent(c *gin.Context) {
+	userType := c.PostForm("user_type")
+	if userType != AGENT && userType != ADMIN {
+		VEMSG_USER_USERTYPE_NOT_VALID.Message = fmt.Sprintf("user type can only be %s or %s", ADMIN, AGENT)
+		c.JSON(http.StatusOK, VEMSG_USER_USERTYPE_NOT_VALID)
+		return
+	}
+	if userType == AGENT {
+		updateAgent(c)
+		return
+	}
+	if userType == ADMIN {
+		updateAdmin(c)
+		return
+	}
 }
 
 func updateUser(c *gin.Context) {
@@ -243,39 +260,36 @@ func getAllUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, us)
 }
 
-//TODO
-func removeUser(c *gin.Context) {
+//TODO check return row number
+func disableUser(c *gin.Context) {
 	uid := c.Param("id")
-	q := "SELECT user_type from users WHERE id=?"
-	var userType string
-	if err := db.QueryRow(q, uid).Scan(&userType); err != nil {
-		if err == sql.ErrNoRows {
-			c.JSON(http.StatusOK, "wrong user")
-			return
-		}
+	q := "UPDATE users SET status='disabled' WHERE id=?"
+	if _, err := db.Exec(q, uid); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
-	switch userType {
-	case "admin":
-		q = `DELETE FROM admins WHERE user_id=?`
-		if _, err := db.Exec(q, uid); err != nil {
-			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
-			return
-		}
-	case "agent":
-		q = `DELETE FROM agents WHERE user_id=?`
-		if _, err := db.Exec(q, uid); err != nil {
-			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
-			return
-		}
-	default:
-		q = `DELETE FROM users WHERE id=?`
-		if _, err := db.Exec(q, uid); err != nil {
-			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
-			return
-		}
-	}
+	c.JSON(http.StatusOK, "SUCCESS")
+	//won't remove, just do a disable, set status to "0"
+	// switch userType {
+	// case "admin":
+	// 	q = `DELETE FROM admins WHERE user_id=?`
+	// 	if _, err := db.Exec(q, uid); err != nil {
+	// 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+	// 		return
+	// 	}
+	// case "agent":
+	// 	q = `DELETE FROM agents WHERE user_id=?`
+	// 	if _, err := db.Exec(q, uid); err != nil {
+	// 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+	// 		return
+	// 	}
+	// default:
+	// 	q = `DELETE FROM users WHERE id=?`
+	// 	if _, err := db.Exec(q, uid); err != nil {
+	// 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+	// 		return
+	// 	}
+	// }
 }
 
 func composeUser(rows *sql.Rows) ([]User, error) {
@@ -318,7 +332,7 @@ func composeUser(rows *sql.Rows) ([]User, error) {
 func selectUserQuery(id string) string {
 	q := `SELECT id,username,cellphone,email,real_name,user_type,wechat_id,
 	wechat_name,wechat_qr,address,additional_info,recommended_by,invitation_code,
-	discount,point,total_purchase_amount,icon FROM users`
+	discount,point,total_purchase_amount,icon FROM users where status='active'`
 
 	if id != "" {
 		q = fmt.Sprintf("%s WHERE id='%s'", q, id)

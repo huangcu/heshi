@@ -14,6 +14,11 @@ import (
 
 //TODO search
 func searchProducts(c *gin.Context) {
+	ref := c.PostForm("ref")
+	q := fmt.Sprintf("SELECT * FROM diamonds WHERE stock_ref='%s' OR certificate_number='%s'",
+		ref, ref)
+	util.Println(q)
+	// SELECT * FROM diamonds WHERE stock_ref = "'.$ref.'" OR certificate_number = "'.$ref.'"'
 }
 
 func filterProducts(c *gin.Context) {
@@ -56,7 +61,7 @@ func filterDiamonds(c *gin.Context) ([]diamond, error) {
 	if err != nil {
 		return nil, err
 	}
-	rows, err := db.Query(q)
+	rows, err := dbQuery(q)
 	if err != nil {
 		return nil, err
 	}

@@ -15,14 +15,14 @@ func (wu *WechatUserInfo) newWechatUser() error {
 	q := fmt.Sprintf(`INSERT INTO wechat_users (openid, nickname,sex,city, province,contry, head_image_url,privilege, unionid) 
 	VALUES ('%s','%s','%d','%s','%s','%s','%s','%s','%s')`,
 		wu.OpenId, wu.Nickname, wu.Sex, wu.City, wu.Province, wu.Country, wu.HeadImageURL, wu.Privilege, wu.UnionId)
-	_, err := db.Exec(q)
+	_, err := dbExec(q)
 	return err
 }
 
 func isWechatUserExist(openid string) (bool, error) {
 	q := `SELECT COUNT(*) FROM wechat_users WHERE openid=?`
 	var count int
-	if err := db.QueryRow(q, openid).Scan(&count); err != nil {
+	if err := dbQueryRow(q, openid).Scan(&count); err != nil {
 		return false, err
 	}
 	if count == 0 {

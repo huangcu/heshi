@@ -133,7 +133,7 @@ func (u *User) isUserExistByUserName() (bool, error) {
 	}
 	var count int
 	q := fmt.Sprintf("SELECT count(*) FROM users WHERE username='%s'", u.Username)
-	if err := db.QueryRow(q).Scan(&count); err != nil {
+	if err := dbQueryRow(q).Scan(&count); err != nil {
 		return false, err
 	}
 	if count == 0 {
@@ -145,7 +145,7 @@ func (u *User) isUserExistByUserName() (bool, error) {
 func (u *User) isUserExistByCellphone() (bool, error) {
 	var count int
 	q := fmt.Sprintf("SELECT count(*) FROM users WHERE cellphone='%s'", u.Cellphone)
-	if err := db.QueryRow(q).Scan(&count); err != nil {
+	if err := dbQueryRow(q).Scan(&count); err != nil {
 		return false, err
 	}
 	if count == 0 {
@@ -157,7 +157,7 @@ func (u *User) isUserExistByCellphone() (bool, error) {
 func (u *User) isUserExistByEmail() (bool, error) {
 	var count int
 	q := fmt.Sprintf("SELECT count(*) FROM users WHERE email='%s'", u.Email)
-	if err := db.QueryRow(q).Scan(&count); err != nil {
+	if err := dbQueryRow(q).Scan(&count); err != nil {
 		return false, err
 	}
 	if count == 0 {

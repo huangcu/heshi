@@ -64,7 +64,7 @@ func getAllJewelrys(c *gin.Context) {
 
 func getJewelry(c *gin.Context) {
 	q := selectJewelryQuery(c.Param("id"))
-	rows, err := db.Query(q)
+	rows, err := dbQuery(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
@@ -87,7 +87,7 @@ func getJewelry(c *gin.Context) {
 //TODO
 func newJewelry(c *gin.Context) {
 	q := selectJewelryQuery(c.Param("id"))
-	rows, err := db.Query(q)
+	rows, err := dbQuery(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return

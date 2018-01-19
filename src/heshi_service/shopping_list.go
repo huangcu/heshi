@@ -58,7 +58,7 @@ func handleShoppingList(action string, item shoppingItem) error {
 func getUserShoppingList(uid string) ([]shoppingItem, error) {
 	q := `SELECT id, item_type, item_id, item_accessory, confirmed_for_check,
 	available, special_notice FROM interested_items`
-	rows, err := db.Query(q)
+	rows, err := dbQuery(q)
 	if err != nil {
 		return nil, nil
 	}
@@ -96,7 +96,7 @@ func (s *shoppingItem) isItemInShoppingItemList(itemList []shoppingItem) bool {
 
 func (s *shoppingItem) addItemToInterestedItems() error {
 	q := s.composeInsertQuery()
-	if _, err := db.Exec(q); err != nil {
+	if _, err := dbExec(q); err != nil {
 		return err
 	}
 	return nil
@@ -104,7 +104,7 @@ func (s *shoppingItem) addItemToInterestedItems() error {
 
 func (s *shoppingItem) removeItemFromInterestedItemsByID() error {
 	q := `DELETE FROM interested_items WHERE id=?`
-	if _, err := db.Exec(q, s.ID); err != nil {
+	if _, err := dbExec(q, s.ID); err != nil {
 		return err
 	}
 	return nil
@@ -112,7 +112,7 @@ func (s *shoppingItem) removeItemFromInterestedItemsByID() error {
 
 func (s *shoppingItem) removeItemFromInterestedItemsByItemProperties() error {
 	q := `DELETE FROM interested_items WHERE user_id=? AND item_id=? AND item_type=?`
-	if _, err := db.Exec(q, s.UserID, s.ItemID, s.ItemType); err != nil {
+	if _, err := dbExec(q, s.UserID, s.ItemID, s.ItemType); err != nil {
 		return err
 	}
 	return nil

@@ -26,7 +26,7 @@ func newDiscount(c *gin.Context) {
 	}
 	id := uuid.NewV4().String()
 	q := fmt.Sprintf(`INSERT INTO discounts (id, discount_code, discount) VALUES ('%s', '%s', '%d')`, id, nd.DiscountCode, nd.Discount)
-	if _, err := db.Exec(q); err != nil {
+	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 		return
 	}
@@ -40,7 +40,7 @@ func getDiscount(c *gin.Context) {
 	var discountNumber int
 	var createdAt time.Time
 	q := fmt.Sprintf(`SELECT discount_code, discount,created_at FROM discounts WHERE id = '%s'`, id)
-	if err := db.QueryRow(q).Scan(&discountCode, &discountNumber, &createdAt); err != nil {
+	if err := dbQueryRow(q).Scan(&discountCode, &discountNumber, &createdAt); err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusOK, VEMSG_DISCOUNT_NOT_EXIST)
 			return
@@ -58,7 +58,7 @@ func getDiscount(c *gin.Context) {
 
 func getAllDiscounts(c *gin.Context) {
 	q := `SELECT discount_code, discount,created_at FROM discounts ORDER BY created_at DESC`
-	rows, err := db.Query(q)
+	rows, err := dbQuery(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return

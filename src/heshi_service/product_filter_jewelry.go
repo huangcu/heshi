@@ -20,7 +20,7 @@ func filterJewelrys(c *gin.Context) ([]jewelry, error) {
 	if err != nil {
 		return nil, err
 	}
-	rows, err := db.Query(q)
+	rows, err := dbQuery(q)
 	if err != nil {
 		return nil, err
 	}

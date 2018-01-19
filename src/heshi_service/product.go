@@ -296,11 +296,11 @@ func importJewelryProducts(file string) ([][]string, error) {
 		//insert into db
 		if !ignored {
 			var id string
-			if err := db.QueryRow(fmt.Sprintf("SELECT id FROM jewelrys WHERE stock_id='%s'", j.StockID)).Scan(&id); err != nil {
+			if err := dbQueryRow(fmt.Sprintf("SELECT id FROM jewelrys WHERE stock_id='%s'", j.StockID)).Scan(&id); err != nil {
 				if err == sql.ErrNoRows {
 					j.ID = uuid.NewV4().String()
 					q := j.composeInsertQuery()
-					if _, err := db.Exec(q); err != nil {
+					if _, err := dbExec(q); err != nil {
 						return nil, err
 						// ignoredRows = append(ignoredRows, record)
 					}
@@ -311,7 +311,7 @@ func importJewelryProducts(file string) ([][]string, error) {
 			} else {
 				j.ID = id
 				q := j.composeUpdateQuery()
-				if _, err := db.Exec(q); err != nil {
+				if _, err := dbExec(q); err != nil {
 					// ignoredRows = append(ignoredRows, record)
 					return nil, err
 				}
@@ -393,7 +393,7 @@ func importSmallDiamondProducts(file string) ([][]string, error) {
 		//insert into db
 		if !ignored {
 			q := `INSERT INTO small_diamonds (id, size_from, size_to, price, quantity) VALUSE('%s', '%f', '%f', '%f', '%d')`
-			if _, err := db.Exec(fmt.Sprintf(q, uuid.NewV4().String()), sd.SizeFrom, sd.SizeTo, sd.Price, sd.Quantity); err != nil {
+			if _, err := dbExec(fmt.Sprintf(q, uuid.NewV4().String()), sd.SizeFrom, sd.SizeTo, sd.Price, sd.Quantity); err != nil {
 				return nil, err
 			}
 		}
@@ -488,11 +488,11 @@ func importDiamondProducts(file string) ([][]string, error) {
 		//insert into db
 		if !ignored {
 			var id string
-			if err := db.QueryRow(fmt.Sprintf("SELECT id FROM diamonds WHERE stock_ref='%s'", d.StockRef)).Scan(&id); err != nil {
+			if err := dbQueryRow(fmt.Sprintf("SELECT id FROM diamonds WHERE stock_ref='%s'", d.StockRef)).Scan(&id); err != nil {
 				if err == sql.ErrNoRows {
 					d.ID = uuid.NewV4().String()
 					q := d.composeInsertQuery()
-					if _, err := db.Exec(q); err != nil {
+					if _, err := dbExec(q); err != nil {
 						return nil, err
 						// ignoredRows = append(ignoredRows, record)
 					}
@@ -503,7 +503,7 @@ func importDiamondProducts(file string) ([][]string, error) {
 			} else {
 				d.ID = id
 				q := d.composeUpdateQuery()
-				if _, err := db.Exec(q); err != nil {
+				if _, err := dbExec(q); err != nil {
 					// ignoredRows = append(ignoredRows, record)
 					return nil, err
 				}

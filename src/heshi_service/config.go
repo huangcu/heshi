@@ -25,7 +25,7 @@ func getConfig(c *gin.Context) {
 	var createdBy string
 	var createdAt time.Time
 	q := "SELECT rate,created_by,created_at FROM configs ORDER BY created_at DESC LIMIT 1"
-	if err := db.QueryRow(q).Scan(&rate, &createdBy, &createdAt); err != nil {
+	if err := dbQueryRow(q).Scan(&rate, &createdBy, &createdAt); err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -37,7 +37,7 @@ func newConfig(c *gin.Context) {
 	createdBy := "system"
 	id := uuid.NewV4().String()
 	q := fmt.Sprintf("INSERT INTO configs (id, rate, created_by) VALUES ('%s','%s','%s')", id, c.PostForm("rate"), createdBy)
-	if _, err := db.Exec(q); err != nil {
+	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -45,7 +45,7 @@ func newConfig(c *gin.Context) {
 }
 
 func getAllConfigs(c *gin.Context) {
-	rows, err := db.Query("SELECT rate,created_by,created_at FROM configs ORDER BY created_at")
+	rows, err := dbQuery("SELECT rate,created_by,created_at FROM configs ORDER BY created_at")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
@@ -66,7 +66,7 @@ func (ac *config) getActiveConfig() {
 	var createdBy string
 	var createdAt time.Time
 	q := "SELECT rate,created_by,created_at FROM configs ORDER BY created_at DESC LIMIT 1"
-	if err := db.QueryRow(q).Scan(&rate, &createdBy, &createdAt); err != nil {
+	if err := dbQueryRow(q).Scan(&rate, &createdBy, &createdAt); err != nil {
 		if err == sql.ErrNoRows {
 			util.Println("fail to get active config, use default config")
 		}

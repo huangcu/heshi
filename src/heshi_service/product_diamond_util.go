@@ -225,11 +225,11 @@ func importDiamondsCustomizeHeaders(headers map[string]string, records [][]strin
 			//insert into db
 			if !ignored {
 				var id string
-				if err := db.QueryRow(fmt.Sprintf("SELECT id FROM diamonds WHERE stock_ref='%s'", d.StockRef)).Scan(&id); err != nil {
+				if err := dbQueryRow(fmt.Sprintf("SELECT id FROM diamonds WHERE stock_ref='%s'", d.StockRef)).Scan(&id); err != nil {
 					if err == sql.ErrNoRows {
 						d.ID = uuid.NewV4().String()
 						q := d.composeInsertQuery()
-						if _, err := db.Exec(q); err != nil {
+						if _, err := dbExec(q); err != nil {
 							return nil, err
 							// ignoredRows = append(ignoredRows, record)
 						}
@@ -241,7 +241,7 @@ func importDiamondsCustomizeHeaders(headers map[string]string, records [][]strin
 
 				d.ID = id
 				q := d.composeUpdateQuery()
-				if _, err := db.Exec(q); err != nil {
+				if _, err := dbExec(q); err != nil {
 					// ignoredRows = append(ignoredRows, record)
 					return nil, err
 				}

@@ -117,12 +117,22 @@ func configRoute(r *gin.Engine) {
 		apiAdmin := api.Group("admin")
 		apiAdmin.Use(AdminSessionMiddleWare())
 		{
-			//admin user -
+			//admin agent user
 			apiAdmin.POST("/users", newAdminAgentUser)
+			apiAdmin.PATCH("/users/:id", updateAdminAgent)
+
+			//user
 			apiAdmin.GET("/users/:id", getUser)
 			apiAdmin.GET("/users", getAllUsers)
-			apiAdmin.PATCH("/users/:id", configAgent)
-			apiAdmin.DELETE("/users/:id", removeUser)
+
+			//customer, agent, admin disable
+			apiAdmin.DELETE("/users/:id", disableUser)
+
+			//supplier
+			apiAdmin.POST("/supplier", newSupplier)
+			apiAdmin.GET("/suppliers", getAllSuppliers)
+			apiAdmin.PUT("/suppliers/:id", updateSupplier)
+			apiAdmin.DELETE("/suppliers/:id", disableSupplier)
 
 			//currency rate
 			apiAdmin.GET("/exchangerate", getCurrencyRate)
@@ -145,11 +155,6 @@ func configRoute(r *gin.Engine) {
 			//upload products by csv file
 			apiAdmin.POST("/products/upload", uploadAndProcessProducts)
 
-			//supplier
-			apiAdmin.POST("/supplier", newSupplier)
-			apiAdmin.GET("/suppliers", getAllSuppliers)
-			apiAdmin.PUT("/suppliers/:id", updateSupplier)
-			apiAdmin.DELETE("/suppliers/:id", removeSupplier)
 		}
 		//agent, customer
 		api.POST("/users", newUser)

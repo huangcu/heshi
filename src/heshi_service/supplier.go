@@ -20,6 +20,7 @@ type supplier struct {
 	Name      string `form:"name" json:"name" binding:"required"`
 	Prefix    string `form:"prefix" json:"prefix" binding:"required"`
 	Connected string `form:"connected" json:"connected"`
+	Status    string `json:"connected"`
 }
 
 func newSupplier(c *gin.Context) {
@@ -31,7 +32,7 @@ func newSupplier(c *gin.Context) {
 	ns.ID = uuid.NewV4().String()
 	q := fmt.Sprintf(`INSERT INTO suppliers (id, name, prefix, connected) VALUES ('%s', '%s', '%s', '%s')`,
 		ns.ID, ns.Name, ns.Prefix, ns.Connected)
-	if _, err := db.Exec(q); err != nil {
+	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 		return
 	}
@@ -40,16 +41,16 @@ func newSupplier(c *gin.Context) {
 }
 
 func getAllSuppliers(c *gin.Context) {
-	q := `SELECT id, name, prefix, connected FROM suppliers ORDER BY created_at DESC`
-	rows, err := db.Query(q)
+	q := `SELECT id, name, prefix, connected, status FROM suppliers ORDER BY created_at DESC`
+	rows, err := dbQuery(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 	var ss []supplier
 	for rows.Next() {
-		var id, name, prefix, connected string
-		if err := rows.Scan(&id, &name, &prefix, &connected); err != nil {
+		var id, name, prefix, connected, status string
+		if err := rows.Scan(&id, &name, &prefix, &connected, status); err != nil {
 			c.JSON(http.StatusInternalServerError, err.Error())
 			return
 		}
@@ -58,6 +59,7 @@ func getAllSuppliers(c *gin.Context) {
 			Name:      name,
 			Prefix:    prefix,
 			Connected: connected,
+			Status:    status,
 		}
 		ss = append(ss, s)
 	}
@@ -76,7 +78,7 @@ func updateSupplier(c *gin.Context) {
 		Connected: c.PostForm("connected"),
 	}
 	q := s.composeUpdateQuery()
-	if _, err := db.Exec(q); err != nil {
+	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 		return
 	}
@@ -85,10 +87,10 @@ func updateSupplier(c *gin.Context) {
 }
 
 //TODO check return row number?
-func removeSupplier(c *gin.Context) {
+func disableSupplier(c *gin.Context) {
 	id := c.Param("id")
-	q := "DELETE FROM suppliers WHERE id=?"
-	if _, err := db.Exec(q, id); err != nil {
+	q := "UPDATE suppliers SET status='disabled' WHERE id=?"
+	if _, err := dbExec(q, id); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}

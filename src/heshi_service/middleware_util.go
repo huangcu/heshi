@@ -28,7 +28,7 @@ func userUsingRecord(URLPath, user, platform string) error {
 func addUserUsingRecord(user, itemID, itemType, device string) error {
 	q := fmt.Sprintf(`INSERT INTO user_using_records (id, user_id, item_id, item_type, device) 
 	VALUES ('%s','%s','%s','%s','%s')`, uuid.NewV4().String(), user, itemID, itemType, device)
-	if _, err := db.Exec(q); err != nil {
+	if _, err := dbExec(q); err != nil {
 		return err
 	}
 	return nil
@@ -38,7 +38,7 @@ func addUserUsingRecord(user, itemID, itemType, device string) error {
 func addUserActiveRecord(user, URLPath string) error {
 	q := fmt.Sprintf(`INSERT INTO user_active_records (id, user_id, page) 
 	VALUES ('%s','%s','%s')`, uuid.NewV4().String(), user, URLPath)
-	if _, err := db.Exec(q); err != nil {
+	if _, err := dbExec(q); err != nil {
 		return err
 	}
 	return nil

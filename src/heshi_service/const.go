@@ -43,11 +43,11 @@ var (
 	//AGENT (11-19)
 	VEMSG_AGENT_LEVEL_NOT_VALID    = errors.HSMessage{Code: 20012, Message: "agent level is not valid"}
 	VEMSG_AGENT_DISCOUNT_NOT_VALID = errors.HSMessage{Code: 20013, Message: "agent discount is not valid"}
+	VEMSG_NOT_VALID                = errors.HSMessage{Code: 20014, Message: "input is not valid"}
 
 	//UPLOAD PRODUCTS(30-39)
 	VEMSG_UPLOAD_PRODUCTS_CATEGORY_NOT_VALID = errors.HSMessage{Code: 20090, Message: "product category not valid"}
-
-	VEMSG_SUPPLIER_NOT_VALID = errors.HSMessage{Code: 20080, Message: "supplier is not valid"}
+	VEMSG_SUPPLIER_NOT_VALID                 = errors.HSMessage{Code: 20080, Message: "supplier is not valid"}
 
 	//Currency(90-99)
 	VEMSG_CURRENCY_SYMBOL_NOT_VALID   = errors.HSMessage{Code: 20090, Message: "input is not a valid currency symbol;"}
@@ -59,7 +59,7 @@ var (
 
 var (
 	VALID_USERTYPE        = []string{CUSTOMER, AGENT, ADMIN}
-	VALID_AGENTLEVEL      = []string{LEVEL1, LEVEL2, LEVEL3}
+	VALID_AGENTLEVEL      = []string{LEVEL1, LEVEL2, LEVEL3, LEVEL4, LEVEL5, LEVEL6}
 	VALID_CURRENCY_SYMBOL = []string{"USD", "CNY", "EUR", "CAD", "AUD", "CHF", "RUB", "NZD"}
 	USER_SESSION_KEY      = "hs_sessionuserid"
 	ADMIN_KEY             = "hs_sessionadmin"
@@ -76,4 +76,7 @@ const (
 	LEVEL1 = "1"
 	LEVEL2 = "2"
 	LEVEL3 = "3"
+	LEVEL4 = "4"
+	LEVEL5 = "5"
+	LEVEL6 = "6"
 )

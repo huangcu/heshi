@@ -34,7 +34,7 @@ type gem struct {
 
 func getAllGems(c *gin.Context) {
 	q := selectGemQuery("")
-	rows, err := db.Query(q)
+	rows, err := dbQuery(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
@@ -51,7 +51,7 @@ func getAllGems(c *gin.Context) {
 
 func getGem(c *gin.Context) {
 	q := selectGemQuery(c.Param("id"))
-	rows, err := db.Query(q)
+	rows, err := dbQuery(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
