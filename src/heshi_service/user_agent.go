@@ -114,6 +114,15 @@ func agentContactInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, *ci)
 }
 
+// func userRecommandedByAgent(uid string) (string, error) {
+// 	q := fmt.Sprintf(`SELECT recommanded_by from users where id=%s`, uid)
+// 	var recommandedBy string
+// 	if err := dbQueryRow(q).Scan(&recommandedBy); err != nil {
+// 		return "", err
+// 	}
+
+// }
+
 func getUserContactInfoInvitationCode(code string) (*ContactInfo, error) {
 	var userID string
 	if err := dbQueryRow("SELECT user_id from invitation_codes WHERE invitation_code=?", code).Scan(&userID); err != nil {
@@ -142,15 +151,15 @@ func (a *Agent) prevalidateNewAgent() ([]errors.HSMessage, error) {
 	var vemsg []errors.HSMessage
 	if !util.IsInArrayString(a.LevelStr, VALID_AGENTLEVEL) {
 		vemsg = append(vemsg, VEMSG_AGENT_LEVEL_NOT_VALID)
-	}
-
-	level, err := strconv.Atoi(a.LevelStr)
-	if err != nil {
-		vemsg = append(vemsg, VEMSG_AGENT_LEVEL_NOT_VALID)
-	} else if level < 0 || level > 10 {
-		vemsg = append(vemsg, VEMSG_AGENT_LEVEL_NOT_VALID)
 	} else {
-		a.Level = level
+		level, err := strconv.Atoi(a.LevelStr)
+		if err != nil {
+			vemsg = append(vemsg, VEMSG_AGENT_LEVEL_NOT_VALID)
+		} else if level < 0 || level > 10 {
+			vemsg = append(vemsg, VEMSG_AGENT_LEVEL_NOT_VALID)
+		} else {
+			a.Level = level
+		}
 	}
 
 	discount, err := strconv.Atoi(a.DiscountStr)

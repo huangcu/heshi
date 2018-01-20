@@ -41,6 +41,7 @@ var (
 	VEMSG_USER_ERROR_RECOMMAND_CODE  = errors.HSMessage{Code: 20011, Message: "your invitation code is not correct, please verify;"}
 
 	//AGENT (11-19)
+	VEMSG_ADMIN_LEVEL_NOT_VALID    = errors.HSMessage{Code: 20015, Message: "admin level is not valid"}
 	VEMSG_AGENT_LEVEL_NOT_VALID    = errors.HSMessage{Code: 20012, Message: "agent level is not valid"}
 	VEMSG_AGENT_DISCOUNT_NOT_VALID = errors.HSMessage{Code: 20013, Message: "agent discount is not valid"}
 	VEMSG_NOT_VALID                = errors.HSMessage{Code: 20014, Message: "input is not valid"}
@@ -64,6 +65,7 @@ var (
 var (
 	VALID_USERTYPE        = []string{CUSTOMER, AGENT, ADMIN}
 	VALID_AGENTLEVEL      = []string{LEVEL1, LEVEL2, LEVEL3, LEVEL4, LEVEL5, LEVEL6}
+	VALID_ADMINLEVEL      = []string{LEVEL1, LEVEL2, LEVEL3, LEVEL4, LEVEL5, LEVEL6}
 	VALID_CURRENCY_SYMBOL = []string{"USD", "CNY", "EUR", "CAD", "AUD", "CHF", "RUB", "NZD"}
 	USER_SESSION_KEY      = "hs_sessionuserid"
 	ADMIN_KEY             = "hs_sessionadmin"

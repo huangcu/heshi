@@ -75,17 +75,17 @@ func (a *Admin) prevalidateNewAdmin() ([]errors.HSMessage, error) {
 	var vemsg []errors.HSMessage
 	//TODO admin level
 	//TODO validate wechat_kefu???
-	if !util.IsInArrayString(a.LevelStr, VALID_AGENTLEVEL) {
-		vemsg = append(vemsg, VEMSG_AGENT_LEVEL_NOT_VALID)
-	}
-
-	level, err := strconv.Atoi(a.LevelStr)
-	if err != nil {
-		vemsg = append(vemsg, VEMSG_AGENT_LEVEL_NOT_VALID)
-	} else if level < 0 || level > 10 {
-		vemsg = append(vemsg, VEMSG_AGENT_LEVEL_NOT_VALID)
+	if !util.IsInArrayString(a.LevelStr, VALID_ADMINLEVEL) {
+		vemsg = append(vemsg, VEMSG_ADMIN_LEVEL_NOT_VALID)
 	} else {
-		a.Level = level
+		level, err := strconv.Atoi(a.LevelStr)
+		if err != nil {
+			vemsg = append(vemsg, VEMSG_ADMIN_LEVEL_NOT_VALID)
+		} else if level < 0 || level > 10 {
+			vemsg = append(vemsg, VEMSG_ADMIN_LEVEL_NOT_VALID)
+		} else {
+			a.Level = level
+		}
 	}
 
 	if vmsg, err := a.validNewUser(); err != nil {

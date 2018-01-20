@@ -75,13 +75,30 @@ func newAdminAgentUser(c *gin.Context) {
 			c.JSON(http.StatusOK, vemsg)
 			return
 		}
-
-		q := nu.composeInsertQuery()
-		if _, err := db.Exec(q); err != nil {
-			c.JSON(http.StatusBadRequest, errors.GetMessage(err))
-			return
-		}
-		if err := a.newAgent(); err != nil {
+		// q := nu.composeInsertQuery()
+		// if _, err := dbExec(q); err != nil {
+		// 	c.JSON(http.StatusBadRequest, errors.GetMessage(err))
+		// 	return
+		// }
+		// if err := a.newAgent(); err != nil {
+		// 	c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		// 	return
+		// }
+		err := dbTransact(db, func(tx *sql.Tx) error {
+			q := nu.composeInsertQuery()
+			traceSQL(q)
+			if _, err := tx.Exec(q); err != nil {
+				return err
+			}
+			q = fmt.Sprintf(`INSERT INTO agents (user_id, level, discount, created_by) VALUES 
+											(%s', '%d', '%d', '%s')`, a.ID, a.Level, a.Discount, a.CreatedBy)
+			traceSQL(q)
+			if _, err := tx.Exec("q"); err != nil {
+				return err
+			}
+			return nil
+		})
+		if err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
@@ -104,7 +121,7 @@ func newAdminAgentUser(c *gin.Context) {
 		}
 
 		q := nu.composeInsertQuery()
-		if _, err := db.Exec(q); err != nil {
+		if _, err := dbExec(q); err != nil {
 			c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 			return
 		}
@@ -143,7 +160,7 @@ func newUser(c *gin.Context) {
 	}
 
 	q := nu.composeInsertQuery()
-	if _, err := db.Exec(q); err != nil {
+	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 		return
 	}
@@ -204,7 +221,7 @@ func updateUser(c *gin.Context) {
 	// case "agent":
 	// default:
 	// }
-	if _, err := db.Exec(q); err != nil {
+	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 		return
 	}
@@ -273,7 +290,7 @@ func getUser(c *gin.Context) {
 
 func getAllUsers(c *gin.Context) {
 	q := selectUserQuery("")
-	rows, err := db.Query(q)
+	rows, err := dbQuery(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
@@ -297,7 +314,7 @@ func getAllUsers(c *gin.Context) {
 func disableUser(c *gin.Context) {
 	uid := c.Param("id")
 	q := "UPDATE users SET status='disabled' WHERE id=?"
-	if _, err := db.Exec(q, uid); err != nil {
+	if _, err := dbExec(q, uid); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
