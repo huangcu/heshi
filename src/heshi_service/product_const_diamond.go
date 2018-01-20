@@ -99,24 +99,24 @@ var VALID_SYMMETRY = []string{
 	"FAIR",
 }
 
+// N - NON -NONE - "None",
+// F- FNT - "Faint",
+// M - MED - "Medium",
+// S - STG - "Strong",
+// VST - "Very Strong",
+// SL - SLT - "Slight",
+// VSL - "Very Slight",
 var VALID_FLUORESCENCE_INTENSITY = []string{
-	"None",
-	"Medium",
-	"Strong",
-	"Faint",
 	"NON",
-	"Very Strong",
 	"FNT",
-	"NIL",
-	"STR",
-	"STG",
 	"MED",
+	"STG",
 	"VST",
-	"VSL",
 	"SLT",
-	"Slight",
-	"Very Slight",
-	"VSTG",
+	"VSL",
+	// "NIL",
+	// "STR",
+	// "VSTG",
 }
 
 var VALID_POLISH = []string{

@@ -65,8 +65,8 @@ func (p *PriceSetting) paramsKV() map[string]interface{} {
 	if p.Clarities != "" {
 		params["clarity"] = p.Clarities
 	}
-	if p.Cuts != "" {
-		params["cut"] = p.Cuts
+	if p.CutGrades != "" {
+		params["cut_grade"] = p.CutGrades
 	}
 	if p.Symmetries != "" {
 		params["symmetry"] = p.Symmetries
@@ -77,8 +77,8 @@ func (p *PriceSetting) paramsKV() map[string]interface{} {
 	if p.Fluos != "" {
 		params["fluo"] = p.Fluos
 	}
-	if p.Certificates != "" {
-		params["certificate"] = p.Certificates
+	if p.GradingLabs != "" {
+		params["grading_lab"] = p.GradingLabs
 	}
 	if p.TheParaValue != 0 {
 		params["the_para_value"] = p.TheParaValue
@@ -124,13 +124,13 @@ func (p *PriceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
 	p.Priority = pValue
 
 	var invalid []string
-	for _, v := range strings.Split(p.Certificates, ",") {
+	for _, v := range strings.Split(p.GradingLabs, ",") {
 		if !util.IsInArrayString(v, VALID_GRADING_LAB) {
 			invalid = append(invalid, v)
 		}
 	}
 	if len(invalid) != 0 {
-		VEMSG_NOT_VALID.Message = fmt.Sprintf("certificates input has invalid value: %s", strings.Join(invalid, ","))
+		VEMSG_NOT_VALID.Message = fmt.Sprintf("grading lab input has invalid value: %s", strings.Join(invalid, ","))
 		vemsg = append(vemsg, VEMSG_NOT_VALID)
 	}
 
@@ -157,13 +157,13 @@ func (p *PriceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
 	}
 
 	// invalid = []string{}
-	// for _, v := range strings.Split(p.Cuts, ",") {
+	// for _, v := range strings.Split(p.CutGrades, ",") {
 	// 	if !util.IsInArrayString(v, VALID_CUT_NUMBER) {
 	// 		invalid = append(invalid, v)
 	// 	}
 	// }
 	// if len(invalid) != 0 {
-	// 	VEMSG_NOT_VALID.Message = fmt.Sprintf("cut input has invalid value: %s", strings.Join(invalid, ","))
+	// 	VEMSG_NOT_VALID.Message = fmt.Sprintf("cut grade input has invalid value: %s", strings.Join(invalid, ","))
 	// 	vemsg = append(vemsg, VEMSG_NOT_VALID)
 	// }
 	invalid = []string{}

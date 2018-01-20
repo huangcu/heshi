@@ -19,11 +19,11 @@ type PriceSetting struct {
 	CaratToStr      string  `json:"-"`
 	Colors          string  `json:"color"`
 	Clarities       string  `json:"clarity"`
-	Cuts            string  `json:"cut"`
+	CutGrades       string  `json:"cut_grade"`
 	Symmetries      string  `json:"symmetry"`
 	Polishs         string  `json:"polish"`
 	Fluos           string  `json:"fluo"`
-	Certificates    string  `json:"certificate"`
+	GradingLabs     string  `json:"grading_lab"`
 	TheParaValue    float64 `json:"the_para_value"`
 	TheParaValueStr string  `json:"-"`
 	Priority        int     `json:"priority"`
@@ -38,11 +38,11 @@ func addPriceRule(c *gin.Context) {
 		CaratToStr:      c.PostForm("carat_to"),
 		Colors:          c.PostForm("color"),
 		Clarities:       c.PostForm("clarity"),
-		Cuts:            c.PostForm("cut"),
+		CutGrades:       c.PostForm("cut_grade"),
 		Symmetries:      c.PostForm("symmetry"),
 		Polishs:         c.PostForm("polish"),
 		Fluos:           c.PostForm("fluo"),
-		Certificates:    c.PostForm("certificate"),
+		GradingLabs:     c.PostForm("grading_lab"),
 		TheParaValueStr: c.PostForm("the_para_value"),
 		PriorityStr:     c.PostForm("priority"),
 	}
@@ -71,11 +71,11 @@ func updatePriceRule(c *gin.Context) {
 		CaratToStr:      c.PostForm("carat_to"),
 		Colors:          c.PostForm("color"),
 		Clarities:       c.PostForm("clarity"),
-		Cuts:            c.PostForm("cut"),
+		CutGrades:       c.PostForm("cut_grade"),
 		Symmetries:      c.PostForm("symmetry"),
 		Polishs:         c.PostForm("polish"),
 		Fluos:           c.PostForm("fluo"),
-		Certificates:    c.PostForm("certificate"),
+		GradingLabs:     c.PostForm("grading_lab"),
 		TheParaValueStr: c.PostForm("the_para_value"),
 		PriorityStr:     c.PostForm("priority"),
 	}
@@ -144,8 +144,8 @@ func getAllPriceRule(c *gin.Context) {
 }
 
 func selectPriceRulesQuery(id string) string {
-	q := `SELECT id,supplier_id,carat_from,carat_to,color,clarity,cut,symmetry,polish,fluo,
-	certificate,the_para_value,priority,status FROM price_settings_universal`
+	q := `SELECT id,supplier_id,carat_from,carat_to,color,clarity,cut_grade,symmetry,polish,fluo,
+	grading_lab,the_para_value,priority,status FROM price_settings_universal`
 
 	if id != "" {
 		q = fmt.Sprintf("%s WHERE id='%s'", q, id)
@@ -154,14 +154,14 @@ func selectPriceRulesQuery(id string) string {
 }
 
 func composePriceSetting(rows *sql.Rows) ([]PriceSetting, error) {
-	var id, supplierID, color, clarity, cut, symmetry, polish, fluo, certificate, status string
+	var id, supplierID, color, clarity, cutGrade, symmetry, polish, fluo, gradingLab, status string
 	var caratFrom, caratTo, theParaValue float64
 	var priority int
 
 	var ps []PriceSetting
 	for rows.Next() {
-		if err := rows.Scan(&id, &supplierID, &caratFrom, &caratTo, &color, &clarity, &cut, &symmetry,
-			&polish, &fluo, &certificate, &theParaValue, &priority, &status); err != nil {
+		if err := rows.Scan(&id, &supplierID, &caratFrom, &caratTo, &color, &clarity, &cutGrade, &symmetry,
+			&polish, &fluo, &gradingLab, &theParaValue, &priority, &status); err != nil {
 			return nil, err
 		}
 		p := PriceSetting{
@@ -171,11 +171,11 @@ func composePriceSetting(rows *sql.Rows) ([]PriceSetting, error) {
 			CaratTo:      caratTo,
 			Colors:       color,
 			Clarities:    clarity,
-			Cuts:         cut,
+			CutGrades:    cutGrade,
 			Symmetries:   symmetry,
 			Polishs:      polish,
 			Fluos:        fluo,
-			Certificates: certificate,
+			GradingLabs:  gradingLab,
 			TheParaValue: theParaValue,
 			Priority:     priority,
 			Status:       status,

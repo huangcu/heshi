@@ -401,118 +401,6 @@ func importSmallDiamondProducts(file string) ([][]string, error) {
 	util.Println("finish process small diamond")
 	return ignoredRows, nil
 }
-func importDiamondProducts(file string) ([][]string, error) {
-	originalHeaders := []string{}
-	records, err := util.ParseCSVToArrays(file)
-	if err != nil {
-		return nil, err
-	}
-	if len(records) < 1 {
-		return nil, errors.New("uploaded file has no records")
-	}
-
-	ignoredRows := [][]string{}
-	//get headers
-	originalHeaders = records[0]
-
-	//process records
-	for index := 1; index < len(records); index++ {
-		ignored := false
-		d := diamond{}
-		record := records[index]
-		util.Printf("processsing row: %d, %s", index, record)
-		for i, header := range originalHeaders {
-			switch header {
-			case "diamond_id":
-				d.DiamondID = record[i]
-			case "stock_ref":
-				d.StockRef = record[i]
-			case "shape":
-				d.Shape = record[i]
-			case "carat":
-				cValue, err := strconv.ParseFloat(record[i], 64)
-				if err != nil {
-					ignoredRows = append(ignoredRows, record)
-					ignored = true
-				}
-				if cValue == 0 {
-					ignored = true
-				}
-				d.Carat = math.Abs(cValue)
-			case "color":
-				d.Color = record[i]
-			case "clarity":
-				d.Clarity = record[i]
-			case "grading_lab":
-				d.GradingLab = record[i]
-			case "certificate_number":
-				d.CertificateNumber = record[i]
-			case "cut_grade":
-				d.CutGrade = record[i]
-			case "polish":
-				d.Polish = record[i]
-			case "symmetry":
-				d.Symmetry = record[i]
-			case "fluorescence_intensity":
-				d.FluorescenceIntensity = record[i]
-			case "country":
-				d.Country = record[i]
-			case "supplier":
-				d.Supplier = record[i]
-			case "price_no_added_value":
-				cValue, err := strconv.ParseFloat(strings.Replace(record[i], ",", "", -1), 64)
-				if err != nil {
-					ignoredRows = append(ignoredRows, record)
-					ignored = true
-				}
-				if cValue == 0 {
-					ignored = true
-				}
-				d.PriceNoAddedValue = math.Abs(cValue)
-			case "price_retail":
-				cValue, err := strconv.ParseFloat(strings.Replace(record[i], ",", "", -1), 64)
-				if err != nil {
-					ignoredRows = append(ignoredRows, record)
-					ignored = true
-				}
-				if cValue == 0 {
-					ignored = true
-				}
-				d.PriceRetail = math.Abs(cValue)
-			case "clarity_number":
-				d.ClarityNumber = record[i]
-			case "cut_number":
-				d.CutNumber = record[i]
-			}
-		}
-		//insert into db
-		if !ignored {
-			var id string
-			if err := dbQueryRow(fmt.Sprintf("SELECT id FROM diamonds WHERE stock_ref='%s'", d.StockRef)).Scan(&id); err != nil {
-				if err == sql.ErrNoRows {
-					d.ID = uuid.NewV4().String()
-					q := d.composeInsertQuery()
-					if _, err := dbExec(q); err != nil {
-						return nil, err
-						// ignoredRows = append(ignoredRows, record)
-					}
-				} else {
-					// ignoredRows = append(ignoredRows, record)
-					return nil, err
-				}
-			} else {
-				d.ID = id
-				q := d.composeUpdateQuery()
-				if _, err := dbExec(q); err != nil {
-					// ignoredRows = append(ignoredRows, record)
-					return nil, err
-				}
-			}
-		}
-	}
-	util.Println("finish process diamond")
-	return ignoredRows, nil
-}
 
 func validateHeaders(product string, headers []string) []string {
 	switch product {
@@ -525,16 +413,6 @@ func validateHeaders(product string, headers []string) []string {
 	default:
 		return nil
 	}
-}
-
-func validateDiamondHeaders(headers []string) []string {
-	var missingHeaders []string
-	for _, header := range diamondHeaders {
-		if !util.IsInArrayString(header, headers) {
-			missingHeaders = append(missingHeaders, header)
-		}
-	}
-	return missingHeaders
 }
 
 func validateSmallDiamondHeaders(headers []string) []string {
