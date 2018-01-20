@@ -23,6 +23,10 @@ func validateDiamondHeaders(headers []string) []string {
 }
 
 func importDiamondProducts(file string) ([][]string, error) {
+	oldStockRefList, err := getAllStockRef()
+	if err != nil {
+		return nil, err
+	}
 	originalHeaders := []string{}
 	records, err := util.ParseCSVToArrays(file)
 	if err != nil {
@@ -109,13 +113,22 @@ func importDiamondProducts(file string) ([][]string, error) {
 		}
 		//handle db
 		if !ignored {
+			if err := d.composeStockRefWithSupplierPrefix(); err != nil {
+				//TODO
+				return nil, err
+			}
 			if err := d.processDiamondRecord(); err != nil {
 				//TODO return err for now!
 				return nil, err
 			}
+			//remove it from old stock ref map
+			delete(oldStockRefList, d.StockRef)
 		}
 	}
 	util.Println("finish process diamond")
+	if err := offlineDiamondsNoLongerExist(oldStockRefList); err != nil {
+		return ignoredRows, err
+	}
 	return ignoredRows, nil
 }
 
@@ -200,5 +213,51 @@ func (d *diamond) processPrice() error {
 			return nil
 		}
 	}
+	return nil
+}
+
+func (d *diamond) composeStockRefWithSupplierPrefix() error {
+	q := fmt.Sprintf(`SELECT prefix FROM suppliers WHERE name='%s'`, d.Supplier)
+	var prefix string
+	if err := dbQueryRow(q).Scan(&prefix); err != nil {
+		if err != sql.ErrNoRows {
+			return err
+		}
+		prefix = "SYS"
+	}
+	stockRef := d.StockRef
+	d.StockRef = fmt.Sprintf("%s-%s", prefix, stockRef)
+	return nil
+}
+
+func getAllStockRef() (map[string]struct{}, error) {
+	rows, err := dbQuery("SELECT stock_ref FROM diamonds WHERE status!='OFFLINE'")
+	if err != nil {
+		return nil, err
+	}
+	stockRefs := make(map[string]struct{})
+	for rows.Next() {
+		var stockRef string
+		if err := rows.Scan(&stockRef); err != nil {
+			return nil, err
+		}
+		//empty struct comsumes 0 bytes
+		var s struct{}
+		stockRefs[stockRef] = s
+	}
+	return stockRefs, nil
+}
+
+//下线不存在的钻石 //TODO return or just trace err ???
+func offlineDiamondsNoLongerExist(stockRefList map[string]struct{}) error {
+	util.Tracef("Start to offline all diamonds no longer exists")
+	for k := range stockRefList {
+		q := fmt.Sprintf("UPDATE diamonds SET status='OFFLINE' WHERE stock_ref ='%s'", k)
+		if _, err := dbExec(q); err != nil {
+			util.Tracef("error when offline diamond. stock_ref: %s. err: ", k, errors.GetMessage(err))
+			return err
+		}
+	}
+	util.Tracef("Finished offline all diamonds no longer exists")
 	return nil
 }
