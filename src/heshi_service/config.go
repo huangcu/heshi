@@ -33,8 +33,7 @@ func getConfig(c *gin.Context) {
 }
 
 func newConfig(c *gin.Context) {
-	// createdBy := c.MustGet("id").(string)
-	createdBy := "system"
+	createdBy := c.MustGet("id").(string)
 	id := uuid.NewV4().String()
 	q := fmt.Sprintf("INSERT INTO configs (id, rate, created_by) VALUES ('%s','%s','%s')", id, c.PostForm("rate"), createdBy)
 	if _, err := dbExec(q); err != nil {
