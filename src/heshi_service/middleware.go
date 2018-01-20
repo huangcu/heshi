@@ -87,7 +87,7 @@ func RequestLogger() gin.HandlerFunc {
 		rdr1 := ioutil.NopCloser(bytes.NewBuffer(buf))
 		rdr2 := ioutil.NopCloser(bytes.NewBuffer(buf)) //We have to create a new Buffer, because rdr1 will be read.
 		platform := detect.Platform(c.Request.Header.Get("User-Agent")).String()
-		util.Printf("=======GOT REQUEST - METHOD: %s; FROM: %s,; URL %s=====", c.Request.URL, platform, c.Request.Method)
+		util.Printf("=======GOT REQUEST - METHOD: %s; FROM: %s; URL %s=====", c.Request.Method, platform, c.Request.URL)
 		util.Printf("=======REQUEST BODY: %s========", readBody(rdr1)) // Print request body
 		s := sessions.Default(c)
 		user := s.Get(USER_SESSION_KEY)

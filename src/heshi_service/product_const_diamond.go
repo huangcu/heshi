@@ -128,16 +128,12 @@ var VALID_POLISH = []string{
 	"GD",
 }
 
-var VALID_SUPPLIER = []string{
+var VALID_SUPPLIER_NAME = []string{
 	"KGK",
 	"DIAM",
-	"9",
-	"8",
 	"BEYOU-HESHI",
 	"SUN",
 	"HKEXPO",
-	"7",
-	"5",
 	"HESHI",
 }
 
@@ -156,9 +152,9 @@ var VALID_CUT_GRADE = []string{
 	"NN",
 }
 
-var VALID_CLARITY_NUMBER = []string{
-	"0", "1", "2", "3", "4", "5",
-}
+// var VALID_CLARITY_NUMBER = []string{
+// 	"0", "1", "2", "3", "4", "5",
+// }
 
 var VALID_CUT_NUMBER = []string{
 	"0", "1", "2", "3",

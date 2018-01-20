@@ -7,7 +7,7 @@ import (
 
 func (s *shoppingItem) composeInsertQuery() string {
 	params := s.paramsKV()
-	q := `INSERT INTO interested_items (id, `
+	q := `INSERT INTO interested_items (id`
 	va := fmt.Sprintf(`VALUES ('%s'`, s.ID)
 	for k, v := range params {
 		q = fmt.Sprintf("%s, %s", q, k)

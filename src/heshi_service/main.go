@@ -131,10 +131,18 @@ func configRoute(r *gin.Engine) {
 			apiAdmin.DELETE("/users/:id", disableUser)
 
 			//supplier
-			apiAdmin.POST("/supplier", newSupplier)
+			apiAdmin.POST("/suppliers", newSupplier)
 			apiAdmin.GET("/suppliers", getAllSuppliers)
+			apiAdmin.GET("/suppliers/:id", getSupplier)
 			apiAdmin.PUT("/suppliers/:id", updateSupplier)
 			apiAdmin.DELETE("/suppliers/:id", disableSupplier)
+
+			//price setting
+			apiAdmin.POST("/pricesettings", addPriceRule)
+			apiAdmin.GET("/pricesettings", getAllPriceRule)
+			apiAdmin.GET("/pricesettings/:id", getPriceRule)
+			apiAdmin.PUT("/pricesettings/:id", updatePriceRule)
+			apiAdmin.DELETE("/pricesettings/:id", disablePriceRule)
 
 			//currency rate
 			apiAdmin.GET("/exchangerate", getCurrencyRate)

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"heshi/errors"
 	"net/http"
@@ -20,7 +21,7 @@ type supplier struct {
 	Name      string `form:"name" json:"name" binding:"required"`
 	Prefix    string `form:"prefix" json:"prefix" binding:"required"`
 	Connected string `form:"connected" json:"connected"`
-	Status    string `json:"connected"`
+	Status    string `json:"status"`
 }
 
 func newSupplier(c *gin.Context) {
@@ -29,9 +30,15 @@ func newSupplier(c *gin.Context) {
 		c.JSON(http.StatusOK, VEMSG_SUPPLIER_NOT_VALID)
 		return
 	}
+	if vemsg, err := ns.validUniqueKey(); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	} else if len(vemsg) != 0 {
+		c.JSON(http.StatusOK, vemsg)
+		return
+	}
 	ns.ID = uuid.NewV4().String()
-	q := fmt.Sprintf(`INSERT INTO suppliers (id, name, prefix, connected) VALUES ('%s', '%s', '%s', '%s')`,
-		ns.ID, ns.Name, ns.Prefix, ns.Connected)
+	q := ns.composeInsertQuery()
 	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 		return
@@ -50,7 +57,7 @@ func getAllSuppliers(c *gin.Context) {
 	var ss []supplier
 	for rows.Next() {
 		var id, name, prefix, connected, status string
-		if err := rows.Scan(&id, &name, &prefix, &connected, status); err != nil {
+		if err := rows.Scan(&id, &name, &prefix, &connected, &status); err != nil {
 			c.JSON(http.StatusInternalServerError, err.Error())
 			return
 		}
@@ -70,6 +77,30 @@ func getAllSuppliers(c *gin.Context) {
 	c.JSON(http.StatusOK, ss)
 }
 
+func getSupplier(c *gin.Context) {
+	q := fmt.Sprintf(`SELECT id, name, prefix, connected, status FROM suppliers WHERE id = '%s'`, c.Param("id"))
+	var id, name, prefix, connected, status string
+	if err := dbQueryRow(q).Scan(&id, &name, &prefix, &connected, &status); err != nil {
+		if err == sql.ErrNoRows {
+			VEMSG_NOT_EXIST.Message = fmt.Sprintf("supplier :%s not exist", c.Param("id"))
+			c.JSON(http.StatusOK, VEMSG_NOT_EXIST)
+			return
+		}
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+	s := supplier{
+		ID:        id,
+		Name:      name,
+		Prefix:    prefix,
+		Connected: connected,
+		Status:    status,
+	}
+
+	c.JSON(http.StatusOK, s)
+}
+
+//TODO better only allowed to change connected or not, name, prefix not allowed to change
 func updateSupplier(c *gin.Context) {
 	s := supplier{
 		ID:        c.Param("id"),
@@ -95,6 +126,26 @@ func disableSupplier(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, "SUCCESS")
+}
+
+func (s *supplier) composeInsertQuery() string {
+	params := s.paramsKV()
+	q := `INSERT INTO suppliers (id `
+	va := fmt.Sprintf(`VALUES ('%s'`, s.ID)
+	for k, v := range params {
+		q = fmt.Sprintf("%s, %s", q, k)
+		switch v.(type) {
+		case string:
+			va = fmt.Sprintf("%s, '%s'", va, v.(string))
+		case float64:
+			va = fmt.Sprintf("%s, '%f'", va, v.(float64))
+		case int:
+			va = fmt.Sprintf("%s, '%d'", va, v.(int))
+		case int64:
+			va = fmt.Sprintf("%s, '%d'", va, v.(int64))
+		}
+	}
+	return fmt.Sprintf("%s) %s)", q, va)
 }
 
 func (s *supplier) composeUpdateQuery() string {
@@ -130,4 +181,44 @@ func (s *supplier) paramsKV() map[string]interface{} {
 		params["connected"] = s.Connected
 	}
 	return params
+}
+
+func (s *supplier) validUniqueKey() ([]errors.HSMessage, error) {
+	var vemsgs []errors.HSMessage
+	if exist, err := s.isSupplierExistByName(); err != nil {
+		return nil, nil
+	} else if exist {
+		vemsgs = append(vemsgs, VEMSG_SUPPLIER_NAME_DUPLICATE)
+	}
+	if exist, err := s.isSupplierExistByPrefix(); err != nil {
+		return nil, nil
+	} else if exist {
+		vemsgs = append(vemsgs, VEMSG_SUPPLIER_PREFIX_DUPLICATE)
+	}
+
+	return vemsgs, nil
+}
+
+func (s *supplier) isSupplierExistByName() (bool, error) {
+	var count int
+	q := fmt.Sprintf("SELECT count(*) FROM suppliers WHERE name='%s'", s.Name)
+	if err := dbQueryRow(q).Scan(&count); err != nil {
+		return false, err
+	}
+	if count == 0 {
+		return false, nil
+	}
+	return true, nil
+}
+
+func (s *supplier) isSupplierExistByPrefix() (bool, error) {
+	var count int
+	q := fmt.Sprintf("SELECT count(*) FROM suppliers WHERE prefix='%s'", s.Prefix)
+	if err := dbQueryRow(q).Scan(&count); err != nil {
+		return false, err
+	}
+	if count == 0 {
+		return false, nil
+	}
+	return true, nil
 }

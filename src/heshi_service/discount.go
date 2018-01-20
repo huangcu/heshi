@@ -23,6 +23,7 @@ func newDiscount(c *gin.Context) {
 	createdBy := c.MustGet("id").(string)
 	var nd discount
 	if err := c.ShouldBind(&nd); err != nil {
+		VEMSG_AGENT_DISCOUNT_NOT_VALID.Message = errors.GetMessage(err)
 		c.JSON(http.StatusOK, VEMSG_AGENT_DISCOUNT_NOT_VALID)
 		return
 	}

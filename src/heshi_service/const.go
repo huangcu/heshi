@@ -49,6 +49,10 @@ var (
 	VEMSG_UPLOAD_PRODUCTS_CATEGORY_NOT_VALID = errors.HSMessage{Code: 20090, Message: "product category not valid"}
 	VEMSG_SUPPLIER_NOT_VALID                 = errors.HSMessage{Code: 20080, Message: "supplier is not valid"}
 
+	//Supplier
+	VEMSG_SUPPLIER_NAME_DUPLICATE   = errors.HSMessage{Code: 20081, Message: "the supplier name already exist!"}
+	VEMSG_SUPPLIER_PREFIX_DUPLICATE = errors.HSMessage{Code: 20082, Message: "the supplier prefix already exist!"}
+
 	//Currency(90-99)
 	VEMSG_CURRENCY_SYMBOL_NOT_VALID   = errors.HSMessage{Code: 20090, Message: "input is not a valid currency symbol;"}
 	VEMSG_CURRENCY_RATE_NOT_VALID     = errors.HSMessage{Code: 20091, Message: "currency exchange rate should be float;"}

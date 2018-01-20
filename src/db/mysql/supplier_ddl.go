@@ -17,8 +17,8 @@ const supplierDdl = `
 CREATE TABLE IF NOT EXISTS suppliers
 (
 	id VARCHAR(225) PRIMARY KEY NOT NULL,
-	name VARCHAR(255) NOT NULL,
-	prefix VARCHAR(8) NOT NULL,
+	name VARCHAR(255) NOT NULL UNIQUE,
+	prefix VARCHAR(8) NOT NULL UNIQUE,
 	connected VARCHAR(5) NOT NULL DEFAULT 'NO',
 	status VARCHAR(8) NOT NULL DEFAULT 'active',
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -40,10 +40,11 @@ CREATE TABLE IF NOT EXISTS suppliers
 // | shape          | varchar(28)  | NO   |     | NULL    |                |
 // | the_para_value | float        | NO   |     | NULL    |                |
 // | priority       | int(11)      | NO   |     | NULL    |                |
-const priceSettingDdl = `
-CREATE TABLE IF NOT EXISTS price_settings
+const priceSettingUniversalDdl = `
+CREATE TABLE IF NOT EXISTS price_settings_universal
 (
 	id VARCHAR(225) PRIMARY KEY NOT NULL,
+	supplier_id VARCHAR(225) NOT NULL,
 	carat_from FLOAT NOT NULL,
 	carat_to FLOAT NOT NULL,
 	color VARCHAR(88) NOT NULL,
@@ -55,6 +56,7 @@ CREATE TABLE IF NOT EXISTS price_settings
 	certificate VARCHAR(225) NOT NULL,
 	the_para_value FLOAT NOT NULL,
 	priority INT NOT NULL,
+	status VARCHAR(8) NOT NULL DEFAULT 'active',
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 ) ENGINE=INNODB;
