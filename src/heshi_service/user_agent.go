@@ -53,14 +53,14 @@ func updateAgent(c *gin.Context) {
 	levelStr := c.PostForm("level")
 	discountStr := c.PostForm("discount")
 	if levelStr == "" && discountStr == "" {
-		c.JSON(http.StatusOK, VEMSG_NOT_VALID)
+		c.JSON(http.StatusOK, vemsgNotValid)
 	}
 	agentID := c.Param("id")
 	q := fmt.Sprintf(`UPDATE agents SET created_by='%s'`, agentID)
 
 	if levelStr != "" {
 		if !util.IsInArrayString(levelStr, VALID_AGENTLEVEL) {
-			c.JSON(http.StatusOK, VEMSG_AGENT_LEVEL_NOT_VALID)
+			c.JSON(http.StatusOK, vemsgAgentLevelNotValid)
 			return
 		}
 		level, _ := strconv.Atoi(levelStr)
@@ -70,10 +70,10 @@ func updateAgent(c *gin.Context) {
 	if discountStr != "" {
 		discount, err := strconv.Atoi(discountStr)
 		if err != nil {
-			c.JSON(http.StatusOK, VEMSG_AGENT_LEVEL_NOT_VALID)
+			c.JSON(http.StatusOK, vemsgAgentLevelNotValid)
 			return
 		} else if discount < 0 || discount > 100 {
-			c.JSON(http.StatusOK, VEMSG_AGENT_LEVEL_NOT_VALID)
+			c.JSON(http.StatusOK, vemsgAgentLevelNotValid)
 			return
 		} else {
 			q = fmt.Sprintf("%s, discount='%d'", q, discount)
@@ -150,13 +150,13 @@ func getUserContactInfoInvitationCode(code string) (*ContactInfo, error) {
 func (a *Agent) prevalidateNewAgent() ([]errors.HSMessage, error) {
 	var vemsg []errors.HSMessage
 	if !util.IsInArrayString(a.LevelStr, VALID_AGENTLEVEL) {
-		vemsg = append(vemsg, VEMSG_AGENT_LEVEL_NOT_VALID)
+		vemsg = append(vemsg, vemsgAgentLevelNotValid)
 	} else {
 		level, err := strconv.Atoi(a.LevelStr)
 		if err != nil {
-			vemsg = append(vemsg, VEMSG_AGENT_LEVEL_NOT_VALID)
+			vemsg = append(vemsg, vemsgAgentLevelNotValid)
 		} else if level < 0 || level > 10 {
-			vemsg = append(vemsg, VEMSG_AGENT_LEVEL_NOT_VALID)
+			vemsg = append(vemsg, vemsgAgentLevelNotValid)
 		} else {
 			a.Level = level
 		}
@@ -164,9 +164,9 @@ func (a *Agent) prevalidateNewAgent() ([]errors.HSMessage, error) {
 
 	discount, err := strconv.Atoi(a.DiscountStr)
 	if err != nil {
-		vemsg = append(vemsg, VEMSG_AGENT_DISCOUNT_NOT_VALID)
+		vemsg = append(vemsg, vemsgAgentDiscountNotValid)
 	} else if discount < 0 || discount > 100 {
-		vemsg = append(vemsg, VEMSG_AGENT_DISCOUNT_NOT_VALID)
+		vemsg = append(vemsg, vemsgAgentDiscountNotValid)
 	} else {
 		a.Discount = discount
 	}

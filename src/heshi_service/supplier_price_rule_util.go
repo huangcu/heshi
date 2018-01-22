@@ -97,29 +97,29 @@ func (p *PriceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
 
 	sValue, err := strconv.ParseFloat(p.CaratFromStr, 64)
 	if err != nil {
-		VEMSG_NOT_VALID.Message = fmt.Sprintf("carat from input %s is not valid", p.CaratFromStr)
-		vemsg = append(vemsg, VEMSG_NOT_VALID)
+		vemsgNotValid.Message = fmt.Sprintf("carat from input %s is not valid", p.CaratFromStr)
+		vemsg = append(vemsg, vemsgNotValid)
 	}
 	p.CaratFrom = math.Abs(sValue)
 
 	sValue, err = strconv.ParseFloat(p.CaratToStr, 64)
 	if err != nil {
-		VEMSG_NOT_VALID.Message = fmt.Sprintf("carat to input %s is not valid", p.CaratToStr)
-		vemsg = append(vemsg, VEMSG_NOT_VALID)
+		vemsgNotValid.Message = fmt.Sprintf("carat to input %s is not valid", p.CaratToStr)
+		vemsg = append(vemsg, vemsgNotValid)
 	}
 	p.CaratTo = math.Abs(sValue)
 
 	sValue, err = strconv.ParseFloat(p.TheParaValueStr, 64)
 	if err != nil {
-		VEMSG_NOT_VALID.Message = fmt.Sprintf("para value input %s is not valid", p.TheParaValueStr)
-		vemsg = append(vemsg, VEMSG_NOT_VALID)
+		vemsgNotValid.Message = fmt.Sprintf("para value input %s is not valid", p.TheParaValueStr)
+		vemsg = append(vemsg, vemsgNotValid)
 	}
 	p.TheParaValue = math.Abs(sValue)
 
 	pValue, err := strconv.Atoi(p.PriorityStr)
 	if err != nil {
-		VEMSG_NOT_VALID.Message = fmt.Sprintf("priority input %s is not valid", p.PriorityStr)
-		vemsg = append(vemsg, VEMSG_NOT_VALID)
+		vemsgNotValid.Message = fmt.Sprintf("priority input %s is not valid", p.PriorityStr)
+		vemsg = append(vemsg, vemsgNotValid)
 	}
 	p.Priority = pValue
 
@@ -130,8 +130,8 @@ func (p *PriceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
 		}
 	}
 	if len(invalid) != 0 {
-		VEMSG_NOT_VALID.Message = fmt.Sprintf("grading lab input has invalid value: %s", strings.Join(invalid, ","))
-		vemsg = append(vemsg, VEMSG_NOT_VALID)
+		vemsgNotValid.Message = fmt.Sprintf("grading lab input has invalid value: %s", strings.Join(invalid, ","))
+		vemsg = append(vemsg, vemsgNotValid)
 	}
 
 	invalid = []string{}
@@ -141,8 +141,8 @@ func (p *PriceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
 		}
 	}
 	if len(invalid) != 0 {
-		VEMSG_NOT_VALID.Message = fmt.Sprintf("clarity input has invalid value: %s", strings.Join(invalid, ","))
-		vemsg = append(vemsg, VEMSG_NOT_VALID)
+		vemsgNotValid.Message = fmt.Sprintf("clarity input has invalid value: %s", strings.Join(invalid, ","))
+		vemsg = append(vemsg, vemsgNotValid)
 	}
 
 	invalid = []string{}
@@ -152,8 +152,8 @@ func (p *PriceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
 		}
 	}
 	if len(invalid) != 0 {
-		VEMSG_NOT_VALID.Message = fmt.Sprintf("color input has invalid value: %s", strings.Join(invalid, ","))
-		vemsg = append(vemsg, VEMSG_NOT_VALID)
+		vemsgNotValid.Message = fmt.Sprintf("color input has invalid value: %s", strings.Join(invalid, ","))
+		vemsg = append(vemsg, vemsgNotValid)
 	}
 
 	// invalid = []string{}
@@ -163,8 +163,8 @@ func (p *PriceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
 	// 	}
 	// }
 	// if len(invalid) != 0 {
-	// 	VEMSG_NOT_VALID.Message = fmt.Sprintf("cut grade input has invalid value: %s", strings.Join(invalid, ","))
-	// 	vemsg = append(vemsg, VEMSG_NOT_VALID)
+	// 	vemsgNotValid.Message = fmt.Sprintf("cut grade input has invalid value: %s", strings.Join(invalid, ","))
+	// 	vemsg = append(vemsg, vemsgNotValid)
 	// }
 	invalid = []string{}
 	for _, v := range strings.Split(p.Fluos, ",") {
@@ -173,8 +173,8 @@ func (p *PriceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
 		}
 	}
 	if len(invalid) != 0 {
-		VEMSG_NOT_VALID.Message = fmt.Sprintf("fluo input has invalid value: %s", strings.Join(invalid, ","))
-		vemsg = append(vemsg, VEMSG_NOT_VALID)
+		vemsgNotValid.Message = fmt.Sprintf("fluo input has invalid value: %s", strings.Join(invalid, ","))
+		vemsg = append(vemsg, vemsgNotValid)
 	}
 
 	invalid = []string{}
@@ -184,8 +184,8 @@ func (p *PriceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
 		}
 	}
 	if len(invalid) != 0 {
-		VEMSG_NOT_VALID.Message = fmt.Sprintf("polish input has invalid value: %s", strings.Join(invalid, ","))
-		vemsg = append(vemsg, VEMSG_NOT_VALID)
+		vemsgNotValid.Message = fmt.Sprintf("polish input has invalid value: %s", strings.Join(invalid, ","))
+		vemsg = append(vemsg, vemsgNotValid)
 	}
 
 	invalid = []string{}
@@ -195,8 +195,8 @@ func (p *PriceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
 		}
 	}
 	if len(invalid) != 0 {
-		VEMSG_NOT_VALID.Message = fmt.Sprintf("symmetry input has invalid value: %s", strings.Join(invalid, ","))
-		vemsg = append(vemsg, VEMSG_NOT_VALID)
+		vemsgNotValid.Message = fmt.Sprintf("symmetry input has invalid value: %s", strings.Join(invalid, ","))
+		vemsg = append(vemsg, vemsgNotValid)
 	}
 	return vemsg, nil
 }

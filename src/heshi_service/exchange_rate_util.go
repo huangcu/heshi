@@ -55,18 +55,18 @@ func currencyRateReqValidator(h gin.HandlerFunc) gin.HandlerFunc {
 		// }
 		//NOTES: so far currency exchange rate base is USD.
 		if c.PostForm("base") != "USD" {
-			c.JSON(http.StatusOK, VEMSG_CURRENCY_BASE_NOT_VALID)
+			c.JSON(http.StatusOK, vemsgCurrencyBaseNotValid)
 			return
 		}
 		//TODO
 		cny, err := strconv.ParseFloat(c.PostForm("cny"), 6)
 		if err != nil {
-			c.JSON(http.StatusOK, VEMSG_CURRENCY_RATE_CNY_NOT_VALID)
+			c.JSON(http.StatusOK, vemsgCurrencyRateCNYNotValid)
 			return
 		}
 		eur, err := strconv.ParseFloat(c.PostForm("eur"), 6)
 		if err != nil {
-			c.JSON(http.StatusOK, VEMSG_CURRENCY_RATE_CNY_NOT_VALID)
+			c.JSON(http.StatusOK, vemsgCurrencyRateEURNotValid)
 			return
 		}
 		//NOTES: so far only need cny & eur

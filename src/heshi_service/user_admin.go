@@ -39,14 +39,14 @@ func updateAdmin(c *gin.Context) {
 	levelStr := c.PostForm("level")
 	kefu := c.PostForm("wechat_kefu")
 	if levelStr == "" && kefu == "" {
-		c.JSON(http.StatusOK, VEMSG_NOT_VALID)
+		c.JSON(http.StatusOK, vemsgNotValid)
 	}
 	agentID := c.Param("id")
 	q := fmt.Sprintf(`UPDATE admins SET created_by='%s'`, agentID)
 
 	if levelStr != "" {
 		if !util.IsInArrayString(levelStr, VALID_AGENTLEVEL) {
-			c.JSON(http.StatusOK, VEMSG_AGENT_LEVEL_NOT_VALID)
+			c.JSON(http.StatusOK, vemsgAgentLevelNotValid)
 			return
 		}
 		level, _ := strconv.Atoi(levelStr)
@@ -76,13 +76,13 @@ func (a *Admin) prevalidateNewAdmin() ([]errors.HSMessage, error) {
 	//TODO admin level
 	//TODO validate wechat_kefu???
 	if !util.IsInArrayString(a.LevelStr, VALID_ADMINLEVEL) {
-		vemsg = append(vemsg, VEMSG_ADMIN_LEVEL_NOT_VALID)
+		vemsg = append(vemsg, vemsgAdminLevelNotValid)
 	} else {
 		level, err := strconv.Atoi(a.LevelStr)
 		if err != nil {
-			vemsg = append(vemsg, VEMSG_ADMIN_LEVEL_NOT_VALID)
+			vemsg = append(vemsg, vemsgAdminLevelNotValid)
 		} else if level < 0 || level > 10 {
-			vemsg = append(vemsg, VEMSG_ADMIN_LEVEL_NOT_VALID)
+			vemsg = append(vemsg, vemsgAdminLevelNotValid)
 		} else {
 			a.Level = level
 		}

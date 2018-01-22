@@ -23,8 +23,8 @@ func newDiscount(c *gin.Context) {
 	createdBy := c.MustGet("id").(string)
 	var nd discount
 	if err := c.ShouldBind(&nd); err != nil {
-		VEMSG_AGENT_DISCOUNT_NOT_VALID.Message = errors.GetMessage(err)
-		c.JSON(http.StatusOK, VEMSG_AGENT_DISCOUNT_NOT_VALID)
+		vemsgAgentDiscountNotValid.Message = errors.GetMessage(err)
+		c.JSON(http.StatusOK, vemsgAgentDiscountNotValid)
 		return
 	}
 	id := uuid.NewV4().String()
@@ -46,7 +46,7 @@ func getDiscount(c *gin.Context) {
 	q := fmt.Sprintf(`SELECT discount_code, discount, created_at, createdBy FROM discounts WHERE id = '%s'`, id)
 	if err := dbQueryRow(q).Scan(&discountCode, &discountNumber, &createdAt, &createdBy); err != nil {
 		if err == sql.ErrNoRows {
-			c.JSON(http.StatusOK, VEMSG_DISCOUNT_NOT_EXIST)
+			c.JSON(http.StatusOK, vemsgDiscountNotExist)
 			return
 		}
 		c.JSON(http.StatusInternalServerError, err.Error())
@@ -86,7 +86,7 @@ func getAllDiscounts(c *gin.Context) {
 		ds = append(ds, d)
 	}
 	if ds == nil {
-		c.JSON(http.StatusOK, VEMSG_DISCOUNT_NOT_EXIST)
+		c.JSON(http.StatusOK, vemsgDiscountNotExist)
 		return
 	}
 	c.JSON(http.StatusOK, ds)

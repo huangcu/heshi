@@ -56,8 +56,8 @@ func uploadAndProcessProducts(c *gin.Context) {
 	id := c.MustGet("id").(string)
 	product := c.PostForm("product")
 	if !util.IsInArrayString(product, VALID_PRODUCTS) {
-		VEMSG_UPLOAD_PRODUCTS_CATEGORY_NOT_VALID.Message = fmt.Sprintf("%s is not valid product type", product)
-		c.JSON(http.StatusOK, VEMSG_UPLOAD_PRODUCTS_CATEGORY_NOT_VALID)
+		vemsgUploadProductsCategoryNotValid.Message = fmt.Sprintf("%s is not valid product type", product)
+		c.JSON(http.StatusOK, vemsgUploadProductsCategoryNotValid)
 		return
 	}
 	file, err := c.FormFile("file")

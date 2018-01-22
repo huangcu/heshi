@@ -32,7 +32,7 @@ func (u *User) preValidateNewUser() []errors.HSMessage {
 	}
 	if u.Email != "" {
 		if !govalidator.IsEmail(u.Email) {
-			vmsgs = append(vmsgs, VEMSG_USER_EMAIL_NOT_VALID)
+			vmsgs = append(vmsgs, vemsgUserEmailNotValid)
 		}
 	}
 
@@ -41,7 +41,7 @@ func (u *User) preValidateNewUser() []errors.HSMessage {
 	}
 
 	if !util.IsInArrayString(u.UserType, VALID_USERTYPE) {
-		vmsgs = append(vmsgs, VEMSG_USER_USERTYPE_NOT_VALID)
+		vmsgs = append(vmsgs, vemsgUserUsertypeNotValid)
 	}
 
 	if vmsg := u.validRecommnadedBy(); vmsg != (errors.HSMessage{}) {
@@ -57,10 +57,10 @@ func (u *User) preValidateNewUser() []errors.HSMessage {
 func (u *User) requiredField() []errors.HSMessage {
 	var vmsg []errors.HSMessage
 	if u.Cellphone == "" && u.Email == "" {
-		vmsg = append(vmsg, VEMSG_USER_CELLPHONE_EMAIL_EMPTY)
+		vmsg = append(vmsg, vemsgUserCellphoneEmailEmpty)
 	}
 	if u.Password == "" {
-		vmsg = append(vmsg, VEMSG_USER_PASSWORD_EMPTY)
+		vmsg = append(vmsg, vemsgUserPasswordEmpty)
 	}
 	return vmsg
 }
@@ -69,10 +69,10 @@ func (u *User) validUserName() []errors.HSMessage {
 	var vmsg []errors.HSMessage
 	if u.Username != "" {
 		if !govalidator.StringLength(u.Username, "6", "40") {
-			vmsg = append(vmsg, VEMSG_USER_USERNAME_ERROR1)
+			vmsg = append(vmsg, vemsgUserUsernameError1)
 		}
 		if !govalidator.Matches(u.Username, "^[a-zA-Z0-9]*$") {
-			vmsg = append(vmsg, VEMSG_USER_USERNAME_ERROR2)
+			vmsg = append(vmsg, vemsgUserUsernameError2)
 		}
 	}
 	return vmsg
@@ -84,7 +84,7 @@ func (u *User) validPhone() errors.HSMessage {
 	// regex := regexp.MustCompile("^\\+{0,1}0{0,1}62[0-9]+$")
 	regex := regexp.MustCompile("^[0-9]*$")
 	if !regex.MatchString(u.Cellphone) {
-		return VEMSG_USER_CELLPHONE_NOT_VALID
+		return vemsgUserCellphoneNotValid
 	}
 	return errors.HSMessage{}
 }
@@ -94,10 +94,10 @@ func (u *User) validRecommnadedBy() errors.HSMessage {
 		var count int
 		q := fmt.Sprintf("SELECT COUNT(*) FROM users WHERE invitation_code=%s", u.RecommendedBy)
 		if err := dbQueryRow(q).Scan(&count); err != nil {
-			return VEMSG_USER_ERROR_RECOMMAND_CODE
+			return vemsgUserErrorRecommandCode
 		}
 		if count == 0 {
-			return VEMSG_USER_ERROR_RECOMMAND_CODE
+			return vemsgUserErrorRecommandCode
 		}
 	}
 
@@ -109,18 +109,18 @@ func (u *User) validUniqueKey() ([]errors.HSMessage, error) {
 	if exist, err := u.isUserExistByUserName(); err != nil {
 		return nil, nil
 	} else if exist {
-		vemsgs = append(vemsgs, VEMSG_USER_USERNAME_DUPLICATE)
+		vemsgs = append(vemsgs, vemsgUserUsernameDuplicate)
 	}
 	if exist, err := u.isUserExistByCellphone(); err != nil {
 		return nil, nil
 	} else if exist {
-		vemsgs = append(vemsgs, VEMSG_USER_CELLPHONE_DUPLICATE)
+		vemsgs = append(vemsgs, vemsgUserCellphoneDuplicate)
 	}
 
 	if exist, err := u.isUserExistByEmail(); err != nil {
 		return nil, nil
 	} else if exist {
-		vemsgs = append(vemsgs, VEMSG_USER_EMAIL_DUPLICATE)
+		vemsgs = append(vemsgs, vemsgUserEmailDuplicate)
 	}
 
 	return vemsgs, nil

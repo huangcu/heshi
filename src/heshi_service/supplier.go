@@ -27,7 +27,7 @@ type supplier struct {
 func newSupplier(c *gin.Context) {
 	var ns supplier
 	if err := c.ShouldBind(&ns); err != nil {
-		c.JSON(http.StatusOK, VEMSG_SUPPLIER_NOT_VALID)
+		c.JSON(http.StatusOK, vemsgSupplierNotValid)
 		return
 	}
 	if vemsg, err := ns.validUniqueKey(); err != nil {
@@ -71,7 +71,7 @@ func getAllSuppliers(c *gin.Context) {
 		ss = append(ss, s)
 	}
 	if ss == nil {
-		c.JSON(http.StatusOK, VEMSG_NOT_EXIST)
+		c.JSON(http.StatusOK, vemsgNotExist)
 		return
 	}
 	c.JSON(http.StatusOK, ss)
@@ -82,8 +82,8 @@ func getSupplier(c *gin.Context) {
 	var id, name, prefix, connected, status string
 	if err := dbQueryRow(q).Scan(&id, &name, &prefix, &connected, &status); err != nil {
 		if err == sql.ErrNoRows {
-			VEMSG_NOT_EXIST.Message = fmt.Sprintf("supplier :%s not exist", c.Param("id"))
-			c.JSON(http.StatusOK, VEMSG_NOT_EXIST)
+			vemsgNotExist.Message = fmt.Sprintf("supplier :%s not exist", c.Param("id"))
+			c.JSON(http.StatusOK, vemsgNotExist)
 			return
 		}
 		c.JSON(http.StatusInternalServerError, err.Error())
@@ -188,12 +188,12 @@ func (s *supplier) validUniqueKey() ([]errors.HSMessage, error) {
 	if exist, err := s.isSupplierExistByName(); err != nil {
 		return nil, nil
 	} else if exist {
-		vemsgs = append(vemsgs, VEMSG_SUPPLIER_NAME_DUPLICATE)
+		vemsgs = append(vemsgs, vemsgSupplierNameDuplicate)
 	}
 	if exist, err := s.isSupplierExistByPrefix(); err != nil {
 		return nil, nil
 	} else if exist {
-		vemsgs = append(vemsgs, VEMSG_SUPPLIER_PREFIX_DUPLICATE)
+		vemsgs = append(vemsgs, vemsgSupplierPrefixDuplicate)
 	}
 
 	return vemsgs, nil

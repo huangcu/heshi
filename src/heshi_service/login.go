@@ -27,7 +27,7 @@ func userLogin(c *gin.Context) {
 	var id, password string
 	if err := dbQueryRow(q).Scan(&id, &password); err != nil {
 		if err == sql.ErrNoRows {
-			c.JSON(http.StatusOK, VEMSG_LOGIN_ERROR_USERNAME)
+			c.JSON(http.StatusOK, vemsgLoginErrorUserName)
 			return
 		}
 		c.JSON(http.StatusInternalServerError, err.Error())
@@ -35,7 +35,7 @@ func userLogin(c *gin.Context) {
 	}
 
 	if !util.IsPassOK(loginUser.Password, password) {
-		c.JSON(http.StatusOK, VEMSG_LOGIN_ERROR_USERNAME)
+		c.JSON(http.StatusOK, vemsgLoginErrorUserName)
 		return
 	}
 

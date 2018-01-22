@@ -39,8 +39,8 @@ func newAdminAgentUser(c *gin.Context) {
 	adminID := c.MustGet("id").(string)
 	userType := c.PostForm("user_type")
 	if userType != AGENT && userType != ADMIN {
-		VEMSG_USER_USERTYPE_NOT_VALID.Message = fmt.Sprintf("user type can only be %s or %s", ADMIN, AGENT)
-		c.JSON(http.StatusOK, VEMSG_USER_USERTYPE_NOT_VALID)
+		vemsgUserUsertypeNotValid.Message = fmt.Sprintf("user type can only be %s or %s", ADMIN, AGENT)
+		c.JSON(http.StatusOK, vemsgUserUsertypeNotValid)
 		return
 	}
 
@@ -175,8 +175,8 @@ func newUser(c *gin.Context) {
 func updateAdminAgent(c *gin.Context) {
 	userType := c.PostForm("user_type")
 	if userType != AGENT && userType != ADMIN {
-		VEMSG_USER_USERTYPE_NOT_VALID.Message = fmt.Sprintf("user type can only be %s or %s", ADMIN, AGENT)
-		c.JSON(http.StatusOK, VEMSG_USER_USERTYPE_NOT_VALID)
+		vemsgUserUsertypeNotValid.Message = fmt.Sprintf("user type can only be %s or %s", ADMIN, AGENT)
+		c.JSON(http.StatusOK, vemsgUserUsertypeNotValid)
 		return
 	}
 	if userType == AGENT {
@@ -255,8 +255,8 @@ func getUser(c *gin.Context) {
 		return
 	}
 	if us == nil {
-		VEMSG_USER_NOT_EXIST.Message = fmt.Sprintf("Fail to find user with id: %s", c.Param("id"))
-		c.JSON(http.StatusOK, VEMSG_USER_NOT_EXIST)
+		vemsgUserNotExist.Message = fmt.Sprintf("Fail to find user with id: %s", c.Param("id"))
+		c.JSON(http.StatusOK, vemsgUserNotExist)
 		return
 	}
 
@@ -267,8 +267,8 @@ func getUser(c *gin.Context) {
 	if userType == ADMIN {
 		a, err := getAdmin(id)
 		if err != nil {
-			VEMSG_USER_NOT_EXIST.Message = fmt.Sprintf("Fail to find user with id: %s", c.Param("id"))
-			c.JSON(http.StatusOK, VEMSG_USER_NOT_EXIST)
+			vemsgUserNotExist.Message = fmt.Sprintf("Fail to find user with id: %s", c.Param("id"))
+			c.JSON(http.StatusOK, vemsgUserNotExist)
 			return
 		}
 		a.User = us[0]
@@ -278,8 +278,8 @@ func getUser(c *gin.Context) {
 	if userType == AGENT {
 		a, err := getAgent(id)
 		if err != nil {
-			VEMSG_USER_NOT_EXIST.Message = fmt.Sprintf("Fail to find user with id: %s", c.Param("id"))
-			c.JSON(http.StatusOK, VEMSG_USER_NOT_EXIST)
+			vemsgUserNotExist.Message = fmt.Sprintf("Fail to find user with id: %s", c.Param("id"))
+			c.JSON(http.StatusOK, vemsgUserNotExist)
 			return
 		}
 		a.User = us[0]
@@ -303,8 +303,8 @@ func getAllUsers(c *gin.Context) {
 		return
 	}
 	if us == nil {
-		VEMSG_USER_NOT_EXIST.Message = "Fail to find users"
-		c.JSON(http.StatusOK, VEMSG_USER_NOT_EXIST)
+		vemsgUserNotExist.Message = "Fail to find users"
+		c.JSON(http.StatusOK, vemsgUserNotExist)
 		return
 	}
 	c.JSON(http.StatusOK, us)

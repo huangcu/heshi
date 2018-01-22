@@ -272,7 +272,7 @@ func getCurrencyRate(c *gin.Context) {
 	currencyRate, err := getAcitveCurrencyRate()
 	if err != nil {
 		if err == sql.ErrNoRows {
-			c.JSON(http.StatusOK, VEMSG_EXCHANGE_RATE_NOT_EXIST)
+			c.JSON(http.StatusOK, vemsgExchangeRateNotExist)
 			return
 		}
 		c.JSON(http.StatusInternalServerError, err.Error())

@@ -77,8 +77,8 @@ func getJewelry(c *gin.Context) {
 		return
 	}
 	if ds == nil {
-		VEMSG_NOT_EXIST.Message = fmt.Sprintf("Fail to find jewelry with id: %s", c.Param("id"))
-		c.JSON(http.StatusOK, VEMSG_NOT_EXIST)
+		vemsgNotExist.Message = fmt.Sprintf("Fail to find jewelry with id: %s", c.Param("id"))
+		c.JSON(http.StatusOK, vemsgNotExist)
 		return
 	}
 	c.JSON(http.StatusOK, ds)

@@ -67,7 +67,7 @@ func userLogin1(username string, password1 string, c *gin.Context) (string, bool
 	}
 
 	if !util.IsPassOK(password1, password) {
-		return VEMSG_LOGIN_ERROR_USERNAME.Message, false
+		return vemsgLoginErrorUserName.Message, false
 	}
 
 	s := sessions.Default(c)
