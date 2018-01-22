@@ -24,7 +24,7 @@ func CORSMiddleware() gin.HandlerFunc {
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"PUT", "POST", "GET", "DELETE"},
 		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: false,
+		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}
 	var allowHeaders []string
@@ -39,13 +39,16 @@ func CORSMiddleware() gin.HandlerFunc {
 
 func AuthenticateMiddleWare() *jwt.GinJWTMiddleware {
 	return &jwt.GinJWTMiddleware{
-		Realm:         "HESHI",
-		Key:           []byte("secret key"),
-		Timeout:       time.Hour,
-		MaxRefresh:    time.Hour,
-		Authenticator: userLogin1,
-		TokenLookup:   "header:Authorization",
-		TokenHeadName: "Bearer",
+		Realm:            "HESHI",
+		Key:              []byte("secret key"),
+		Timeout:          time.Hour,
+		MaxRefresh:       time.Hour,
+		Authenticator:    userLogin1,
+		TokenLookup:      "header:Authorization",
+		TokenHeadName:    "Bearer",
+		PrivKeyFile:      "token.key",
+		PubKeyFile:       "token_pk.pem",
+		SigningAlgorithm: "RS512",
 		// TimeFunc provides the current time. You can override it to use another time value. This is useful for testing or if your server uses a different time zone than your tokens.
 		TimeFunc: time.Now,
 	}
@@ -88,7 +91,7 @@ func AuthMiddleWare() gin.HandlerFunc {
 
 func UserSessionMiddleWare() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if os.Getenv("stage") == "dev" {
+		if os.Getenv("STAGE") == "dev" {
 			c.Set("id", "system_dev_user")
 			c.Next()
 			return
@@ -105,7 +108,7 @@ func UserSessionMiddleWare() gin.HandlerFunc {
 
 func AdminSessionMiddleWare() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if os.Getenv("stage") == "dev" {
+		if os.Getenv("STAGE") == "dev" {
 			c.Set("id", "system_dev_admin")
 			c.Next()
 			return

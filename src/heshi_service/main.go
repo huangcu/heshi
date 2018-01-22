@@ -39,7 +39,7 @@ var env string
 func main() {
 	flag.StringVar(&env, "env", "dev", "specifiy env dev or pro, default env - dev.")
 	flag.Parse()
-	os.Setenv("stage", env)
+	os.Setenv("STAGE", env)
 	os.Setenv("TRACE", "true")
 
 	lf, err := os.OpenFile("heshi.log", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
@@ -92,7 +92,7 @@ func startWebServer(port string) error {
 	}
 	config := &tls.Config{Certificates: []tls.Certificate{cer}}
 
-	if os.Getenv("stage") != "dev" {
+	if os.Getenv("STAGE") != "dev" {
 		gin.SetMode(gin.ReleaseMode)
 	} else {
 		gin.SetMode(gin.DebugMode)
@@ -100,7 +100,7 @@ func startWebServer(port string) error {
 
 	r.Use(gin.Recovery())
 	configRoute(r)
-	if os.Getenv("stage") != "dev" {
+	if os.Getenv("STAGE") != "dev" {
 		webServer := &http.Server{Addr: port, Handler: r, TLSConfig: config}
 		return webServer.ListenAndServeTLS("server.crt", "server.key")
 	}
@@ -110,7 +110,7 @@ func startWebServer(port string) error {
 
 func configRoute(r *gin.Engine) {
 	api := r.Group("/api")
-	if os.Getenv("stage") != "dev" {
+	if os.Getenv("STAGE") != "dev" {
 		api.Use(AuthMiddleWare())
 	}
 
@@ -128,7 +128,7 @@ func configRoute(r *gin.Engine) {
 	// 		c.Abort()
 	// 	},
 	// }))
-	api.Use(CORSMiddleware())
+	// api.Use(CORSMiddleware())
 	api.Use(RequestLogger())
 
 	jwtMiddleware := AuthenticateMiddleWare()
