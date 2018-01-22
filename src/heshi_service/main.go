@@ -128,7 +128,7 @@ func configRoute(r *gin.Engine) {
 	// 		c.Abort()
 	// 	},
 	// }))
-	// api.Use(CORSMiddleware())
+	api.Use(CORSMiddleware())
 	api.Use(RequestLogger())
 
 	jwtMiddleware := AuthenticateMiddleWare()

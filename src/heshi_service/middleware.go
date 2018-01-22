@@ -21,7 +21,8 @@ import (
 
 func CORSMiddleware() gin.HandlerFunc {
 	config := cors.Config{
-		AllowOrigins:     []string{"*"},
+		AllowAllOrigins: true,
+		// AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"PUT", "POST", "GET", "DELETE"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
