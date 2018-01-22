@@ -1,13 +1,10 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"strconv"
 	"strings"
 	"util"
-
-	"github.com/satori/go.uuid"
 )
 
 func (d *diamond) composeInsertQuery() string {
@@ -101,12 +98,6 @@ func (d *diamond) parmsKV() map[string]interface{} {
 	if d.CertificateLink != "" {
 		params["certificate_link"] = d.CertificateLink
 	}
-	if d.ClarityNumber != "" {
-		params["clarity_number"] = d.ClarityNumber
-	}
-	if d.CutNumber != "" {
-		params["cut_number"] = d.CutNumber
-	}
 	if d.Featured != "" {
 		params["featured"] = d.Featured
 	}
@@ -138,6 +129,17 @@ func (d *diamond) parmsKV() map[string]interface{} {
 }
 
 func importDiamondsCustomizeHeaders(headers map[string]string, records [][]string) ([][]string, error) {
+	oldStockRefList, err := getAllStockRef()
+	if err != nil {
+		return nil, err
+	}
+	var suppliers []string
+	suppliers, err = getAllValidSupplierName()
+	if err != nil {
+		util.Traceln("Fail to get all suppliers name from db, use default predefined: %s",
+			strings.Join(VALID_SUPPLIER_NAME, ","))
+		suppliers = VALID_SUPPLIER_NAME
+	}
 	originalHeaders := []string{}
 	ignoredRows := [][]string{}
 	//get headers
@@ -162,9 +164,9 @@ func importDiamondsCustomizeHeaders(headers map[string]string, records [][]strin
 						case "stock_ref":
 							d.StockRef = record[i]
 						case "shape":
-							d.Shape = record[i]
+							d.Shape = diamondShape(record[i])
 						case "carat":
-							cValue, err := strconv.ParseFloat(record[i], 64)
+							cValue, err := util.StringToFloat(record[i])
 							if err != nil {
 								ignoredRows = append(ignoredRows, record)
 								ignored = true
@@ -176,25 +178,25 @@ func importDiamondsCustomizeHeaders(headers map[string]string, records [][]strin
 						case "color":
 							d.Color = record[i]
 						case "clarity":
-							d.Clarity = record[i]
+							d.Clarity = diamondClarity(record[i])
 						case "grading_lab":
-							d.GradingLab = record[i]
+							d.GradingLab = diamondGradingLab(record[i])
 						case "certificate_number":
 							d.CertificateNumber = record[i]
 						case "cut_grade":
-							d.CutGrade = record[i]
+							d.CutGrade = diamondCutGradeSymmetryPolish(record[i])
 						case "polish":
-							d.Polish = record[i]
+							d.Polish = diamondCutGradeSymmetryPolish(record[i])
 						case "symmetry":
-							d.Symmetry = record[i]
+							d.Symmetry = diamondCutGradeSymmetryPolish(record[i])
 						case "fluorescence_intensity":
-							d.FluorescenceIntensity = record[i]
+							d.FluorescenceIntensity = diamondFluo(record[i])
 						case "country":
 							d.Country = record[i]
 						case "supplier":
-							d.Supplier = record[i]
+							d.Supplier = diamondSupplier(record[i], suppliers)
 						case "price_no_added_value":
-							cValue, err := strconv.ParseFloat(strings.Replace(record[i], ",", "", -1), 64)
+							cValue, err := util.StringToFloat(record[i])
 							if err != nil {
 								ignoredRows = append(ignoredRows, record)
 								ignored = true
@@ -203,20 +205,6 @@ func importDiamondsCustomizeHeaders(headers map[string]string, records [][]strin
 								ignored = true
 							}
 							d.PriceNoAddedValue = cValue
-						case "price_retail":
-							cValue, err := strconv.ParseFloat(strings.Replace(record[i], ",", "", -1), 64)
-							if err != nil {
-								ignoredRows = append(ignoredRows, record)
-								ignored = true
-							}
-							if cValue == 0 {
-								ignored = true
-							}
-							d.PriceRetail = cValue
-						case "clarity_number":
-							d.ClarityNumber = record[i]
-						case "cut_number":
-							d.CutNumber = record[i]
 						}
 						break
 					}
@@ -224,30 +212,22 @@ func importDiamondsCustomizeHeaders(headers map[string]string, records [][]strin
 			}
 			//insert into db
 			if !ignored {
-				var id string
-				if err := dbQueryRow(fmt.Sprintf("SELECT id FROM diamonds WHERE stock_ref='%s'", d.StockRef)).Scan(&id); err != nil {
-					if err == sql.ErrNoRows {
-						d.ID = uuid.NewV4().String()
-						q := d.composeInsertQuery()
-						if _, err := dbExec(q); err != nil {
-							return nil, err
-							// ignoredRows = append(ignoredRows, record)
-						}
-					} else {
-						// ignoredRows = append(ignoredRows, record)
-						return nil, err
-					}
-				}
-
-				d.ID = id
-				q := d.composeUpdateQuery()
-				if _, err := dbExec(q); err != nil {
-					// ignoredRows = append(ignoredRows, record)
+				if err := d.composeStockRefWithSupplierPrefix(); err != nil {
+					//TODO
 					return nil, err
 				}
+				if err := d.processDiamondRecord(); err != nil {
+					//TODO return err for now!
+					return nil, err
+				}
+				//remove it from old stock ref map
+				delete(oldStockRefList, d.StockRef)
 			}
-			util.Println("finish process")
 		}
+	}
+	util.Println("finish process diamond")
+	if err := offlineDiamondsNoLongerExist(oldStockRefList); err != nil {
+		return ignoredRows, err
 	}
 	return ignoredRows, nil
 }

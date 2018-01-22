@@ -35,15 +35,15 @@ var smallDiamondHeaders = []string{
 	"quantity",
 }
 
-//  "BR" :"圆形" /_images/constant/ico-stones.png
-//  "PS": "梨形" /_images/constant/ico-stones.png
-// 	"PR": "公主方" /_images/constant/ico-stones.png
-// 	"HS": "心形" /_images/constant/ico-stones.png
-// 	"MQ": "橄榄形" /_images/constant/ico-stones.png
-// 	"OV": "椭圆形" /_images/constant/ico-stones.png
-// 	"EM": "祖母绿" /_images/constant/ico-stones.png
-// 	"RA": "雷蒂恩" /_images/constant/ico-stones.png???? not in db
-// 	"CU": "枕形" /_images/constant/ico-stones.png
+//  "BR" :"圆形" /_images/constant/ico-stones.png - round
+//  "PS": "梨形" /_images/constant/ico-stones.png - pear
+// 	"PR": "公主方" /_images/constant/ico-stones.png - princess
+// 	"HS": "心形" /_images/constant/ico-stones.png - heart
+// 	"MQ": "橄榄形" /_images/constant/ico-stones.png - marquise
+// 	"OV": "椭圆形" /_images/constant/ico-stones.png - oval
+// 	"EM": "祖母绿" /_images/constant/ico-stones.png - emerald
+// 	"RA": "雷蒂恩" /_images/constant/ico-stones.png???? - "RAD" - radiant
+// 	"CU": "枕形" /_images/constant/ico-stones.png - cushion
 // 	"AS": "Asscher" /_images/constant/ico-stones.png
 var VALID_DIAMOND_SHAPE = []string{
 	"BR",
@@ -58,8 +58,6 @@ var VALID_DIAMOND_SHAPE = []string{
 	"RAD",
 	"RBC",
 	"RCRB",
-	"CUSHION",
-	"MARQUISE",
 	"RC",
 	"PE",
 	"HT",
@@ -75,28 +73,51 @@ var VALID_GRADING_LAB = []string{
 	"IGI",
 }
 
+var VALID_SUPPLIER_NAME = []string{
+	"KGK",
+	"DIAM",
+	"BEYOU-HESHI",
+	"SUN",
+	"HKEXPO",
+	"HESHI",
+}
+
+// $clarity_number='0';
+/// case "VVS1":
+// $clarity_number='1';
+/// case "VVS2":
+// $clarity_number='2';
+// case "VS1":
+// $clarity_number='3';
+// case "VS2":
+// $clarity_number='4';
+/// case "SI1":
+// $clarity_number='5';
+/// case "SI2":
+// $clarity_number='6';
+/// default:
+// $clarity_number='-';
+// var VALID_CLARITY_NUMBER = []string{
+// 	"0", "1", "2", "3", "4", "5", "6"
+// }
+// if($dia_clarity=='FL' || $dia_clarity=='IF' || $dia_clarity=='VVS1' || $dia_clarity=='VVS2' || $dia_clarity=='VS1' || $dia_clarity=='VS2'){
+// 	$diacomment='瑕疵肉眼不可见';
+// }else{
+// 	$diacomment='';
+// }
 var VALID_CLARITY = []string{
-	"IF",
-	"VS1",
-	"VS2",
 	"VVS1",
 	"VVS2",
+	"VS1",
+	"VS2",
 	"SI1",
 	"SI2",
 	"I1",
 	"I2",
+	"I3",
+	"IF",
+	"FL",
 	"P1",
-}
-
-var VALID_SYMMETRY = []string{
-	"EX",
-	"VG",
-	"G",
-	"GD",
-	"Excellent",
-	"EXC",
-	"F",
-	"FAIR",
 }
 
 // N - NON -NONE - "None",
@@ -119,45 +140,51 @@ var VALID_FLUORESCENCE_INTENSITY = []string{
 	// "VSTG",
 }
 
+// "EX" - "EXC" - "Excellent"
+// "GD" - "G"
 var VALID_POLISH = []string{
 	"EX",
 	"VG",
-	"Excellent",
-	"EXC",
 	"G",
-	"GD",
 }
 
-var VALID_SUPPLIER_NAME = []string{
-	"KGK",
-	"DIAM",
-	"BEYOU-HESHI",
-	"SUN",
-	"HKEXPO",
-	"HESHI",
-}
-
-var VALID_CUT_GRADE = []string{
+//  "EXC" - "Excellent"-	"EX",
+// 	"VG",
+// 	"GD" - "G",
+// 	"FAIR" - "F",
+var VALID_SYMMETRY = []string{
 	"EX",
-	"G",
 	"VG",
+	"G",
 	"F",
-	"GD",
-	"Excellent",
-	"EXC",
-	"3EX",
-	"NA",
-	"NULL",
-	"FAIR",
-	"NN",
 }
 
-// var VALID_CLARITY_NUMBER = []string{
-// 	"0", "1", "2", "3", "4", "5",
+// case "EX":
+// $cut_number='0';
+// case "VG":
+// $cut_number='1';
+// case "G":
+// $cut_number='2';
+// case "F":
+// $cut_number='3';
+// default:
+// $cut_number='-';
+// var VALID_CUT_NUMBER = []string{
+// 	"0", "1", "2", "3",
 // }
 
-var VALID_CUT_NUMBER = []string{
-	"0", "1", "2", "3",
+//  "EXC" - "Excellent"-	"EX",
+// 	"VG",
+// 	"GD" - "G",
+// 	"FAIR" - "F",
+var VALID_CUT_GRADE = []string{
+	"EX",
+	"VG",
+	"G",
+	"F",
+	// "3EX",
+	// "NA",
+	// "NN",
 }
 
 var VALID_COLOR = []string{}

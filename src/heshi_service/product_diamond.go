@@ -34,8 +34,6 @@ type diamond struct {
 	PriceNoAddedValue     float64 `json:"price_no_added_value"`
 	PriceRetail           float64 `json:"price_retail"`
 	CertificateLink       string  `json:"certificate_link"`
-	ClarityNumber         string  `json:"clarity_number"`
-	CutNumber             string  `json:"cut_number"`
 	Featured              string  `json:"featured"`
 	RecommandWords        string  `json:"recommand_words"`
 	ExtraWords            string  `json:"extra_words"`
@@ -132,8 +130,6 @@ func newDiamond(c *gin.Context) {
 		PriceNoAddedValue:     pValue,
 		PriceRetail:           prValue,
 		CertificateLink:       c.PostForm("certificate_link"),
-		ClarityNumber:         c.PostForm("clarity_number"),
-		CutNumber:             c.PostForm("cut_number"),
 		Featured:              c.PostForm("featured"),
 		RecommandWords:        c.PostForm("recommand_words"),
 		ExtraWords:            c.PostForm("extra_words"),
@@ -152,9 +148,9 @@ func newDiamond(c *gin.Context) {
 }
 
 func composeDiamond(rows *sql.Rows) ([]diamond, error) {
-	var id, diamondID, stockRef, country, supplier, clarityNumber, gradingLab string
-	var cutNumber, featured, status, pickedUp, sold, profitable string
-	var shape, color, clarity, certificateNumber, cutGrade, polish, symmetry, fluorescenceIntensity sql.NullString
+	var id, diamondID, stockRef, shape, color, country, supplier, gradingLab string
+	var clarity, certificateNumber, cutGrade, polish, symmetry, fluorescenceIntensity string
+	var featured, status, pickedUp, sold, profitable string
 	var certificateLink, recommandWords, extraWords sql.NullString
 	var soldPrice sql.NullFloat64
 	var orderedBy sql.NullInt64
@@ -164,13 +160,13 @@ func composeDiamond(rows *sql.Rows) ([]diamond, error) {
 	for rows.Next() {
 		if err := rows.Scan(&id, &diamondID, &stockRef, &shape, &carat, &color, &clarity, &gradingLab, &certificateNumber,
 			&cutGrade, &polish, &symmetry, &fluorescenceIntensity, &country, &supplier, &priceNoAddedValue, &priceRetail,
-			&certificateLink, &clarityNumber, &cutNumber, &featured, &recommandWords, &extraWords, &status, &orderedBy, &pickedUp,
+			&certificateLink, &featured, &recommandWords, &extraWords, &status, &orderedBy, &pickedUp,
 			&sold, &soldPrice, &profitable); err != nil {
 			return nil, err
 		}
-		d := diamond{id, diamondID, stockRef, shape.String, carat, color.String, clarity.String, gradingLab, certificateNumber.String,
-			cutGrade.String, polish.String, symmetry.String, fluorescenceIntensity.String, country, supplier, priceNoAddedValue,
-			priceRetail, certificateLink.String, clarityNumber, cutNumber, featured, recommandWords.String, extraWords.String,
+		d := diamond{id, diamondID, stockRef, shape, carat, color, clarity, gradingLab, certificateNumber,
+			cutGrade, polish, symmetry, fluorescenceIntensity, country, supplier, priceNoAddedValue,
+			priceRetail, certificateLink.String, featured, recommandWords.String, extraWords.String,
 			status, orderedBy.Int64, pickedUp, sold, soldPrice.Float64, profitable}
 		ds = append(ds, d)
 	}
@@ -180,7 +176,7 @@ func composeDiamond(rows *sql.Rows) ([]diamond, error) {
 func selectDiamondQuery(id string) string {
 	q := `SELECT id, diamond_id, stock_ref, shape, carat, color, clarity, grading_lab, certificate_number, cut_grade,
 	 polish, symmetry, fluorescence_intensity, country, supplier, price_no_added_value, price_retail, 
-	 certificate_link, clarity_number, cut_number, featured, recommand_words, extra_words, status, ordered_by, picked_up, 
+	 certificate_link, featured, recommand_words, extra_words, status, ordered_by, picked_up, 
 	 sold, sold_price, profitable FROM diamonds`
 
 	if id != "" {
@@ -209,8 +205,6 @@ func processDiamonds(c *gin.Context) {
 	headers["supplier"] = c.PostForm("supplier")
 	headers["price_no_added_value"] = c.PostForm("price_no_added_value")
 	headers["price_retail"] = c.PostForm("price_retail")
-	headers["clarity_number"] = c.PostForm("clarity_number")
-	headers["cut_number"] = c.PostForm("cut_number")
 
 	vmsg := []string{}
 	for k, v := range headers {

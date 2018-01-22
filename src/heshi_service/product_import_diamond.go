@@ -4,8 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"heshi/errors"
-	"math"
-	"strconv"
 	"strings"
 	"util"
 
@@ -26,6 +24,13 @@ func importDiamondProducts(file string) ([][]string, error) {
 	oldStockRefList, err := getAllStockRef()
 	if err != nil {
 		return nil, err
+	}
+	var suppliers []string
+	suppliers, err = getAllValidSupplierName()
+	if err != nil {
+		util.Traceln("Fail to get all suppliers name from db, use default predefined: %s",
+			strings.Join(VALID_SUPPLIER_NAME, ","))
+		suppliers = VALID_SUPPLIER_NAME
 	}
 	originalHeaders := []string{}
 	records, err := util.ParseCSVToArrays(file)
@@ -53,9 +58,9 @@ func importDiamondProducts(file string) ([][]string, error) {
 			case "stock_ref":
 				d.StockRef = record[i]
 			case "shape":
-				d.Shape = record[i]
+				d.Shape = diamondShape(record[i])
 			case "carat":
-				cValue, err := strconv.ParseFloat(record[i], 64)
+				cValue, err := util.StringToFloat(record[i])
 				if err != nil {
 					ignoredRows = append(ignoredRows, record)
 					ignored = true
@@ -63,29 +68,29 @@ func importDiamondProducts(file string) ([][]string, error) {
 				if cValue == 0 {
 					ignored = true
 				}
-				d.Carat = math.Abs(cValue)
+				d.Carat = cValue
 			case "color":
 				d.Color = record[i]
 			case "clarity":
-				d.Clarity = record[i]
+				d.Clarity = diamondClarity(record[i])
 			case "grading_lab":
-				d.GradingLab = record[i]
+				d.GradingLab = diamondGradingLab(record[i])
 			case "certificate_number":
 				d.CertificateNumber = record[i]
 			case "cut_grade":
-				d.CutGrade = record[i]
+				d.CutGrade = diamondCutGradeSymmetryPolish(record[i])
 			case "polish":
-				d.Polish = record[i]
+				d.Polish = diamondCutGradeSymmetryPolish(record[i])
 			case "symmetry":
-				d.Symmetry = record[i]
+				d.Symmetry = diamondCutGradeSymmetryPolish(record[i])
 			case "fluorescence_intensity":
-				d.FluorescenceIntensity = record[i]
+				d.FluorescenceIntensity = diamondFluo(record[i])
 			case "country":
 				d.Country = record[i]
 			case "supplier":
-				d.Supplier = record[i]
+				d.Supplier = diamondSupplier(record[i], suppliers)
 			case "price_no_added_value":
-				cValue, err := strconv.ParseFloat(strings.Replace(record[i], ",", "", -1), 64)
+				cValue, err := util.StringToFloat(record[i])
 				if err != nil {
 					ignoredRows = append(ignoredRows, record)
 					ignored = true
@@ -93,22 +98,7 @@ func importDiamondProducts(file string) ([][]string, error) {
 				if cValue == 0 {
 					ignored = true
 				}
-				d.PriceNoAddedValue = math.Abs(cValue)
-				//THIS PRICE IS CACULATED BASE ON PRICE SETTING
-			// case "price_retail":
-			// 	cValue, err := strconv.ParseFloat(strings.Replace(record[i], ",", "", -1), 64)
-			// 	if err != nil {
-			// 		ignoredRows = append(ignoredRows, record)
-			// 		ignored = true
-			// 	}
-			// 	if cValue == 0 {
-			// 		ignored = true
-			// 	}
-			// 	d.PriceRetail = math.Abs(cValue)
-			case "clarity_number":
-				d.ClarityNumber = record[i]
-			case "cut_number":
-				d.CutNumber = record[i]
+				d.PriceNoAddedValue = cValue
 			}
 		}
 		//handle db
@@ -248,6 +238,22 @@ func getAllStockRef() (map[string]struct{}, error) {
 	return stockRefs, nil
 }
 
+func getAllValidSupplierName() ([]string, error) {
+	var suppiers []string
+	rows, err := dbQuery("SELECT name FROM suppliers")
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var name string
+		if err := rows.Scan(&name); err != nil {
+			return nil, err
+		}
+		suppiers = append(suppiers, name)
+	}
+	return suppiers, nil
+}
+
 //下线不存在的钻石 //TODO return or just trace err ???
 func offlineDiamondsNoLongerExist(stockRefList map[string]struct{}) error {
 	util.Tracef("Start to offline all diamonds no longer exists")
@@ -260,4 +266,135 @@ func offlineDiamondsNoLongerExist(stockRefList map[string]struct{}) error {
 	}
 	util.Tracef("Finished offline all diamonds no longer exists")
 	return nil
+}
+
+func diamondClarity(clarity string) string {
+	if len(clarity) != 0 {
+		if util.IsInArrayString(strings.ToUpper(clarity), VALID_CLARITY) {
+			return strings.ToUpper(clarity)
+		}
+	}
+	return "-"
+}
+
+func diamondFluo(fluo string) string {
+	if len(fluo) != 0 {
+		p := strings.ToUpper(fluo)
+		if p == "VERY STRONG" || p == "VST" {
+			return "VST"
+		}
+		if p == "STRONG" || p == "STG" {
+			return "STG"
+		}
+		if p == "SLIGHT" || p == "SLT" || p == "SL" {
+			return "SLT"
+		}
+		if p == "VERY SLIGHT" || p == "VSL" {
+			return "VSL"
+		}
+		if p == "MEDIUM" || p == "MED" || string(p[0]) == "M" {
+			return "MED"
+		}
+		if p == "FAINT" || p == "FNT" || string(p[0]) == "F" {
+			return "FNT"
+		}
+		if p == "NONE" || p == "NON" || string(p[0]) == "N" {
+			return "NONE"
+		}
+	}
+	return "UNKOWN-" + strings.ToUpper(fluo)
+
+}
+
+func diamondCutGradeSymmetryPolish(cutGrade string) string {
+	if len(cutGrade) != 0 {
+		p := strings.ToUpper(cutGrade)
+		if p == "EXC" || p == "EXCELLENT" || string(p[0]) == "E" {
+			return "EX"
+		}
+		if p == "VERY GOOD" || string(p[0]) == "V" {
+			return "VG"
+		}
+		if p == "GOOD" || p == "GD" || string(p[0]) == "G" {
+			return "G"
+		}
+		if p == "FAIR" || string(p[0]) == "F" {
+			return "F"
+		}
+	}
+	return "UNKOWN-" + strings.ToUpper(cutGrade)
+}
+
+//TODO
+func diamondColor(color string) string {
+	//  D
+	//  E
+	//  F
+	//  G
+	//  H
+	//  I
+	//  J
+	//  K
+	//  L
+	//  M
+	//  N
+	//  O
+	//  P
+	//  Q
+	//  R
+	//  S
+	//  T
+	//  U
+	//  V
+	//  W
+	//  X
+	//  Y
+	//  Z
+	return "UNKOWN-" + strings.ToUpper(color)
+}
+
+func diamondShape(shape string) string {
+	if len(shape) != 0 {
+		switch strings.ToUpper(shape) {
+		case "BR", "ROUND":
+			return "BR"
+		case "PS", "PEAR":
+			return "PS"
+		case "PR", "PRICESS":
+			return "PR"
+		case "HS", "HEART":
+			return "HS"
+		case "MQ", "MARQUISE":
+			return "MQ"
+		case "OV", "OVAL":
+			return "OV"
+		case "EM", "EMERALD":
+			return "EM"
+		case "CU", "CUSHION":
+			return "CU"
+		case "AS", "ASSCHER":
+			return "AS"
+		case "RAD", "RADIANT", "RA":
+			return "RAD"
+		case "RBC", "RCRB", "RC", "PE", "HT", "CMB":
+			return strings.ToUpper(shape)
+		}
+	}
+	return "-"
+}
+
+func diamondSupplier(supplier string, suppliers []string) string {
+	if len(supplier) != 0 {
+		if util.IsInArrayString(strings.ToUpper(supplier), suppliers) {
+			return strings.ToUpper(supplier)
+		}
+	}
+	return "UNKOWN-" + strings.ToUpper(supplier)
+}
+
+func diamondGradingLab(gradingLab string) string {
+	if util.IsInArrayString(strings.ToUpper(gradingLab), VALID_GRADING_LAB) {
+		return strings.ToUpper(gradingLab)
+	}
+	return "UNKOWN-" + strings.ToUpper(gradingLab)
 }

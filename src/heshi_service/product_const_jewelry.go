@@ -52,7 +52,6 @@ var VALID_CATEGORY = []int{
 // Request URL:http://www.beyoudiamond.com/jewelry.php?class=mounting (kongtuo)
 // Request URL:http://www.beyoudiamond.com/jewelry.php (chengpin)
 // Request URL:http://www.beyoudiamond.com/colored-gems.php
-
 var VALID_MATERIAL = []string{
 	"PT",
 	"ROSE_GOLD",
