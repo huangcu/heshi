@@ -2,9 +2,12 @@ package main
 
 import (
 	"bytes"
+	"database/sql"
+	"fmt"
 	"heshi/errors"
 	"io"
 	"io/ioutil"
+	"jwt"
 	"net/http"
 	"os"
 	"time"
@@ -17,17 +20,57 @@ import (
 )
 
 func CORSMiddleware() gin.HandlerFunc {
-	return cors.New(cors.Config{
-		AllowOrigins:     []string{"https://github.com"},
-		AllowMethods:     []string{"PUT", "PATCH", "POST", "GET", "DELETE"},
-		AllowHeaders:     []string{"Origin"},
+	config := cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"PUT", "POST", "GET", "DELETE"},
 		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		// AllowOriginFunc: func(origin string) bool {
-		// 	return origin == "https://github.com"
-		// },
-		MaxAge: 12 * time.Hour,
-	})
+		AllowCredentials: false,
+		MaxAge:           12 * time.Hour,
+	}
+	var allowHeaders []string
+	allowHeaders = append(allowHeaders, []string{"Origin", "Content-Type", "Content-Length"}...)
+	allowHeaders = append(allowHeaders, []string{"Accept", "Accept-Encoding", "Accept-Language"}...)
+	allowHeaders = append(allowHeaders, []string{"Authorization", "Cookie", "Cache-Control", "X-Auth-Token"}...)
+	allowHeaders = append(allowHeaders, []string{"Cache-Control", "Connection", "User-Agent"}...)
+	config.AddAllowHeaders(allowHeaders...)
+	return cors.New(config)
+	// cors.DefaultConfig()
+}
+
+func AuthenticateMiddleWare() *jwt.GinJWTMiddleware {
+	return &jwt.GinJWTMiddleware{
+		Realm:         "HESHI",
+		Key:           []byte("secret key"),
+		Timeout:       time.Hour,
+		MaxRefresh:    time.Hour,
+		Authenticator: userLogin1,
+		TokenLookup:   "header:Authorization",
+		TokenHeadName: "Bearer",
+		// TimeFunc provides the current time. You can override it to use another time value. This is useful for testing or if your server uses a different time zone than your tokens.
+		TimeFunc: time.Now,
+	}
+}
+
+func userLogin1(username string, password1 string, c *gin.Context) (string, bool) {
+	q := fmt.Sprintf(`SELECT id, password FROM users where username='%s' or cellphone='%s' or email='%s'`,
+		username, username, username)
+
+	var id, password string
+	if err := dbQueryRow(q).Scan(&id, &password); err != nil {
+		if err == sql.ErrNoRows {
+			return "", false
+		}
+		return "", false
+	}
+
+	if !util.IsPassOK(password1, password) {
+		return VEMSG_LOGIN_ERROR_USERNAME.Message, false
+	}
+
+	s := sessions.Default(c)
+	s.Set(USER_SESSION_KEY, id)
+	s.Save()
+	return id, true
 }
 
 func AuthMiddleWare() gin.HandlerFunc {
@@ -88,6 +131,7 @@ func RequestLogger() gin.HandlerFunc {
 		rdr2 := ioutil.NopCloser(bytes.NewBuffer(buf)) //We have to create a new Buffer, because rdr1 will be read.
 		platform := detect.Platform(c.Request.Header.Get("User-Agent")).String()
 		util.Printf("=======GOT REQUEST - METHOD: %s; FROM: %s; URL %s=====", c.Request.Method, platform, c.Request.URL)
+		util.Printf("=======REQUEST HEADER: %v========", c.Request.Header)
 		util.Printf("=======REQUEST BODY: %s========", readBody(rdr1)) // Print request body
 		s := sessions.Default(c)
 		user := s.Get(USER_SESSION_KEY)

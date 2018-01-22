@@ -14,6 +14,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/appleboy/gin-jwt",
+			"repository": "https://github.com/appleboy/gin-jwt",
+			"revision": "b98b512ed67b501994175b49a1adfc709b8702d5",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/asaskevich/govalidator",
 			"repository": "https://github.com/asaskevich/govalidator",
 			"revision": "852d82c746b23d9b357b210ea470d99f4e023b72",
@@ -286,24 +292,16 @@
 			"path": "/errgroup"
 		},
 		{
-			"importpath": "golang.org/x/tools/cmd/html2article",
-			"repository": "https://go.googlesource.com/tools",
-			"revision": "8cab8a1319f0be9798e7fe78b15da75e5f94b2e9",
-			"branch": "master",
-			"path": "/cmd/html2article"
-		},
-		{
-			"importpath": "golang.org/x/tools/cmd/present",
-			"repository": "https://go.googlesource.com/tools",
-			"revision": "8cab8a1319f0be9798e7fe78b15da75e5f94b2e9",
-			"branch": "master",
-			"path": "/cmd/present"
-		},
-		{
 			"importpath": "gopkg.in/chanxuehong/wechat.v2",
 			"repository": "https://gopkg.in/chanxuehong/wechat.v2",
 			"revision": "f2a2945c9226e98a5933cdbf93a2e79608e04dc5",
 			"branch": "v2"
+		},
+		{
+			"importpath": "gopkg.in/dgrijalva/jwt-go.v3",
+			"repository": "https://gopkg.in/dgrijalva/jwt-go.v3",
+			"revision": "dbeaa9332f19a944acb5736b4456cfcc02140e29",
+			"branch": "master"
 		},
 		{
 			"importpath": "gopkg.in/go-playground/validator.v8",

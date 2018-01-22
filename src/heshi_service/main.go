@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"database/sql"
 	"db/mysql"
 	"flag"
@@ -82,40 +83,60 @@ func main() {
 }
 
 func startWebServer(port string) error {
-	// cer, err := tls.LoadX509KeyPair("server.crt", "server.key")
-	// if err != nil {
-	// 	log.Println(err.Error())
-	// 	return err
-	// }
-	// config := &tls.Config{Certificates: []tls.Certificate{cer}}
-
 	r := gin.New()
-	if os.Getenv("stage") != "pro" {
-		gin.SetMode(gin.DebugMode)
-	} else {
+	//if PRO
+	cer, err := tls.LoadX509KeyPair("server.crt", "server.key")
+	if err != nil {
+		log.Println(err.Error())
+		return err
+	}
+	config := &tls.Config{Certificates: []tls.Certificate{cer}}
+
+	if os.Getenv("stage") != "dev" {
 		gin.SetMode(gin.ReleaseMode)
+	} else {
+		gin.SetMode(gin.DebugMode)
 	}
 
 	r.Use(gin.Recovery())
 	configRoute(r)
-	// webServer := &http.Server{Addr: port, Handler: r, TLSConfig: config}
+	if os.Getenv("stage") != "dev" {
+		webServer := &http.Server{Addr: port, Handler: r, TLSConfig: config}
+		return webServer.ListenAndServeTLS("server.crt", "server.key")
+	}
 	webServer := &http.Server{Addr: port, Handler: r}
 	return webServer.ListenAndServe()
-	// return webServer.ListenAndServeTLS("server.crt", "server.key")
 }
 
 func configRoute(r *gin.Engine) {
 	api := r.Group("/api")
-	if os.Getenv("stage") == "pro" {
+	if os.Getenv("stage") != "dev" {
 		api.Use(AuthMiddleWare())
-		api.Use(sessions.Sessions("sessionid", store))
 	}
-	api.Use(sessions.Sessions("sessionid", store))
+
+	store = sessions.NewCookieStore([]byte("secret"))
+	store.Options(sessions.Options{
+		MaxAge: int(30 * time.Minute), //30min
+		Path:   "/",
+	})
+	api.Use(sessions.Sessions("SESSIONID", store))
+	//Cross-Site Request Forgery (CSRF)
+	// api.Use(csrf.Middleware(csrf.Options{
+	// 	Secret: "secret",
+	// 	ErrorFunc: func(c *gin.Context) {
+	// 		c.String(400, "CSRF token mismatch")
+	// 		c.Abort()
+	// 	},
+	// }))
+	api.Use(CORSMiddleware())
 	api.Use(RequestLogger())
+
+	jwtMiddleware := AuthenticateMiddleWare()
 
 	{
 		apiAdmin := api.Group("admin")
 		apiAdmin.Use(AdminSessionMiddleWare())
+		apiAdmin.Use(jwtMiddleware.MiddlewareFunc())
 		{
 			//admin agent user
 			apiAdmin.POST("/users", newAdminAgentUser)
@@ -168,14 +189,15 @@ func configRoute(r *gin.Engine) {
 		}
 		//customer
 		api.POST("/users", newUser)
-		api.PATCH("/users", UserSessionMiddleWare(), updateUser)
+		api.POST("/login", jwtMiddleware.LoginHandler)
+		// api.POST("/login", userLogin)
+		api.PATCH("/users", UserSessionMiddleWare(), jwtMiddleware.MiddlewareFunc(), updateUser)
 		api.GET("/users", UserSessionMiddleWare(), getUser)
-		api.POST("/login", userLogin)
 		api.POST("/logout", userLogout)
-		api.GET("/users/:id/contactinfo", UserSessionMiddleWare(), agentContactInfo)
+		api.GET("/users/:id/contactinfo", UserSessionMiddleWare(), jwtMiddleware.MiddlewareFunc(), agentContactInfo)
 
 		//action- > add, delete
-		api.POST("/shoppingList/:action", UserSessionMiddleWare(), toShoppingList)
+		api.POST("/shoppingList/:action", UserSessionMiddleWare(), jwtMiddleware.MiddlewareFunc(), toShoppingList)
 
 		//products
 		api.GET("/products", getAllProducts)
@@ -238,11 +260,6 @@ func init() {
 	}
 	fmt.Printf("flushed redis db. %s \n", val)
 
-	store = sessions.NewCookieStore([]byte("secret"))
-	store.Options(sessions.Options{
-		MaxAge: int(30 * time.Minute), //30min
-		Path:   "/",
-	})
 	// if err := getLatestRates(); err != nil {
 	// 	log.Fatalf("init fail. err: %s;", err.Error())
 	// }

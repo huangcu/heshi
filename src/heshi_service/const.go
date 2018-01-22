@@ -16,7 +16,8 @@ var (
 	VEMSG_RECOMMAND_TOOTHER   = errors.HSMessage{Code: 2000, Message: "请将该页发送给你的朋友"}
 
 	// //User Login (20-29)
-	VEMSG_LOGIN_ERROR_USERNAME = errors.HSMessage{Code: 20020, Message: "Error: login info not correct, wrong user or password"}
+	VEMSG_LOGIN_ERROR_USERNAME   = errors.HSMessage{Code: 20020, Message: "wrong username or password"}
+	VEMSG_LOGIN_MISSING_USERNAME = errors.HSMessage{Code: 20021, Message: "missing username or password"}
 	// VEMSG_LOGIN_ERROR_EMAIL     = errors.HSMessage{Code: 20021, Message: "邮箱或密码错误，请重试"}
 	// VEMSG_LOGIN_ERROR_CELLPHONE = errors.HSMessage{Code: 20022, Message: "电话号码或密码错误，请重试"}
 
