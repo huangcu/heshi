@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 . env.bash
 
 go build -o bin/heshi_service -tags dev heshi_service
