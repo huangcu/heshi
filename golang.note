@@ -28,3 +28,108 @@ go get -u -v golang.org/x/tools/cmd/guru
 go get -u -v github.com/newhook/go-symbols
 go get -u -v golang.org/x/tools/cmd/gorename
 go get -u -v sourcegraph.com/sqs/goreturns
+
+golang 
+
+1: type (https://www.goinggo.net/2013/07/understanding-type-in-go.html && http://golang.org/ref/spec#Types) 
+    bool - 1byte
+    uint, int, uintptr ->   int (int32 or int64 - 32bit OS or 64bit OS)
+    uint8, uint16, uint32, uint64
+    int8, int16, int32, int64
+    float32, float64
+    rune 
+    string 
+
+    8 byte alignment rule; 
+    Go is a type safe language. 
+    This means that the compiler will always enforce like types on each side of an assignment operator. 
+
+2: Slice VS Array 
+    (https://golang.org/doc/effective_go.html#slices) && 
+    https://www.goinggo.net/2013/08/understanding-slices-in-go-programming.html
+    https://blog.golang.org/go-slices-usage-and-internals   !!!!!
+
+    a nil slice VS a slice pointer to an empty array;
+    grows slice capacity;
+    predeclared function -> copy()  and slice append() 
+    you may need new a slice as some times only use a small part of underlying big array, so new a small one to release big ones;
+    especially when read a file while only a small portion of the file content is needed;
+
+3: Map 
+    a nil map VS an empty map (gotour)
+
+4: interface (gotour)
+    Under the covers, interface values can be thought of as a tuple of a value and a concrete type:(value, type)
+    An interface value holds a value of a specific underlying concrete type.
+    Calling a method on an interface value executes the method of the same name on its underlying type.
+    
+    a nil value interface VS empty interface; 
+    empty interface: interface{}
+    It represents the empty set of methods and is satisfied by any value at all, since any value has zero or more methods.
+
+5: embedded types , method, interface (indirection) - > object oriented programming;(封装， 集成，多态) 在 go中的类似实现 
+    https://www.goinggo.net/2014/05/methods-interfaces-and-embedded-types.html
+    important !!!!!! 
+    method promotion!!!When we embed a type, the methods of that type become methods of the outer type, but when they are invoked, the receiver of the method is the inner type, not the outer one.
+    Struct S has anonymous field T VS anonymous field *T -> methods set of S vs *S , and T , *T method promotion
+
+    method define on T, *T, same method name will cause compile error, already exists.
+
+6: exported && unexported (variable, struct field, function etc) in GO 
+    https://www.goinggo.net/2014/03/exportedunexported-identifiers-in-go.html
+    
+7: all paramters (all type of) is passed by value; 
+
+8: defer, panic, recover;  (https://www.goinggo.net/2013/06/understanding-defer-panic-and-recover.html)
+    defer function paramters - > passed by value and value is at the time defer is scanned?? 
+    inline defer;
+    (recover panic)
+9: make VS new (effective go) - > memory allocation
+
+10: structtag, reflection -> reflect value, type (interface can be viewed as (value, type), gettag  (https://blog.golang.org/laws-of-reflection))
+                                A variable of interface type stores a pair: the concrete value assigned to the variable, and that value's type descriptor.
+    10.1 reflection -> type VS kind VS value
+        type: Typeof
+        value: Valueof -> kind: value.Kind()
+    10.2 structtag can be used in field mapping, (json， xml, db etc), or data validation etc,
+         you can define your own structtag, and use reflect package, get the tag and handle it in your own way
+11: gofmt, go lint( code tyle), govet (correctness) godoc, gocode (代码提示）， godep
+    go vendor, gb, gin 
+12.1 gin -> Gin is a HTTP web framework written in Go (Golang). httprouter
+    VS echo, revel; 
+
+12.2 gb - > A project based build tool for the Go programming language
+    gb-vendor->a gb plugin to manage your vendored dependencies.
+13 gORM (object relation map)
+14 gRPC 
+    protobuffer
+    compiler, plugin
+
+15: race detect in go && mutex, RWmutex, && correct exit of goroutine
+    https://www.goinggo.net/2013/09/detecting-race-conditions-with-go.html
+16: concurrency VS Parallelization (effective go && https://www.goinggo.net/2014/01/concurrency-goroutines-and-gomaxprocs.html) 
+    GOMAXPROCS, runtime.NUMCPC() 
+    https://dave.cheney.net/tag/gomaxprocs
+
+17: time.Duration 9https://www.goinggo.net/2013/06/gos-duration-type-unravelled.html）
+    最小计量单位nanosecond
+    time.Ticker
+18: go GB_LDFLAGS -x .....
+
+19: type assertion, type switch (gotour, reflection)
+    type assertion in reflection, 
+    t.(T) !!!!
+
+    fmt package digs into a reflect.Value to show the concrete!!!!!! value inside. The String method does not
+
+
+
+    gotour, effective go, goblog, www.goinggo.net
+
+20: gin 
+ middleware - the sequence of middleware matters, first them move on to next 
+ middleware and group sequence matters too.??? 
+
+mysql:
+
+order by filed('en','cn') asc 
