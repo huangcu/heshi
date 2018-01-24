@@ -56,11 +56,11 @@ func AuthenticateMiddleWare() *jwt.GinJWTMiddleware {
 }
 
 func userLogin1(username string, password1 string, c *gin.Context) (string, bool) {
-	q := fmt.Sprintf(`SELECT id, password FROM users where username='%s' or cellphone='%s' or email='%s'`,
+	q := fmt.Sprintf(`SELECT id, password, user_type FROM users where username='%s' or cellphone='%s' or email='%s'`,
 		username, username, username)
 
-	var id, password string
-	if err := dbQueryRow(q).Scan(&id, &password); err != nil {
+	var id, password, userType string
+	if err := dbQueryRow(q).Scan(&id, &password, &userType); err != nil {
 		if err == sql.ErrNoRows {
 			return "", false
 		}
@@ -73,6 +73,10 @@ func userLogin1(username string, password1 string, c *gin.Context) (string, bool
 
 	s := sessions.Default(c)
 	s.Set(USER_SESSION_KEY, id)
+
+	if userType == ADMIN {
+		s.Set(ADMIN_KEY, id)
+	}
 	s.Save()
 	return id, true
 }
@@ -81,11 +85,11 @@ func AuthMiddleWare() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		t := c.Request.Header.Get("X-Auth-Token")
 		if t == "" {
-			c.AbortWithStatus(401)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, "Not allowed without auth token")
 		} else if util.VerfiyToken(t) {
 			c.Next()
 		} else {
-			c.AbortWithStatus(401)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, "Auth token is not correct")
 		}
 	}
 }
@@ -99,7 +103,7 @@ func UserSessionMiddleWare() gin.HandlerFunc {
 		}
 		s := sessions.Default(c)
 		if s.Get(USER_SESSION_KEY) == nil {
-			c.AbortWithStatus(http.StatusUnauthorized)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, "Must login first")
 			return
 		}
 		c.Set("id", s.Get(USER_SESSION_KEY))
@@ -116,11 +120,11 @@ func AdminSessionMiddleWare() gin.HandlerFunc {
 		}
 		s := sessions.Default(c)
 		if s.Get(USER_SESSION_KEY) == nil {
-			c.AbortWithStatus(http.StatusUnauthorized)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, "Must login first")
 			return
 		}
 		if s.Get(ADMIN_KEY) == nil {
-			c.AbortWithStatus(http.StatusForbidden)
+			c.AbortWithStatusJSON(http.StatusForbidden, "Login User is not admin")
 			return
 		}
 		c.Set("id", s.Get(USER_SESSION_KEY))

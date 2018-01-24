@@ -21,11 +21,11 @@ func userLogin(c *gin.Context) {
 		Password: c.PostForm("password"),
 	}
 
-	q := fmt.Sprintf(`SELECT id, password FROM users where username='%s' or cellphone='%s' or email='%s'`,
+	q := fmt.Sprintf(`SELECT id, password, user_type FROM users where username='%s' or cellphone='%s' or email='%s'`,
 		loginUser.Username, loginUser.Username, loginUser.Username)
 
-	var id, password string
-	if err := dbQueryRow(q).Scan(&id, &password); err != nil {
+	var id, password, userType string
+	if err := dbQueryRow(q).Scan(&id, &password, &userType); err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusOK, vemsgLoginErrorUserName)
 			return
@@ -41,9 +41,12 @@ func userLogin(c *gin.Context) {
 
 	s := sessions.Default(c)
 	s.Set(USER_SESSION_KEY, id)
+	if userType == ADMIN {
+		s.Set(ADMIN_KEY, id)
+	}
 	s.Save()
 
-	c.JSON(http.StatusOK, "session")
+	c.JSON(http.StatusOK, "success")
 }
 
 func userLogout(c *gin.Context) {
