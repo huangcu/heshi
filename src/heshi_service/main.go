@@ -18,7 +18,6 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
-	csrf "github.com/utrack/gin-csrf"
 )
 
 var (
@@ -111,50 +110,48 @@ func startWebServer(port string) error {
 
 func configRoute(r *gin.Engine) {
 	api := r.Group("/api")
-	apiCustomer := api.Group("customer")
-	apiAdmin := api.Group("admin")
-	apiWechat := api.Group("wechat")
-
-	if os.Getenv("stage") == "dev" {
-		api.POST("/login", userLogin)
-	} else {
-		//access api log
-		api.Use(RequestLogger())
-
+	if os.Getenv("STAGE") != "dev" {
+		//auth - access service api
+		api.Use(AuthMiddleWare())
 		//CORS
 		api.Use(CORSMiddleware())
 
-		//auth - access service api
-		api.Use(AuthMiddleWare())
-
 		// Cross-Site Request Forgery (CSRF)
-		api.Use(csrf.Middleware(csrf.Options{
-			Secret: "secret",
-			ErrorFunc: func(c *gin.Context) {
-				c.String(400, "CSRF token mismatch")
-				c.Abort()
-			},
-		}))
-
-		//jwt authentication(user login)
-		jwtMiddleware := AuthenticateMiddleWare()
-		api.POST("/login", jwtMiddleware.LoginHandler)
-		apiCustomer.Use(jwtMiddleware.MiddlewareFunc())
-		apiAdmin.Use(jwtMiddleware.MiddlewareFunc())
+		// api.Use(csrf.Middleware(csrf.Options{
+		// 	Secret: "secret",
+		// 	ErrorFunc: func(c *gin.Context) {
+		// 		c.String(400, "CSRF token mismatch")
+		// 		c.Abort()
+		// 	},
+		// }))
 	}
-
 	//session
 	store = sessions.NewCookieStore([]byte("secret"))
 	store.Options(sessions.Options{
 		MaxAge: int(30 * time.Minute), //30min
 		Path:   "/",
 	})
-	apiCustomer.Use(sessions.Sessions("SESSIONID", store))
+	api.Use(sessions.Sessions("SESSIONID", store))
+	//access api log
+	api.Use(RequestLogger())
+
+	apiCustomer := api.Group("customer")
+	apiAdmin := api.Group("admin")
+	apiWechat := api.Group("wechat")
 	apiCustomer.Use(UserSessionMiddleWare())
-	apiAdmin.Use(sessions.Sessions("SESSIONID", store))
 	apiAdmin.Use(AdminSessionMiddleWare())
-	apiWechat.Use(sessions.Sessions("SESSIONID", store))
+	//TODO wechat - > admin and customer
 	apiWechat.Use(AdminSessionMiddleWare())
+
+	if os.Getenv("STAGE") == "dev" {
+		api.POST("/login", userLogin)
+	} else {
+		//jwt authentication(user login)
+		jwtMiddleware := AuthenticateMiddleWare()
+		apiCustomer.Use(jwtMiddleware.MiddlewareFunc())
+		apiAdmin.Use(jwtMiddleware.MiddlewareFunc())
+		api.POST("/login", jwtMiddleware.LoginHandler)
+	}
 
 	{
 		{
@@ -210,6 +207,8 @@ func configRoute(r *gin.Engine) {
 			apiAdmin.POST("/products/diamonds", newDiamond)
 			apiAdmin.POST("/products/small_diamonds", newSmallDiamond)
 			apiAdmin.POST("/products/jewelrys", newJewelry)
+			apiAdmin.POST("/products/gems", newGems)
+			apiAdmin.PUT("/products/gems/:id", updateGems)
 		}
 		//customer
 		api.POST("/users", newUser)
@@ -238,8 +237,6 @@ func configRoute(r *gin.Engine) {
 		api.POST("/products/search/:category", searchProducts)
 		//product filter by fields value
 		api.POST("/products/filter/:category", filterProducts)
-		// api.POST("/products/diamonds/search", searchProducts)
-		// api.POST("/products/jewelrys/search", searchProducts)
 
 		//wechat - todo
 		apiWechat.GET("/auth", wechatAuth)
@@ -278,10 +275,9 @@ func init() {
 	activeConfig = config{Rate: 0.01, CreatedBy: "system", CreatedAt: time.Now().Local()}
 	val, err := redisClient.FlushAll().Result()
 	if err != nil {
-		fmt.Printf("fail to flush redis db. err: %s", err.Error())
+		log.Fatalf("fail to flush redis db. err: %s", err.Error())
 	}
 	fmt.Printf("flushed redis db. %s \n", val)
-
 	// if err := getLatestRates(); err != nil {
 	// 	log.Fatalf("init fail. err: %s;", err.Error())
 	// }
