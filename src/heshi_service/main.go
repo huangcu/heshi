@@ -18,6 +18,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
+	csrf "github.com/utrack/gin-csrf"
 )
 
 var (
@@ -110,33 +111,52 @@ func startWebServer(port string) error {
 
 func configRoute(r *gin.Engine) {
 	api := r.Group("/api")
-	if os.Getenv("STAGE") != "dev" {
+	apiCustomer := api.Group("customer")
+	apiAdmin := api.Group("admin")
+	apiWechat := api.Group("wechat")
+
+	if os.Getenv("stage") == "dev" {
+		api.POST("/login", userLogin)
+	} else {
+		//access api log
+		api.Use(RequestLogger())
+
+		//CORS
+		api.Use(CORSMiddleware())
+
+		//auth - access service api
 		api.Use(AuthMiddleWare())
+
+		// Cross-Site Request Forgery (CSRF)
+		api.Use(csrf.Middleware(csrf.Options{
+			Secret: "secret",
+			ErrorFunc: func(c *gin.Context) {
+				c.String(400, "CSRF token mismatch")
+				c.Abort()
+			},
+		}))
+
+		//jwt authentication(user login)
+		jwtMiddleware := AuthenticateMiddleWare()
+		api.POST("/login", jwtMiddleware.LoginHandler)
+		apiCustomer.Use(jwtMiddleware.MiddlewareFunc())
+		apiAdmin.Use(jwtMiddleware.MiddlewareFunc())
 	}
 
+	//session
 	store = sessions.NewCookieStore([]byte("secret"))
 	store.Options(sessions.Options{
 		MaxAge: int(30 * time.Minute), //30min
 		Path:   "/",
 	})
-	api.Use(sessions.Sessions("SESSIONID", store))
-	//Cross-Site Request Forgery (CSRF)
-	// api.Use(csrf.Middleware(csrf.Options{
-	// 	Secret: "secret",
-	// 	ErrorFunc: func(c *gin.Context) {
-	// 		c.String(400, "CSRF token mismatch")
-	// 		c.Abort()
-	// 	},
-	// }))
-	api.Use(CORSMiddleware())
-	api.Use(RequestLogger())
-
-	jwtMiddleware := AuthenticateMiddleWare()
+	apiCustomer.Use(sessions.Sessions("SESSIONID", store))
+	apiCustomer.Use(UserSessionMiddleWare())
+	apiAdmin.Use(sessions.Sessions("SESSIONID", store))
+	apiAdmin.Use(AdminSessionMiddleWare())
+	apiWechat.Use(sessions.Sessions("SESSIONID", store))
+	apiWechat.Use(AdminSessionMiddleWare())
 
 	{
-		apiAdmin := api.Group("admin")
-		apiAdmin.Use(AdminSessionMiddleWare())
-		apiAdmin.Use(jwtMiddleware.MiddlewareFunc())
 		{
 			//admin agent user
 			apiAdmin.POST("/users", newAdminAgentUser)
@@ -186,18 +206,22 @@ func configRoute(r *gin.Engine) {
 			//upload products by csv file
 			apiAdmin.POST("/products/upload", uploadAndProcessProducts)
 
+			//manage products
+			apiAdmin.POST("/products/diamonds", newDiamond)
+			apiAdmin.POST("/products/small_diamonds", newSmallDiamond)
+			apiAdmin.POST("/products/jewelrys", newJewelry)
 		}
 		//customer
 		api.POST("/users", newUser)
-		api.POST("/login", jwtMiddleware.LoginHandler)
-		// api.POST("/login", userLogin)
-		api.PATCH("/users", UserSessionMiddleWare(), jwtMiddleware.MiddlewareFunc(), updateUser)
-		api.GET("/users", UserSessionMiddleWare(), getUser)
-		api.POST("/logout", userLogout)
-		api.GET("/users/:id/contactinfo", UserSessionMiddleWare(), jwtMiddleware.MiddlewareFunc(), agentContactInfo)
+		{
+			apiCustomer.GET("/users", getUser)
+			apiCustomer.PATCH("/users", updateUser)
+			apiCustomer.GET("/users/:id/contactinfo", agentContactInfo)
 
-		//action- > add, delete
-		api.POST("/shoppingList/:action", UserSessionMiddleWare(), jwtMiddleware.MiddlewareFunc(), toShoppingList)
+			//action- > add, delete
+			apiCustomer.POST("/shoppingList/:action", toShoppingList)
+			apiCustomer.POST("/logout", userLogout)
+		}
 
 		//products
 		api.GET("/products", getAllProducts)
@@ -209,9 +233,6 @@ func configRoute(r *gin.Engine) {
 		api.GET("/products/small_diamonds/:id", getSmallDiamond)
 		api.GET("/products/gems", getAllGems)
 		api.GET("/products/gems/:id", getGem)
-		api.POST("/products/diamonds", newDiamond)
-		api.POST("/products/small_diamonds", newSmallDiamond)
-		api.POST("/products/jewelrys", newJewelry)
 
 		//product search - diamond or jewelry by id or name
 		api.POST("/products/search/:category", searchProducts)
@@ -220,11 +241,12 @@ func configRoute(r *gin.Engine) {
 		// api.POST("/products/diamonds/search", searchProducts)
 		// api.POST("/products/jewelrys/search", searchProducts)
 
-		//wechat
-		api.GET("/wechat/auth", wechatAuth)
-		api.GET("/wechat/token", wechatToken)
-		api.GET("/wechat/qrcode", wechatQrCode)
-		api.GET("/wechat/temp_qrcode", wechatTempQrCode)
+		//wechat - todo
+		apiWechat.GET("/auth", wechatAuth)
+		apiWechat.GET("/token", wechatToken)
+		apiWechat.GET("/qrcode", wechatQrCode)
+		apiWechat.GET("/temp_qrcode", wechatTempQrCode)
+
 		api.POST("/wechat/status", wechatQrCodeStatus)
 		api.GET("/wechat/callback", wechatCallback)
 		api.POST("/wechat/callback", wechatCallback)

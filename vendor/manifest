@@ -57,6 +57,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/dchest/uniuri",
+			"repository": "https://github.com/dchest/uniuri",
+			"revision": "8902c56451e9b58ff940bbe5fec35d5f9c04584a",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/dustin/go-broadcast",
 			"repository": "https://github.com/dustin/go-broadcast",
 			"revision": "3bdf6d4a7164a50bc19d5f230e2981d87d2584f1",
@@ -234,6 +240,12 @@
 			"revision": "84cb69a8af8316eed8cf4a3c9368a56977850062",
 			"branch": "master",
 			"path": "/codec"
+		},
+		{
+			"importpath": "github.com/utrack/gin-csrf",
+			"repository": "https://github.com/utrack/gin-csrf",
+			"revision": "402f6eaad1b1d5bb1225e0f1fb1b90342b79967a",
+			"branch": "master"
 		},
 		{
 			"importpath": "golang.org/x/crypto/acme",

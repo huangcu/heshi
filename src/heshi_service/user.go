@@ -169,6 +169,8 @@ func newUser(c *gin.Context) {
 	s.Set(USER_SESSION_KEY, nu.ID)
 	s.Save()
 
+	//TODO redirect to login
+	// c.Redirect(http.StatusFound, redirectLogin)
 	c.JSON(http.StatusOK, nu.ID)
 }
 

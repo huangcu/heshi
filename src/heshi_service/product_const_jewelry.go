@@ -23,15 +23,26 @@ var jewelryHeaders = []string{
 }
 
 //TODO ref
-// <option value="JR">素金戒指</option>
-// <option value="JE">素金耳环／耳钉</option>
-// <option value="JP">素金吊坠／项链</option>
-// <option value="ZR">镶碎钻戒指</option>
-// <option value="ZE">镶碎钻耳环／耳钉</option>
-// <option value="ZP">镶碎钻吊坠／项链</option>
-// <option value="CR">成品戒指</option>
-// <option value="CE">成品耳环／耳钉</option>
-// <option value="CP">成品吊坠／项链</option>
+// <option value="JP">素金吊坠／项链</option> 1
+// <option value="JR">素金戒指</option> 2
+// <option value="JE">素金耳环／耳钉</option> 3
+// <option value="ZP">镶碎钻吊坠／项链</option> 1 | 5
+// <option value="ZR">镶碎钻戒指</option> 2
+// <option value="ZE">镶碎钻耳环／耳钉</option> 3
+
+// <option value="CP">成品吊坠／项链</option> 1 | 5 /NO
+// <option value="CR">成品戒指</option> 2 /NO
+// <option value="CE">成品耳环／耳钉</option> 3/NO
+
+// JP small_dias ="NO" AND need_diamond = "YES" AND (category = 1 OR category = 5)
+// JR small_dias ="NO" AND need_diamond = "YES" AND category = 2
+// JE small_dias ="NO" AND need_diamond = "YES" AND category = 3
+// ZP small_dias ="YES" AND need_diamond = "YES" AND (category = 1 OR category = 5)
+// ZR small_dias ="YES" AND need_diamond = "YES" AND category = 2
+// ZE small_dias ="YES" AND need_diamond = "YES" AND category = 3
+// CP small_dias = "NO" AND need_diamond = "NO" AND (category = 1 OR category = 5)
+// CR small_dias = "NO" AND need_diamond = "NO" AND category = 2
+// CE small_dias = "NO" AND need_diamond = "NO" AND category = 3
 
 // |  1 | pendant      | 吊坠          |                1 |
 // |  2 | ring         | 戒指          |                1 |
@@ -59,6 +70,8 @@ var VALID_MATERIAL = []string{
 	"UNKNOWN",
 }
 
+//成品首饰 need diamond: NO,
+//空托    need diamond: YES,
 var VALID_MOUNTING_TYPE = []string{
 	"3NODE",
 	"4NODE",
