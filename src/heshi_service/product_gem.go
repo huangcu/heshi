@@ -9,27 +9,103 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 )
 
 type gem struct {
-	ID             string    `json:"id"`
-	StockID        string    `json:"stock_id"`
-	Shape          string    `json:"shape"`
-	Material       string    `json:"material"`
-	Name           string    `json:"name "`
-	Size           float64   `json:"size"`
-	Text           string    `json:"text"`
-	Online         string    `json:"online"`
-	Verified       string    `json:"verified"`
-	InStock        string    `json:"in_stock"`
-	Featured       string    `json:"featured"`
-	Price          float64   `json:"price"`
-	StockQuantity  int       `json:"stock_quantity"`
-	Profitable     string    `json:"profitable"`
-	TotallyScanned int       `json:"totally_scanned"`
-	FreeAcc        string    `json:"free_acc"`
-	LastScanAt     time.Time `json:"last_scan_at"`
-	OfflineAt      time.Time `json:"offline_at"`
+	ID               string    `json:"id"`
+	StockID          string    `json:"stock_id"`
+	Shape            string    `json:"shape"`
+	Material         string    `json:"material"`
+	Name             string    `json:"name "`
+	Size             float64   `json:"size"`
+	SizeStr          string    `json:"-"`
+	Text             string    `json:"text"`
+	Certificate      string    `json:"certificate"`
+	Online           string    `json:"online"`
+	Verified         string    `json:"verified"`
+	InStock          string    `json:"in_stock"`
+	Featured         string    `json:"featured"`
+	Price            float64   `json:"price"`
+	PriceStr         string    `json:"-"`
+	StockQuantity    int       `json:"stock_quantity"`
+	StockQuantityStr string    `json:"-"`
+	Profitable       string    `json:"profitable"`
+	TotallyScanned   int       `json:"totally_scanned"`
+	FreeAcc          string    `json:"free_acc"`
+	LastScanAt       time.Time `json:"last_scan_at"`
+	OfflineAt        time.Time `json:"offline_at"`
+}
+
+func newGems(c *gin.Context) {
+	g := gem{
+		ID:               uuid.NewV4().String(),
+		StockID:          c.PostForm("stock_id"),
+		Shape:            c.PostForm("shape"),
+		Material:         c.PostForm("material"),
+		Name:             c.PostForm("name"),
+		SizeStr:          c.PostForm("size"),
+		Text:             c.PostForm("text"),
+		Certificate:      c.PostForm("certificate"),
+		Online:           c.PostForm("online"),
+		Verified:         c.PostForm("verified"),
+		InStock:          c.PostForm("in_stock"),
+		Featured:         c.PostForm("featured"),
+		PriceStr:         c.PostForm("price"),
+		StockQuantityStr: c.PostForm("stock_quantity"),
+		Profitable:       c.PostForm("profitable"),
+		FreeAcc:          c.PostForm("free_acc"),
+	}
+
+	if vemsg, err := g.validateGemReq(); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	} else if len(vemsg) != 0 {
+		c.JSON(http.StatusOK, vemsg)
+		return
+	}
+	q := g.composeInsertQuery()
+	if _, err := dbExec(q); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	c.JSON(http.StatusOK, g.ID)
+}
+
+//TODO what to update; stockid???
+func updateGems(c *gin.Context) {
+	id := c.Param("id")
+	g := gem{
+		ID:               id,
+		StockID:          c.PostForm("stock_id"),
+		Shape:            c.PostForm("shape"),
+		Material:         c.PostForm("material"),
+		Name:             c.PostForm("name"),
+		SizeStr:          c.PostForm("size"),
+		Text:             c.PostForm("text"),
+		Certificate:      c.PostForm("certificate"),
+		Online:           c.PostForm("online"),
+		Verified:         c.PostForm("verified"),
+		InStock:          c.PostForm("in_stock"),
+		Featured:         c.PostForm("featured"),
+		PriceStr:         c.PostForm("price"),
+		StockQuantityStr: c.PostForm("stock_quantity"),
+		Profitable:       c.PostForm("profitable"),
+		FreeAcc:          c.PostForm("free_acc"),
+	}
+	if vemsg, err := g.validateGemUpdateReq(); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	} else if len(vemsg) != 0 {
+		c.JSON(http.StatusOK, vemsg)
+		return
+	}
+	q := g.composeUpdateQuery()
+	if _, err := dbExec(q); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	c.JSON(http.StatusOK, g.ID)
 }
 
 func getAllGems(c *gin.Context) {
@@ -72,7 +148,7 @@ func getGem(c *gin.Context) {
 }
 
 func composeGem(rows *sql.Rows) ([]gem, error) {
-	var id, stockID, shape, online, material, name, text, verified, inStock, featured, profitable, freeAcc string
+	var id, stockID, shape, online, material, name, text, certificate, verified, inStock, featured, profitable, freeAcc string
 	var size, price float64
 	var stockQuantity, totallyScanned int
 	var lastScanAt time.Time
@@ -81,22 +157,38 @@ func composeGem(rows *sql.Rows) ([]gem, error) {
 	var gs []gem
 	for rows.Next() {
 		if err := rows.Scan(&id, &stockID, &shape, &material, &size, &name,
-			&text, &online, &verified, &inStock, &featured, &price, &stockQuantity, &profitable,
+			&text, &certificate, &online, &verified, &inStock, &featured, &price, &stockQuantity, &profitable,
 			&totallyScanned, &freeAcc, &lastScanAt, &offlineAt); err != nil {
 			return nil, err
 		}
-		g := gem{ID: id, StockID: stockID, Shape: shape,
-			Material: material, Size: size, Name: name,
-			Text: text, Online: online, Verified: verified, InStock: inStock, Featured: featured, Price: price,
-			StockQuantity: stockQuantity, Profitable: profitable, TotallyScanned: totallyScanned,
-			FreeAcc: freeAcc, LastScanAt: lastScanAt.Local(), OfflineAt: offlineAt.Time}
+		g := gem{
+			ID:             id,
+			StockID:        stockID,
+			Shape:          shape,
+			Material:       material,
+			Size:           size,
+			Name:           name,
+			Text:           text,
+			Certificate:    certificate,
+			Online:         online,
+			Verified:       verified,
+			InStock:        inStock,
+			Featured:       featured,
+			Price:          price,
+			StockQuantity:  stockQuantity,
+			Profitable:     profitable,
+			TotallyScanned: totallyScanned,
+			FreeAcc:        freeAcc,
+			LastScanAt:     lastScanAt.Local(),
+			OfflineAt:      offlineAt.Time,
+		}
 		gs = append(gs, g)
 	}
 	return gs, nil
 }
 
 func selectGemQuery(id string) string {
-	q := `SELECT id, stock_id, shape, material, size, name, text, 
+	q := `SELECT id, stock_id, shape, material, size, name, text, certificate, 
 	online, verified, in_stock, featured, price, stock_quantity, profitable,
 	 totally_scanned, free_acc, last_scan_at,offline_at FROM gems`
 

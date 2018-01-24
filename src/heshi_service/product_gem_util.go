@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
+	"heshi/errors"
+	"strconv"
 	"strings"
+	"util"
 )
 
 func (g *gem) composeInsertQuery() string {
@@ -73,6 +76,9 @@ func (g *gem) parmsKV() map[string]interface{} {
 	if g.Text != "" {
 		params["text"] = g.Text
 	}
+	if g.Certificate != "" {
+		params["certificate"] = g.Certificate
+	}
 	if g.Online != "" {
 		params["online"] = g.Online
 	}
@@ -98,4 +104,175 @@ func (g *gem) parmsKV() map[string]interface{} {
 		params["free_acc"] = g.FreeAcc
 	}
 	return params
+}
+
+func (g *gem) validateGemReq() ([]errors.HSMessage, error) {
+	var vemsg []errors.HSMessage
+	cValue, err := util.StringToFloat(g.SizeStr)
+	if err != nil {
+		vemsgNotValid.Message = "gem size input is not valid"
+		vemsg = append(vemsg, vemsgNotValid)
+	} else if cValue == 0 {
+		vemsgNotValid.Message = "gem size input is not valid"
+		vemsg = append(vemsg, vemsgNotValid)
+	}
+	g.Size = cValue
+	pValue, err := util.StringToFloat(g.PriceStr)
+	if err != nil {
+		vemsgNotValid.Message = "gem price input is not valid"
+		vemsg = append(vemsg, vemsgNotValid)
+	} else if pValue == 0 {
+		vemsgNotValid.Message = "gem price input is not valid"
+		vemsg = append(vemsg, vemsgNotValid)
+	}
+	g.Price = pValue
+	prValue, err := strconv.Atoi(g.StockQuantityStr)
+	if err != nil {
+		vemsgNotValid.Message = "gem stock quantity input is not valid"
+		vemsg = append(vemsg, vemsgNotValid)
+	} else if prValue == 0 {
+		vemsgNotValid.Message = "gem stock quantity input is not valid"
+		vemsg = append(vemsg, vemsgNotValid)
+	}
+	g.StockQuantity = prValue
+	// return vemsg, nil
+
+	//be an array
+	if g.Shape == "" {
+		vemsgNotValid.Message = "must input gem shape"
+		vemsg = append(vemsg, vemsgNotValid)
+	} else {
+		shape := strings.Replace(g.Shape, " ", "", -1)
+		shapes := strings.Split(strings.ToUpper(shape), ",")
+		if !util.IsIn(shapes, VALID_DIAMOND_SHAPE) {
+			vemsgNotValid.Message = "gem shape input is not valid"
+			vemsg = append(vemsg, vemsgNotValid)
+		}
+		g.Shape = strings.Join(shapes, ",")
+	}
+
+	if g.Text == "" {
+		vemsgNotValid.Message = "must input gem text"
+		vemsg = append(vemsg, vemsgNotValid)
+	}
+	if g.Certificate == "" {
+		vemsgNotValid.Message = "must input gem certificate"
+		vemsg = append(vemsg, vemsgNotValid)
+	} else {
+		if e, err := isGemExistByCertificate(g.Certificate); err != nil {
+			return nil, err
+		} else if e {
+			vemsgAlreadyExist.Message = "gem certificate already exist"
+			vemsg = append(vemsg, vemsgAlreadyExist)
+		}
+	}
+
+	if g.StockID == "" {
+		vemsgNotValid.Message = "must input gem stock id"
+		vemsg = append(vemsg, vemsgNotValid)
+	} else {
+		if e, err := isGemExistByStockID(g.StockID); err != nil {
+			return nil, err
+		} else if e {
+			vemsgAlreadyExist.Message = "gem stock id already exist"
+			vemsg = append(vemsg, vemsgAlreadyExist)
+		}
+	}
+
+	if g.Name == "" {
+		vemsgNotValid.Message = "must input gem name"
+		vemsg = append(vemsg, vemsgNotValid)
+	}
+	return vemsg, nil
+}
+
+func (g *gem) validateGemUpdateReq() ([]errors.HSMessage, error) {
+	var vemsg []errors.HSMessage
+	if g.SizeStr != "" {
+		cValue, err := util.StringToFloat(g.SizeStr)
+		if err != nil {
+			vemsgNotValid.Message = "gem size input is not valid"
+			vemsg = append(vemsg, vemsgNotValid)
+		} else if cValue == 0 {
+			vemsgNotValid.Message = "gem size input is not valid"
+			vemsg = append(vemsg, vemsgNotValid)
+		}
+		g.Size = cValue
+	}
+	if g.PriceStr != "" {
+		pValue, err := util.StringToFloat(g.PriceStr)
+		if err != nil {
+			vemsgNotValid.Message = "gem price input is not valid"
+			vemsg = append(vemsg, vemsgNotValid)
+		} else if pValue == 0 {
+			vemsgNotValid.Message = "gem price input is not valid"
+			vemsg = append(vemsg, vemsgNotValid)
+		}
+		g.Price = pValue
+	}
+	if g.StockQuantityStr != "" {
+		prValue, err := strconv.Atoi(g.StockQuantityStr)
+		if err != nil {
+			vemsgNotValid.Message = "gem stock quantity input is not valid"
+			vemsg = append(vemsg, vemsgNotValid)
+		} else if prValue == 0 {
+			vemsgNotValid.Message = "gem stock quantity input is not valid"
+			vemsg = append(vemsg, vemsgNotValid)
+		}
+		g.StockQuantity = prValue
+	}
+	//be an array
+	if g.Shape != "" {
+		shape := strings.Replace(g.Shape, " ", "", -1)
+		shapes := strings.Split(strings.ToUpper(shape), ",")
+		if !util.IsIn(shapes, VALID_DIAMOND_SHAPE) {
+			vemsgNotValid.Message = "gem shape input is not valid"
+			vemsg = append(vemsg, vemsgNotValid)
+		}
+		g.Shape = strings.Join(shapes, ",")
+	}
+
+	if g.Certificate != "" {
+		if e, err := isGemExistByCertificate(g.Certificate); err != nil {
+			return nil, err
+		} else if e {
+			vemsgAlreadyExist.Message = "gem certificate already exist"
+			vemsg = append(vemsg, vemsgAlreadyExist)
+		}
+	}
+
+	if g.StockID != "" {
+		if e, err := isGemExistByStockID(g.StockID); err != nil {
+			return nil, err
+		} else if e {
+			vemsgAlreadyExist.Message = "gem stock id already exist"
+			vemsg = append(vemsg, vemsgAlreadyExist)
+		}
+	}
+
+	return vemsg, nil
+}
+
+func isGemExistByStockID(stockID string) (bool, error) {
+	var count int
+	q := fmt.Sprintf("SELECT count(*) FROM gems WHERE stock_id='%s'", stockID)
+	if err := dbQueryRow(q).Scan(&count); err != nil {
+		return false, err
+	}
+	if count == 0 {
+		return false, nil
+	}
+	return true, nil
+}
+
+func isGemExistByCertificate(certificate string) (bool, error) {
+	var count int
+	q := fmt.Sprintf("SELECT count(*) FROM gems WHERE certificate='%s'", certificate)
+	if err := dbQueryRow(q).Scan(&count); err != nil {
+		return false, err
+	}
+	if count == 0 {
+		return false, nil
+	}
+	return true, nil
 }

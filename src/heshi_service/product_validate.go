@@ -20,11 +20,11 @@ func (d *diamond) validateDiamondReq() string {
 	// govalidator.StringLength()
 	return ""
 }
-func (d *jewelry) validateDiamondReq() string {
+func (d *jewelry) validateJewelryReq() string {
 	// govalidator.StringLength()
 	return ""
 }
-func (d *smallDiamond) validateDiamondReq() string {
+func (d *smallDiamond) validateSmallDiamondReq() string {
 	// govalidator.StringLength()
 	return ""
 }

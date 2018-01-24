@@ -38,3 +38,19 @@ func RandStringRunes(n int) string {
 	}
 	return string(b)
 }
+
+func IsIn(items1 []string, items2 []string) bool {
+	for _, v1 := range items1 {
+		inFlag := false
+		for _, v2 := range items2 {
+			if v1 == v2 {
+				inFlag = true
+				break
+			}
+		}
+		if !inFlag {
+			return false
+		}
+	}
+	return true
+}
