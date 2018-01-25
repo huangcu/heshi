@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"time"
 	"util"
 
@@ -148,7 +147,7 @@ func importJewelryProducts(file string) ([][]string, error) {
 			case "need_diamond":
 				j.NeedDiamond = record[i]
 			case "metal_weight":
-				cValue, err := strconv.ParseFloat(strings.Replace(record[i], ",", "", -1), 64)
+				cValue, err := util.StringToFloat(record[i])
 				if err != nil {
 					ignoredRows = append(ignoredRows, record)
 					ignored = true

@@ -2,6 +2,7 @@ package util
 
 import (
 	"math/rand"
+	"strings"
 	"time"
 )
 
@@ -53,4 +54,19 @@ func IsIn(items1 []string, items2 []string) bool {
 		}
 	}
 	return true
+}
+
+func ItemsNotInArray(item string, items []string) []string {
+	itemStr := FormatInputString(item)
+	var notIn []string
+	for _, v := range strings.Split(itemStr, ",") {
+		if !IsInArrayString(v, items) {
+			notIn = append(notIn, v)
+		}
+	}
+	return notIn
+}
+
+func FormatInputString(input string) string {
+	return strings.ToUpper(strings.Replace(input, " ", "", -1))
 }

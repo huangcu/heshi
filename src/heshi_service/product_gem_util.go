@@ -142,8 +142,7 @@ func (g *gem) validateGemReq() ([]errors.HSMessage, error) {
 		vemsgNotValid.Message = "must input gem shape"
 		vemsg = append(vemsg, vemsgNotValid)
 	} else {
-		shape := strings.Replace(g.Shape, " ", "", -1)
-		shapes := strings.Split(strings.ToUpper(shape), ",")
+		shapes := strings.Split(g.Shape, ",")
 		if !util.IsIn(shapes, VALID_DIAMOND_SHAPE) {
 			vemsgNotValid.Message = "gem shape input is not valid"
 			vemsg = append(vemsg, vemsgNotValid)
@@ -223,8 +222,7 @@ func (g *gem) validateGemUpdateReq() ([]errors.HSMessage, error) {
 	}
 	//be an array
 	if g.Shape != "" {
-		shape := strings.Replace(g.Shape, " ", "", -1)
-		shapes := strings.Split(strings.ToUpper(shape), ",")
+		shapes := strings.Split(g.Shape, ",")
 		if !util.IsIn(shapes, VALID_DIAMOND_SHAPE) {
 			vemsgNotValid.Message = "gem shape input is not valid"
 			vemsg = append(vemsg, vemsgNotValid)

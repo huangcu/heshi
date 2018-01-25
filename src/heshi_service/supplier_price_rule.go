@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"heshi/errors"
 	"net/http"
+	"util"
 
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
@@ -36,13 +37,13 @@ func addPriceRule(c *gin.Context) {
 		SupplierID:      c.PostForm("supplier_id"),
 		CaratFromStr:    c.PostForm("carat_from"),
 		CaratToStr:      c.PostForm("carat_to"),
-		Colors:          c.PostForm("color"),
-		Clarities:       c.PostForm("clarity"),
-		CutGrades:       c.PostForm("cut_grade"),
-		Symmetries:      c.PostForm("symmetry"),
-		Polishs:         c.PostForm("polish"),
-		Fluos:           c.PostForm("fluo"),
-		GradingLabs:     c.PostForm("grading_lab"),
+		Colors:          util.FormatInputString(c.PostForm("color")),
+		Clarities:       util.FormatInputString(c.PostForm("clarity")),
+		CutGrades:       util.FormatInputString(c.PostForm("cut_grade")),
+		Symmetries:      util.FormatInputString(c.PostForm("symmetry")),
+		Polishs:         util.FormatInputString(c.PostForm("polish")),
+		Fluos:           util.FormatInputString(c.PostForm("fluo")),
+		GradingLabs:     util.FormatInputString(c.PostForm("grading_lab")),
 		TheParaValueStr: c.PostForm("the_para_value"),
 		PriorityStr:     c.PostForm("priority"),
 	}

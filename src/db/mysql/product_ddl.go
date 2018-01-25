@@ -20,7 +20,6 @@ CREATE TABLE IF NOT EXISTS diamonds
 	supplier VARCHAR(15) NOT NULL,
 	price_no_added_value DECIMAL(12,2) NOT NULL,
 	price_retail DECIMAL(12,2) NOT NULL,
-	certificate_link TEXT,
 	featured VARCHAR(5),
 	recommand_words TEXT,
 	extra_words VARCHAR(255),

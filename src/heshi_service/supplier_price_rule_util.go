@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"heshi/errors"
-	"math"
 	"strconv"
 	"strings"
 	"util"
@@ -95,26 +94,26 @@ func (p *PriceSetting) paramsKV() map[string]interface{} {
 func (p *PriceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
 	var vemsg []errors.HSMessage
 
-	sValue, err := strconv.ParseFloat(p.CaratFromStr, 64)
+	sValue, err := util.StringToFloat(p.CaratFromStr)
 	if err != nil {
 		vemsgNotValid.Message = fmt.Sprintf("carat from input %s is not valid", p.CaratFromStr)
 		vemsg = append(vemsg, vemsgNotValid)
 	}
-	p.CaratFrom = math.Abs(sValue)
+	p.CaratFrom = sValue
 
-	sValue, err = strconv.ParseFloat(p.CaratToStr, 64)
+	sValue, err = util.StringToFloat(p.CaratToStr)
 	if err != nil {
 		vemsgNotValid.Message = fmt.Sprintf("carat to input %s is not valid", p.CaratToStr)
 		vemsg = append(vemsg, vemsgNotValid)
 	}
-	p.CaratTo = math.Abs(sValue)
+	p.CaratTo = sValue
 
-	sValue, err = strconv.ParseFloat(p.TheParaValueStr, 64)
+	sValue, err = util.StringToFloat(p.TheParaValueStr)
 	if err != nil {
 		vemsgNotValid.Message = fmt.Sprintf("para value input %s is not valid", p.TheParaValueStr)
 		vemsg = append(vemsg, vemsgNotValid)
 	}
-	p.TheParaValue = math.Abs(sValue)
+	p.TheParaValue = sValue
 
 	pValue, err := strconv.Atoi(p.PriorityStr)
 	if err != nil {
@@ -123,49 +122,31 @@ func (p *PriceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
 	}
 	p.Priority = pValue
 
-	var invalid []string
-	for _, v := range strings.Split(p.GradingLabs, ",") {
-		if !util.IsInArrayString(v, VALID_GRADING_LAB) {
-			invalid = append(invalid, v)
-		}
-	}
+	invalid := util.ItemsNotInArray(p.GradingLabs, VALID_GRADING_LAB)
 	if len(invalid) != 0 {
 		vemsgNotValid.Message = fmt.Sprintf("grading lab input has invalid value: %s", strings.Join(invalid, ","))
 		vemsg = append(vemsg, vemsgNotValid)
 	}
 
-	invalid = []string{}
-	for _, v := range strings.Split(p.Clarities, ",") {
-		if !util.IsInArrayString(v, VALID_CLARITY) {
-			invalid = append(invalid, v)
-		}
-	}
+	invalid = util.ItemsNotInArray(p.Clarities, VALID_CLARITY)
 	if len(invalid) != 0 {
 		vemsgNotValid.Message = fmt.Sprintf("clarity input has invalid value: %s", strings.Join(invalid, ","))
 		vemsg = append(vemsg, vemsgNotValid)
 	}
 
-	invalid = []string{}
-	for _, v := range strings.Split(p.Colors, ",") {
-		if !util.IsInArrayString(v, VALID_COLOR) {
-			invalid = append(invalid, v)
-		}
-	}
+	invalid = util.ItemsNotInArray(p.Colors, VALID_COLOR)
 	if len(invalid) != 0 {
 		vemsgNotValid.Message = fmt.Sprintf("color input has invalid value: %s", strings.Join(invalid, ","))
 		vemsg = append(vemsg, vemsgNotValid)
 	}
 
-	// invalid = []string{}
-	// for _, v := range strings.Split(p.CutGrades, ",") {
-	// 	if !util.IsInArrayString(v, VALID_CUT_NUMBER) {
-	// 		invalid = append(invalid, v)
-	// 	}
-	// }
-	// if len(invalid) != 0 {
-	// 	vemsgNotValid.Message = fmt.Sprintf("cut grade input has invalid value: %s", strings.Join(invalid, ","))
-	// 	vemsg = append(vemsg, vemsgNotValid)
-	// }
+	invalid = util.ItemsNotInArray(p.CutGrades, VALID_CUT_GRADE)
+	// p.CutGrades = strings.Join(cutGrades, ",")
+	if len(invalid) != 0 {
+		vemsgNotValid.Message = fmt.Sprintf("cut grade input has invalid value: %s", strings.Join(invalid, ","))
+		vemsg = append(vemsg, vemsgNotValid)
+	}
+
 	invalid = []string{}
 	for _, v := range strings.Split(p.Fluos, ",") {
 		if !util.IsInArrayString(v, VALID_FLUORESCENCE_INTENSITY) {

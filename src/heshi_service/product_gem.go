@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"sql_patch"
 	"time"
+	"util"
 
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
@@ -78,7 +79,7 @@ func updateGems(c *gin.Context) {
 	g := gem{
 		ID:               id,
 		StockID:          c.PostForm("stock_id"),
-		Shape:            c.PostForm("shape"),
+		Shape:            util.FormatInputString(c.PostForm("shape")),
 		Material:         c.PostForm("material"),
 		Name:             c.PostForm("name"),
 		SizeStr:          c.PostForm("size"),

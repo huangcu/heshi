@@ -129,7 +129,6 @@ func newDiamond(c *gin.Context) {
 		Supplier:              c.PostForm("supplier"),
 		PriceNoAddedValue:     pValue,
 		PriceRetail:           prValue,
-		CertificateLink:       c.PostForm("certificate_link"),
 		Featured:              c.PostForm("featured"),
 		RecommandWords:        c.PostForm("recommand_words"),
 		ExtraWords:            c.PostForm("extra_words"),
@@ -151,7 +150,7 @@ func composeDiamond(rows *sql.Rows) ([]diamond, error) {
 	var id, diamondID, stockRef, shape, color, country, supplier, gradingLab string
 	var clarity, certificateNumber, cutGrade, polish, symmetry, fluorescenceIntensity string
 	var featured, status, pickedUp, sold, profitable string
-	var certificateLink, recommandWords, extraWords sql.NullString
+	var recommandWords, extraWords sql.NullString
 	var soldPrice sql.NullFloat64
 	var orderedBy sql.NullInt64
 	var carat, priceNoAddedValue, priceRetail float64
@@ -160,24 +159,49 @@ func composeDiamond(rows *sql.Rows) ([]diamond, error) {
 	for rows.Next() {
 		if err := rows.Scan(&id, &diamondID, &stockRef, &shape, &carat, &color, &clarity, &gradingLab, &certificateNumber,
 			&cutGrade, &polish, &symmetry, &fluorescenceIntensity, &country, &supplier, &priceNoAddedValue, &priceRetail,
-			&certificateLink, &featured, &recommandWords, &extraWords, &status, &orderedBy, &pickedUp,
+			&featured, &recommandWords, &extraWords, &status, &orderedBy, &pickedUp,
 			&sold, &soldPrice, &profitable); err != nil {
 			return nil, err
 		}
-		d := diamond{id, diamondID, stockRef, shape, carat, color, clarity, gradingLab, certificateNumber,
-			cutGrade, polish, symmetry, fluorescenceIntensity, country, supplier, priceNoAddedValue,
-			priceRetail, certificateLink.String, featured, recommandWords.String, extraWords.String,
-			status, orderedBy.Int64, pickedUp, sold, soldPrice.Float64, profitable}
+		d := diamond{
+			ID:                    id,
+			DiamondID:             diamondID,
+			StockRef:              stockRef,
+			Shape:                 shape,
+			Carat:                 carat,
+			Color:                 color,
+			Clarity:               clarity,
+			GradingLab:            gradingLab,
+			CertificateNumber:     certificateNumber,
+			CertificateLink:       composeCertifcateLink(gradingLab, certificateNumber),
+			CutGrade:              cutGrade,
+			Polish:                polish,
+			Symmetry:              symmetry,
+			FluorescenceIntensity: fluorescenceIntensity,
+			Country:               country,
+			Supplier:              supplier,
+			PriceNoAddedValue:     priceNoAddedValue,
+			PriceRetail:           priceRetail,
+			Featured:              featured,
+			RecommandWords:        recommandWords.String,
+			ExtraWords:            extraWords.String,
+			Status:                status,
+			OrderedBy:             orderedBy.Int64,
+			PickedUp:              pickedUp,
+			Sold:                  sold,
+			SoldPrice:             soldPrice.Float64,
+			Profitable:            profitable,
+		}
 		ds = append(ds, d)
 	}
 	return ds, nil
 }
 
 func selectDiamondQuery(id string) string {
-	q := `SELECT id, diamond_id, stock_ref, shape, carat, color, clarity, grading_lab, certificate_number, cut_grade,
-	 polish, symmetry, fluorescence_intensity, country, supplier, price_no_added_value, price_retail, 
-	 certificate_link, featured, recommand_words, extra_words, status, ordered_by, picked_up, 
-	 sold, sold_price, profitable FROM diamonds`
+	q := `SELECT id, diamond_id, stock_ref, shape, carat, color, clarity, grading_lab, 
+	certificate_number, cut_grade, polish, symmetry, fluorescence_intensity, country, 
+	supplier, price_no_added_value, price_retail, featured, recommand_words, extra_words, 
+	status, ordered_by, picked_up, sold, sold_price, profitable FROM diamonds`
 
 	if id != "" {
 		q = fmt.Sprintf("%s WHERE id='%s'", q, id)

@@ -207,8 +207,8 @@ func composeFilterDiamondsQuery(c *gin.Context) (string, error) {
 	sort := sortDiamondsByQuery(c.PostForm("sorting"), direction)
 	q := fmt.Sprintf(`SELECT id, diamond_id, stock_ref, shape, carat, color, clarity, grading_lab, 
 		certificate_number, cut_grade, polish, symmetry, fluorescence_intensity, country, supplier, 
-		price_no_added_value, price_retail, certificate_link, clarity_number, cut_number, featured, 
-		recommand_words, extra_words, status, ordered_by, picked_up, sold, sold_price, profitable 
+		price_no_added_value, price_retail, featured, Recommand_words, extra_words, status,
+		 ordered_by, picked_up, sold, sold_price, profitable 
 	 FROM diamonds WHERE '(%s)' %s %s`, strings.Join(querys, ")' AND '("), limit, sort)
 	util.Println(q)
 	return q, nil
@@ -223,8 +223,8 @@ func sortDiamondsByQuery(sortBy, direction string) string {
 		return fmt.Sprintf("ORDER BY color %s, supplier ASC, price_retail ASC", direction)
 
 	case "clarity":
-		return fmt.Sprintf("ORDER BY clarity_number %s, supplier ASC, price_retail ASC", direction)
-
+		clarityFields := strings.Join(VALID_CLARITY, "','")
+		return fmt.Sprintf("ORDER BY Field(clarity, '%s')  %s, supplier ASC, price_retail ASC", clarityFields, direction)
 	case "price":
 		return fmt.Sprintf("ORDER BY price_retail %s, supplier ASC", direction)
 

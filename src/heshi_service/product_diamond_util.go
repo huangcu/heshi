@@ -95,9 +95,6 @@ func (d *diamond) parmsKV() map[string]interface{} {
 	if d.PriceRetail != 0 {
 		params["price_retail"] = d.PriceRetail
 	}
-	if d.CertificateLink != "" {
-		params["certificate_link"] = d.CertificateLink
-	}
 	if d.Featured != "" {
 		params["featured"] = d.Featured
 	}
@@ -230,4 +227,18 @@ func importDiamondsCustomizeHeaders(headers map[string]string, records [][]strin
 		return ignoredRows, err
 	}
 	return ignoredRows, nil
+}
+
+//TODO double check url GIA
+func composeCertifcateLink(gradingLab, certificate string) string {
+	switch gradingLab {
+	case "HRD":
+		return fmt.Sprintf("https://my.hrdantwerp.com/?L=&record_number=%s&certificatetype=MC", certificate)
+	case "GIA":
+		return "http://www.gia.edu/cs/Satellite?pagename=GST%2FDispatcher&childpagename=GIA%2FPage%2FReportCheck&c=Page&cid=1355954554547&reportno=" + certificate
+	case "IGI":
+		return fmt.Sprintf("http://www.igiworldwide.com/verify.php?r=%s", certificate)
+	default:
+		return ""
+	}
 }
