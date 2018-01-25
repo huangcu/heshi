@@ -162,7 +162,12 @@ func importDiamondsCustomizeHeaders(headers map[string]string, records [][]strin
 						case "stock_ref":
 							d.StockRef = strings.ToUpper(record[i])
 						case "shape":
-							d.Shape = diamondShape(record[i])
+							if s, err := diamondShape(record[i]); err != nil {
+								ignoredRows = append(ignoredRows, record)
+								ignored = true
+							} else {
+								d.Shape = s
+							}
 						case "carat":
 							cValue, err := util.StringToFloat(record[i])
 							if err != nil {
@@ -178,7 +183,12 @@ func importDiamondsCustomizeHeaders(headers map[string]string, records [][]strin
 						case "clarity":
 							d.Clarity = diamondClarity(record[i])
 						case "grading_lab":
-							d.GradingLab = diamondGradingLab(record[i])
+							if s, err := diamondGradingLab(record[i]); err != nil {
+								ignoredRows = append(ignoredRows, record)
+								ignored = true
+							} else {
+								d.GradingLab = s
+							}
 						case "certificate_number":
 							d.CertificateNumber = strings.ToUpper(record[i])
 						case "cut_grade":
@@ -208,6 +218,22 @@ func importDiamondsCustomizeHeaders(headers map[string]string, records [][]strin
 								ignored = true
 							}
 							d.PriceNoAddedValue = cValue
+						case "price_retail":
+							cValue, err := util.StringToFloat(record[i])
+							if err != nil {
+								ignoredRows = append(ignoredRows, record)
+								ignored = true
+							}
+							if cValue == 0 {
+								ignored = true
+							}
+							d.PriceRetail = cValue
+						case "featured":
+							d.Featured = strings.ToUpper(record[i])
+						case "recommand_words":
+							d.Featured = strings.ToUpper(record[i])
+						case "extra_words":
+							d.Featured = strings.ToUpper(record[i])
 						}
 						break
 					}
@@ -315,7 +341,11 @@ func (d *diamond) validateDiamondReq() ([]errors.HSMessage, error) {
 		vemsgNotValid.Message = "diamond shape can not be empty"
 		vemsg = append(vemsg, vemsgNotValid)
 	} else {
-		d.Shape = diamondShape(d.Shape)
+		s, err := diamondShape(d.Shape)
+		if err != nil {
+			return nil, err
+		}
+		d.Shape = s
 	}
 
 	if d.Color == "" {
@@ -434,7 +464,11 @@ func (d *diamond) validateDiamondUpdateReq() ([]errors.HSMessage, error) {
 		}
 	}
 	if d.Shape != "" {
-		d.Shape = diamondShape(d.Shape)
+		s, err := diamondShape(d.Shape)
+		if err != nil {
+			return nil, err
+		}
+		d.Shape = s
 	}
 
 	if d.Color != "" {

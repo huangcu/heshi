@@ -1,25 +1,35 @@
 package main
 
 var jewelryHeaders = []string{
+	//must have fields
 	"stock_id",
-	"category",
 	"name",
-	"name_suffix",
+	"need_diamond",
+	"category",
+	"mounting_type",
 	"material",
 	"metal_weight",
-
-	"need_diamond",
 	"dia_shape",
-	"main_dia_num",
-	"main_dia_size",
+
+	//optional fields
+	"unit_number",
 	"dia_size_min",
 	"dia_size_max",
-
+	"main_dia_num",
+	"main_dia_size",
 	"small_dias",
 	"small_dia_num",
 	"small_dia_carat",
-	"mounting_type",
-	"unit_number",
+	"price",
+	"video_link",
+	"text",
+	"online",
+	"verified",
+	"in_stock",
+	"featured",
+	"stock_quantity",
+	"profitable",
+	"free_acc",
 }
 
 //TODO ref
@@ -44,20 +54,23 @@ var jewelryHeaders = []string{
 // CR small_dias = "NO" AND need_diamond = "NO" AND category = 2
 // CE small_dias = "NO" AND need_diamond = "NO" AND category = 3
 
+// jewelry_category
+// id | category_en  | category_cn   | main_diamond_num
 // |  1 | pendant      | 吊坠          |                1 |
 // |  2 | ring         | 戒指          |                1 |
 // |  3 | earring      | 耳环&耳钉     |                2 |
 // |  9 | bracelet     | 手链          |                1 |
 // |  5 | necklace     | 项链          |                1 |
 // | 10 | precious-gem | 彩宝          |                1 |
+//成品首饰 need diamond: NO,
+//空托    need diamond: YES,
 
-var VALID_CATEGORY = []int{
-	1,
-	2,
-	3,
-	5,
-	9,
-	10,
+var VALID_CATEGORY = []string{
+	"PENDANT",
+	"RING",
+	"EARRING",
+	"BRACELET",
+	"NECKLACE",
 }
 
 // Request URL:http://www.beyoudiamond.com/jewelry.php?class=mounting (kongtuo)
@@ -70,8 +83,6 @@ var VALID_MATERIAL = []string{
 	"UNKNOWN",
 }
 
-//成品首饰 need diamond: NO,
-//空托    need diamond: YES,
 var VALID_MOUNTING_TYPE = []string{
 	"3NODE",
 	"4NODE",

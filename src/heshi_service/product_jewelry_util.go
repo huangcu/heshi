@@ -52,7 +52,7 @@ func (j *jewelry) parmsKV() map[string]interface{} {
 	if j.StockID != "" {
 		params["stock_id"] = j.StockID
 	}
-	if j.Category != 0 {
+	if j.Category != "" {
 		params["category"] = j.Category
 	}
 	if j.MetalWeight != 0 {
@@ -66,9 +66,6 @@ func (j *jewelry) parmsKV() map[string]interface{} {
 	}
 	if j.Name != "" {
 		params["name"] = j.Name
-	}
-	if j.NameSuffix != 0 {
-		params["name_suffix"] = j.NameSuffix
 	}
 	if j.DiaSizeMin != 0 {
 		params["dia_size_min"] = j.DiaSizeMin

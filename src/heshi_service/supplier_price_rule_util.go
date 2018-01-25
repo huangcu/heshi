@@ -122,25 +122,25 @@ func (p *PriceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
 	}
 	p.Priority = pValue
 
-	invalid := util.ItemsNotInArray(p.GradingLabs, VALID_GRADING_LAB)
+	invalid := ItemsNotInArray(p.GradingLabs, VALID_GRADING_LAB)
 	if len(invalid) != 0 {
 		vemsgNotValid.Message = fmt.Sprintf("grading lab input has invalid value: %s", strings.Join(invalid, ","))
 		vemsg = append(vemsg, vemsgNotValid)
 	}
 
-	invalid = util.ItemsNotInArray(p.Clarities, VALID_CLARITY)
+	invalid = ItemsNotInArray(p.Clarities, VALID_CLARITY)
 	if len(invalid) != 0 {
 		vemsgNotValid.Message = fmt.Sprintf("clarity input has invalid value: %s", strings.Join(invalid, ","))
 		vemsg = append(vemsg, vemsgNotValid)
 	}
 
-	invalid = util.ItemsNotInArray(p.Colors, VALID_COLOR)
+	invalid = ItemsNotInArray(p.Colors, VALID_COLOR)
 	if len(invalid) != 0 {
 		vemsgNotValid.Message = fmt.Sprintf("color input has invalid value: %s", strings.Join(invalid, ","))
 		vemsg = append(vemsg, vemsgNotValid)
 	}
 
-	invalid = util.ItemsNotInArray(p.CutGrades, VALID_CUT_GRADE)
+	invalid = ItemsNotInArray(p.CutGrades, VALID_CUT_GRADE)
 	// p.CutGrades = strings.Join(cutGrades, ",")
 	if len(invalid) != 0 {
 		vemsgNotValid.Message = fmt.Sprintf("cut grade input has invalid value: %s", strings.Join(invalid, ","))

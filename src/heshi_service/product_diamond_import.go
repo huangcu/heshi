@@ -12,8 +12,8 @@ import (
 
 func validateDiamondHeaders(headers []string) []string {
 	var missingHeaders []string
-	for _, header := range diamondHeaders {
-		if !util.IsInArrayString(header, headers) {
+	for k, header := range diamondHeaders {
+		if !util.IsInArrayString(header, headers) && k < 15 {
 			missingHeaders = append(missingHeaders, header)
 		}
 	}
@@ -58,7 +58,12 @@ func importDiamondProducts(file string) ([][]string, error) {
 			case "stock_ref":
 				d.StockRef = strings.ToUpper(record[i])
 			case "shape":
-				d.Shape = diamondShape(record[i])
+				if s, err := diamondShape(record[i]); err != nil {
+					ignoredRows = append(ignoredRows, record)
+					ignored = true
+				} else {
+					d.Shape = s
+				}
 			case "carat":
 				cValue, err := util.StringToFloat(record[i])
 				if err != nil {
@@ -74,7 +79,12 @@ func importDiamondProducts(file string) ([][]string, error) {
 			case "clarity":
 				d.Clarity = diamondClarity(record[i])
 			case "grading_lab":
-				d.GradingLab = diamondGradingLab(record[i])
+				if s, err := diamondGradingLab(record[i]); err != nil {
+					ignoredRows = append(ignoredRows, record)
+					ignored = true
+				} else {
+					d.GradingLab = s
+				}
 				//TODO certificate number duplicate??
 			case "certificate_number":
 				d.CertificateNumber = strings.ToUpper(record[i])
@@ -96,6 +106,7 @@ func importDiamondProducts(file string) ([][]string, error) {
 				} else {
 					d.Supplier = s
 				}
+				// 				"price_retail",
 			case "price_no_added_value":
 				cValue, err := util.StringToFloat(record[i])
 				if err != nil {
@@ -106,6 +117,22 @@ func importDiamondProducts(file string) ([][]string, error) {
 					ignored = true
 				}
 				d.PriceNoAddedValue = cValue
+			case "price_retail":
+				cValue, err := util.StringToFloat(record[i])
+				if err != nil {
+					ignoredRows = append(ignoredRows, record)
+					ignored = true
+				}
+				if cValue == 0 {
+					ignored = true
+				}
+				d.PriceRetail = cValue
+			case "featured":
+				d.Featured = strings.ToUpper(record[i])
+			case "recommand_words":
+				d.Featured = strings.ToUpper(record[i])
+			case "extra_words":
+				d.Featured = strings.ToUpper(record[i])
 			}
 		}
 		//handle db
@@ -130,10 +157,12 @@ func importDiamondProducts(file string) ([][]string, error) {
 }
 
 func (d *diamond) processDiamondRecord() error {
-	q := "SELECT price_no_added_value, price_retail FROM diamonds WHERE grading_lab = '' AND certificate_number = ''"
+	if err := d.processPrice(); err != nil {
+		return err
+	}
 	var id, status string
 	var priceNoAddedValue, priceRetail float64
-	q = fmt.Sprintf("SELECT id, price_no_added_value, price_retail, status FROM diamonds WHERE stock_ref='%s'", d.StockRef)
+	q := fmt.Sprintf("SELECT id, price_no_added_value, price_retail, status FROM diamonds WHERE stock_ref='%s'", d.StockRef)
 	if err := db.QueryRow(q).Scan(&id, &priceNoAddedValue, &priceRetail, &status); err != nil {
 		//item not exist in db
 		if err == sql.ErrNoRows {
@@ -151,9 +180,6 @@ func (d *diamond) processDiamondRecord() error {
 		return err
 	}
 	//item alread exist in db
-	if err := d.processPrice(); err != nil {
-		return err
-	}
 	if status != "SOLD" && status != "RESERVED" && (d.PriceRetail-priceRetail) > 5 {
 		q := d.composeInsertQuery()
 		if _, err := dbExec(q); err != nil {
@@ -169,6 +195,10 @@ func (d *diamond) processDiamondRecord() error {
 }
 
 func (d *diamond) processPrice() error {
+	//set the price already, no need to caculate
+	if d.PriceRetail != 0 {
+		return nil
+	}
 	q := fmt.Sprintf(`SELECT carat_from, carat_to, color, clarity, cut_grade, polish, 
 		symmetry, grading_lab, fluo, shape, the_para_value FROM price_settings_universal 
 		WHERE supplier_id = '%s' AND status='active' ORDER BY priority ASC`, d.Supplier)
@@ -361,34 +391,36 @@ func diamondColor(color string) string {
 	// return "UNKOWN-" + strings.ToUpper(color)
 }
 
-func diamondShape(shape string) string {
+func diamondShape(shape string) (string, error) {
 	if len(shape) != 0 {
 		switch strings.ToUpper(shape) {
 		case "BR", "ROUND":
-			return "BR"
+			return "BR", nil
 		case "PS", "PEAR":
-			return "PS"
+			return "PS", nil
 		case "PR", "PRICESS":
-			return "PR"
+			return "PR", nil
 		case "HS", "HEART":
-			return "HS"
+			return "HS", nil
 		case "MQ", "MARQUISE":
-			return "MQ"
+			return "MQ", nil
 		case "OV", "OVAL":
-			return "OV"
+			return "OV", nil
 		case "EM", "EMERALD":
-			return "EM"
+			return "EM", nil
 		case "CU", "CUSHION":
-			return "CU"
+			return "CU", nil
 		case "AS", "ASSCHER":
-			return "AS"
+			return "AS", nil
 		case "RAD", "RADIANT", "RA":
-			return "RAD"
+			return "RAD", nil
 		case "RBC", "RCRB", "RC", "PE", "HT", "CMB":
-			return strings.ToUpper(shape)
+			return strings.ToUpper(shape), nil
+		default:
+			return "", errors.Newf("%s is not a valid shape")
 		}
 	}
-	return "-"
+	return "", errors.Newf("shape cannot be empty")
 }
 
 //TODO should return error - > to add new suppliers
@@ -402,9 +434,9 @@ func diamondSupplier(supplier string, suppliers []string) (string, error) {
 }
 
 //TODO should return error ????
-func diamondGradingLab(gradingLab string) string {
+func diamondGradingLab(gradingLab string) (string, error) {
 	if util.IsInArrayString(strings.ToUpper(gradingLab), VALID_GRADING_LAB) {
-		return strings.ToUpper(gradingLab)
+		return strings.ToUpper(gradingLab), nil
 	}
-	return "UNKOWN-" + strings.ToUpper(gradingLab)
+	return "", errors.Newf("%s is not a valid grading lab")
 }

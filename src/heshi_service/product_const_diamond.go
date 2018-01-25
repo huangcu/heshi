@@ -7,7 +7,9 @@ const (
 )
 
 var VALID_PRODUCTS = []string{DIAMOND, SMALLDIAMOND, JEWELRY}
+
 var diamondHeaders = []string{
+	//must have fields
 	"diamond_id",
 	"stock_ref",
 	"shape",
@@ -23,9 +25,12 @@ var diamondHeaders = []string{
 	"country",
 	"supplier",
 	"price_no_added_value",
+
+	// optional fields
 	"price_retail",
-	"clarity_number",
-	"cut_number",
+	"featured",
+	"recommand_words",
+	"extra_words",
 }
 
 var smallDiamondHeaders = []string{
@@ -227,3 +232,10 @@ var VALID_COLOR = []string{}
 // | FANCY YELLOW   |
 // | N-O            |
 // | FDBY
+
+var VALID_DIAMOND_STATUS = []string{
+	"SOLD",
+	"AVAILABLE",
+	"RESERVED",
+	"OFFLINE",
+}
