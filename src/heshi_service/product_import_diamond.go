@@ -54,9 +54,9 @@ func importDiamondProducts(file string) ([][]string, error) {
 		for i, header := range originalHeaders {
 			switch header {
 			case "diamond_id":
-				d.DiamondID = record[i]
+				d.DiamondID = strings.ToUpper(record[i])
 			case "stock_ref":
-				d.StockRef = record[i]
+				d.StockRef = strings.ToUpper(record[i])
 			case "shape":
 				d.Shape = diamondShape(record[i])
 			case "carat":
@@ -70,13 +70,14 @@ func importDiamondProducts(file string) ([][]string, error) {
 				}
 				d.Carat = cValue
 			case "color":
-				d.Color = record[i]
+				d.Color = diamondColor(record[i])
 			case "clarity":
 				d.Clarity = diamondClarity(record[i])
 			case "grading_lab":
 				d.GradingLab = diamondGradingLab(record[i])
+				//TODO certificate number duplicate??
 			case "certificate_number":
-				d.CertificateNumber = record[i]
+				d.CertificateNumber = strings.ToUpper(record[i])
 			case "cut_grade":
 				d.CutGrade = diamondCutGradeSymmetryPolish(record[i])
 			case "polish":
@@ -86,9 +87,15 @@ func importDiamondProducts(file string) ([][]string, error) {
 			case "fluorescence_intensity":
 				d.FluorescenceIntensity = diamondFluo(record[i])
 			case "country":
-				d.Country = record[i]
+				//TODO format country
+				d.Country = strings.ToUpper(record[i])
 			case "supplier":
-				d.Supplier = diamondSupplier(record[i], suppliers)
+				if s, err := diamondSupplier(record[i], suppliers); err != nil {
+					ignoredRows = append(ignoredRows, record)
+					ignored = true
+				} else {
+					d.Supplier = s
+				}
 			case "price_no_added_value":
 				cValue, err := util.StringToFloat(record[i])
 				if err != nil {
@@ -327,6 +334,7 @@ func diamondCutGradeSymmetryPolish(cutGrade string) string {
 
 //TODO
 func diamondColor(color string) string {
+	return strings.ToUpper(color)
 	//  D
 	//  E
 	//  F
@@ -350,7 +358,7 @@ func diamondColor(color string) string {
 	//  X
 	//  Y
 	//  Z
-	return "UNKOWN-" + strings.ToUpper(color)
+	// return "UNKOWN-" + strings.ToUpper(color)
 }
 
 func diamondShape(shape string) string {
@@ -383,15 +391,17 @@ func diamondShape(shape string) string {
 	return "-"
 }
 
-func diamondSupplier(supplier string, suppliers []string) string {
+//TODO should return error - > to add new suppliers
+func diamondSupplier(supplier string, suppliers []string) (string, error) {
 	if len(supplier) != 0 {
 		if util.IsInArrayString(strings.ToUpper(supplier), suppliers) {
-			return strings.ToUpper(supplier)
+			return strings.ToUpper(supplier), nil
 		}
 	}
-	return "UNKOWN-" + strings.ToUpper(supplier)
+	return "", errors.Newf("supplier %s not exist, please add first!", supplier)
 }
 
+//TODO should return error ????
 func diamondGradingLab(gradingLab string) string {
 	if util.IsInArrayString(strings.ToUpper(gradingLab), VALID_GRADING_LAB) {
 		return strings.ToUpper(gradingLab)

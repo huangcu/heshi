@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"heshi/errors"
-	"math"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -172,7 +171,7 @@ func importJewelryProducts(file string) ([][]string, error) {
 				}
 				j.NameSuffix = int64(util.AbsInt(sValue))
 			case "dia_size_min":
-				sValue, err := strconv.ParseFloat(record[i], 64)
+				sValue, err := util.StringToFloat(record[i])
 				if err != nil {
 					ignoredRows = append(ignoredRows, record)
 					ignored = true
@@ -181,9 +180,9 @@ func importJewelryProducts(file string) ([][]string, error) {
 				if sValue == 0 {
 					ignored = true
 				}
-				j.DiaSizeMin = math.Abs(sValue)
+				j.DiaSizeMin = sValue
 			case "dia_size_max":
-				sValue, err := strconv.ParseFloat(record[i], 64)
+				sValue, err := util.StringToFloat(record[i])
 				if err != nil {
 					ignoredRows = append(ignoredRows, record)
 					ignored = true
@@ -192,7 +191,7 @@ func importJewelryProducts(file string) ([][]string, error) {
 				if sValue == 0 {
 					ignored = true
 				}
-				j.DiaSizeMax = math.Abs(sValue)
+				j.DiaSizeMax = sValue
 			case "small_dias":
 				j.SmallDias = record[i]
 			case "small_dia_num":
@@ -207,7 +206,7 @@ func importJewelryProducts(file string) ([][]string, error) {
 				}
 				j.SmallDiaNum = int64(util.AbsInt(sValue))
 			case "small_dia_carat":
-				sValue, err := strconv.ParseFloat(record[i], 64)
+				sValue, err := util.StringToFloat(record[i])
 				if err != nil {
 					ignoredRows = append(ignoredRows, record)
 					ignored = true
@@ -216,7 +215,7 @@ func importJewelryProducts(file string) ([][]string, error) {
 				if sValue == 0 {
 					ignored = true
 				}
-				j.SmallDiaCarat = math.Abs(sValue)
+				j.SmallDiaCarat = sValue
 			case "mounting_type":
 				j.MountingType = record[i]
 			case "main_dia_num":
@@ -231,7 +230,7 @@ func importJewelryProducts(file string) ([][]string, error) {
 				}
 				j.MainDiaNum = int64(util.AbsInt(sValue))
 			case "main_dia_size":
-				sValue, err := strconv.ParseFloat(record[i], 64)
+				sValue, err := util.StringToFloat(record[i])
 				if err != nil {
 					ignoredRows = append(ignoredRows, record)
 					ignored = true
@@ -240,7 +239,7 @@ func importJewelryProducts(file string) ([][]string, error) {
 				if sValue == 0 {
 					ignored = true
 				}
-				j.MainDiaSize = math.Abs(sValue)
+				j.MainDiaSize = sValue
 			case "video_link":
 				j.VideoLink = record[i]
 			case "text":
@@ -254,7 +253,7 @@ func importJewelryProducts(file string) ([][]string, error) {
 			case "featured":
 				j.Featured = record[i]
 			case "price":
-				sValue, err := strconv.ParseFloat(record[i], 64)
+				sValue, err := util.StringToFloat(record[i])
 				if err != nil {
 					ignoredRows = append(ignoredRows, record)
 					ignored = true
@@ -263,7 +262,7 @@ func importJewelryProducts(file string) ([][]string, error) {
 				if sValue == 0 {
 					ignored = true
 				}
-				j.Price = math.Abs(sValue)
+				j.Price = sValue
 			case "stock_quantity":
 				sValue, err := strconv.Atoi(record[i])
 				if err != nil {
@@ -343,7 +342,7 @@ func importSmallDiamondProducts(file string) ([][]string, error) {
 		for i, header := range originalHeaders {
 			switch header {
 			case "size_from":
-				sValue, err := strconv.ParseFloat(record[i], 64)
+				sValue, err := util.StringToFloat(record[i])
 				if err != nil {
 					ignoredRows = append(ignoredRows, record)
 					ignored = true
@@ -352,9 +351,9 @@ func importSmallDiamondProducts(file string) ([][]string, error) {
 				if sValue == 0 {
 					ignored = true
 				}
-				sd.SizeFrom = math.Abs(sValue)
+				sd.SizeFrom = sValue
 			case "size_to":
-				sValue, err := strconv.ParseFloat(record[i], 64)
+				sValue, err := util.StringToFloat(record[i])
 				if err != nil {
 					ignoredRows = append(ignoredRows, record)
 					ignored = true
@@ -363,9 +362,9 @@ func importSmallDiamondProducts(file string) ([][]string, error) {
 				if sValue == 0 {
 					ignored = true
 				}
-				sd.SizeTo = math.Abs(sValue)
+				sd.SizeTo = sValue
 			case "price":
-				sValue, err := strconv.ParseFloat(record[i], 64)
+				sValue, err := util.StringToFloat(record[i])
 				if err != nil {
 					ignoredRows = append(ignoredRows, record)
 					ignored = true
@@ -374,7 +373,7 @@ func importSmallDiamondProducts(file string) ([][]string, error) {
 				if sValue == 0 {
 					ignored = true
 				}
-				sd.Price = math.Abs(sValue)
+				sd.Price = sValue
 			case "quantity":
 				sValue, err := strconv.Atoi(record[i])
 				if err != nil {

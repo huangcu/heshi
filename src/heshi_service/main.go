@@ -205,6 +205,7 @@ func configRoute(r *gin.Engine) {
 
 			//manage products
 			apiAdmin.POST("/products/diamonds", newDiamond)
+			apiAdmin.PUT("/products/diamonds/:id", updateDiamond)
 			apiAdmin.POST("/products/small_diamonds", newSmallDiamond)
 			apiAdmin.POST("/products/jewelrys", newJewelry)
 			apiAdmin.POST("/products/gems", newGems)

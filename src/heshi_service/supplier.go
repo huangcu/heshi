@@ -185,40 +185,34 @@ func (s *supplier) paramsKV() map[string]interface{} {
 
 func (s *supplier) validUniqueKey() ([]errors.HSMessage, error) {
 	var vemsgs []errors.HSMessage
-	if exist, err := s.isSupplierExistByName(); err != nil {
-		return nil, nil
-	} else if exist {
-		vemsgs = append(vemsgs, vemsgSupplierNameDuplicate)
+	if s.Name == "" {
+		vemsgNotValid.Message = "Name can not be empty"
+		vemsgs = append(vemsgs, vemsgNotValid)
+	} else {
+		if exist, err := s.isSupplierExistByName(); err != nil {
+			return nil, err
+		} else if exist {
+			vemsgs = append(vemsgs, vemsgSupplierNameDuplicate)
+		}
 	}
-	if exist, err := s.isSupplierExistByPrefix(); err != nil {
-		return nil, nil
-	} else if exist {
-		vemsgs = append(vemsgs, vemsgSupplierPrefixDuplicate)
+	if s.Prefix == "" {
+		vemsgNotValid.Message = "Prefix can not be empty"
+		vemsgs = append(vemsgs, vemsgNotValid)
+	} else {
+		if exist, err := s.isSupplierExistByPrefix(); err != nil {
+			return nil, err
+		} else if exist {
+			vemsgs = append(vemsgs, vemsgSupplierPrefixDuplicate)
+		}
 	}
 
 	return vemsgs, nil
 }
 
 func (s *supplier) isSupplierExistByName() (bool, error) {
-	var count int
-	q := fmt.Sprintf("SELECT count(*) FROM suppliers WHERE name='%s'", s.Name)
-	if err := dbQueryRow(q).Scan(&count); err != nil {
-		return false, err
-	}
-	if count == 0 {
-		return false, nil
-	}
-	return true, nil
+	return isItemExistInDbByProperty("suppliers", "name", s.Name)
 }
 
 func (s *supplier) isSupplierExistByPrefix() (bool, error) {
-	var count int
-	q := fmt.Sprintf("SELECT count(*) FROM suppliers WHERE prefix='%s'", s.Prefix)
-	if err := dbQueryRow(q).Scan(&count); err != nil {
-		return false, err
-	}
-	if count == 0 {
-		return false, nil
-	}
-	return true, nil
+	return isItemExistInDbByProperty("suppliers", "prefix", s.Prefix)
 }

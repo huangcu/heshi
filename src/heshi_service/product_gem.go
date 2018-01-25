@@ -6,6 +6,7 @@ import (
 	"heshi/errors"
 	"net/http"
 	"sql_patch"
+	"strings"
 	"time"
 	"util"
 
@@ -41,21 +42,21 @@ type gem struct {
 func newGems(c *gin.Context) {
 	g := gem{
 		ID:               uuid.NewV4().String(),
-		StockID:          c.PostForm("stock_id"),
-		Shape:            c.PostForm("shape"),
-		Material:         c.PostForm("material"),
-		Name:             c.PostForm("name"),
+		StockID:          strings.ToUpper(c.PostForm("stock_id")),
+		Shape:            strings.ToUpper(c.PostForm("shape")),
+		Material:         strings.ToUpper(c.PostForm("material")),
+		Name:             strings.ToUpper(c.PostForm("name")),
 		SizeStr:          c.PostForm("size"),
 		Text:             c.PostForm("text"),
-		Certificate:      c.PostForm("certificate"),
-		Online:           c.PostForm("online"),
-		Verified:         c.PostForm("verified"),
-		InStock:          c.PostForm("in_stock"),
-		Featured:         c.PostForm("featured"),
+		Certificate:      strings.ToUpper(c.PostForm("certificate")),
+		Online:           strings.ToUpper(c.PostForm("online")),
+		Verified:         strings.ToUpper(c.PostForm("verified")),
+		InStock:          strings.ToUpper(c.PostForm("in_stock")),
+		Featured:         strings.ToUpper(c.PostForm("featured")),
 		PriceStr:         c.PostForm("price"),
 		StockQuantityStr: c.PostForm("stock_quantity"),
-		Profitable:       c.PostForm("profitable"),
-		FreeAcc:          c.PostForm("free_acc"),
+		Profitable:       strings.ToUpper(c.PostForm("profitable")),
+		FreeAcc:          strings.ToUpper(c.PostForm("free_acc")),
 	}
 
 	if vemsg, err := g.validateGemReq(); err != nil {
@@ -78,21 +79,21 @@ func updateGems(c *gin.Context) {
 	id := c.Param("id")
 	g := gem{
 		ID:               id,
-		StockID:          c.PostForm("stock_id"),
+		StockID:          strings.ToUpper(c.PostForm("stock_id")),
 		Shape:            util.FormatInputString(c.PostForm("shape")),
-		Material:         c.PostForm("material"),
-		Name:             c.PostForm("name"),
+		Material:         strings.ToUpper(c.PostForm("material")),
+		Name:             strings.ToUpper(c.PostForm("name")),
 		SizeStr:          c.PostForm("size"),
 		Text:             c.PostForm("text"),
-		Certificate:      c.PostForm("certificate"),
-		Online:           c.PostForm("online"),
-		Verified:         c.PostForm("verified"),
-		InStock:          c.PostForm("in_stock"),
-		Featured:         c.PostForm("featured"),
+		Certificate:      strings.ToUpper(c.PostForm("certificate")),
+		Online:           strings.ToUpper(c.PostForm("online")),
+		Verified:         strings.ToUpper(c.PostForm("verified")),
+		InStock:          strings.ToUpper(c.PostForm("in_stock")),
+		Featured:         strings.ToUpper(c.PostForm("featured")),
 		PriceStr:         c.PostForm("price"),
 		StockQuantityStr: c.PostForm("stock_quantity"),
-		Profitable:       c.PostForm("profitable"),
-		FreeAcc:          c.PostForm("free_acc"),
+		Profitable:       strings.ToUpper(c.PostForm("profitable")),
+		FreeAcc:          strings.ToUpper(c.PostForm("free_acc")),
 	}
 	if vemsg, err := g.validateGemUpdateReq(); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))

@@ -20,14 +20,14 @@ CREATE TABLE IF NOT EXISTS diamonds
 	supplier VARCHAR(15) NOT NULL,
 	price_no_added_value DECIMAL(12,2) NOT NULL,
 	price_retail DECIMAL(12,2) NOT NULL,
-	featured VARCHAR(5),
+	featured VARCHAR(5) NOT NULL DEFAULT 'NO',
 	recommand_words TEXT,
 	extra_words VARCHAR(255),
 	status VARCHAR(58) NOT NULL DEFAULT "AVAIABLE",
 	ordered_by VARCHAR(225),
 	picked_up VARCHAR(8),
 	sold_price FLOAT,
-	profitable varchar(5),
+	profitable varchar(5) NOT NULL DEFAULT 'YES',
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 ) ENGINE=INNODB;

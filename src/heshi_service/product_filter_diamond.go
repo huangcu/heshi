@@ -92,38 +92,38 @@ func filterDiamonds(c *gin.Context) ([]diamond, error) {
 func composeFilterDiamondsQuery(c *gin.Context) (string, error) {
 	var querys []string
 	if c.PostForm("shape") != "" {
-		querys = append(querys, c.PostForm("shape"))
+		querys = append(querys, strings.ToUpper(c.PostForm("shape")))
 	}
 
 	if c.PostForm("color") != "" {
-		querys = append(querys, c.PostForm("color"))
+		querys = append(querys, strings.ToUpper(c.PostForm("color")))
 	}
 
 	if c.PostForm("clarity") != "" {
-		querys = append(querys, c.PostForm("clarity"))
+		querys = append(querys, strings.ToUpper(c.PostForm("clarity")))
 	}
 	if c.PostForm("cut") != "" {
-		querys = append(querys, c.PostForm("cut"))
+		querys = append(querys, strings.ToUpper(c.PostForm("cut")))
 	}
 
 	if c.PostForm("polish") != "" {
-		querys = append(querys, c.PostForm("polish"))
+		querys = append(querys, strings.ToUpper(c.PostForm("polish")))
 	}
 
 	if c.PostForm("sym") != "" {
-		querys = append(querys, c.PostForm("sym"))
+		querys = append(querys, strings.ToUpper(c.PostForm("sym")))
 	}
 
 	if c.PostForm("fluo") != "" {
-		querys = append(querys, c.PostForm("fluo"))
+		querys = append(querys, strings.ToUpper(c.PostForm("fluo")))
 	}
 
 	if c.PostForm("place") != "" {
-		querys = append(querys, c.PostForm("place"))
+		querys = append(querys, strings.ToUpper(c.PostForm("place")))
 	}
 
 	if c.PostForm("certi") != "" {
-		querys = append(querys, c.PostForm("certi"))
+		querys = append(querys, strings.ToUpper(c.PostForm("certi")))
 	}
 
 	var caratFrom, caratTo float64
@@ -177,7 +177,7 @@ func composeFilterDiamondsQuery(c *gin.Context) (string, error) {
 
 	//TODO tax(contains or not)
 	if c.PostForm("vat_choice") != "" {
-		if c.PostForm("vat_choice") == "YES" {
+		if strings.ToUpper(c.PostForm("vat_choice")) == "YES" {
 			priceFrom = math.Floor(priceFrom / 1.2)
 			priceTo = math.Ceil(priceTo / 1.2)
 		}
@@ -201,14 +201,14 @@ func composeFilterDiamondsQuery(c *gin.Context) (string, error) {
 
 	direction := "ASC"
 	if c.PostForm("sorting_direction") != "" {
-		direction = c.PostForm("sorting_direction")
+		direction = strings.ToUpper(c.PostForm("sorting_direction"))
 	}
 
 	sort := sortDiamondsByQuery(c.PostForm("sorting"), direction)
 	q := fmt.Sprintf(`SELECT id, diamond_id, stock_ref, shape, carat, color, clarity, grading_lab, 
 		certificate_number, cut_grade, polish, symmetry, fluorescence_intensity, country, supplier, 
 		price_no_added_value, price_retail, featured, Recommand_words, extra_words, status,
-		 ordered_by, picked_up, sold, sold_price, profitable 
+		 ordered_by, picked_up, sold_price, profitable 
 	 FROM diamonds WHERE '(%s)' %s %s`, strings.Join(querys, ")' AND '("), limit, sort)
 	util.Println(q)
 	return q, nil

@@ -106,62 +106,39 @@ func (u *User) validRecommnadedBy() errors.HSMessage {
 
 func (u *User) validUniqueKey() ([]errors.HSMessage, error) {
 	var vemsgs []errors.HSMessage
-	if exist, err := u.isUserExistByUserName(); err != nil {
-		return nil, nil
-	} else if exist {
-		vemsgs = append(vemsgs, vemsgUserUsernameDuplicate)
+	if u.Username != "" {
+		if exist, err := u.isUserExistByUserName(); err != nil {
+			return nil, err
+		} else if exist {
+			vemsgs = append(vemsgs, vemsgUserUsernameDuplicate)
+		}
 	}
-	if exist, err := u.isUserExistByCellphone(); err != nil {
-		return nil, nil
-	} else if exist {
-		vemsgs = append(vemsgs, vemsgUserCellphoneDuplicate)
+	if u.Cellphone != "" {
+		if exist, err := u.isUserExistByCellphone(); err != nil {
+			return nil, err
+		} else if exist {
+			vemsgs = append(vemsgs, vemsgUserCellphoneDuplicate)
+		}
 	}
-
-	if exist, err := u.isUserExistByEmail(); err != nil {
-		return nil, nil
-	} else if exist {
-		vemsgs = append(vemsgs, vemsgUserEmailDuplicate)
+	if u.Email != "" {
+		if exist, err := u.isUserExistByEmail(); err != nil {
+			return nil, err
+		} else if exist {
+			vemsgs = append(vemsgs, vemsgUserEmailDuplicate)
+		}
 	}
 
 	return vemsgs, nil
 }
 
 func (u *User) isUserExistByUserName() (bool, error) {
-	if u.Username == "" {
-
-		return false, nil
-	}
-	var count int
-	q := fmt.Sprintf("SELECT count(*) FROM users WHERE username='%s'", u.Username)
-	if err := dbQueryRow(q).Scan(&count); err != nil {
-		return false, err
-	}
-	if count == 0 {
-		return false, nil
-	}
-	return true, nil
+	return isItemExistInDbByProperty("users", "username", u.Username)
 }
 
 func (u *User) isUserExistByCellphone() (bool, error) {
-	var count int
-	q := fmt.Sprintf("SELECT count(*) FROM users WHERE cellphone='%s'", u.Cellphone)
-	if err := dbQueryRow(q).Scan(&count); err != nil {
-		return false, err
-	}
-	if count == 0 {
-		return false, nil
-	}
-	return true, nil
+	return isItemExistInDbByProperty("users", "cellphone", u.Cellphone)
 }
 
 func (u *User) isUserExistByEmail() (bool, error) {
-	var count int
-	q := fmt.Sprintf("SELECT count(*) FROM users WHERE email='%s'", u.Email)
-	if err := dbQueryRow(q).Scan(&count); err != nil {
-		return false, err
-	}
-	if count == 0 {
-		return false, nil
-	}
-	return true, nil
+	return isItemExistInDbByProperty("users", "email", u.Email)
 }

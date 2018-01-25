@@ -115,8 +115,9 @@ func (g *gem) validateGemReq() ([]errors.HSMessage, error) {
 	} else if cValue == 0 {
 		vemsgNotValid.Message = "gem size input is not valid"
 		vemsg = append(vemsg, vemsgNotValid)
+	} else {
+		g.Size = cValue
 	}
-	g.Size = cValue
 	pValue, err := util.StringToFloat(g.PriceStr)
 	if err != nil {
 		vemsgNotValid.Message = "gem price input is not valid"
@@ -124,8 +125,9 @@ func (g *gem) validateGemReq() ([]errors.HSMessage, error) {
 	} else if pValue == 0 {
 		vemsgNotValid.Message = "gem price input is not valid"
 		vemsg = append(vemsg, vemsgNotValid)
+	} else {
+		g.Price = pValue
 	}
-	g.Price = pValue
 	prValue, err := strconv.Atoi(g.StockQuantityStr)
 	if err != nil {
 		vemsgNotValid.Message = "gem stock quantity input is not valid"
@@ -133,8 +135,9 @@ func (g *gem) validateGemReq() ([]errors.HSMessage, error) {
 	} else if prValue == 0 {
 		vemsgNotValid.Message = "gem stock quantity input is not valid"
 		vemsg = append(vemsg, vemsgNotValid)
+	} else {
+		g.StockQuantity = prValue
 	}
-	g.StockQuantity = prValue
 	// return vemsg, nil
 
 	//be an array
@@ -158,7 +161,7 @@ func (g *gem) validateGemReq() ([]errors.HSMessage, error) {
 		vemsgNotValid.Message = "must input gem certificate"
 		vemsg = append(vemsg, vemsgNotValid)
 	} else {
-		if e, err := isGemExistByCertificate(g.Certificate); err != nil {
+		if e, err := isItemExistInDbByProperty("gems", "certificate", g.Certificate); err != nil {
 			return nil, err
 		} else if e {
 			vemsgAlreadyExist.Message = "gem certificate already exist"
@@ -170,7 +173,7 @@ func (g *gem) validateGemReq() ([]errors.HSMessage, error) {
 		vemsgNotValid.Message = "must input gem stock id"
 		vemsg = append(vemsg, vemsgNotValid)
 	} else {
-		if e, err := isGemExistByStockID(g.StockID); err != nil {
+		if e, err := isItemExistInDbByProperty("gems", "stock_id", g.StockID); err != nil {
 			return nil, err
 		} else if e {
 			vemsgAlreadyExist.Message = "gem stock id already exist"
@@ -195,8 +198,9 @@ func (g *gem) validateGemUpdateReq() ([]errors.HSMessage, error) {
 		} else if cValue == 0 {
 			vemsgNotValid.Message = "gem size input is not valid"
 			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			g.Size = cValue
 		}
-		g.Size = cValue
 	}
 	if g.PriceStr != "" {
 		pValue, err := util.StringToFloat(g.PriceStr)
@@ -206,8 +210,9 @@ func (g *gem) validateGemUpdateReq() ([]errors.HSMessage, error) {
 		} else if pValue == 0 {
 			vemsgNotValid.Message = "gem price input is not valid"
 			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			g.Price = pValue
 		}
-		g.Price = pValue
 	}
 	if g.StockQuantityStr != "" {
 		prValue, err := strconv.Atoi(g.StockQuantityStr)
@@ -217,8 +222,9 @@ func (g *gem) validateGemUpdateReq() ([]errors.HSMessage, error) {
 		} else if prValue == 0 {
 			vemsgNotValid.Message = "gem stock quantity input is not valid"
 			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			g.StockQuantity = prValue
 		}
-		g.StockQuantity = prValue
 	}
 	//be an array
 	if g.Shape != "" {
@@ -231,7 +237,7 @@ func (g *gem) validateGemUpdateReq() ([]errors.HSMessage, error) {
 	}
 
 	if g.Certificate != "" {
-		if e, err := isGemExistByCertificate(g.Certificate); err != nil {
+		if e, err := isItemExistInDbByProperty("gems", "stock_id", g.StockID); err != nil {
 			return nil, err
 		} else if e {
 			vemsgAlreadyExist.Message = "gem certificate already exist"
@@ -240,7 +246,7 @@ func (g *gem) validateGemUpdateReq() ([]errors.HSMessage, error) {
 	}
 
 	if g.StockID != "" {
-		if e, err := isGemExistByStockID(g.StockID); err != nil {
+		if e, err := isItemExistInDbByProperty("gems", "stock_id", g.StockID); err != nil {
 			return nil, err
 		} else if e {
 			vemsgAlreadyExist.Message = "gem stock id already exist"
@@ -249,28 +255,4 @@ func (g *gem) validateGemUpdateReq() ([]errors.HSMessage, error) {
 	}
 
 	return vemsg, nil
-}
-
-func isGemExistByStockID(stockID string) (bool, error) {
-	var count int
-	q := fmt.Sprintf("SELECT count(*) FROM gems WHERE stock_id='%s'", stockID)
-	if err := dbQueryRow(q).Scan(&count); err != nil {
-		return false, err
-	}
-	if count == 0 {
-		return false, nil
-	}
-	return true, nil
-}
-
-func isGemExistByCertificate(certificate string) (bool, error) {
-	var count int
-	q := fmt.Sprintf("SELECT count(*) FROM gems WHERE certificate='%s'", certificate)
-	if err := dbQueryRow(q).Scan(&count); err != nil {
-		return false, err
-	}
-	if count == 0 {
-		return false, nil
-	}
-	return true, nil
 }

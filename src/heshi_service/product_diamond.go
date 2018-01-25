@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"util"
 
@@ -21,6 +20,7 @@ type diamond struct {
 	StockRef              string  `json:"stock_ref"`
 	Shape                 string  `json:"shape"`
 	Carat                 float64 `json:"carat"`
+	CaratStr              string  `json:"-"`
 	Color                 string  `json:"color"`
 	Clarity               string  `json:"clarity"`
 	GradingLab            string  `json:"grading_lab"`
@@ -32,7 +32,9 @@ type diamond struct {
 	Country               string  `json:"country"`
 	Supplier              string  `json:"supplier"`
 	PriceNoAddedValue     float64 `json:"price_no_added_value"`
+	PriceNoAddedValueStr  string  `json:"-"`
 	PriceRetail           float64 `json:"price_retail"`
+	PriceRetailStr        string  `json:"-"`
 	CertificateLink       string  `json:"certificate_link"`
 	Featured              string  `json:"featured"`
 	RecommandWords        string  `json:"recommand_words"`
@@ -41,6 +43,7 @@ type diamond struct {
 	OrderedBy             string  `json:"ordered_by"`
 	PickedUp              string  `json:"picked_up"`
 	SoldPrice             float64 `json:"sold_price"`
+	SoldPriceStr          string  `json:"-"`
 	Profitable            string  `json:"profitable"`
 }
 
@@ -83,60 +86,92 @@ func getDiamond(c *gin.Context) {
 	c.JSON(http.StatusOK, ds)
 }
 
-//TODO
 func newDiamond(c *gin.Context) {
-	cValue, err := strconv.ParseFloat(c.PostForm("carat"), 64)
-	if err != nil {
-		c.JSON(http.StatusOK, "invalid carat input")
-		return
-	}
-	pValue, err := strconv.ParseFloat(c.PostForm("price_no_added_value"), 64)
-	if err != nil {
-		c.JSON(http.StatusOK, "invalid carat input")
-		return
-	}
-	prValue, err := strconv.ParseFloat(c.PostForm("price_retail"), 64)
-	if err != nil {
-		c.JSON(http.StatusOK, "invalid price_retail input")
-		return
-	}
-
 	d := diamond{
 		ID:                    uuid.NewV4().String(),
-		StockRef:              c.PostForm("stock_ref"),
-		Shape:                 c.PostForm("shape"),
-		Carat:                 cValue,
-		Color:                 c.PostForm("color"),
-		Clarity:               c.PostForm("clarity"),
-		GradingLab:            c.PostForm("grading_lab"),
-		CertificateNumber:     c.PostForm("certificate_number"),
-		CutGrade:              c.PostForm("cut_grade"),
-		Polish:                c.PostForm("polish"),
-		Symmetry:              c.PostForm("symmetry"),
-		FluorescenceIntensity: c.PostForm("fluorescence_intensity"),
-		Country:               c.PostForm("country"),
-		Supplier:              c.PostForm("supplier"),
-		PriceNoAddedValue:     pValue,
-		PriceRetail:           prValue,
-		Featured:              c.PostForm("featured"),
+		DiamondID:             strings.ToUpper(c.PostForm("diamond_id")),
+		StockRef:              strings.ToUpper(c.PostForm("stock_ref")),
+		Shape:                 strings.ToUpper(c.PostForm("shape")),
+		CaratStr:              strings.ToUpper(c.PostForm("carat")),
+		Color:                 strings.ToUpper(c.PostForm("color")),
+		Clarity:               strings.ToUpper(c.PostForm("clarity")),
+		GradingLab:            strings.ToUpper(c.PostForm("grading_lab")),
+		CertificateNumber:     strings.ToUpper(c.PostForm("certificate_number")),
+		CutGrade:              strings.ToUpper(c.PostForm("cut_grade")),
+		Polish:                strings.ToUpper(c.PostForm("polish")),
+		Symmetry:              strings.ToUpper(c.PostForm("symmetry")),
+		FluorescenceIntensity: strings.ToUpper(c.PostForm("fluorescence_intensity")),
+		Country:               strings.ToUpper(c.PostForm("country")),
+		Supplier:              strings.ToUpper(c.PostForm("supplier")),
+		PriceNoAddedValueStr:  c.PostForm("price_no_added_value"),
+		PriceRetailStr:        c.PostForm("price_retail"),
+		Featured:              strings.ToUpper(c.PostForm("featured")),
 		RecommandWords:        c.PostForm("recommand_words"),
 		ExtraWords:            c.PostForm("extra_words"),
-		Status:                c.PostForm("status"),
-		PickedUp:              c.PostForm("picked_up"),
-		Profitable:            c.PostForm("profitable"),
+		Status:                strings.ToUpper(c.PostForm("status")),
+		Profitable:            strings.ToUpper(c.PostForm("profitable")),
 	}
-	vmsg := d.validateDiamondReq()
-	if vmsg != "" {
-		c.JSON(http.StatusOK, vmsg)
+	if vemsg, err := d.validateDiamondReq(); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	} else if len(vemsg) != 0 {
+		c.JSON(http.StatusOK, vemsg)
 		return
 	}
+	q := d.composeInsertQuery()
+	if _, err := dbExec(q); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	c.JSON(http.StatusOK, d.ID)
+}
+
+func updateDiamond(c *gin.Context) {
+	d := diamond{
+		ID:                    c.Param("id"),
+		DiamondID:             strings.ToUpper(c.PostForm("diamond_id")),
+		StockRef:              strings.ToUpper(c.PostForm("stock_ref")),
+		Shape:                 strings.ToUpper(c.PostForm("shape")),
+		CaratStr:              strings.ToUpper(c.PostForm("carat")),
+		Color:                 strings.ToUpper(c.PostForm("color")),
+		Clarity:               strings.ToUpper(c.PostForm("clarity")),
+		GradingLab:            strings.ToUpper(c.PostForm("grading_lab")),
+		CertificateNumber:     strings.ToUpper(c.PostForm("certificate_number")),
+		CutGrade:              strings.ToUpper(c.PostForm("cut_grade")),
+		Polish:                strings.ToUpper(c.PostForm("polish")),
+		Symmetry:              strings.ToUpper(c.PostForm("symmetry")),
+		FluorescenceIntensity: strings.ToUpper(c.PostForm("fluorescence_intensity")),
+		Country:               strings.ToUpper(c.PostForm("country")),
+		Supplier:              strings.ToUpper(c.PostForm("supplier")),
+		PriceNoAddedValueStr:  c.PostForm("price_no_added_value"),
+		PriceRetailStr:        c.PostForm("price_retail"),
+		Featured:              strings.ToUpper(c.PostForm("featured")),
+		RecommandWords:        c.PostForm("recommand_words"),
+		ExtraWords:            c.PostForm("extra_words"),
+		Status:                strings.ToUpper(c.PostForm("status")),
+		PickedUp:              strings.ToUpper(c.PostForm("picked_up")),
+		Profitable:            strings.ToUpper(c.PostForm("profitable")),
+	}
+	if vemsg, err := d.validateDiamondUpdateReq(); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	} else if len(vemsg) != 0 {
+		c.JSON(http.StatusOK, vemsg)
+		return
+	}
+	q := d.composeUpdateQuery()
+	if _, err := dbExec(q); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	c.JSON(http.StatusOK, d.ID)
 }
 
 func composeDiamond(rows *sql.Rows) ([]diamond, error) {
 	var id, diamondID, stockRef, shape, color, country, supplier, gradingLab string
 	var clarity, certificateNumber, cutGrade, polish, symmetry, fluorescenceIntensity string
-	var featured, status, pickedUp, profitable string
-	var recommandWords, extraWords, orderedBy sql.NullString
+	var featured, status, profitable string
+	var recommandWords, extraWords, orderedBy, pickedUp sql.NullString
 	var soldPrice sql.NullFloat64
 	var carat, priceNoAddedValue, priceRetail float64
 
@@ -171,7 +206,7 @@ func composeDiamond(rows *sql.Rows) ([]diamond, error) {
 			ExtraWords:            extraWords.String,
 			Status:                status,
 			OrderedBy:             orderedBy.String,
-			PickedUp:              pickedUp,
+			PickedUp:              pickedUp.String,
 			SoldPrice:             soldPrice.Float64,
 			Profitable:            profitable,
 		}

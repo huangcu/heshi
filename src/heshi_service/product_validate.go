@@ -16,10 +16,6 @@ func (ve ValidationErrors) Error() string {
 	return strings.TrimSpace(buff.String())
 }
 
-func (d *diamond) validateDiamondReq() string {
-	// govalidator.StringLength()
-	return ""
-}
 func (d *jewelry) validateJewelryReq() string {
 	// govalidator.StringLength()
 	return ""

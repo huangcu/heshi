@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/satori/go.uuid"
 
@@ -99,7 +100,7 @@ func currencyRateReqValidator(h gin.HandlerFunc) gin.HandlerFunc {
 
 		currencyRate := currency{
 			ID:   uuid.NewV4().String(),
-			Base: c.PostForm("base"),
+			Base: strings.ToUpper(c.PostForm("base")),
 			Note: "manual input",
 			Rates: Rate{
 				USD: 1,
