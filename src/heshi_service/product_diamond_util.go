@@ -252,48 +252,39 @@ func composeCertifcateLink(gradingLab, certificate string) string {
 func (d *diamond) validateDiamondReq() ([]errors.HSMessage, error) {
 	var vemsg []errors.HSMessage
 	if d.CaratStr == "" {
-		vemsgNotValid.Message = "diamond carat size input cannot be empty"
-		vemsg = append(vemsg, vemsgNotValid)
+		vemsg = append(vemsg, vemsgDiamondCaratEmpty)
 	} else {
 		cValue, err := util.StringToFloat(d.CaratStr)
 		if err != nil {
-			vemsgNotValid.Message = "diamond carat size input is not valid"
-			vemsg = append(vemsg, vemsgNotValid)
+			vemsg = append(vemsg, vemsgDiamondCaratNotValid)
 		} else if cValue == 0 {
-			vemsgNotValid.Message = "diamond carat size input is not valid"
-			vemsg = append(vemsg, vemsgNotValid)
+			vemsg = append(vemsg, vemsgDiamondCaratNotValid)
 		} else {
 			d.Carat = cValue
 		}
 	}
 
 	if d.PriceNoAddedValueStr == "" {
-		vemsgNotValid.Message = "diamond raw price input cannot be empty"
-		vemsg = append(vemsg, vemsgNotValid)
+		vemsg = append(vemsg, vemsgDiamondRawPriceEmpty)
 	} else {
 		pValue, err := util.StringToFloat(d.PriceNoAddedValueStr)
 		if err != nil {
-			vemsgNotValid.Message = "diamond raw price input is not valid"
-			vemsg = append(vemsg, vemsgNotValid)
+			vemsg = append(vemsg, vemsgDiamondRawPriceNotValid)
 		} else if pValue == 0 {
-			vemsgNotValid.Message = "diamond raw price input is not valid"
-			vemsg = append(vemsg, vemsgNotValid)
+			vemsg = append(vemsg, vemsgDiamondRawPriceNotValid)
 		} else {
 			d.PriceNoAddedValue = pValue
 		}
 	}
 
 	if d.PriceRetailStr == "" {
-		vemsgNotValid.Message = "diamond retail price input cannot be empty"
-		vemsg = append(vemsg, vemsgNotValid)
+		vemsg = append(vemsg, vemsgDiamondRetailPriceEmpty)
 	} else {
 		pValue, err := util.StringToFloat(d.PriceRetailStr)
 		if err != nil {
-			vemsgNotValid.Message = "diamond retail price input is not valid"
-			vemsg = append(vemsg, vemsgNotValid)
+			vemsg = append(vemsg, vemsgDiamondRetailPriceNotValid)
 		} else if pValue == 0 {
-			vemsgNotValid.Message = "diamond retail price input is not valid"
-			vemsg = append(vemsg, vemsgNotValid)
+			vemsg = append(vemsg, vemsgDiamondRetailPriceNotValid)
 		} else {
 			d.PriceRetail = pValue
 		}
@@ -397,11 +388,9 @@ func (d *diamond) validateDiamondUpdateReq() ([]errors.HSMessage, error) {
 	if d.CaratStr != "" {
 		cValue, err := util.StringToFloat(d.CaratStr)
 		if err != nil {
-			vemsgNotValid.Message = "diamond carat size input is not valid"
-			vemsg = append(vemsg, vemsgNotValid)
+			vemsg = append(vemsg, vemsgDiamondCaratNotValid)
 		} else if cValue == 0 {
-			vemsgNotValid.Message = "diamond carat size input is not valid"
-			vemsg = append(vemsg, vemsgNotValid)
+			vemsg = append(vemsg, vemsgDiamondCaratNotValid)
 		} else {
 			d.Carat = cValue
 		}
@@ -410,11 +399,9 @@ func (d *diamond) validateDiamondUpdateReq() ([]errors.HSMessage, error) {
 	if d.PriceNoAddedValueStr != "" {
 		pValue, err := util.StringToFloat(d.PriceNoAddedValueStr)
 		if err != nil {
-			vemsgNotValid.Message = "diamond raw price input is not valid"
-			vemsg = append(vemsg, vemsgNotValid)
+			vemsg = append(vemsg, vemsgDiamondRawPriceNotValid)
 		} else if pValue == 0 {
-			vemsgNotValid.Message = "diamond raw price input is not valid"
-			vemsg = append(vemsg, vemsgNotValid)
+			vemsg = append(vemsg, vemsgDiamondRawPriceNotValid)
 		} else {
 			d.PriceNoAddedValue = pValue
 		}
@@ -423,11 +410,9 @@ func (d *diamond) validateDiamondUpdateReq() ([]errors.HSMessage, error) {
 	if d.PriceRetailStr == "" {
 		pValue, err := util.StringToFloat(d.PriceRetailStr)
 		if err != nil {
-			vemsgNotValid.Message = "diamond retail price input is not valid"
-			vemsg = append(vemsg, vemsgNotValid)
+			vemsg = append(vemsg, vemsgDiamondRetailPriceNotValid)
 		} else if pValue == 0 {
-			vemsgNotValid.Message = "diamond retail price input is not valid"
-			vemsg = append(vemsg, vemsgNotValid)
+			vemsg = append(vemsg, vemsgDiamondRetailPriceNotValid)
 		} else {
 			d.PriceRetail = pValue
 		}

@@ -37,10 +37,22 @@ var (
 	vemsgUserErrorRecommandCode  = errors.HSMessage{Code: 20011, Message: "your invitation code is not correct, please verify;"}
 
 	//AGENT (11-19)
-	vemsgAdminLevelNotValid    = errors.HSMessage{Code: 20015, Message: "admin level is not valid"}
-	vemsgAgentLevelNotValid    = errors.HSMessage{Code: 20012, Message: "agent level is not valid"}
-	vemsgAgentDiscountNotValid = errors.HSMessage{Code: 20013, Message: "agent discount is not valid"}
-	vemsgNotValid              = errors.HSMessage{Code: 20014, Message: "input is not valid"}
+	vemsgAdminLevelNotValid         = errors.HSMessage{Code: 20015, Message: "admin level is not valid"}
+	vemsgAgentLevelNotValid         = errors.HSMessage{Code: 20012, Message: "agent level is not valid"}
+	vemsgAgentDiscountNotValid      = errors.HSMessage{Code: 20013, Message: "agent discount is not valid"}
+	vemsgNotValid                   = errors.HSMessage{Code: 20014, Message: "input is not valid"}
+	vemsgDiamondCaratEmpty          = errors.HSMessage{Code: 20014, Message: "diamond carat size input cannot be empty"}
+	vemsgDiamondCaratNotValid       = errors.HSMessage{Code: 20014, Message: "diamond carat size input is not valid"}
+	vemsgDiamondRawPriceEmpty       = errors.HSMessage{Code: 20014, Message: "diamond raw price input cannot be empty"}
+	vemsgDiamondRawPriceNotValid    = errors.HSMessage{Code: 20014, Message: "diamond raw price input is not valid"}
+	vemsgDiamondRetailPriceEmpty    = errors.HSMessage{Code: 20014, Message: "diamond retail price input cannot be empty"}
+	vemsgDiamondRetailPriceNotValid = errors.HSMessage{Code: 20014, Message: "diamond retail price input is not valid"}
+	vemsgGemSizeEmpty               = errors.HSMessage{Code: 20014, Message: "gem size input cannot be empty"}
+	vemsgGemSizeNotValid            = errors.HSMessage{Code: 20014, Message: "gem size input is not valid"}
+	vemsgGemPriceEmpty              = errors.HSMessage{Code: 20014, Message: "gem price input cannot be empty"}
+	vemsgGemPriceNotValid           = errors.HSMessage{Code: 20014, Message: "gem price input is not valid"}
+	vemsgStockQuantityEmpty         = errors.HSMessage{Code: 20014, Message: "gem stock quantity cannot be empty"}
+	vemsgStockQuantityNotValid      = errors.HSMessage{Code: 20014, Message: "gem stock quantity is not valid"}
 
 	//UPLOAD PRODUCTS(30-39)
 	vemsgUploadProductsCategoryNotValid = errors.HSMessage{Code: 20090, Message: "product category not valid"}

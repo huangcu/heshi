@@ -108,41 +108,47 @@ func (g *gem) parmsKV() map[string]interface{} {
 
 func (g *gem) validateGemReq() ([]errors.HSMessage, error) {
 	var vemsg []errors.HSMessage
-	cValue, err := util.StringToFloat(g.SizeStr)
-	if err != nil {
-		vemsgNotValid.Message = "gem size input is not valid"
-		vemsg = append(vemsg, vemsgNotValid)
-	} else if cValue == 0 {
-		vemsgNotValid.Message = "gem size input is not valid"
-		vemsg = append(vemsg, vemsgNotValid)
+	if g.SizeStr == "" {
+		vemsg = append(vemsg, vemsgGemSizeEmpty)
 	} else {
-		g.Size = cValue
+		cValue, err := util.StringToFloat(g.SizeStr)
+		if err != nil {
+			vemsg = append(vemsg, vemsgGemSizeNotValid)
+		} else if cValue == 0 {
+			vemsg = append(vemsg, vemsgGemSizeNotValid)
+		} else {
+			g.Size = cValue
+		}
 	}
-	pValue, err := util.StringToFloat(g.PriceStr)
-	if err != nil {
-		vemsgNotValid.Message = "gem price input is not valid"
-		vemsg = append(vemsg, vemsgNotValid)
-	} else if pValue == 0 {
-		vemsgNotValid.Message = "gem price input is not valid"
-		vemsg = append(vemsg, vemsgNotValid)
+	if g.PriceStr == "" {
+		vemsg = append(vemsg, vemsgGemPriceEmpty)
 	} else {
-		g.Price = pValue
+		pValue, err := util.StringToFloat(g.PriceStr)
+		if err != nil {
+			vemsg = append(vemsg, vemsgGemPriceNotValid)
+		} else if pValue == 0 {
+			vemsg = append(vemsg, vemsgGemPriceNotValid)
+		} else {
+			g.Price = pValue
+		}
 	}
-	prValue, err := strconv.Atoi(g.StockQuantityStr)
-	if err != nil {
-		vemsgNotValid.Message = "gem stock quantity input is not valid"
-		vemsg = append(vemsg, vemsgNotValid)
-	} else if prValue == 0 {
-		vemsgNotValid.Message = "gem stock quantity input is not valid"
-		vemsg = append(vemsg, vemsgNotValid)
+	if g.StockQuantityStr == "" {
+		vemsg = append(vemsg, vemsgStockQuantityEmpty)
 	} else {
-		g.StockQuantity = prValue
+		prValue, err := strconv.Atoi(g.StockQuantityStr)
+		if err != nil {
+			vemsg = append(vemsg, vemsgStockQuantityNotValid)
+		} else if prValue == 0 {
+			vemsg = append(vemsg, vemsgStockQuantityNotValid)
+		} else {
+			g.StockQuantity = prValue
+		}
 	}
 	// return vemsg, nil
 
 	//be an array
 	if g.Shape == "" {
-		vemsgNotValid.Message = "must input gem shape"
+		vemsgNotValid.Message = "gem shape cannot be empty"
 		vemsg = append(vemsg, vemsgNotValid)
 	} else {
 		shapes := strings.Split(g.Shape, ",")
@@ -154,11 +160,11 @@ func (g *gem) validateGemReq() ([]errors.HSMessage, error) {
 	}
 
 	if g.Text == "" {
-		vemsgNotValid.Message = "must input gem text"
+		vemsgNotValid.Message = "gem text cannot be empty"
 		vemsg = append(vemsg, vemsgNotValid)
 	}
 	if g.Certificate == "" {
-		vemsgNotValid.Message = "must input gem certificate"
+		vemsgNotValid.Message = "gem certificate cannot be empty"
 		vemsg = append(vemsg, vemsgNotValid)
 	} else {
 		if e, err := isItemExistInDbByProperty("gems", "certificate", g.Certificate); err != nil {
@@ -170,7 +176,7 @@ func (g *gem) validateGemReq() ([]errors.HSMessage, error) {
 	}
 
 	if g.StockID == "" {
-		vemsgNotValid.Message = "must input gem stock id"
+		vemsgNotValid.Message = "gem stock id cannot be empty"
 		vemsg = append(vemsg, vemsgNotValid)
 	} else {
 		if e, err := isItemExistInDbByProperty("gems", "stock_id", g.StockID); err != nil {
@@ -182,7 +188,7 @@ func (g *gem) validateGemReq() ([]errors.HSMessage, error) {
 	}
 
 	if g.Name == "" {
-		vemsgNotValid.Message = "must input gem name"
+		vemsgNotValid.Message = "gem name cannot be empty"
 		vemsg = append(vemsg, vemsgNotValid)
 	}
 	return vemsg, nil
@@ -193,11 +199,9 @@ func (g *gem) validateGemUpdateReq() ([]errors.HSMessage, error) {
 	if g.SizeStr != "" {
 		cValue, err := util.StringToFloat(g.SizeStr)
 		if err != nil {
-			vemsgNotValid.Message = "gem size input is not valid"
-			vemsg = append(vemsg, vemsgNotValid)
+			vemsg = append(vemsg, vemsgGemSizeNotValid)
 		} else if cValue == 0 {
-			vemsgNotValid.Message = "gem size input is not valid"
-			vemsg = append(vemsg, vemsgNotValid)
+			vemsg = append(vemsg, vemsgGemSizeNotValid)
 		} else {
 			g.Size = cValue
 		}
@@ -205,11 +209,9 @@ func (g *gem) validateGemUpdateReq() ([]errors.HSMessage, error) {
 	if g.PriceStr != "" {
 		pValue, err := util.StringToFloat(g.PriceStr)
 		if err != nil {
-			vemsgNotValid.Message = "gem price input is not valid"
-			vemsg = append(vemsg, vemsgNotValid)
+			vemsg = append(vemsg, vemsgGemPriceNotValid)
 		} else if pValue == 0 {
-			vemsgNotValid.Message = "gem price input is not valid"
-			vemsg = append(vemsg, vemsgNotValid)
+			vemsg = append(vemsg, vemsgGemPriceNotValid)
 		} else {
 			g.Price = pValue
 		}
@@ -217,11 +219,9 @@ func (g *gem) validateGemUpdateReq() ([]errors.HSMessage, error) {
 	if g.StockQuantityStr != "" {
 		prValue, err := strconv.Atoi(g.StockQuantityStr)
 		if err != nil {
-			vemsgNotValid.Message = "gem stock quantity input is not valid"
-			vemsg = append(vemsg, vemsgNotValid)
+			vemsg = append(vemsg, vemsgStockQuantityNotValid)
 		} else if prValue == 0 {
-			vemsgNotValid.Message = "gem stock quantity input is not valid"
-			vemsg = append(vemsg, vemsgNotValid)
+			vemsg = append(vemsg, vemsgStockQuantityNotValid)
 		} else {
 			g.StockQuantity = prValue
 		}
