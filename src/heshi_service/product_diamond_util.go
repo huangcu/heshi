@@ -107,14 +107,11 @@ func (d *diamond) parmsKV() map[string]interface{} {
 	if d.Status != "" {
 		params["status"] = d.Status
 	}
-	if d.OrderedBy != 0 {
+	if d.OrderedBy != "" {
 		params["ordered_by"] = d.OrderedBy
 	}
 	if d.PickedUp != "" {
 		params["picked_up"] = d.PickedUp
-	}
-	if d.Sold != "" {
-		params["sold"] = d.Sold
 	}
 	if d.SoldPrice != 0 {
 		params["sold_price"] = d.SoldPrice
