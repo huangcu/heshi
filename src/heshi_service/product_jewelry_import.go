@@ -242,7 +242,7 @@ func jewelryMaterial(material string) string {
 
 func jewelryShape(shapeStr string) (string, error) {
 	var jShapes []string
-	shapes := strings.Split(shapeStr, ",")
+	shapes := strings.Split(FormatInputString(shapeStr), ",")
 	for _, shape := range shapes {
 		s, err := diamondShape(shape)
 		if err != nil {

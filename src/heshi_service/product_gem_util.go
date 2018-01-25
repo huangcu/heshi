@@ -151,12 +151,11 @@ func (g *gem) validateGemReq() ([]errors.HSMessage, error) {
 		vemsgNotValid.Message = "gem shape cannot be empty"
 		vemsg = append(vemsg, vemsgNotValid)
 	} else {
-		shapes := strings.Split(g.Shape, ",")
-		if !util.IsIn(shapes, VALID_DIAMOND_SHAPE) {
-			vemsgNotValid.Message = "gem shape input is not valid"
-			vemsg = append(vemsg, vemsgNotValid)
+		s, err := jewelryShape(g.Shape)
+		if err != nil {
+			return nil, err
 		}
-		g.Shape = strings.Join(shapes, ",")
+		g.Shape = s
 	}
 
 	if g.Text == "" {

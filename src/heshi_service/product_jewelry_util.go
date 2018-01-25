@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
+	"heshi/errors"
+	"strconv"
 	"strings"
+	"util"
 )
 
 func (j *jewelry) composeInsertQuery() string {
@@ -134,4 +137,303 @@ func (j *jewelry) parmsKV() map[string]interface{} {
 		params["free_acc"] = j.FreeAcc
 	}
 	return params
+}
+
+func (j *jewelry) validateJewelryReq() ([]errors.HSMessage, error) {
+	var vemsg []errors.HSMessage
+	if j.MetalWeightStr == "" {
+		vemsg = append(vemsg, vemsgMetalWeightEmpty)
+	} else {
+		cValue, err := util.StringToFloat(j.MetalWeightStr)
+		if err != nil {
+			vemsg = append(vemsg, vemsgMetalWeightNotValid)
+		} else if cValue == 0 {
+			vemsg = append(vemsg, vemsgMetalWeightNotValid)
+		} else {
+			j.MetalWeight = cValue
+		}
+	}
+
+	if j.DiaSizeMinStr != "" {
+		pValue, err := util.StringToFloat(j.DiaSizeMinStr)
+		if err != nil {
+			vemsg = append(vemsg, vemsgDiaSizeMinNotValid)
+		} else if pValue == 0 {
+			vemsg = append(vemsg, vemsgDiaSizeMinNotValid)
+		} else {
+			j.DiaSizeMin = pValue
+		}
+	}
+
+	if j.DiaSizeMaxStr != "" {
+		pValue, err := util.StringToFloat(j.DiaSizeMaxStr)
+		if err != nil {
+			vemsg = append(vemsg, vemsgDiaSizeMaxNotValid)
+		} else if pValue == 0 {
+			vemsg = append(vemsg, vemsgDiaSizeMaxNotValid)
+		} else {
+			j.DiaSizeMax = pValue
+		}
+	}
+
+	if j.MainDiaNumStr != "" {
+		pValue, err := strconv.Atoi(j.MainDiaNumStr)
+		if err != nil {
+			vemsg = append(vemsg, vemsgMainDiaNumNotValid)
+		} else if pValue == 0 {
+			vemsg = append(vemsg, vemsgMainDiaNumNotValid)
+		} else {
+			j.MainDiaNum = int64(util.AbsInt(pValue))
+		}
+	}
+	if j.MainDiaSizeStr != "" {
+		pValue, err := util.StringToFloat(j.MainDiaSizeStr)
+		if err != nil {
+			vemsg = append(vemsg, vemsgMainDiaSizeNotValid)
+		} else if pValue == 0 {
+			vemsg = append(vemsg, vemsgMainDiaSizeNotValid)
+		} else {
+			j.MainDiaSize = pValue
+		}
+	}
+
+	if j.SmallDiaNumStr != "" {
+		pValue, err := strconv.Atoi(j.SmallDiaNumStr)
+		if err != nil {
+			vemsg = append(vemsg, vemsgSmallDiaNumNotValid)
+		} else if pValue == 0 {
+			vemsg = append(vemsg, vemsgSmallDiaNumNotValid)
+		} else {
+			j.SmallDiaNum = int64(util.AbsInt(pValue))
+		}
+	}
+	if j.SmallDiaCaratStr != "" {
+		pValue, err := util.StringToFloat(j.SmallDiaCaratStr)
+		if err != nil {
+			vemsg = append(vemsg, vemsgSmallDiaCaratNotValid)
+		} else if pValue == 0 {
+			vemsg = append(vemsg, vemsgSmallDiaCaratNotValid)
+		} else {
+			j.SmallDiaCarat = pValue
+		}
+	}
+	if j.StockQuantityStr != "" {
+		pValue, err := strconv.Atoi(j.StockQuantityStr)
+		if err != nil {
+			vemsg = append(vemsg, vemsgStockQuantityNotValidJ)
+		} else if pValue == 0 {
+			vemsg = append(vemsg, vemsgStockQuantityNotValidJ)
+		} else {
+			j.StockQuantity = util.AbsInt(pValue)
+		}
+	}
+	if j.PriceStr == "" {
+		vemsg = append(vemsg, vemsgPriceEmpty)
+	} else {
+		pValue, err := util.StringToFloat(j.PriceStr)
+		if err != nil {
+			vemsg = append(vemsg, vemsgPriceNotValid)
+		} else if pValue == 0 {
+			vemsg = append(vemsg, vemsgPriceNotValid)
+		} else {
+			j.Price = pValue
+		}
+	}
+
+	if j.StockID == "" {
+		vemsgNotValid.Message = "jewelry stock id can not be empty"
+		vemsg = append(vemsg, vemsgNotValid)
+	} else {
+		if exist, err := isItemExistInDbByProperty("jewelrys", "stock_id", j.StockID); err != nil {
+			return nil, err
+		} else if exist {
+			vemsgAlreadyExist.Message = "jewelry stock_ref " + j.StockID + " already exists"
+			vemsg = append(vemsg, vemsgAlreadyExist)
+		}
+	}
+	if j.Name == "" {
+		vemsgNotValid.Message = "jewelry name can not be empty"
+		vemsg = append(vemsg, vemsgNotValid)
+	}
+	if j.NeedDiamond == "" {
+		vemsgNotValid.Message = "please set if jewelry  need diamond or not"
+		vemsg = append(vemsg, vemsgNotValid)
+	}
+	if j.Category == "" {
+		vemsgNotValid.Message = "jewelry category can not be empty"
+		vemsg = append(vemsg, vemsgNotValid)
+	} else {
+		cate, err := jewelryCategory(j.Category)
+		if err != nil {
+			return nil, err
+		}
+		j.Category = cate
+	}
+	if j.MountingType == "" {
+		vemsgNotValid.Message = "jewelry mounting type can not be empty"
+		vemsg = append(vemsg, vemsgNotValid)
+	} else {
+		mt, err := jewelryMountingType(j.MountingType)
+		if err != nil {
+			return nil, err
+		}
+		j.MountingType = mt
+	}
+
+	if j.Material == "" {
+		vemsgNotValid.Message = "jewelry material can not be empty"
+		vemsg = append(vemsg, vemsgNotValid)
+	} else {
+		j.Material = jewelryMaterial(j.Material)
+	}
+
+	if j.DiaShape == "" {
+		vemsgNotValid.Message = "jewelry diamond shape can not be empty"
+		vemsg = append(vemsg, vemsgNotValid)
+	} else {
+		s, err := jewelryShape(j.DiaShape)
+		if err != nil {
+			return nil, err
+		}
+		j.DiaShape = s
+	}
+	//TODO Featured/Online value validate??? - value can only be YES OR NO
+	return vemsg, nil
+}
+
+func (j *jewelry) validateJewelryUpdateReq() ([]errors.HSMessage, error) {
+	var vemsg []errors.HSMessage
+	if j.MetalWeightStr != "" {
+		cValue, err := util.StringToFloat(j.MetalWeightStr)
+		if err != nil {
+			vemsg = append(vemsg, vemsgMetalWeightNotValid)
+		} else if cValue == 0 {
+			vemsg = append(vemsg, vemsgMetalWeightNotValid)
+		} else {
+			j.MetalWeight = cValue
+		}
+	}
+
+	if j.DiaSizeMinStr != "" {
+		pValue, err := util.StringToFloat(j.DiaSizeMinStr)
+		if err != nil {
+			vemsg = append(vemsg, vemsgDiaSizeMinNotValid)
+		} else if pValue == 0 {
+			vemsg = append(vemsg, vemsgDiaSizeMinNotValid)
+		} else {
+			j.DiaSizeMin = pValue
+		}
+	}
+
+	if j.DiaSizeMaxStr != "" {
+		pValue, err := util.StringToFloat(j.DiaSizeMaxStr)
+		if err != nil {
+			vemsg = append(vemsg, vemsgDiaSizeMaxNotValid)
+		} else if pValue == 0 {
+			vemsg = append(vemsg, vemsgDiaSizeMaxNotValid)
+		} else {
+			j.DiaSizeMax = pValue
+		}
+	}
+
+	if j.MainDiaNumStr != "" {
+		pValue, err := strconv.Atoi(j.MainDiaNumStr)
+		if err != nil {
+			vemsg = append(vemsg, vemsgMainDiaNumNotValid)
+		} else if pValue == 0 {
+			vemsg = append(vemsg, vemsgMainDiaNumNotValid)
+		} else {
+			j.MainDiaNum = int64(util.AbsInt(pValue))
+		}
+	}
+	if j.MainDiaSizeStr != "" {
+		pValue, err := util.StringToFloat(j.MainDiaSizeStr)
+		if err != nil {
+			vemsg = append(vemsg, vemsgMainDiaSizeNotValid)
+		} else if pValue == 0 {
+			vemsg = append(vemsg, vemsgMainDiaSizeNotValid)
+		} else {
+			j.MainDiaSize = pValue
+		}
+	}
+
+	if j.SmallDiaNumStr != "" {
+		pValue, err := strconv.Atoi(j.SmallDiaNumStr)
+		if err != nil {
+			vemsg = append(vemsg, vemsgSmallDiaNumNotValid)
+		} else if pValue == 0 {
+			vemsg = append(vemsg, vemsgSmallDiaNumNotValid)
+		} else {
+			j.SmallDiaNum = int64(util.AbsInt(pValue))
+		}
+	}
+	if j.SmallDiaCaratStr != "" {
+		pValue, err := util.StringToFloat(j.SmallDiaCaratStr)
+		if err != nil {
+			vemsg = append(vemsg, vemsgSmallDiaCaratNotValid)
+		} else if pValue == 0 {
+			vemsg = append(vemsg, vemsgSmallDiaCaratNotValid)
+		} else {
+			j.SmallDiaCarat = pValue
+		}
+	}
+	if j.StockQuantityStr != "" {
+		pValue, err := strconv.Atoi(j.StockQuantityStr)
+		if err != nil {
+			vemsg = append(vemsg, vemsgStockQuantityNotValidJ)
+		} else if pValue == 0 {
+			vemsg = append(vemsg, vemsgStockQuantityNotValidJ)
+		} else {
+			j.StockQuantity = util.AbsInt(pValue)
+		}
+	}
+	if j.PriceStr != "" {
+		pValue, err := util.StringToFloat(j.PriceStr)
+		if err != nil {
+			vemsg = append(vemsg, vemsgPriceNotValid)
+		} else if pValue == 0 {
+			vemsg = append(vemsg, vemsgPriceNotValid)
+		} else {
+			j.Price = pValue
+		}
+	}
+
+	if j.StockID != "" {
+		if exist, err := isItemExistInDbByProperty("jewelrys", "stock_id", j.StockID); err != nil {
+			return nil, err
+		} else if exist {
+			vemsgAlreadyExist.Message = "jewelry stock_ref " + j.StockID + " already exists"
+			vemsg = append(vemsg, vemsgAlreadyExist)
+		}
+	}
+
+	if j.Category != "" {
+		cate, err := jewelryCategory(j.Category)
+		if err != nil {
+			return nil, err
+		}
+		j.Category = cate
+	}
+
+	if j.MountingType != "" {
+		mt, err := jewelryMountingType(j.MountingType)
+		if err != nil {
+			return nil, err
+		}
+		j.MountingType = mt
+	}
+
+	if j.Material != "" {
+		j.Material = jewelryMaterial(j.Material)
+	}
+
+	if j.DiaShape != "" {
+		s, err := jewelryShape(j.DiaShape)
+		if err != nil {
+			return nil, err
+		}
+		j.DiaShape = s
+	}
+	//TODO Featured/Online value validate??? - value can only be YES OR NO
+	return vemsg, nil
 }

@@ -208,6 +208,7 @@ func configRoute(r *gin.Engine) {
 			apiAdmin.PUT("/products/diamonds/:id", updateDiamond)
 			apiAdmin.POST("/products/small_diamonds", newSmallDiamond)
 			apiAdmin.POST("/products/jewelrys", newJewelry)
+			apiAdmin.PUT("/products/jewelrys/:id", updateJewelry)
 			apiAdmin.POST("/products/gems", newGems)
 			apiAdmin.PUT("/products/gems/:id", updateGems)
 		}

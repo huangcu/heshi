@@ -53,6 +53,17 @@ var (
 	vemsgGemPriceNotValid           = errors.HSMessage{Code: 20014, Message: "gem price input is not valid"}
 	vemsgStockQuantityEmpty         = errors.HSMessage{Code: 20014, Message: "gem stock quantity cannot be empty"}
 	vemsgStockQuantityNotValid      = errors.HSMessage{Code: 20014, Message: "gem stock quantity is not valid"}
+	vemsgMetalWeightEmpty           = errors.HSMessage{Code: 20014, Message: "jewelry metal weight cannot be empty"}
+	vemsgMetalWeightNotValid        = errors.HSMessage{Code: 20014, Message: "jewelry metal weight is not valid"}
+	vemsgDiaSizeMinNotValid         = errors.HSMessage{Code: 20014, Message: "jewelry diamond size min is not valid"}
+	vemsgDiaSizeMaxNotValid         = errors.HSMessage{Code: 20014, Message: "jewelry diamond size max is not valid"}
+	vemsgMainDiaNumNotValid         = errors.HSMessage{Code: 20014, Message: "jewelry main diamond number is not valid"}
+	vemsgMainDiaSizeNotValid        = errors.HSMessage{Code: 20014, Message: "jewelry main diamond size is not valid"}
+	vemsgSmallDiaNumNotValid        = errors.HSMessage{Code: 20014, Message: "jewelry small diamond number is not valid"}
+	vemsgSmallDiaCaratNotValid      = errors.HSMessage{Code: 20014, Message: "jewelry small diamond carat is not valid"}
+	vemsgStockQuantityNotValidJ     = errors.HSMessage{Code: 20014, Message: "jewelry stock quantity is not valid"}
+	vemsgPriceEmpty                 = errors.HSMessage{Code: 20014, Message: "jewelry price cannot be empty"}
+	vemsgPriceNotValid              = errors.HSMessage{Code: 20014, Message: "jewelry price is not valid"}
 
 	//UPLOAD PRODUCTS(30-39)
 	vemsgUploadProductsCategoryNotValid = errors.HSMessage{Code: 20090, Message: "product category not valid"}

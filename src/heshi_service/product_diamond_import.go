@@ -417,7 +417,7 @@ func diamondShape(shape string) (string, error) {
 		case "RBC", "RCRB", "RC", "PE", "HT", "CMB":
 			return strings.ToUpper(shape), nil
 		default:
-			return "", errors.Newf("%s is not a valid shape")
+			return "", errors.Newf("%s is not a valid shape", shape)
 		}
 	}
 	return "", errors.Newf("shape cannot be empty")

@@ -42,7 +42,7 @@ func newGems(c *gin.Context) {
 	g := gem{
 		ID:               uuid.NewV4().String(),
 		StockID:          strings.ToUpper(c.PostForm("stock_id")),
-		Shape:            strings.ToUpper(c.PostForm("shape")),
+		Shape:            FormatInputString(c.PostForm("shape")),
 		Material:         strings.ToUpper(c.PostForm("material")),
 		Name:             strings.ToUpper(c.PostForm("name")),
 		SizeStr:          c.PostForm("size"),

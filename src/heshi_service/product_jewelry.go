@@ -6,42 +6,53 @@ import (
 	"heshi/errors"
 	"net/http"
 	"sql_patch"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 )
 
 type jewelry struct {
-	ID             string    `json:"id"`
-	StockID        string    `json:"stock_id"`
-	Name           string    `json:"name"`
-	NeedDiamond    string    `json:"need_diamond"`
-	Category       string    `json:"category"`
-	MountingType   string    `json:"mounting_type"`
-	Material       string    `json:"material"`
-	MetalWeight    float64   `json:"metal_weight"`
-	DiaShape       string    `json:"dia_shape"`
-	UnitNumber     string    `json:"unit_number"`
-	DiaSizeMin     float64   `json:"dia_size_min"`
-	DiaSizeMax     float64   `json:"dia_size_max"`
-	MainDiaNum     int64     `json:"main_dia_num"`
-	MainDiaSize    float64   `json:"main_dia_size"`
-	SmallDias      string    `json:"small_dias"`
-	SmallDiaNum    int64     `json:"small_dia_num"`
-	SmallDiaCarat  float64   `json:"small_dia_carat"`
-	Price          float64   `json:"price"`
-	VideoLink      string    `json:"video_link"`
-	Text           string    `json:"text"`
-	Online         string    `json:"online"`
-	Verified       string    `json:"verified"`
-	InStock        string    `json:"in_stock"`
-	Featured       string    `json:"featured"`
-	StockQuantity  int       `json:"stock_quantity"`
-	Profitable     string    `json:"profitable"`
-	TotallyScanned int       `json:"totally_scanned"`
-	FreeAcc        string    `json:"free_acc"`
-	LastScanAt     time.Time `json:"last_scan_at"`
-	OfflineAt      time.Time `json:"offline_at"`
+	ID               string    `json:"id"`
+	StockID          string    `json:"stock_id"`
+	Name             string    `json:"name"`
+	NeedDiamond      string    `json:"need_diamond"`
+	Category         string    `json:"category"`
+	MountingType     string    `json:"mounting_type"`
+	Material         string    `json:"material"`
+	MetalWeight      float64   `json:"metal_weight"`
+	MetalWeightStr   string    `json:"-"`
+	DiaShape         string    `json:"dia_shape"`
+	UnitNumber       string    `json:"unit_number"`
+	DiaSizeMin       float64   `json:"dia_size_min"`
+	DiaSizeMinStr    string    `json:"-"`
+	DiaSizeMax       float64   `json:"dia_size_max"`
+	DiaSizeMaxStr    string    `json:"-"`
+	MainDiaNum       int64     `json:"main_dia_num"`
+	MainDiaNumStr    string    `json:"-"`
+	MainDiaSize      float64   `json:"main_dia_size"`
+	MainDiaSizeStr   string    `json:"-"`
+	SmallDias        string    `json:"small_dias"`
+	SmallDiaNum      int64     `json:"small_dia_num"`
+	SmallDiaNumStr   string    `json:"-"`
+	SmallDiaCarat    float64   `json:"small_dia_carat"`
+	SmallDiaCaratStr string    `json:"-"`
+	Price            float64   `json:"price"`
+	PriceStr         string    `json:"-"`
+	VideoLink        string    `json:"video_link"`
+	Text             string    `json:"text"`
+	Online           string    `json:"online"`
+	Verified         string    `json:"verified"`
+	InStock          string    `json:"in_stock"`
+	Featured         string    `json:"featured"`
+	StockQuantity    int       `json:"stock_quantity"`
+	StockQuantityStr string    `json:"-"`
+	Profitable       string    `json:"profitable"`
+	TotallyScanned   int       `json:"totally_scanned"`
+	FreeAcc          string    `json:"free_acc"`
+	LastScanAt       time.Time `json:"last_scan_at"`
+	OfflineAt        time.Time `json:"offline_at"`
 }
 
 func getAllJewelrys(c *gin.Context) {
@@ -83,40 +94,108 @@ func getJewelry(c *gin.Context) {
 	c.JSON(http.StatusOK, ds)
 }
 
-//TODO
 func newJewelry(c *gin.Context) {
-	q := selectJewelryQuery(c.Param("id"))
-	rows, err := dbQuery(q)
-	if err != nil {
+	j := jewelry{
+		ID:               uuid.NewV4().String(),
+		StockID:          strings.ToUpper(c.PostForm("stock_id")),
+		Name:             c.PostForm("name"),
+		Category:         c.PostForm("category"),
+		NeedDiamond:      strings.ToUpper(c.PostForm("need_diamond")),
+		MountingType:     strings.ToUpper(c.PostForm("mounting_type")),
+		Material:         strings.ToUpper(c.PostForm("material")),
+		MetalWeightStr:   c.PostForm("metal_weight"),
+		DiaShape:         FormatInputString(c.PostForm("dia_shape")),
+		UnitNumber:       c.PostForm("unit_number"),
+		DiaSizeMinStr:    c.PostForm("dia_size_min"),
+		DiaSizeMaxStr:    c.PostForm("dia_size_max"),
+		MainDiaNumStr:    c.PostForm("main_dia_num"),
+		MainDiaSizeStr:   c.PostForm("main_dia_size"),
+		SmallDias:        strings.ToUpper(c.PostForm("small_dias")),
+		SmallDiaNumStr:   c.PostForm("small_dia_num"),
+		SmallDiaCaratStr: c.PostForm("small_dia_carat"),
+		PriceStr:         c.PostForm("price"),
+		VideoLink:        c.PostForm("video_link"),
+		Text:             c.PostForm("text"),
+		Online:           strings.ToUpper(c.PostForm("online")),
+		Verified:         strings.ToUpper(c.PostForm("verified")),
+		InStock:          strings.ToUpper(c.PostForm("in_stock")),
+		Featured:         strings.ToUpper(c.PostForm("featured")),
+		Profitable:       strings.ToUpper(c.PostForm("profitable")),
+		FreeAcc:          strings.ToUpper(c.PostForm("free_acc")),
+		StockQuantityStr: c.PostForm("stock_quantity"),
+	}
+	if vemsg, err := j.validateJewelryReq(); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	} else if len(vemsg) != 0 {
+		c.JSON(http.StatusOK, vemsg)
+		return
+	}
+	q := j.composeInsertQuery()
+	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
-	defer rows.Close()
+	c.JSON(http.StatusOK, j.ID)
+}
 
-	ds, err := composeJewelry(rows)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			c.JSON(http.StatusOK, fmt.Sprintf("Fail to find product with id: %s", c.Param("id")))
-			return
-		}
+func updateJewelry(c *gin.Context) {
+	j := jewelry{
+		ID:               c.Param("id"),
+		StockID:          strings.ToUpper(c.PostForm("stock_id")),
+		Name:             c.PostForm("name"),
+		Category:         c.PostForm("category"),
+		NeedDiamond:      strings.ToUpper(c.PostForm("need_diamond")),
+		MountingType:     strings.ToUpper(c.PostForm("mounting_type")),
+		Material:         strings.ToUpper(c.PostForm("material")),
+		MetalWeightStr:   c.PostForm("metal_weight"),
+		DiaShape:         FormatInputString(c.PostForm("dia_shape")),
+		UnitNumber:       c.PostForm("unit_number"),
+		DiaSizeMinStr:    c.PostForm("dia_size_min"),
+		DiaSizeMaxStr:    c.PostForm("dia_size_max"),
+		MainDiaNumStr:    c.PostForm("main_dia_num"),
+		MainDiaSizeStr:   c.PostForm("main_dia_size"),
+		SmallDias:        strings.ToUpper(c.PostForm("small_dias")),
+		SmallDiaNumStr:   c.PostForm("small_dia_num"),
+		SmallDiaCaratStr: c.PostForm("small_dia_carat"),
+		PriceStr:         c.PostForm("price"),
+		VideoLink:        c.PostForm("video_link"),
+		Text:             c.PostForm("text"),
+		Online:           strings.ToUpper(c.PostForm("online")),
+		Verified:         strings.ToUpper(c.PostForm("verified")),
+		InStock:          strings.ToUpper(c.PostForm("in_stock")),
+		Featured:         strings.ToUpper(c.PostForm("featured")),
+		Profitable:       strings.ToUpper(c.PostForm("profitable")),
+		FreeAcc:          strings.ToUpper(c.PostForm("free_acc")),
+		StockQuantityStr: c.PostForm("stock_quantity"),
+	}
+	if vemsg, err := j.validateJewelryUpdateReq(); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	} else if len(vemsg) != 0 {
+		c.JSON(http.StatusOK, vemsg)
+		return
+	}
+	q := j.composeUpdateQuery()
+	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
-	c.JSON(http.StatusOK, ds)
+	c.JSON(http.StatusOK, j.ID)
 }
 
 func composeJewelry(rows *sql.Rows) ([]jewelry, error) {
 	var id, stockID, category, needDiamond, name, online, verified, inStock, featured, profitable, freeAcc string
 	var unitNumber, diaShape, material, smallDias, mountingType, videoLink, text sql.NullString
 	var metalWeight, mainDiaSize, diaSizeMin, diaSizeMax, smallDiaCarat, price sql.NullFloat64
-	var nameSuffix, mainDiaNum, smallDiaNum sql.NullInt64
+	var mainDiaNum, smallDiaNum sql.NullInt64
 	var stockQuantity, totallyScanned int
 	var lastScanAt time.Time
 	var offlineAt sql_patch.NullTime
 
 	var ds []jewelry
 	for rows.Next() {
-		if err := rows.Scan(&id, &stockID, &category, &unitNumber, &diaShape, &material, &metalWeight, &needDiamond, &name, &nameSuffix,
+		if err := rows.Scan(&id, &stockID, &category, &unitNumber, &diaShape, &material, &metalWeight, &needDiamond, &name,
 			&diaSizeMin, &diaSizeMax, &smallDias, &smallDiaNum, &smallDiaCarat, &mountingType, &mainDiaNum, &mainDiaSize,
 			&videoLink, &text, &online, &verified, &inStock, &featured, &price, &stockQuantity, &profitable,
 			&totallyScanned, &freeAcc, &lastScanAt, &offlineAt); err != nil {
