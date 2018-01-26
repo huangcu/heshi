@@ -12,6 +12,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
+	"strings"
 	"time"
 	"util"
 
@@ -276,11 +278,14 @@ func init() {
 	}
 
 	activeConfig = config{Rate: 0.01, CreatedBy: "system", CreatedAt: time.Now().Local()}
-	val, err := redisClient.FlushAll().Result()
-	if err != nil {
-		log.Fatalf("fail to flush redis db. err: %s", err.Error())
+	if strings.ToUpper(runtime.GOOS) != "WINDOWS" {
+		fmt.Println("OS: " + runtime.GOOS)
+		val, err := redisClient.FlushAll().Result()
+		if err != nil {
+			log.Fatalf("fail to flush redis db. err: %s", err.Error())
+		}
+		fmt.Printf("flushed redis db. %s \n", val)
 	}
-	fmt.Printf("flushed redis db. %s \n", val)
 	// if err := getLatestRates(); err != nil {
 	// 	log.Fatalf("init fail. err: %s;", err.Error())
 	// }
