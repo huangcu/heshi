@@ -112,7 +112,7 @@ func configRoute(r *gin.Engine) {
 	api := r.Group("/api")
 	if os.Getenv("STAGE") != "dev" {
 		//auth - access service api
-		api.Use(AuthMiddleWare())
+		// api.Use(AuthMiddleWare())
 		//CORS
 		api.Use(CORSMiddleware())
 
@@ -151,6 +151,7 @@ func configRoute(r *gin.Engine) {
 		apiCustomer.Use(jwtMiddleware.MiddlewareFunc())
 		apiAdmin.Use(jwtMiddleware.MiddlewareFunc())
 		api.POST("/login", jwtMiddleware.LoginHandler)
+		api.GET("/refresh/token", jwtMiddleware.RefreshHandler)
 	}
 
 	{
