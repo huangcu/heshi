@@ -52,6 +52,7 @@ func uploadAndGetFileHeaders(c *gin.Context) {
 func uploadAndProcessProducts(c *gin.Context) {
 	id := c.MustGet("id").(string)
 	product := c.PostForm("product")
+	category := c.PostForm("jewelryCategory")
 	if !util.IsInArrayString(product, VALID_PRODUCTS) {
 		vemsgUploadProductsCategoryNotValid.Message = fmt.Sprintf("%s is not valid product type", product)
 		c.JSON(http.StatusOK, vemsgUploadProductsCategoryNotValid)
@@ -87,92 +88,96 @@ func uploadAndProcessProducts(c *gin.Context) {
 		return
 	}
 
-	importProducts(product, dst)
+	importProducts(product, dst, category)
 }
 
-func importProducts(product, file string) ([][]string, error) {
+func importProducts(product, file, cate string) ([]util.Row, error) {
 	switch product {
 	case "diamond":
 		return importDiamondProducts(file)
 	case "small_diamond":
 		return importSmallDiamondProducts(file)
 	case "jewelry":
-		return importJewelryProducts(file)
+		// return importJewelryProducts(file,cate)/
+		return nil, nil
 	default:
 		return nil, nil
 	}
 }
 
-func importSmallDiamondProducts(file string) ([][]string, error) {
-	originalHeaders := []string{}
-	records, err := util.ParseCSVToArrays(file)
+func importSmallDiamondProducts(file string) ([]util.Row, error) {
+	records, err := util.ParseCSVToStruct(file)
 	if err != nil {
 		return nil, err
 	}
 	if len(records) < 1 {
 		return nil, errors.New("uploaded file has no records")
 	}
-	ignoredRows := [][]string{}
+	ignoredRows := []util.Row{}
 	//get headers
-	originalHeaders = records[0]
+	originalHeaders := records[0]
 
 	//process records
 	for index := 1; index < len(records); index++ {
-		ignored := false
 		sd := smallDiamond{}
-		record := records[index]
+		row := records[index]
+		record := row.Value
 		util.Printf("processsing row: %d, %s", index, record)
-		for i, header := range originalHeaders {
+		for i, header := range originalHeaders.Value {
 			switch header {
 			case "size_from":
 				sValue, err := util.StringToFloat(record[i])
 				if err != nil {
-					ignoredRows = append(ignoredRows, record)
-					ignored = true
+					row.Message = append(row.Message, errors.GetMessage(err))
+					row.Ignored = true
 				}
 				//value cannot be 0
 				if sValue == 0 {
-					ignored = true
+					row.Message = append(row.Message, "size from cannot be 0")
+					row.Ignored = true
 				}
 				sd.SizeFrom = sValue
 			case "size_to":
 				sValue, err := util.StringToFloat(record[i])
 				if err != nil {
-					ignoredRows = append(ignoredRows, record)
-					ignored = true
+					row.Message = append(row.Message, errors.GetMessage(err))
+					row.Ignored = true
 				}
 				//value cannot be 0
 				if sValue == 0 {
-					ignored = true
+					row.Message = append(row.Message, "size to cannot be 0")
+					row.Ignored = true
 				}
 				sd.SizeTo = sValue
 			case "price":
 				sValue, err := util.StringToFloat(record[i])
 				if err != nil {
-					ignoredRows = append(ignoredRows, record)
-					ignored = true
+					row.Message = append(row.Message, errors.GetMessage(err))
+					row.Ignored = true
 				}
 				//value cannot be 0
 				if sValue == 0 {
-					ignored = true
+					row.Message = append(row.Message, "price cannot be 0")
+					row.Ignored = true
 				}
 				sd.Price = sValue
 			case "quantity":
 				sValue, err := strconv.Atoi(record[i])
 				if err != nil {
-					ignoredRows = append(ignoredRows, record)
-					ignored = true
+					row.Message = append(row.Message, errors.GetMessage(err))
+					row.Ignored = true
 				}
 				//value cannot be 0
 				if sValue == 0 {
-					ignored = true
+					row.Message = append(row.Message, "quantity cannot be 0")
+					row.Ignored = true
 				}
 				sd.Quantity = util.AbsInt(sValue)
 			}
 		}
 
 		//insert into db
-		if !ignored {
+		if !row.Ignored {
 			q := `INSERT INTO small_diamonds (id, size_from, size_to, price, quantity) VALUSE('%s', '%f', '%f', '%f', '%d')`
 			if _, err := dbExec(fmt.Sprintf(q, uuid.NewV4().String()), sd.SizeFrom, sd.SizeTo, sd.Price, sd.Quantity); err != nil {
 				return nil, err

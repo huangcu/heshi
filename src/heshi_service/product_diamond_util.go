@@ -44,7 +44,7 @@ func (d *diamond) composeUpdateQuery() string {
 			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
 		}
 	}
-	q = fmt.Sprintf("%s WHERE id='%s'", strings.TrimSuffix(q, ","), d.ID)
+	q = fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, d.ID)
 	return q
 }
 
@@ -275,11 +275,11 @@ func composeCertifcateLink(gradingLab, certificate string) string {
 	}
 }
 
-func (d *diamond) validateDiamondReq() ([]errors.HSMessage, error) {
+func (d *diamond) validateDiamondReq(update bool) ([]errors.HSMessage, error) {
 	var vemsg []errors.HSMessage
-	if d.CaratStr == "" {
+	if !update && d.CaratStr == "" {
 		vemsg = append(vemsg, vemsgDiamondCaratEmpty)
-	} else {
+	} else if d.CaratStr != "" {
 		cValue, err := util.StringToFloat(d.CaratStr)
 		if err != nil {
 			vemsg = append(vemsg, vemsgDiamondCaratNotValid)
@@ -290,9 +290,9 @@ func (d *diamond) validateDiamondReq() ([]errors.HSMessage, error) {
 		}
 	}
 
-	if d.PriceNoAddedValueStr == "" {
+	if !update && d.PriceNoAddedValueStr == "" {
 		vemsg = append(vemsg, vemsgDiamondRawPriceEmpty)
-	} else {
+	} else if d.PriceNoAddedValueStr != "" {
 		pValue, err := util.StringToFloat(d.PriceNoAddedValueStr)
 		if err != nil {
 			vemsg = append(vemsg, vemsgDiamondRawPriceNotValid)
@@ -303,9 +303,9 @@ func (d *diamond) validateDiamondReq() ([]errors.HSMessage, error) {
 		}
 	}
 
-	if d.PriceRetailStr == "" {
+	if !update && d.PriceRetailStr == "" {
 		vemsg = append(vemsg, vemsgDiamondRetailPriceEmpty)
-	} else {
+	} else if d.PriceRetailStr != "" {
 		pValue, err := util.StringToFloat(d.PriceRetailStr)
 		if err != nil {
 			vemsg = append(vemsg, vemsgDiamondRetailPriceNotValid)
@@ -315,10 +315,14 @@ func (d *diamond) validateDiamondReq() ([]errors.HSMessage, error) {
 			d.PriceRetail = pValue
 		}
 	}
-	if d.StockRef == "" {
+
+	if !update && d.StockRef == "" {
 		vemsgNotValid.Message = "diamond stock ref can not be empty"
 		vemsg = append(vemsg, vemsgNotValid)
-	} else {
+	} else if d.StockRef != "" {
+		if err := d.composeStockRefWithSupplierPrefix(); err != nil {
+			return nil, err
+		}
 		if exist, err := isItemExistInDbByProperty("diamonds", "stock_ref", d.StockRef); err != nil {
 			return nil, err
 		} else if exist {
@@ -326,10 +330,10 @@ func (d *diamond) validateDiamondReq() ([]errors.HSMessage, error) {
 			vemsg = append(vemsg, vemsgAlreadyExist)
 		}
 	}
-	if d.DiamondID == "" {
+	if !update && d.DiamondID == "" {
 		vemsgNotValid.Message = "diamond id can not be empty"
 		vemsg = append(vemsg, vemsgNotValid)
-	} else {
+	} else if d.DiamondID != "" {
 		if exist, err := isItemExistInDbByProperty("diamonds", "diamond_id", d.DiamondID); err != nil {
 			return nil, err
 		} else if exist {
@@ -337,10 +341,11 @@ func (d *diamond) validateDiamondReq() ([]errors.HSMessage, error) {
 			vemsg = append(vemsg, vemsgAlreadyExist)
 		}
 	}
-	if d.Shape == "" {
+
+	if !update && d.Shape == "" {
 		vemsgNotValid.Message = "diamond shape can not be empty"
 		vemsg = append(vemsg, vemsgNotValid)
-	} else {
+	} else if d.Shape != "" {
 		s, err := diamondShape(d.Shape)
 		if err != nil {
 			return nil, err
@@ -348,58 +353,58 @@ func (d *diamond) validateDiamondReq() ([]errors.HSMessage, error) {
 		d.Shape = s
 	}
 
-	if d.Color == "" {
+	if !update && d.Color == "" {
 		vemsgNotValid.Message = "diamond color can not be empty"
 		vemsg = append(vemsg, vemsgNotValid)
-	} else {
+	} else if d.Color != "" {
 		d.Color = diamondColor(d.Color)
 	}
 
-	if d.Clarity == "" {
+	if !update && d.Clarity == "" {
 		vemsgNotValid.Message = "diamond clarity can not be empty"
 		vemsg = append(vemsg, vemsgNotValid)
-	} else {
+	} else if d.Clarity != "" {
 		d.Clarity = diamondClarity(d.Clarity)
 	}
 
-	if d.CutGrade == "" {
+	if !update && d.CutGrade == "" {
 		vemsgNotValid.Message = "diamond cut grade can not be empty"
 		vemsg = append(vemsg, vemsgNotValid)
-	} else {
+	} else if d.CutGrade != "" {
 		d.CutGrade = diamondCutGradeSymmetryPolish(d.CutGrade)
 	}
 
-	if d.Polish == "" {
+	if !update && d.Polish == "" {
 		vemsgNotValid.Message = "diamond polish can not be empty"
 		vemsg = append(vemsg, vemsgNotValid)
-	} else {
+	} else if d.Polish != "" {
 		d.Polish = diamondCutGradeSymmetryPolish(d.Polish)
 	}
 
-	if d.Symmetry == "" {
+	if !update && d.Symmetry == "" {
 		vemsgNotValid.Message = "diamond symmetry can not be empty"
 		vemsg = append(vemsg, vemsgNotValid)
-	} else {
+	} else if d.Symmetry != "" {
 		d.Symmetry = diamondCutGradeSymmetryPolish(d.Symmetry)
 	}
 
-	if d.FluorescenceIntensity == "" {
+	if !update && d.FluorescenceIntensity == "" {
 		vemsgNotValid.Message = "diamond fluorescence intensity can not be empty"
 		vemsg = append(vemsg, vemsgNotValid)
-	} else {
+	} else if d.FluorescenceIntensity != "" {
 		d.FluorescenceIntensity = diamondFluo(d.FluorescenceIntensity)
 	}
 
 	//TODO format and validate country
-	if d.Country == "" {
+	if !update && d.Country == "" {
 		vemsgNotValid.Message = "diamond country can not be empty"
 		vemsg = append(vemsg, vemsgNotValid)
 	}
 
-	if d.Supplier == "" {
+	if !update && d.Supplier == "" {
 		vemsgNotValid.Message = "diamond supplier can not be empty"
 		vemsg = append(vemsg, vemsgNotValid)
-	} else {
+	} else if d.Supplier != "" {
 		if s, err := diamondSupplierPageReq(d.Supplier); err != nil {
 			vemsgNotValid.Message = errors.GetMessage(err)
 			vemsg = append(vemsg, vemsgNotValid)
@@ -413,6 +418,7 @@ func (d *diamond) validateDiamondReq() ([]errors.HSMessage, error) {
 	return vemsg, nil
 }
 
+//TODO TOBE REMOVED
 func (d *diamond) validateDiamondUpdateReq() ([]errors.HSMessage, error) {
 	var vemsg []errors.HSMessage
 	if d.CaratStr != "" {

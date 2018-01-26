@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strings"
 	"util"
 )
 
@@ -46,7 +45,7 @@ func (u *User) composeUpdateQuery() string {
 		}
 	}
 
-	q = fmt.Sprintf("%s WHERE id='%s'", strings.TrimSuffix(q, ","), u.ID)
+	q = fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, u.ID)
 	return q
 }
 

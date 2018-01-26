@@ -20,7 +20,8 @@ func validateDiamondHeaders(headers []string) []string {
 	return missingHeaders
 }
 
-func importDiamondProducts(file string) ([][]string, error) {
+//TODO better validate import(new VS update data validation - > compare with jewelrys)
+func importDiamondProducts(file string) ([]util.Row, error) {
 	oldStockRefList, err := getAllStockRef()
 	if err != nil {
 		return nil, err
@@ -32,46 +33,54 @@ func importDiamondProducts(file string) ([][]string, error) {
 			strings.Join(VALID_SUPPLIER_NAME, ","))
 		suppliers = VALID_SUPPLIER_NAME
 	}
-	originalHeaders := []string{}
-	records, err := util.ParseCSVToArrays(file)
+
+	rows, err := util.ParseCSVToStruct(file)
 	if err != nil {
 		return nil, err
 	}
-	if len(records) < 1 {
+	if len(rows) < 1 {
 		return nil, errors.New("uploaded file has no records")
 	}
 
-	ignoredRows := [][]string{}
+	unimportRows := []util.Row{}
 	//get headers
-	originalHeaders = records[0]
+	originalHeaders := rows[0]
 
 	//process records
-	for index := 1; index < len(records); index++ {
-		ignored := false
+	for index := 1; index < len(rows); index++ {
 		d := diamond{}
-		record := records[index]
+		row := rows[index]
+		record := row.Value
 		util.Printf("processsing row: %d, %s", index, record)
-		for i, header := range originalHeaders {
+		for i, header := range originalHeaders.Value {
 			switch header {
 			case "diamond_id":
+				if record[i] == "" {
+					row.Ignored = true
+					break
+				}
 				d.DiamondID = strings.ToUpper(record[i])
 			case "stock_ref":
+				if record[i] == "" {
+					row.Ignored = true
+					break
+				}
 				d.StockRef = strings.ToUpper(record[i])
 			case "shape":
 				if s, err := diamondShape(record[i]); err != nil {
-					ignoredRows = append(ignoredRows, record)
-					ignored = true
+					row.Message = append(row.Message, errors.GetMessage(err))
+					row.Ignored = true
 				} else {
 					d.Shape = s
 				}
 			case "carat":
 				cValue, err := util.StringToFloat(record[i])
 				if err != nil {
-					ignoredRows = append(ignoredRows, record)
-					ignored = true
+					row.Message = append(row.Message, errors.GetMessage(err))
+					row.Ignored = true
 				}
 				if cValue == 0 {
-					ignored = true
+					row.Ignored = true
 				}
 				d.Carat = cValue
 			case "color":
@@ -80,8 +89,8 @@ func importDiamondProducts(file string) ([][]string, error) {
 				d.Clarity = diamondClarity(record[i])
 			case "grading_lab":
 				if s, err := diamondGradingLab(record[i]); err != nil {
-					ignoredRows = append(ignoredRows, record)
-					ignored = true
+					row.Message = append(row.Message, errors.GetMessage(err))
+					row.Ignored = true
 				} else {
 					d.GradingLab = s
 				}
@@ -101,8 +110,8 @@ func importDiamondProducts(file string) ([][]string, error) {
 				d.Country = strings.ToUpper(record[i])
 			case "supplier":
 				if s, err := diamondSupplier(record[i], suppliers); err != nil {
-					ignoredRows = append(ignoredRows, record)
-					ignored = true
+					row.Message = append(row.Message, errors.GetMessage(err))
+					row.Ignored = true
 				} else {
 					d.Supplier = s
 				}
@@ -110,21 +119,21 @@ func importDiamondProducts(file string) ([][]string, error) {
 			case "price_no_added_value":
 				cValue, err := util.StringToFloat(record[i])
 				if err != nil {
-					ignoredRows = append(ignoredRows, record)
-					ignored = true
+					row.Message = append(row.Message, errors.GetMessage(err))
+					row.Ignored = true
 				}
 				if cValue == 0 {
-					ignored = true
+					row.Ignored = true
 				}
 				d.PriceNoAddedValue = cValue
 			case "price_retail":
 				cValue, err := util.StringToFloat(record[i])
 				if err != nil {
-					ignoredRows = append(ignoredRows, record)
-					ignored = true
+					row.Message = append(row.Message, errors.GetMessage(err))
+					row.Ignored = true
 				}
 				if cValue == 0 {
-					ignored = true
+					row.Ignored = true
 				}
 				d.PriceRetail = cValue
 			case "featured":
@@ -135,8 +144,13 @@ func importDiamondProducts(file string) ([][]string, error) {
 				d.Featured = strings.ToUpper(record[i])
 			}
 		}
+
+		if row.Ignored {
+			unimportRows = append(unimportRows, row)
+			continue
+		}
 		//handle db
-		if !ignored {
+		if !row.Ignored {
 			if err := d.composeStockRefWithSupplierPrefix(); err != nil {
 				//TODO
 				return nil, err
@@ -151,9 +165,9 @@ func importDiamondProducts(file string) ([][]string, error) {
 	}
 	util.Println("finish process diamond")
 	if err := offlineDiamondsNoLongerExist(oldStockRefList); err != nil {
-		return ignoredRows, err
+		return unimportRows, err
 	}
-	return ignoredRows, nil
+	return unimportRows, nil
 }
 
 func (d *diamond) processDiamondRecord() error {
@@ -181,7 +195,7 @@ func (d *diamond) processDiamondRecord() error {
 	}
 	//item alread exist in db
 	if status != "SOLD" && status != "RESERVED" && (d.PriceRetail-priceRetail) > 5 {
-		q := d.composeInsertQuery()
+		q := d.composeUpdateQuery()
 		if _, err := dbExec(q); err != nil {
 			util.Tracef(`retail price changed, but failed to update. diamond: %s; certificate_number: %s; grading_lab: %s; original price: %f; new price should be %f`,
 				d.StockRef, d.CertificateNumber, d.GradingLab, priceRetail, d.PriceRetail)
@@ -243,6 +257,7 @@ func (d *diamond) processPrice() error {
 	return nil
 }
 
+//TODO is stock_ref need compose with prefix???? - change new req handler accordingly
 func (d *diamond) composeStockRefWithSupplierPrefix() error {
 	q := fmt.Sprintf(`SELECT prefix FROM suppliers WHERE name='%s'`, d.Supplier)
 	var prefix string

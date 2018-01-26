@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strings"
 )
 
 func (s *shoppingItem) composeInsertQuery() string {
@@ -41,7 +40,7 @@ func (s *shoppingItem) composeUpdateQuery() string {
 		}
 	}
 
-	return fmt.Sprintf("%s WHERE id='%s'", strings.TrimSuffix(q, ","), s.ID)
+	return fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, s.ID)
 }
 
 func (s *shoppingItem) paramsKV() map[string]interface{} {

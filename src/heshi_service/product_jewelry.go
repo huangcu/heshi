@@ -124,7 +124,7 @@ func newJewelry(c *gin.Context) {
 		FreeAcc:          strings.ToUpper(c.PostForm("free_acc")),
 		StockQuantityStr: c.PostForm("stock_quantity"),
 	}
-	if vemsg, err := j.validateJewelryReq(); err != nil {
+	if vemsg, err := j.validateJewelryReq(false, false); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	} else if len(vemsg) != 0 {
@@ -169,7 +169,7 @@ func updateJewelry(c *gin.Context) {
 		FreeAcc:          strings.ToUpper(c.PostForm("free_acc")),
 		StockQuantityStr: c.PostForm("stock_quantity"),
 	}
-	if vemsg, err := j.validateJewelryUpdateReq(); err != nil {
+	if vemsg, err := j.validateJewelryReq(true, false); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	} else if len(vemsg) != 0 {

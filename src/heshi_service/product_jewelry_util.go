@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"heshi/errors"
 	"strconv"
-	"strings"
 	"util"
 )
 
@@ -44,7 +43,7 @@ func (j *jewelry) composeUpdateQuery() string {
 			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
 		}
 	}
-	q = fmt.Sprintf("%s WHERE id='%s'", strings.TrimSuffix(q, ","), j.ID)
+	q = fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, j.ID)
 	return q
 }
 
@@ -139,11 +138,12 @@ func (j *jewelry) parmsKV() map[string]interface{} {
 	return params
 }
 
-func (j *jewelry) validateJewelryReq() ([]errors.HSMessage, error) {
+//if from importCSV, it is otherwize, no need to check duplication of stock_id
+func (j *jewelry) validateJewelryReq(update bool, importCSV bool) ([]errors.HSMessage, error) {
 	var vemsg []errors.HSMessage
-	if j.MetalWeightStr == "" {
+	if !update && j.MetalWeightStr == "" {
 		vemsg = append(vemsg, vemsgMetalWeightEmpty)
-	} else {
+	} else if j.MetalWeightStr != "" {
 		cValue, err := util.StringToFloat(j.MetalWeightStr)
 		if err != nil {
 			vemsg = append(vemsg, vemsgMetalWeightNotValid)
@@ -227,9 +227,9 @@ func (j *jewelry) validateJewelryReq() ([]errors.HSMessage, error) {
 			j.StockQuantity = util.AbsInt(pValue)
 		}
 	}
-	if j.PriceStr == "" {
+	if !update && j.PriceStr == "" {
 		vemsg = append(vemsg, vemsgPriceEmpty)
-	} else {
+	} else if j.PriceStr != "" {
 		pValue, err := util.StringToFloat(j.PriceStr)
 		if err != nil {
 			vemsg = append(vemsg, vemsgPriceNotValid)
@@ -240,39 +240,41 @@ func (j *jewelry) validateJewelryReq() ([]errors.HSMessage, error) {
 		}
 	}
 
-	if j.StockID == "" {
-		vemsgNotValid.Message = "jewelry stock id can not be empty"
-		vemsg = append(vemsg, vemsgNotValid)
-	} else {
-		if exist, err := isItemExistInDbByProperty("jewelrys", "stock_id", j.StockID); err != nil {
-			return nil, err
-		} else if exist {
-			vemsgAlreadyExist.Message = "jewelry stock_ref " + j.StockID + " already exists"
-			vemsg = append(vemsg, vemsgAlreadyExist)
+	if !importCSV {
+		if !update && j.StockID == "" {
+			vemsgNotValid.Message = "jewelry stock id can not be empty"
+			vemsg = append(vemsg, vemsgNotValid)
+		} else if j.StockID != "" {
+			if exist, err := isItemExistInDbByProperty("jewelrys", "stock_id", j.StockID); err != nil {
+				return nil, err
+			} else if exist {
+				vemsgAlreadyExist.Message = "jewelry stock_ref " + j.StockID + " already exists"
+				vemsg = append(vemsg, vemsgAlreadyExist)
+			}
 		}
 	}
-	if j.Name == "" {
+	if !update && j.Name == "" {
 		vemsgNotValid.Message = "jewelry name can not be empty"
 		vemsg = append(vemsg, vemsgNotValid)
 	}
-	if j.NeedDiamond == "" {
+	if !update && j.NeedDiamond == "" {
 		vemsgNotValid.Message = "please set if jewelry  need diamond or not"
 		vemsg = append(vemsg, vemsgNotValid)
 	}
-	if j.Category == "" {
+	if !update && j.Category == "" {
 		vemsgNotValid.Message = "jewelry category can not be empty"
 		vemsg = append(vemsg, vemsgNotValid)
-	} else {
+	} else if j.Category != "" {
 		cate, err := jewelryCategory(j.Category)
 		if err != nil {
 			return nil, err
 		}
 		j.Category = cate
 	}
-	if j.MountingType == "" {
+	if !update && j.MountingType == "" {
 		vemsgNotValid.Message = "jewelry mounting type can not be empty"
 		vemsg = append(vemsg, vemsgNotValid)
-	} else {
+	} else if j.MountingType != "" {
 		mt, err := jewelryMountingType(j.MountingType)
 		if err != nil {
 			return nil, err
@@ -280,17 +282,17 @@ func (j *jewelry) validateJewelryReq() ([]errors.HSMessage, error) {
 		j.MountingType = mt
 	}
 
-	if j.Material == "" {
+	if !update && j.Material == "" {
 		vemsgNotValid.Message = "jewelry material can not be empty"
 		vemsg = append(vemsg, vemsgNotValid)
-	} else {
+	} else if j.Material != "" {
 		j.Material = jewelryMaterial(j.Material)
 	}
 
-	if j.DiaShape == "" {
+	if !update && j.DiaShape == "" {
 		vemsgNotValid.Message = "jewelry diamond shape can not be empty"
 		vemsg = append(vemsg, vemsgNotValid)
-	} else {
+	} else if j.DiaShape != "" {
 		s, err := jewelryShape(j.DiaShape)
 		if err != nil {
 			return nil, err
@@ -301,6 +303,7 @@ func (j *jewelry) validateJewelryReq() ([]errors.HSMessage, error) {
 	return vemsg, nil
 }
 
+//TODO TOBE REMOVED
 func (j *jewelry) validateJewelryUpdateReq() ([]errors.HSMessage, error) {
 	var vemsg []errors.HSMessage
 	if j.MetalWeightStr != "" {

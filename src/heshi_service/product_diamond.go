@@ -111,7 +111,7 @@ func newDiamond(c *gin.Context) {
 		Status:                strings.ToUpper(c.PostForm("status")),
 		Profitable:            strings.ToUpper(c.PostForm("profitable")),
 	}
-	if vemsg, err := d.validateDiamondReq(); err != nil {
+	if vemsg, err := d.validateDiamondReq(false); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	} else if len(vemsg) != 0 {
@@ -152,7 +152,7 @@ func updateDiamond(c *gin.Context) {
 		PickedUp:              strings.ToUpper(c.PostForm("picked_up")),
 		Profitable:            strings.ToUpper(c.PostForm("profitable")),
 	}
-	if vemsg, err := d.validateDiamondUpdateReq(); err != nil {
+	if vemsg, err := d.validateDiamondReq(true); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	} else if len(vemsg) != 0 {

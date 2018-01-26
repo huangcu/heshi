@@ -4,13 +4,25 @@ import (
 	"database/sql"
 	"fmt"
 	"heshi/errors"
-	"strconv"
 	"strings"
 	"util"
 
 	uuid "github.com/satori/go.uuid"
 )
 
+// <td width="88">唯一商品号(StockID)</td>
+// <td width="88">货号(Name)</td>
+// <td width="88">材料</td>
+// <td width="88">金重</td>
+// <td width="88">是否空托</td>
+// <td width="88">最小钻石尺寸</td>
+// <td width="88">最大钻石尺寸</td>
+// <td width="88">镶碎钻</td>
+// <td width="88">小钻数量</td>
+// <td width="88">小钻总重</td>
+// <td width="88">镶嵌方式</td>
+// <td width="88">价格</td>
+//TODO must have headers when import
 func validateJewelryHeaders(headers []string) []string {
 	var missingHeaders []string
 	for k, header := range jewelryHeaders {
@@ -21,151 +33,70 @@ func validateJewelryHeaders(headers []string) []string {
 	return missingHeaders
 }
 
-func importJewelryProducts(file string) ([][]string, error) {
-	originalHeaders := []string{}
-	records, err := util.ParseCSVToArrays(file)
+func importJewelryProducts(file, category string) ([]util.Row, error) {
+	oldStockIDList, err := getAllStockIDBySubCategory(category)
 	if err != nil {
 		return nil, err
 	}
-	if len(records) < 1 {
-		return nil, errors.New("uploaded file has no records")
+	rows, err := util.ParseCSVToStruct(file)
+	if err != nil {
+		return nil, err
+	}
+	if len(rows) < 1 {
+		return nil, errors.New("uploaded file has no rows")
 	}
 
-	ignoredRows := [][]string{}
+	unimportRows := []util.Row{}
 	//get headers
-	originalHeaders = records[0]
+	originalHeaders := rows[0]
 
-	//process records
-	for index := 1; index < len(records); index++ {
-		ignored := false
+	//process rows
+	for index := 1; index < len(rows); index++ {
 		j := jewelry{}
-		record := records[index]
+		row := rows[index]
+		record := row.Value
 		util.Printf("processsing row: %d, %s", index, record)
-		for i, header := range originalHeaders {
+		for i, header := range originalHeaders.Value {
 			switch header {
 			case "stock_id":
+				if record[i] == "" {
+					row.Ignored = true
+					row.Message = append(row.Message, "jewelry stock id cannot be empty")
+					break
+				}
 				j.StockID = strings.ToUpper(record[i])
 			case "name":
-				j.Name = record[i]
+				j.Name = strings.ToUpper(record[i])
 			case "need_diamond":
 				j.NeedDiamond = strings.ToUpper(record[i])
 			case "category":
-				category, err := jewelryCategory(record[i])
-				if err != nil {
-					ignoredRows = append(ignoredRows, record)
-					ignored = true
-				} else {
-					j.Category = category
-				}
+				j.Category = strings.ToUpper(record[i])
 			case "material":
-				j.Material = jewelryMaterial(record[i])
+				j.Material = strings.ToUpper(record[i])
 			case "dia_shape":
-				if s, err := jewelryShape(record[i]); err != nil {
-					ignoredRows = append(ignoredRows, record)
-					ignored = true
-				} else {
-					j.DiaShape = s
-				}
+				j.DiaShape = strings.ToUpper(record[i])
 			case "metal_weight":
-				cValue, err := util.StringToFloat(record[i])
-				if err != nil {
-					ignoredRows = append(ignoredRows, record)
-					ignored = true
-				}
-				if cValue == 0 {
-					ignored = true
-				}
-				j.MetalWeight = cValue
+				j.MetalWeightStr = record[i]
 			case "mounting_type":
-				mt, err := jewelryMountingType(record[i])
-				if err != nil {
-					ignoredRows = append(ignoredRows, record)
-					ignored = true
-				} else {
-					j.MountingType = mt
-				}
+				j.MountingType = strings.ToUpper(record[i])
 			case "price":
-				sValue, err := util.StringToFloat(record[i])
-				if err != nil {
-					ignoredRows = append(ignoredRows, record)
-					ignored = true
-				}
-				//value cannot be 0
-				if sValue == 0 {
-					ignored = true
-				}
-				j.Price = sValue
-
+				j.PriceStr = record[i]
 			case "unit_number":
 				j.UnitNumber = record[i]
 			case "dia_size_min":
-				sValue, err := util.StringToFloat(record[i])
-				if err != nil {
-					ignoredRows = append(ignoredRows, record)
-					ignored = true
-				}
-				//value cannot be 0
-				if sValue == 0 {
-					ignored = true
-				}
-				j.DiaSizeMin = sValue
+				j.DiaSizeMinStr = record[i]
 			case "dia_size_max":
-				sValue, err := util.StringToFloat(record[i])
-				if err != nil {
-					ignoredRows = append(ignoredRows, record)
-					ignored = true
-				}
-				//value cannot be 0
-				if sValue == 0 {
-					ignored = true
-				}
-				j.DiaSizeMax = sValue
+				j.DiaSizeMaxStr = record[i]
 			case "main_dia_num":
-				sValue, err := strconv.Atoi(record[i])
-				if err != nil {
-					ignoredRows = append(ignoredRows, record)
-					ignored = true
-				}
-				//value cannot be 0
-				if sValue == 0 {
-					ignored = true
-				}
-				j.MainDiaNum = int64(util.AbsInt(sValue))
+				j.MainDiaNumStr = record[i]
 			case "main_dia_size":
-				sValue, err := util.StringToFloat(record[i])
-				if err != nil {
-					ignoredRows = append(ignoredRows, record)
-					ignored = true
-				}
-				//value cannot be 0
-				if sValue == 0 {
-					ignored = true
-				}
-				j.MainDiaSize = sValue
+				j.MainDiaSizeStr = record[i]
 			case "small_dias":
 				j.SmallDias = strings.ToUpper(record[i])
 			case "small_dia_num":
-				sValue, err := strconv.Atoi(record[i])
-				if err != nil {
-					ignoredRows = append(ignoredRows, record)
-					ignored = true
-				}
-				//value cannot be 0
-				if sValue == 0 {
-					ignored = true
-				}
-				j.SmallDiaNum = int64(util.AbsInt(sValue))
+				j.SmallDiaNumStr = record[i]
 			case "small_dia_carat":
-				sValue, err := util.StringToFloat(record[i])
-				if err != nil {
-					ignoredRows = append(ignoredRows, record)
-					ignored = true
-				}
-				//value cannot be 0
-				if sValue == 0 {
-					ignored = true
-				}
-				j.SmallDiaCarat = sValue
+				j.SmallDiaCaratStr = record[i]
 			case "video_link":
 				j.VideoLink = record[i]
 			case "text":
@@ -179,49 +110,79 @@ func importJewelryProducts(file string) ([][]string, error) {
 			case "featured":
 				j.Featured = strings.ToUpper(record[i])
 			case "stock_quantity":
-				sValue, err := strconv.Atoi(record[i])
-				if err != nil {
-					ignoredRows = append(ignoredRows, record)
-					ignored = true
-				}
-				//value cannot be 0
-				if sValue == 0 {
-					ignored = true
-				}
-				j.StockQuantity = util.AbsInt(sValue)
+				j.StockQuantityStr = record[i]
 			case "profitable":
 				j.Profitable = strings.ToUpper(record[i])
 			case "free_acc":
 				j.FreeAcc = strings.ToUpper(record[i])
 			}
 		}
-		//insert into db
-		if !ignored {
-			var id string
-			if err := dbQueryRow(fmt.Sprintf("SELECT id FROM jewelrys WHERE stock_id='%s'", j.StockID)).Scan(&id); err != nil {
-				if err == sql.ErrNoRows {
-					j.ID = uuid.NewV4().String()
-					q := j.composeInsertQuery()
-					if _, err := dbExec(q); err != nil {
-						return nil, err
-						// ignoredRows = append(ignoredRows, record)
+
+		if row.Ignored {
+			unimportRows = append(unimportRows, row)
+			//move on to next row
+			continue
+		}
+
+		//validate row
+		var id string
+		q := fmt.Sprintf("SELECT id FROM jewelrys WHERE stock_id='%s'", j.StockID)
+		if err := dbQueryRow(q).Scan(&id); err != nil {
+			//new record
+			if err == sql.ErrNoRows {
+				//validate as new request
+				if vemsg, err := j.validateJewelryReq(true, true); err != nil {
+					return nil, err
+				} else if len(vemsg) != 0 {
+					row.Ignored = true
+					for _, v := range vemsg {
+						row.Message = append(row.Message, v.Message)
 					}
-				} else {
-					// ignoredRows = append(ignoredRows, record)
-					return nil, err
+					unimportRows = append(unimportRows, row)
+					//move on to next row
+					continue
 				}
-			} else {
-				j.ID = id
-				q := j.composeUpdateQuery()
+				//pass validation, insert into db
+				j.ID = uuid.NewV4().String()
+				q := j.composeInsertQuery()
 				if _, err := dbExec(q); err != nil {
-					// ignoredRows = append(ignoredRows, record)
+					util.Printf("fail to add jewelry item. stock id: %s; err: %s", j.StockID, errors.GetMessage(err))
 					return nil, err
 				}
+				util.Printf("new jewelry item added. stock id: %s", j.StockID)
+			} else {
+				return nil, err
 			}
 		}
+
+		//already exist, validate as update request
+		if vemsg, err := j.validateJewelryReq(false, true); err != nil {
+			return nil, err
+		} else if len(vemsg) != 0 {
+			row.Ignored = true
+			for _, v := range vemsg {
+				row.Message = append(row.Message, v.Message)
+			}
+			unimportRows = append(unimportRows, row)
+			//move on to next row
+			continue
+		}
+		//pass validation, update db
+		j.ID = id
+		q = j.composeUpdateQuery()
+		if _, err := dbExec(q); err != nil {
+			util.Printf("fail to update jewelry item. stock id: %s; err; %s", j.StockID, errors.GetMessage(err))
+			return nil, err
+		}
+		util.Printf("jewelry item updated. stock id: %s", j.StockID)
+		//remove updated stockID from old one as this has been scanned and processed
+		delete(oldStockIDList, j.StockID)
 	}
 	util.Println("finish process jewelry")
-	return ignoredRows, nil
+	if err := offlineJewelrysNoLongerExist(oldStockIDList); err != nil {
+		return unimportRows, err
+	}
+	return unimportRows, nil
 }
 
 func jewelryCategory(category string) (string, error) {
@@ -259,4 +220,68 @@ func jewelryMountingType(mountingType string) (string, error) {
 		return mt, nil
 	}
 	return "", errors.Newf("%s is not a valid mounting type", mountingType)
+}
+
+// <option value="JP">素金吊坠／项链</option> 1
+// <option value="JR">素金戒指</option> 2
+// <option value="JE">素金耳环／耳钉</option> 3
+// <option value="ZP">镶碎钻吊坠／项链</option> 1 | 5
+// <option value="ZR">镶碎钻戒指</option> 2
+// <option value="ZE">镶碎钻耳环／耳钉</option> 3
+// <option value="CP">成品吊坠／项链</option> 1 | 5 /NO
+// <option value="CR">成品戒指</option> 2 /NO
+// <option value="CE">成品耳环／耳钉</option> 3/NO
+func getAllStockIDBySubCategory(subCategory string) (map[string]struct{}, error) {
+	q := ""
+	switch subCategory {
+	case "JR":
+		q = "small_dias='NO' AND need_diamond='YES' AND category='RING' ORDER BY id ASC"
+	case "JE":
+		q = "small_dias='NO' AND need_diamond='YES' AND category='EARRING' ORDER BY id ASC"
+	case "JP":
+		q = "small_dias='NO' AND need_diamond='YES' AND (category='PENDANT' OR category='NECKLACE') ORDER BY id ASC"
+	case "ZR":
+		q = "small_dias='YES' AND need_diamond='YES' AND category='RING' ORDER BY id ASC"
+	case "ZE":
+		q = "small_dias='YES' AND need_diamond='YES' AND category='EARRING' ORDER BY id ASC"
+	case "ZP":
+		q = "small_dias='YES' AND need_diamond='YES' AND (category='PENDANT' OR category='NECKLACE') ORDER BY id ASC"
+	case "CR":
+		q = "need_diamond='NO' AND category='RING' ORDER BY id ASC"
+	case "CE":
+		q = "need_diamond='NO' AND category='EARRING' ORDER BY id ASC"
+	case "CP":
+		q = "need_diamond='NO' AND (category='PENDANT' OR category='NECKLACE') ORDER BY id ASC"
+	default:
+		return nil, errors.New("missing upload sub category")
+	}
+	stockIds := make(map[string]struct{})
+	q = fmt.Sprintf("SELECT stock_id FROM jewelry WHERE online='YES' AND %s", q)
+	rows, err := dbQuery(q)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var stockID string
+		if err := rows.Scan(&stockID); err != nil {
+			return nil, err
+		}
+		var s struct{}
+		stockIds[stockID] = s
+	}
+	return stockIds, nil
+}
+
+//下线不存在的钻石 //TODO return or just trace err ???
+func offlineJewelrysNoLongerExist(stockIDList map[string]struct{}) error {
+	util.Tracef("Start to offline all jewelrys no longer exists")
+	for k := range stockIDList {
+		q := fmt.Sprintf("UPDATE jewelry SET offline='YES',updated_at=(CURRENT_TIMESTAMP) WHERE stock_id ='%s'", k)
+		if _, err := dbExec(q); err != nil {
+			util.Tracef("error when offline jewelry. stock_id: %s. err: ", k, errors.GetMessage(err))
+			return err
+		}
+	}
+	util.Tracef("Finished offline all jewelrys no longer exists")
+	return nil
 }

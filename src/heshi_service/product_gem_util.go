@@ -44,7 +44,7 @@ func (g *gem) composeUpdateQuery() string {
 			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
 		}
 	}
-	q = fmt.Sprintf("%s WHERE id='%s'", strings.TrimSuffix(q, ","), g.ID)
+	q = fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, g.ID)
 	return q
 }
 

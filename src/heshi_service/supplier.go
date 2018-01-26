@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"heshi/errors"
 	"net/http"
-	"strings"
 
 	"github.com/satori/go.uuid"
 
@@ -164,7 +163,7 @@ func (s *supplier) composeUpdateQuery() string {
 		}
 	}
 
-	q = fmt.Sprintf("%s WHERE id='%s'", strings.TrimSuffix(q, ","), s.ID)
+	q = fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, s.ID)
 	return q
 }
 

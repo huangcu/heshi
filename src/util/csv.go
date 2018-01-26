@@ -42,6 +42,41 @@ func ParseCSVToMap(file string) (map[string][]string, error) {
 	return headerColumns, nil
 }
 
+type Row struct {
+	Number  int
+	Value   []string
+	Message []string
+	Ignored bool
+}
+
+func ParseCSVToStruct(file string) ([]Row, error) {
+	f, err := os.Open(file)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	// Create a new reader.
+	rs := []Row{}
+	i := 0
+	reader := csv.NewReader(bufio.NewReader(f))
+	for {
+		record, err := reader.Read()
+		// Stop at EOF.
+		if err == io.EOF {
+			break
+		}
+		r := Row{
+			Number:  i,
+			Value:   record,
+			Ignored: false,
+		}
+		rs = append(rs, r)
+		i++
+	}
+	return rs, nil
+}
+
 func ParseCSVToArrays(file string) ([][]string, error) {
 	f, err := os.Open(file)
 	if err != nil {
