@@ -41,7 +41,7 @@ func searchJewelrys(c *gin.Context) ([]jewelry, error) {
 	 dia_size_min, dia_size_max, small_dias, small_dia_num, small_dia_carat, mounting_type, main_dia_num, main_dia_size, 
 	 video_link, text, online, verified, in_stock, featured, price, stock_quantity, profitable,
 	 totally_scanned, free_acc, last_scan_at,offline_at
-	 FROM jewelry WHERE need_diamond = '%s' AND id = '%s' AND online = 'YES'`, needDiamond, c.PostForm("ref"))
+	 FROM jewelrys WHERE need_diamond = '%s' AND stock_id = '%s' AND online = 'YES'`, needDiamond, c.PostForm("ref"))
 	rows, err := dbQuery(q)
 	if err != nil {
 		return nil, err

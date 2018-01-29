@@ -15,7 +15,7 @@ import (
 //TODO search
 func searchProducts(c *gin.Context) {
 	category := c.Param("category")
-	if util.IsInArrayString(category, []string{"diamonds", "jewelrys"}) {
+	if !util.IsInArrayString(category, []string{"diamonds", "jewelrys", "gems"}) {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
@@ -50,7 +50,7 @@ func searchProducts(c *gin.Context) {
 
 func filterProducts(c *gin.Context) {
 	category := c.Param("category")
-	if util.IsInArrayString(category, []string{"diamonds", "jewelrys"}) {
+	if !util.IsInArrayString(category, []string{"diamonds", "jewelrys", "gems"}) {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
@@ -85,11 +85,11 @@ func filterProducts(c *gin.Context) {
 
 func searchDiamonds(c *gin.Context) ([]diamond, error) {
 	ref := c.PostForm("ref")
-	q := fmt.Sprintf(`SELECT SELECT id, diamond_id, stock_ref, shape, carat, color, clarity, grading_lab, 
+	q := fmt.Sprintf(`SELECT id, diamond_id, stock_ref, shape, carat, color, clarity, grading_lab, 
 		certificate_number, cut_grade, polish, symmetry, fluorescence_intensity, country, supplier, 
 		price_no_added_value, price_retail, featured, recommand_words, extra_words, status,
 		 ordered_by, picked_up, sold_price, profitable 
-	 FROM diamonds FROM diamonds WHERE stock_ref='%s' OR certificate_number='%s'`,
+	 FROM diamonds WHERE stock_ref='%s' OR certificate_number='%s'`,
 		ref, ref)
 	rows, err := dbQuery(q)
 	if err != nil {

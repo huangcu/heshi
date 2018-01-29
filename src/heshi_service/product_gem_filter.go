@@ -11,7 +11,7 @@ func searchGems(c *gin.Context) ([]gem, error) {
 	q := fmt.Sprintf(`SELECT id, stock_id, shape, material, size, name, text, certificate, 
 	online, verified, in_stock, featured, price, stock_quantity, profitable,
 	 totally_scanned, free_acc, last_scan_at,offline_at
-		FROM gems WHERE stock_quantity > 0 WHERE stock_id='%s' OR certificate='%s'`,
+		FROM gems WHERE stock_quantity > 0 AND stock_id='%s' OR certificate='%s'`,
 		c.PostForm("searchKey"), c.PostForm("searchKey"))
 
 	rows, err := dbQuery(q)
