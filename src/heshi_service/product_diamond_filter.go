@@ -14,11 +14,38 @@ import (
 
 //TODO search
 func searchProducts(c *gin.Context) {
-	ref := c.PostForm("ref")
-	q := fmt.Sprintf("SELECT * FROM diamonds WHERE stock_ref='%s' OR certificate_number='%s'",
-		ref, ref)
-	util.Println(q)
-	// SELECT * FROM diamonds WHERE stock_ref = "'.$ref.'" OR certificate_number = "'.$ref.'"'
+	category := c.Param("category")
+	if util.IsInArrayString(category, []string{"diamonds", "jewelrys"}) {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+	if category == "diamonds" {
+		ds, err := searchDiamonds(c)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			return
+		}
+		c.JSON(http.StatusOK, ds)
+		return
+	}
+	if category == "jewelrys" {
+		js, err := searchJewelrys(c)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			return
+		}
+		c.JSON(http.StatusOK, js)
+		return
+	}
+	if category == "gems" {
+		gs, err := searchGems(c)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			return
+		}
+		c.JSON(http.StatusOK, gs)
+		return
+	}
 }
 
 func filterProducts(c *gin.Context) {
@@ -54,6 +81,25 @@ func filterProducts(c *gin.Context) {
 		c.JSON(http.StatusOK, gs)
 		return
 	}
+}
+
+func searchDiamonds(c *gin.Context) ([]diamond, error) {
+	ref := c.PostForm("ref")
+	q := fmt.Sprintf(`SELECT SELECT id, diamond_id, stock_ref, shape, carat, color, clarity, grading_lab, 
+		certificate_number, cut_grade, polish, symmetry, fluorescence_intensity, country, supplier, 
+		price_no_added_value, price_retail, featured, recommand_words, extra_words, status,
+		 ordered_by, picked_up, sold_price, profitable 
+	 FROM diamonds FROM diamonds WHERE stock_ref='%s' OR certificate_number='%s'`,
+		ref, ref)
+	rows, err := dbQuery(q)
+	if err != nil {
+		return nil, err
+	}
+	ds, err := composeDiamond(rows)
+	if err != nil {
+		return nil, err
+	}
+	return ds, nil
 }
 
 func filterDiamonds(c *gin.Context) ([]diamond, error) {
@@ -207,7 +253,7 @@ func composeFilterDiamondsQuery(c *gin.Context) (string, error) {
 	sort := sortDiamondsByQuery(c.PostForm("sorting"), direction)
 	q := fmt.Sprintf(`SELECT id, diamond_id, stock_ref, shape, carat, color, clarity, grading_lab, 
 		certificate_number, cut_grade, polish, symmetry, fluorescence_intensity, country, supplier, 
-		price_no_added_value, price_retail, featured, Recommand_words, extra_words, status,
+		price_no_added_value, price_retail, featured, recommand_words, extra_words, status,
 		 ordered_by, picked_up, sold_price, profitable 
 	 FROM diamonds WHERE '(%s)' %s %s`, strings.Join(querys, ")' AND '("), limit, sort)
 	util.Println(q)

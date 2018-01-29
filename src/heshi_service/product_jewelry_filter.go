@@ -11,8 +11,46 @@ import (
 )
 
 // ref - search by name and ID
-func searchJewelrys() {
-	// $sql='SELECT * FROM jewelry WHERE need_diamond = "'.$need_diamond.'" AND id = ? AND online = "YES"';
+func searchJewelrys(c *gin.Context) ([]jewelry, error) {
+	// 	if(isset($_GET['ref'])){
+	// 	$searchkey_raw=strtoupper($_GET['ref']);
+	// 	$toreplace=array('JR','JE','JP','ZR','ZE','ZP','CR','CE','CP');
+	// 	$searchkey_p1=str_replace($toreplace, '', $searchkey_raw);
+	// 	$searchkey=trim(str_replace('-', '', $searchkey_p1));
+	//   $sql_num='SELECT COUNT(*) AS num FROM jewelry WHERE need_diamond = "'.$need_diamond.'" AND id = ? AND online = "YES"';
+	// 	$stmt_num=$conn->prepare($sql_num);
+	// 	$stmt_num->execute(array($searchkey));
+	// }else{
+	// 	$sql_num='SELECT COUNT(DISTINCT name) AS num FROM jewelry WHERE need_diamond = "'.$need_diamond.'" '.$query_category.$query_size.$query_material.$query_price.$query_mountingtype.$query_sds.$query_diashape.'';
+	// 	$stmt_num=$conn->query($sql_num);
+	// }
+	// if(isset($_GET['ref'])){
+	//   $sql='SELECT * FROM jewelry WHERE need_diamond = "'.$need_diamond.'" AND id = ? AND online = "YES"';
+	// 	$stmt=$conn->prepare($sql);
+	// 	$stmt->execute(array($searchkey));
+	// }else{
+	// 	$sql='SELECT * FROM jewelry WHERE need_diamond = "'.$need_diamond.'" '.$query_category.$query_size.$query_material.$query_price.$query_mountingtype.$query_sds.$query_diashape.' GROUP BY name ORDER BY online DESC, stock_quantity DESC, created_at DESC LIMIT '.$startFrom.',32';
+	// 	$stmt=$conn->query($sql);
+	// }
+	class := c.Query("class")
+	needDiamond := "NO"
+	if class == "mounting" {
+		needDiamond = "YES"
+	}
+	q := fmt.Sprintf(`SELECT id, stock_id, category, unit_number, dia_shape, material, metal_weight, need_diamond, name, 
+	 dia_size_min, dia_size_max, small_dias, small_dia_num, small_dia_carat, mounting_type, main_dia_num, main_dia_size, 
+	 video_link, text, online, verified, in_stock, featured, price, stock_quantity, profitable,
+	 totally_scanned, free_acc, last_scan_at,offline_at
+	 FROM jewelry WHERE need_diamond = '%s' AND id = '%s' AND online = 'YES'`, needDiamond, c.PostForm("ref"))
+	rows, err := dbQuery(q)
+	if err != nil {
+		return nil, err
+	}
+	js, err := composeJewelry(rows)
+	if err != nil {
+		return nil, err
+	}
+	return js, nil
 }
 
 func filterJewelrys(c *gin.Context) ([]jewelry, error) {
@@ -102,10 +140,10 @@ func composeFilterJewelryQuery(c *gin.Context) (string, error) {
 		//32 records per page
 		limit = fmt.Sprintf("LIMIT 32 OFFSET %d", util.AbsInt(currentPage-1)*32)
 	}
-	q := fmt.Sprintf(`SELECT id, stock_id, category, unit_number, dia_shape, material, metal_weight, need_diamond, name, name_suffix,
+	q := fmt.Sprintf(`SELECT id, stock_id, category, unit_number, dia_shape, material, metal_weight, need_diamond, name, 
 	 dia_size_min, dia_size_max, small_dias, small_dia_num, small_dia_carat, mounting_type, main_dia_num, main_dia_size, 
 	 video_link, text, online, verified, in_stock, featured, price, stock_quantity, profitable,
-	 totally_scanned, free_acc, last_scan_at,offline_at 
+	 totally_scanned, free_acc, last_scan_at,offline_at
 	 FROM jewelrys WHERE '(%s)' GROUP BY name ORDER BY online DESC, stock_quantity DESC, created_at DESC %s`,
 		strings.Join(querys, ")' AND '("), limit)
 	util.Println(q)
