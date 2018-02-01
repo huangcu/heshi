@@ -237,11 +237,11 @@ func configRoute(r *gin.Engine) {
 		api.GET("/products/small_diamonds/:id", getSmallDiamond)
 		api.GET("/products/gems", getAllGems)
 		api.GET("/products/gems/:id", getGem)
-
 		//product search - diamond or jewelry by id or name
 		api.POST("/products/search/:category", searchProducts)
 		//product filter by fields value
 		api.POST("/products/filter/:category", filterProducts)
+		api.POST("/product/customize/:action", customizeProduct)
 
 		//wechat - todo
 		apiWechat.GET("/auth", wechatAuth)

@@ -98,8 +98,7 @@ func importProducts(product, file, cate string) ([]util.Row, error) {
 	case "small_diamond":
 		return importSmallDiamondProducts(file)
 	case "jewelry":
-		// return importJewelryProducts(file,cate)/
-		return nil, nil
+		return importJewelryProducts(file, cate)
 	default:
 		return nil, nil
 	}
