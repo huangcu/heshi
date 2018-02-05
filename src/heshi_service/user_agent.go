@@ -94,7 +94,7 @@ func (a *Agent) newAgent() error {
 	return err
 }
 
-//find user is recommanded by (using invitation code)
+//find user is recommanded by - user_id
 //from invitation code, get which user recommanded this
 // if the recommand is agent ???
 func agentContactInfo(c *gin.Context) {
@@ -123,11 +123,11 @@ func agentContactInfo(c *gin.Context) {
 
 // }
 
-func getUserContactInfoInvitationCode(code string) (*ContactInfo, error) {
-	var userID string
-	if err := dbQueryRow("SELECT user_id from invitation_codes WHERE invitation_code=?", code).Scan(&userID); err != nil {
-		return nil, err
-	}
+func getUserContactInfoInvitationCode(userID string) (*ContactInfo, error) {
+	// var userID string
+	// if err := dbQueryRow("SELECT user_id from invitation_codes WHERE invitation_code=?", code).Scan(&userID); err != nil {
+	// 	return nil, err
+	// }
 	var cellphone, email, realName sql.NullString
 	var wechatID, wechatName, wechatQR, address, additionalInfo sql.NullString
 	q := `SELECT cellphone, email, realname, wechat_id, wechat_name, wechat_qr, address, additional_info from users where id=?`

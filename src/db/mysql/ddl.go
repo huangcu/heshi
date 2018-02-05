@@ -41,23 +41,28 @@ CREATE TABLE IF NOT EXISTS currency_exchange_rates
 	) ENGINE=INNODB;
 `
 
-//  exchange fluctuations
-// deposit, balance
 const discountDdl = `
 CREATE TABLE IF NOT EXISTS discounts (
-id VARCHAR(225) PRIMARY KEY NOT NULL,
-discount_code VARCHAR(225) NOT NULL,
-discount INT NOT NULL DEFAULT 98,
-created_by VARCHAR(225) NOT NULL,
-created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-) ENGINE=INNODB;`
+	id VARCHAR(225) PRIMARY KEY NOT NULL,
+	discount_code VARCHAR(225) NOT NULL,
+	discount INT NOT NULL DEFAULT 98,
+	created_by VARCHAR(225) NOT NULL,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+	) ENGINE=INNODB;`
 
+//TYPE: customer(level), agent(level), rate
 const configDdl = `
 CREATE TABLE IF NOT EXISTS configs (
-id VARCHAR(225) PRIMARY KEY NOT NULL,
-rate float NOT NULL,
-created_by VARCHAR(225) NOT NULL,
-created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+	id VARCHAR(225) PRIMARY KEY NOT NULL,
+	rate float,
+	level VARCHAR(20) UNIQUE,
+	discount INT,
+	amount INT,
+	pieces INT,
+	type VARCHAR(20) NOT NULL,
+	created_by VARCHAR(225) NOT NULL,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 ) ENGINE=INNODB;
 `
 

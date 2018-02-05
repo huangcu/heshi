@@ -83,8 +83,8 @@ var (
 
 var (
 	VALID_USERTYPE        = []string{CUSTOMER, AGENT, ADMIN}
-	VALID_AGENTLEVEL      = []string{LEVEL0, LEVEL1, LEVEL2, LEVEL3}
-	VALID_ADMINLEVEL      = []string{LEVEL0, LEVEL1, LEVEL2, LEVEL3, LEVEL4, LEVEL5, LEVEL6}
+	VALID_AGENTLEVEL      = []string{LEVEL1, LEVEL2, LEVEL3}
+	VALID_ADMINLEVEL      = []string{LEVEL1, LEVEL2, LEVEL3, LEVEL4, LEVEL5, LEVEL6}
 	VALID_CURRENCY_SYMBOL = []string{"USD", "CNY", "EUR", "CAD", "AUD", "CHF", "RUB", "NZD"}
 	USER_SESSION_KEY      = "hs_sessionuserid"
 	ADMIN_KEY             = "hs_sessionadmin"
@@ -92,13 +92,13 @@ var (
 )
 
 const (
-	CUSTOMER = "customer"
-	AGENT    = "agent"
-	ADMIN    = "admin"
+	CUSTOMER = "CUSTOMER"
+	AGENT    = "AGENT"
+	ADMIN    = "ADMIN"
 )
 
+//TODO level comes from configs db
 const (
-	LEVEL0 = "0"
 	LEVEL1 = "1"
 	LEVEL2 = "2"
 	LEVEL3 = "3"

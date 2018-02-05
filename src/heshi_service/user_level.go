@@ -16,7 +16,7 @@ func isAgent(uid string) (bool, error) {
 
 func userLevelDiscount(uid string) (int, int, error) {
 	var level, discount int
-	q := fmt.Sprintf("SELECT user_type FROM users WHERE id='%s'", uid)
+	q := fmt.Sprintf("SELECT level, discount FROM users WHERE id='%s'", uid)
 	if err := dbQueryRow(q).Scan(&level, discount); err != nil {
 		return 0, 0, err
 	}
@@ -30,7 +30,7 @@ func agentLevelDiscount(uid string) (int, int, error) {
 		return 0, 0, errors.New("user is not an AGENT")
 	}
 	var level, discount int
-	q := fmt.Sprintf("SELECT user_type FROM users WHERE id='%s'", uid)
+	q := fmt.Sprintf("SELECT level, discount FROM users WHERE id='%s'", uid)
 	if err := dbQueryRow(q).Scan(&level, discount); err != nil {
 		return 0, 0, err
 	}

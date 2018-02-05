@@ -195,9 +195,14 @@ func configRoute(r *gin.Engine) {
 			apiAdmin.POST("/discount", newDiscount)
 
 			//config
-			apiAdmin.GET("/config", getConfig)
-			apiAdmin.GET("/configs", getAllConfigs)
-			apiAdmin.POST("/config", newConfig)
+			apiAdmin.GET("/configs/rate", getRateConfig)
+			apiAdmin.GET("/configs/allrate", getAllRateConfigs)
+			apiAdmin.POST("/configs/rate", newRateConfig)
+			//account level, discount config
+			apiAdmin.GET("/configs/level/:id", getLevelConfig)
+			apiAdmin.PUT("/configs/level/:id", updateLevelConfig)
+			apiAdmin.GET("/configs/level", getAllLevelConfigs)
+			apiAdmin.POST("/configs/level", newLevelConfig)
 
 			//products with customize header
 			apiAdmin.POST("/upload", uploadAndGetFileHeaders)

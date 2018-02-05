@@ -6,51 +6,101 @@ import (
 	"util"
 )
 
-func customerLevelByAmount(amount float64) string {
-	if amount < 5000 {
-		return LEVEL0
-	} else if amount >= 5000 && amount < 10000 {
-		return LEVEL1
-	} else if amount >= 5000 && amount < 10000 {
-		return LEVEL2
-	}
-	return LEVEL3
+func downPayment(price float64) float64 {
+	return floatToFixed2(price * 0.3)
 }
 
-func priceForCustomer(level string, price float64) float64 {
-	switch level {
-	case LEVEL0:
-		return price * 0.99
-	case LEVEL1:
-		return price * 0.98
-	case LEVEL2:
-		return price * 0.95
-	case LEVEL3:
-		return price * 0.93
-	case LEVEL4:
-		return price * 0.90
-	case LEVEL5:
-		return price * 0.85
-	case LEVEL6:
-		return price * 0.90
-	default:
-		return price
+func customerLevelByAmount(amount float64) (string, error) {
+	q := fmt.Sprintf("SELECT level FROM configs WHERE type='%s' AND amount < '%f' order by level DESC",
+		CUSTOMER, amount)
+	rows, err := dbQuery(q)
+	if err != nil {
+		return "", err
 	}
+	for rows.Next() {
+		var level string
+		if err := rows.Scan(&level); err != nil {
+			return level, nil
+		}
+	}
+	return LEVEL1, nil
+	// if amount < 5000 {
+	// 	return LEVEL0
+	// } else if amount >= 5000 && amount < 10000 {
+	// 	return LEVEL1
+	// } else if amount >= 10000 && amount < 20000 {
+	// 	return LEVEL2
+	// }
+	// return LEVEL3
 }
 
-func priceForAgent(level string, price float64) float64 {
-	switch level {
-	case LEVEL0:
-		return price
-	case LEVEL1:
-		return price * 0.9
-	case LEVEL2:
-		return price * 0.85
-	case LEVEL3:
-		return price * 0.83
-	default:
-		return price
+func agentLevelByAmountAndPieces(amount float64, pieces int) (string, error) {
+	q := fmt.Sprintf(`SELECT level FROM configs 
+		WHERE type='%s' 
+		AND (amount < '%f' OR pieces < '%d') order by level DESC`,
+		AGENT, amount, pieces)
+	rows, err := dbQuery(q)
+	if err != nil {
+		return "", err
 	}
+	for rows.Next() {
+		var level string
+		if err := rows.Scan(&level); err != nil {
+			return level, nil
+		}
+	}
+	return LEVEL1, nil
+}
+
+func priceForCustomer(level string, price float64) (float64, error) {
+	q := fmt.Sprintf("SELECT discount FROM configs WHERE type='%s' AND level = '%s' limit 1",
+		CUSTOMER, level)
+	var discount float64
+	if err := dbQueryRow(q).Scan(&discount); err != nil {
+		return 0, err
+	}
+	return floatToFixed2(price * discount), nil
+	// switch level {
+	// case LEVEL0:
+	// 	return floatToFixed2(price * 0.99)
+	// case LEVEL1:
+	// 	return floatToFixed2(price * 0.98)
+	// case LEVEL2:
+	// 	return floatToFixed2(price * 0.95)
+	// case LEVEL3:
+	// 	return floatToFixed2(price * 0.93)
+	// case LEVEL4:
+	// 	return floatToFixed2(price * 0.90)
+	// case LEVEL5:
+	// 	return floatToFixed2(price * 0.85)
+	// case LEVEL6:
+	// 	return floatToFixed2(price * 0.90)
+	// default:
+	// 	return price
+	// }
+}
+
+//TODO agentLevelDiscount
+func priceForAgent(level string, price float64) (float64, error) {
+	q := fmt.Sprintf("SELECT discount FROM configs WHERE type='%s' AND level = '%s' limit 1",
+		AGENT, level)
+	var discount float64
+	if err := dbQueryRow(q).Scan(&discount); err != nil {
+		return 0, err
+	}
+	return floatToFixed2(price * discount), nil
+	// switch level {
+	// case LEVEL0:
+	// 	return price
+	// case LEVEL1:
+	// 	return floatToFixed2(price * 0.9)
+	// case LEVEL2:
+	// 	return floatToFixed2(price * 0.85)
+	// case LEVEL3:
+	// 	return floatToFixed2(price * 0.83)
+	// default:
+	// 	return price
+	// }
 }
 
 func euroToYuan(priceEuro float64) float64 {
@@ -102,4 +152,8 @@ func ItemsNotInArray(item string, items []string) []string {
 
 func FormatInputString(input string) string {
 	return strings.ToUpper(strings.Replace(input, " ", "", -1))
+}
+
+func floatToFixed2(v float64) float64 {
+	return float64(int(v*100)) / 100
 }
