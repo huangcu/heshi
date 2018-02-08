@@ -63,6 +63,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/disintegration/imaging",
+			"repository": "https://github.com/disintegration/imaging",
+			"revision": "1884593a19ddc6f2ea050403430d02c1d0fc1283",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/dustin/go-broadcast",
 			"repository": "https://github.com/dustin/go-broadcast",
 			"revision": "3bdf6d4a7164a50bc19d5f230e2981d87d2584f1",
@@ -268,6 +274,20 @@
 			"revision": "94eea52f7b742c7cbe0b03b22f0c4c8631ece122",
 			"branch": "master",
 			"path": "/blowfish"
+		},
+		{
+			"importpath": "golang.org/x/image/bmp",
+			"repository": "https://go.googlesource.com/image",
+			"revision": "12117c17ca67ffa1ce22e9409f3b0b0a93ac08c7",
+			"branch": "master",
+			"path": "/bmp"
+		},
+		{
+			"importpath": "golang.org/x/image/tiff",
+			"repository": "https://go.googlesource.com/image",
+			"revision": "12117c17ca67ffa1ce22e9409f3b0b0a93ac08c7",
+			"branch": "master",
+			"path": "/tiff"
 		},
 		{
 			"importpath": "golang.org/x/net/context",

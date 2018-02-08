@@ -40,7 +40,7 @@ type gem struct {
 }
 
 func newGems(c *gin.Context) {
-	imageFileNames, vemsg, err := validateUploadedMultipleFile(c, "gem", "image", 99000000)
+	imageFileNames, vemsg, err := validateUploadedMultipleFile(c, "gem", "image", 1*1024*1024)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
@@ -90,7 +90,7 @@ func newGems(c *gin.Context) {
 
 //TODO what to update; stockid???
 func updateGems(c *gin.Context) {
-	imageFileNames, vemsg, err := validateUploadedMultipleFile(c, "gem", "image", 99000000)
+	imageFileNames, vemsg, err := validateUploadedMultipleFile(c, "gem", "image", 1*1024*1024)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return

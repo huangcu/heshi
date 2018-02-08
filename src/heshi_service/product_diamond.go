@@ -88,7 +88,7 @@ func getDiamond(c *gin.Context) {
 }
 
 func newDiamond(c *gin.Context) {
-	imageFileNames, vemsg, err := validateUploadedMultipleFile(c, "diamond", "image", 99000000)
+	imageFileNames, vemsg, err := validateUploadedMultipleFile(c, "diamond", "image", 1*1024*1024)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
@@ -142,7 +142,7 @@ func newDiamond(c *gin.Context) {
 }
 
 func updateDiamond(c *gin.Context) {
-	imageFileNames, vemsg, err := validateUploadedMultipleFile(c, "diamond", "image", 99000000)
+	imageFileNames, vemsg, err := validateUploadedMultipleFile(c, "diamond", "image", 1*1024*1024)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return

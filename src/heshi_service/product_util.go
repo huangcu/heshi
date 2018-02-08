@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"heshi/errors"
+	"image"
 	"io"
 	"mime/multipart"
 	"os"
@@ -12,6 +13,7 @@ import (
 	"time"
 	"util"
 
+	"github.com/disintegration/imaging"
 	"github.com/gin-gonic/gin"
 	filetype "gopkg.in/h2non/filetype.v1"
 )
@@ -105,9 +107,40 @@ func saveUploadedMultipleFile(c *gin.Context, product string, fileType string, f
 	files := form.File["images"]
 	for k, file := range files {
 		dst := filepath.Join("."+fileType, product, fileNames[k])
-		if err := c.SaveUploadedFile(file, dst); err != nil {
+		if err := saveImage(file, dst); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+func saveImage(fileHeader *multipart.FileHeader, dst string) error {
+	src, err := fileHeader.Open()
+	if err != nil {
+		return err
+	}
+	defer src.Close()
+
+	imgConfig, _, err := image.DecodeConfig(src)
+	if err != nil {
+		return err
+	}
+
+	if imgConfig.Height > 640 || imgConfig.Width > 320 {
+		//limit image with to 320 pixel, resize image
+		img, err := imaging.Decode(src)
+		if err != nil {
+			return err
+		}
+		img = imaging.Resize(img, 320, 0, imaging.Lanczos)
+		return imaging.Save(img, dst)
+	}
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, src)
+	return err
 }
