@@ -76,6 +76,9 @@ func (g *gem) parmsKV() map[string]interface{} {
 	if g.Text != "" {
 		params["text"] = g.Text
 	}
+	if len(g.Images) != 0 {
+		params["images"] = strings.Join(g.Images, ";")
+	}
 	if g.Certificate != "" {
 		params["certificate"] = g.Certificate
 	}

@@ -22,6 +22,7 @@ type gem struct {
 	Size             float64   `json:"size"`
 	SizeStr          string    `json:"-"`
 	Text             string    `json:"text"`
+	Images           []string  `json:"images"`
 	Certificate      string    `json:"certificate"`
 	Online           string    `json:"online"`
 	Verified         string    `json:"verified"`
@@ -39,6 +40,15 @@ type gem struct {
 }
 
 func newGems(c *gin.Context) {
+	imageFileNames, vemsg, err := validateUploadedMultipleFile(c, "gem", "image", 99000000)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	if vemsg != (errors.HSMessage{}) {
+		c.JSON(http.StatusOK, vemsg)
+		return
+	}
 	g := gem{
 		ID:               uuid.NewV4().String(),
 		StockID:          strings.ToUpper(c.PostForm("stock_id")),
@@ -47,6 +57,7 @@ func newGems(c *gin.Context) {
 		Name:             strings.ToUpper(c.PostForm("name")),
 		SizeStr:          c.PostForm("size"),
 		Text:             c.PostForm("text"),
+		Images:           imageFileNames,
 		Certificate:      strings.ToUpper(c.PostForm("certificate")),
 		Online:           strings.ToUpper(c.PostForm("online")),
 		Verified:         strings.ToUpper(c.PostForm("verified")),
@@ -65,6 +76,10 @@ func newGems(c *gin.Context) {
 		c.JSON(http.StatusOK, vemsg)
 		return
 	}
+	if err := saveUploadedMultipleFile(c, "gem", "image", imageFileNames); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
 	q := g.composeInsertQuery()
 	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
@@ -75,6 +90,15 @@ func newGems(c *gin.Context) {
 
 //TODO what to update; stockid???
 func updateGems(c *gin.Context) {
+	imageFileNames, vemsg, err := validateUploadedMultipleFile(c, "gem", "image", 99000000)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	if vemsg != (errors.HSMessage{}) {
+		c.JSON(http.StatusOK, vemsg)
+		return
+	}
 	id := c.Param("id")
 	g := gem{
 		ID:               id,
@@ -84,6 +108,7 @@ func updateGems(c *gin.Context) {
 		Name:             strings.ToUpper(c.PostForm("name")),
 		SizeStr:          c.PostForm("size"),
 		Text:             c.PostForm("text"),
+		Images:           imageFileNames,
 		Certificate:      strings.ToUpper(c.PostForm("certificate")),
 		Online:           strings.ToUpper(c.PostForm("online")),
 		Verified:         strings.ToUpper(c.PostForm("verified")),
@@ -99,6 +124,10 @@ func updateGems(c *gin.Context) {
 		return
 	} else if len(vemsg) != 0 {
 		c.JSON(http.StatusOK, vemsg)
+		return
+	}
+	if err := saveUploadedMultipleFile(c, "gem", "image", imageFileNames); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	q := g.composeUpdateQuery()
@@ -150,6 +179,7 @@ func getGem(c *gin.Context) {
 
 func composeGem(rows *sql.Rows) ([]gem, error) {
 	var id, stockID, shape, online, material, name, text, certificate, verified, inStock, featured, profitable, freeAcc string
+	var images sql.NullString
 	var size, price float64
 	var stockQuantity, totallyScanned int
 	var lastScanAt time.Time
@@ -158,7 +188,7 @@ func composeGem(rows *sql.Rows) ([]gem, error) {
 	var gs []gem
 	for rows.Next() {
 		if err := rows.Scan(&id, &stockID, &shape, &material, &size, &name,
-			&text, &certificate, &online, &verified, &inStock, &featured, &price, &stockQuantity, &profitable,
+			&text, &images, &certificate, &online, &verified, &inStock, &featured, &price, &stockQuantity, &profitable,
 			&totallyScanned, &freeAcc, &lastScanAt, &offlineAt); err != nil {
 			return nil, err
 		}
@@ -183,13 +213,18 @@ func composeGem(rows *sql.Rows) ([]gem, error) {
 			LastScanAt:     lastScanAt.Local(),
 			OfflineAt:      offlineAt.Time,
 		}
+		if images.String != "" {
+			for _, image := range strings.Split(images.String, ";") {
+				g.Images = append(g.Images, "image/gem/"+image)
+			}
+		}
 		gs = append(gs, g)
 	}
 	return gs, nil
 }
 
 func selectGemQuery(id string) string {
-	q := `SELECT id, stock_id, shape, material, size, name, text, certificate, 
+	q := `SELECT id, stock_id, shape, material, size, name, text, images, certificate, 
 	online, verified, in_stock, featured, price, stock_quantity, profitable,
 	 totally_scanned, free_acc, last_scan_at,offline_at FROM gems`
 

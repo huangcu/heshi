@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"heshi/errors"
 	"strconv"
+	"strings"
 	"util"
 )
 
@@ -107,6 +108,9 @@ func (j *jewelry) parmsKV() map[string]interface{} {
 	}
 	if j.VideoLink != "" {
 		params["video_link"] = j.VideoLink
+	}
+	if len(j.Images) != 0 {
+		params["images"] = strings.Join(j.Images, ";")
 	}
 	if j.Text != "" {
 		params["text"] = j.Text

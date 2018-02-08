@@ -108,6 +108,9 @@ func (d *diamond) parmsKV() map[string]interface{} {
 	if d.ExtraWords != "" {
 		params["extra_words"] = d.ExtraWords
 	}
+	if len(d.Images) != 0 {
+		params["images"] = strings.Join(d.Images, ";")
+	}
 	if d.Status != "" {
 		params["status"] = d.Status
 	}

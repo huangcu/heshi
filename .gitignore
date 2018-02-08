@@ -5,3 +5,6 @@ heshipage
 vendor/src
 web
 heshi.log
+.image
+.video
+.vscode/settings.json

@@ -41,6 +41,7 @@ type jewelry struct {
 	Price            float64   `json:"price"`
 	PriceStr         string    `json:"-"`
 	VideoLink        string    `json:"video_link"`
+	Images           []string  `json:"images"`
 	Text             string    `json:"text"`
 	Online           string    `json:"online"`
 	Verified         string    `json:"verified"`
@@ -95,6 +96,25 @@ func getJewelry(c *gin.Context) {
 }
 
 func newJewelry(c *gin.Context) {
+	fileHeader, _ := c.FormFile("video")
+	filename, vemsg, err := validateUploadedSingleFile(fileHeader, "jewelry", "video", 99000000)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	if vemsg != (errors.HSMessage{}) {
+		c.JSON(http.StatusOK, vemsg)
+		return
+	}
+	imageFileNames, vemsg, err := validateUploadedMultipleFile(c, "jewelry", "image", 99000000)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	if vemsg != (errors.HSMessage{}) {
+		c.JSON(http.StatusOK, vemsg)
+		return
+	}
 	j := jewelry{
 		ID:               uuid.NewV4().String(),
 		StockID:          strings.ToUpper(c.PostForm("stock_id")),
@@ -114,7 +134,8 @@ func newJewelry(c *gin.Context) {
 		SmallDiaNumStr:   c.PostForm("small_dia_num"),
 		SmallDiaCaratStr: c.PostForm("small_dia_carat"),
 		PriceStr:         c.PostForm("price"),
-		VideoLink:        c.PostForm("video_link"),
+		VideoLink:        filename,
+		Images:           imageFileNames,
 		Text:             c.PostForm("text"),
 		Online:           strings.ToUpper(c.PostForm("online")),
 		Verified:         strings.ToUpper(c.PostForm("verified")),
@@ -131,6 +152,14 @@ func newJewelry(c *gin.Context) {
 		c.JSON(http.StatusOK, vemsg)
 		return
 	}
+	if err := saveUploadedSingleFile(c, "jewelry", "video", filename); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	if err := saveUploadedMultipleFile(c, "jewelry", "image", imageFileNames); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
 	q := j.composeInsertQuery()
 	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
@@ -140,6 +169,25 @@ func newJewelry(c *gin.Context) {
 }
 
 func updateJewelry(c *gin.Context) {
+	fileHeader, _ := c.FormFile("video")
+	filename, vemsg, err := validateUploadedSingleFile(fileHeader, "jewelry", "video", 99000000)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	if vemsg != (errors.HSMessage{}) {
+		c.JSON(http.StatusOK, vemsg)
+		return
+	}
+	imageFileNames, vemsg, err := validateUploadedMultipleFile(c, "jewelry", "image", 99000000)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	if vemsg != (errors.HSMessage{}) {
+		c.JSON(http.StatusOK, vemsg)
+		return
+	}
 	j := jewelry{
 		ID:               c.Param("id"),
 		StockID:          strings.ToUpper(c.PostForm("stock_id")),
@@ -159,7 +207,8 @@ func updateJewelry(c *gin.Context) {
 		SmallDiaNumStr:   c.PostForm("small_dia_num"),
 		SmallDiaCaratStr: c.PostForm("small_dia_carat"),
 		PriceStr:         c.PostForm("price"),
-		VideoLink:        c.PostForm("video_link"),
+		VideoLink:        filename,
+		Images:           imageFileNames,
 		Text:             c.PostForm("text"),
 		Online:           strings.ToUpper(c.PostForm("online")),
 		Verified:         strings.ToUpper(c.PostForm("verified")),
@@ -176,6 +225,14 @@ func updateJewelry(c *gin.Context) {
 		c.JSON(http.StatusOK, vemsg)
 		return
 	}
+	if err := saveUploadedSingleFile(c, "jewelry", "video", filename); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	if err := saveUploadedMultipleFile(c, "jewelry", "image", imageFileNames); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
 	q := j.composeUpdateQuery()
 	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
@@ -186,7 +243,7 @@ func updateJewelry(c *gin.Context) {
 
 func composeJewelry(rows *sql.Rows) ([]jewelry, error) {
 	var id, stockID, category, needDiamond, name, online, verified, inStock, featured, profitable, freeAcc string
-	var unitNumber, diaShape, material, smallDias, mountingType, videoLink, text sql.NullString
+	var unitNumber, diaShape, material, smallDias, mountingType, videoLink, images, text sql.NullString
 	var metalWeight, mainDiaSize, diaSizeMin, diaSizeMax, smallDiaCarat, price sql.NullFloat64
 	var mainDiaNum, smallDiaNum sql.NullInt64
 	var stockQuantity, totallyScanned int
@@ -197,7 +254,7 @@ func composeJewelry(rows *sql.Rows) ([]jewelry, error) {
 	for rows.Next() {
 		if err := rows.Scan(&id, &stockID, &category, &unitNumber, &diaShape, &material, &metalWeight, &needDiamond, &name,
 			&diaSizeMin, &diaSizeMax, &smallDias, &smallDiaNum, &smallDiaCarat, &mountingType, &mainDiaNum, &mainDiaSize,
-			&videoLink, &text, &online, &verified, &inStock, &featured, &price, &stockQuantity, &profitable,
+			&videoLink, &images, &text, &online, &verified, &inStock, &featured, &price, &stockQuantity, &profitable,
 			&totallyScanned, &freeAcc, &lastScanAt, &offlineAt); err != nil {
 			return nil, err
 		}
@@ -233,6 +290,11 @@ func composeJewelry(rows *sql.Rows) ([]jewelry, error) {
 			LastScanAt:     lastScanAt.Local(),
 			OfflineAt:      offlineAt.Time.Local(),
 		}
+		if images.String != "" {
+			for _, image := range strings.Split(images.String, ";") {
+				d.Images = append(d.Images, "image/jewelry/"+image)
+			}
+		}
 		ds = append(ds, d)
 	}
 	return ds, nil
@@ -241,7 +303,7 @@ func composeJewelry(rows *sql.Rows) ([]jewelry, error) {
 func selectJewelryQuery(id string) string {
 	q := `SELECT id, stock_id, category, unit_number, dia_shape, material, metal_weight, need_diamond, name, 
 	 dia_size_min, dia_size_max, small_dias, small_dia_num, small_dia_carat, mounting_type, main_dia_num, main_dia_size, 
-	 video_link, text, online, verified, in_stock, featured, price, stock_quantity, profitable,
+	 video_link, images, text, online, verified, in_stock, featured, price, stock_quantity, profitable,
 	 totally_scanned, free_acc, last_scan_at,offline_at FROM jewelrys`
 
 	if id != "" {

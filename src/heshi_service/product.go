@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 	"util"
 
@@ -34,7 +35,7 @@ func uploadAndGetFileHeaders(c *gin.Context) {
 		return
 	}
 	// Upload the file to specific dst.
-	filename := file.Filename + time.Now().Format("20060102150405")
+	filename := file.Filename + time.Now().Format("20060102150405123")
 	dst := filepath.Join(os.TempDir(), id, filename)
 	err = c.SaveUploadedFile(file, dst)
 	if err != nil {
@@ -64,11 +65,16 @@ func uploadAndProcessProducts(c *gin.Context) {
 		return
 	}
 	// Upload the file to specific dst.
-	filename := file.Filename + time.Now().Format("20060102150405")
-
 	if err := os.MkdirAll(filepath.Join(UPLOADFILEDIR, id), 0644); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
+	}
+	var filename string
+	exts := strings.SplitN(file.Filename, ".", 2)
+	if len(exts) == 2 {
+		filename = exts[0] + time.Now().Format("20060102150405") + exts[1]
+	} else {
+		filename = file.Filename + time.Now().Format("20060102150405")
 	}
 	dst := filepath.Join(UPLOADFILEDIR, id, filename)
 	err = c.SaveUploadedFile(file, dst)
