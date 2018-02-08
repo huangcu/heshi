@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS diamonds
 	featured VARCHAR(5) NOT NULL DEFAULT 'NO',
 	recommand_words TEXT,
 	extra_words VARCHAR(255),
-	status VARCHAR(58) NOT NULL DEFAULT 'AVAIABLE',
+	status VARCHAR(20) NOT NULL DEFAULT 'AVAILABLE',
 	ordered_by VARCHAR(225),
 	picked_up VARCHAR(8),
 	sold_price FLOAT,

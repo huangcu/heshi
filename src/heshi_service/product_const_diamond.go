@@ -4,6 +4,7 @@ const (
 	DIAMOND      = "diamond"
 	SMALLDIAMOND = "small_diamond"
 	JEWELRY      = "jewelry"
+	GEM          = "gem"
 )
 
 var VALID_PRODUCTS = []string{DIAMOND, SMALLDIAMOND, JEWELRY}

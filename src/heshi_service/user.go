@@ -93,7 +93,7 @@ func newAdminAgentUser(c *gin.Context) {
 			q = fmt.Sprintf(`INSERT INTO agents (user_id, level, discount, created_by) VALUES 
 											(%s', '%d', '%d', '%s')`, a.ID, a.Level, a.Discount, a.CreatedBy)
 			traceSQL(q)
-			if _, err := tx.Exec("q"); err != nil {
+			if _, err := tx.Exec(q); err != nil {
 				return err
 			}
 			return nil
