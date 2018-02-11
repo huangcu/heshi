@@ -258,8 +258,8 @@ func configRoute(r *gin.Engine) {
 		api.GET("/wechat/callback", wechatCallback)
 		api.POST("/wechat/callback", wechatCallback)
 
-		r.Static("/image", ".image")
-		r.Static("/video", ".video")
+		api.Static("/image", ".image")
+		api.Static("/video", ".video")
 		//token
 		api.GET("/token", GetToken)
 		api.POST("/token", VerifyToken)
