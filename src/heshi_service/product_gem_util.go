@@ -258,3 +258,12 @@ func (g *gem) validateGemUpdateReq() ([]errors.HSMessage, error) {
 
 	return vemsg, nil
 }
+
+func (g *gem) isGemExistByStockID() error {
+	var id string
+	if err := dbQueryRow("SELECT id FROM gems WHERE diamond_id=?", g.StockID).Scan(&id); err != nil {
+		return err
+	}
+	g.ID = id
+	return nil
+}

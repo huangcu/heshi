@@ -537,3 +537,12 @@ func diamondSupplierPageReq(supplier string) (string, error) {
 func diamondStockRef(stockRef, supplierPrefix string) string {
 	return supplierPrefix + stockRef
 }
+
+func (d *diamond) isDiamondExistByDiamondID() error {
+	var id string
+	if err := dbQueryRow("SELECT id FROM diamonds WHERE diamond_id=?", d.DiamondID).Scan(&id); err != nil {
+		return err
+	}
+	d.ID = id
+	return nil
+}

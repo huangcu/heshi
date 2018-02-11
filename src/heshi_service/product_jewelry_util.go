@@ -444,3 +444,12 @@ func (j *jewelry) validateJewelryUpdateReq() ([]errors.HSMessage, error) {
 	//TODO Featured/Online value validate??? - value can only be YES OR NO
 	return vemsg, nil
 }
+
+func (j *jewelry) isJewelryExistByStockID() error {
+	var id string
+	if err := dbQueryRow("SELECT id FROM jewelrys WHERE stock_id=?", j.StockID).Scan(&id); err != nil {
+		return err
+	}
+	j.ID = id
+	return nil
+}
