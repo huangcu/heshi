@@ -234,13 +234,6 @@ func handleUploadedZipVideo(tempDir string) map[string]string {
 			util.Println(msg)
 			return nil
 		}
-		ext := filepath.Ext(info.Name())
-		if ext == "" {
-			msg = fmt.Sprintf("SKIP file %s as the file has no extension", info.Name())
-			util.Println(msg)
-			return nil
-		}
-
 		var filename string
 		bs, err := ioutil.ReadFile(path)
 		if err != nil {
@@ -248,10 +241,17 @@ func handleUploadedZipVideo(tempDir string) map[string]string {
 			return nil
 		}
 		if !filetype.IsVideo(bs) {
-			msg = fmt.Sprintf("Uploaded file %s  is not video", info.Name())
+			msg = fmt.Sprintf("%s  is not video", info.Name())
 			util.Println(msg)
 			return nil
 		}
+		ext := filepath.Ext(info.Name())
+		if ext == "" {
+			msg = fmt.Sprintf("SKIP file %s as the file has no extension", info.Name())
+			util.Println(msg)
+			return nil
+		}
+
 		if ext == "mp4" || ext == "mov" || ext == "ogv" || ext == "webm" {
 			filename = fmt.Sprintf("beyoudiamond-video-%d.%s", time.Now().UnixNano(), ext)
 		} else {
@@ -315,6 +315,17 @@ func handleUploadedZipImagesDiamond(tempDir string) map[string]string {
 			if file.IsDir() {
 				util.Printf("SKIP folder %s/%s", info.Name(), file)
 			} else {
+				bs, err := ioutil.ReadFile(path)
+				if err != nil {
+					msg = errors.GetMessage(err)
+					return nil
+				}
+				if !filetype.IsImage(bs) {
+					msg = fmt.Sprintf("%s  is not image", info.Name())
+					util.Println(msg)
+					return nil
+				}
+
 				ext := filepath.Ext(info.Name())
 				if ext == "" {
 					msg = fmt.Sprintf("SKIP file %s as the file has no extension", info.Name())
@@ -369,6 +380,16 @@ func handleUploadedZipImagesJewelry(tempDir string) map[string]string {
 			if file.IsDir() {
 				util.Printf("SKIP folder %s/%s", info.Name(), file)
 			} else {
+				bs, err := ioutil.ReadFile(path)
+				if err != nil {
+					msg = errors.GetMessage(err)
+					return nil
+				}
+				if !filetype.IsImage(bs) {
+					msg = fmt.Sprintf("%s  is not image", info.Name())
+					util.Println(msg)
+					return nil
+				}
 				ext := filepath.Ext(info.Name())
 				if ext == "" {
 					msg = fmt.Sprintf("SKIP file %s as the file has no extension", info.Name())
@@ -423,6 +444,16 @@ func handleUploadedZipImagesGem(tempDir string) map[string]string {
 			if file.IsDir() {
 				util.Printf("SKIP folder %s/%s", info.Name(), file)
 			} else {
+				bs, err := ioutil.ReadFile(path)
+				if err != nil {
+					msg = errors.GetMessage(err)
+					return nil
+				}
+				if !filetype.IsImage(bs) {
+					msg = fmt.Sprintf("%s  is not image", info.Name())
+					util.Println(msg)
+					return nil
+				}
 				ext := filepath.Ext(info.Name())
 				if ext == "" {
 					msg = fmt.Sprintf("SKIP file %s as the file has no extension", info.Name())
