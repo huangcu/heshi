@@ -272,14 +272,15 @@ func getAllStockIDBySubCategory(subCategory string) (map[string]struct{}, error)
 
 //下线不存在的钻石 //TODO return or just trace err ???
 func offlineJewelrysNoLongerExist(stockIDList map[string]struct{}) error {
-	util.Tracef("Start to offline all jewelrys no longer exists")
+	util.Tracef("Start to offline all jewelrys no longer exists.\n")
 	for k := range stockIDList {
 		q := fmt.Sprintf("UPDATE jewelry SET offline='YES',updated_at=(CURRENT_TIMESTAMP) WHERE stock_id ='%s'", k)
+		util.Tracef("Offline jewelry stock_id: %s.\n", k)
 		if _, err := dbExec(q); err != nil {
-			util.Tracef("error when offline jewelry. stock_id: %s. err: ", k, errors.GetMessage(err))
+			util.Tracef("error when offline jewelry. stock_id: %s. err: \n", k, errors.GetMessage(err))
 			return err
 		}
 	}
-	util.Tracef("Finished offline all jewelrys no longer exists")
+	util.Tracef("Finished offline all jewelrys no longer exists\n")
 	return nil
 }

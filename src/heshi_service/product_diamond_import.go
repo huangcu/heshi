@@ -181,11 +181,11 @@ func (d *diamond) processDiamondRecord() error {
 			d.ID = newV4()
 			q := d.composeInsertQuery()
 			if _, err := dbExec(q); err != nil {
-				util.Tracef(`fail to add diamond item. diamond: %s; certificate_number: %s; grading_lab: %s; retail price %f`,
+				util.Tracef(`fail to add diamond item. diamond: %s; certificate_number: %s; grading_lab: %s; retail price %f.\n`,
 					d.StockRef, d.CertificateNumber, d.GradingLab, d.PriceRetail)
 				return err
 			}
-			util.Tracef(`diamond item added! diamond: %s; certificate_number: %s; grading_lab: %s; retail price %f`,
+			util.Tracef(`diamond item added! diamond: %s; certificate_number: %s; grading_lab: %s; retail price %f.\n`,
 				d.StockRef, d.CertificateNumber, d.GradingLab, d.PriceRetail)
 			return nil
 		}
@@ -195,11 +195,11 @@ func (d *diamond) processDiamondRecord() error {
 	if status != "SOLD" && status != "RESERVED" && (d.PriceRetail-priceRetail) > 5 {
 		q := d.composeUpdateQuery()
 		if _, err := dbExec(q); err != nil {
-			util.Tracef(`retail price changed, but failed to update. diamond: %s; certificate_number: %s; grading_lab: %s; original price: %f; new price should be %f`,
+			util.Tracef(`retail price changed, but failed to update. diamond: %s; certificate_number: %s; grading_lab: %s; original price: %f; new price should be %f.\n`,
 				d.StockRef, d.CertificateNumber, d.GradingLab, priceRetail, d.PriceRetail)
 			return err
 		}
-		util.Tracef(`retail price changed for diamond: %s; certificate_number: %s; grading_lab: %s; original price: %f; new price %f`,
+		util.Tracef(`retail price changed for diamond: %s; certificate_number: %s; grading_lab: %s; original price: %f; new price %f.\n`,
 			d.StockRef, d.CertificateNumber, d.GradingLab, priceRetail, d.PriceRetail)
 	}
 
@@ -306,15 +306,16 @@ func getAllValidSupplierName() ([]string, error) {
 
 //下线不存在的钻石 //TODO return or just trace err ???
 func offlineDiamondsNoLongerExist(stockRefList map[string]struct{}) error {
-	util.Tracef("Start to offline all diamonds no longer exists")
+	util.Tracef("Start to offline all diamonds no longer exists.\n")
 	for k := range stockRefList {
 		q := fmt.Sprintf("UPDATE diamonds SET status='OFFLINE' WHERE stock_ref ='%s'", k)
+		util.Tracef("Offline diamond stock_ref: %s.\n", k)
 		if _, err := dbExec(q); err != nil {
-			util.Tracef("error when offline diamond. stock_ref: %s. err: ", k, errors.GetMessage(err))
+			util.Tracef("error when offline diamond. stock_ref: %s. err: .\n", k, errors.GetMessage(err))
 			return err
 		}
 	}
-	util.Tracef("Finished offline all diamonds no longer exists")
+	util.Tracef("Finished offline all diamonds no longer exists.\n")
 	return nil
 }
 
