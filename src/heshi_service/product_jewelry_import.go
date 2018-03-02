@@ -113,6 +113,8 @@ func importJewelryProducts(file, category string) ([]util.Row, error) {
 				j.Profitable = strings.ToUpper(record[i])
 			case "free_acc":
 				j.FreeAcc = strings.ToUpper(record[i])
+			case "image", "image1", "image2", "image3", "image4", "image5":
+				j.Images = append(j.Images, record[i])
 			}
 		}
 
@@ -129,7 +131,7 @@ func importJewelryProducts(file, category string) ([]util.Row, error) {
 			//new record
 			if err == sql.ErrNoRows {
 				//validate as new request
-				if vemsg, err := j.validateJewelryReq(true, true); err != nil {
+				if vemsg, err := j.validateJewelryReq(false); err != nil {
 					return nil, err
 				} else if len(vemsg) != 0 {
 					row.Ignored = true
@@ -142,6 +144,7 @@ func importJewelryProducts(file, category string) ([]util.Row, error) {
 				}
 				//pass validation, insert into db
 				j.ID = newV4()
+				j.jewelryImages()
 				q := j.composeInsertQuery()
 				if _, err := dbExec(q); err != nil {
 					util.Printf("fail to add jewelry item. stock id: %s; err: %s", j.StockID, errors.GetMessage(err))
@@ -154,7 +157,7 @@ func importJewelryProducts(file, category string) ([]util.Row, error) {
 		}
 
 		//already exist, validate as update request
-		if vemsg, err := j.validateJewelryReq(false, true); err != nil {
+		if vemsg, err := j.validateJewelryReq(true); err != nil {
 			return nil, err
 		} else if len(vemsg) != 0 {
 			row.Ignored = true
@@ -167,6 +170,7 @@ func importJewelryProducts(file, category string) ([]util.Row, error) {
 		}
 		//pass validation, update db
 		j.ID = id
+		j.jewelryImages()
 		q = j.composeUpdateQuery()
 		if _, err := dbExec(q); err != nil {
 			util.Printf("fail to update jewelry item. stock id: %s; err; %s", j.StockID, errors.GetMessage(err))
@@ -220,6 +224,15 @@ func jewelryMountingType(mountingType string) (string, error) {
 	return "", errors.Newf("%s is not a valid mounting type", mountingType)
 }
 
+func (j *jewelry) jewelryImages() {
+	var imageNames []string
+	for _, imageName := range j.Images {
+		name := fmt.Sprintf("beyoudiamond-image-%s-%s", j.StockID, imageName)
+		imageNames = append(imageNames, name)
+	}
+	j.Images = imageNames
+}
+
 // <option value="JP">素金吊坠／项链</option> 1
 // <option value="JR">素金戒指</option> 2
 // <option value="JE">素金耳环／耳钉</option> 3
@@ -254,7 +267,7 @@ func getAllStockIDBySubCategory(subCategory string) (map[string]struct{}, error)
 		return nil, errors.New("missing upload sub category")
 	}
 	stockIds := make(map[string]struct{})
-	q = fmt.Sprintf("SELECT stock_id FROM jewelry WHERE online='YES' AND %s", q)
+	q = fmt.Sprintf("SELECT stock_id FROM jewelrys WHERE online='YES' AND %s", q)
 	rows, err := dbQuery(q)
 	if err != nil {
 		return nil, err
@@ -274,7 +287,7 @@ func getAllStockIDBySubCategory(subCategory string) (map[string]struct{}, error)
 func offlineJewelrysNoLongerExist(stockIDList map[string]struct{}) error {
 	util.Tracef("Start to offline all jewelrys no longer exists.\n")
 	for k := range stockIDList {
-		q := fmt.Sprintf("UPDATE jewelry SET offline='YES',updated_at=(CURRENT_TIMESTAMP) WHERE stock_id ='%s'", k)
+		q := fmt.Sprintf("UPDATE jewelrys SET offline='YES',updated_at=(CURRENT_TIMESTAMP) WHERE stock_id ='%s'", k)
 		util.Tracef("Offline jewelry stock_id: %s.\n", k)
 		if _, err := dbExec(q); err != nil {
 			util.Tracef("error when offline jewelry. stock_id: %s. err: \n", k, errors.GetMessage(err))

@@ -143,7 +143,7 @@ func (j *jewelry) parmsKV() map[string]interface{} {
 }
 
 //if from importCSV, it is otherwize, no need to check duplication of stock_id
-func (j *jewelry) validateJewelryReq(update bool, importCSV bool) ([]errors.HSMessage, error) {
+func (j *jewelry) validateJewelryReq(update bool) ([]errors.HSMessage, error) {
 	var vemsg []errors.HSMessage
 	if !update && j.MetalWeightStr == "" {
 		vemsg = append(vemsg, vemsgMetalWeightEmpty)
@@ -244,11 +244,19 @@ func (j *jewelry) validateJewelryReq(update bool, importCSV bool) ([]errors.HSMe
 		}
 	}
 
-	if !importCSV {
-		if !update && j.StockID == "" {
-			vemsgNotValid.Message = "jewelry stock id can not be empty"
-			vemsg = append(vemsg, vemsgNotValid)
-		} else if j.StockID != "" {
+	if !update && j.StockID == "" {
+		vemsgNotValid.Message = "jewelry stock id can not be empty"
+		vemsg = append(vemsg, vemsgNotValid)
+	}
+	if j.StockID != "" {
+		if update {
+			if exist, err := isItemExistInDbByPropertyWithDifferentID("jewelrys", "stock_id", j.StockID, j.ID); err != nil {
+				return nil, err
+			} else if exist {
+				vemsgAlreadyExist.Message = "jewelry stock_ref " + j.StockID + " already exists"
+				vemsg = append(vemsg, vemsgAlreadyExist)
+			}
+		} else {
 			if exist, err := isItemExistInDbByProperty("jewelrys", "stock_id", j.StockID); err != nil {
 				return nil, err
 			} else if exist {
@@ -257,6 +265,7 @@ func (j *jewelry) validateJewelryReq(update bool, importCSV bool) ([]errors.HSMe
 			}
 		}
 	}
+
 	if !update && j.Name == "" {
 		vemsgNotValid.Message = "jewelry name can not be empty"
 		vemsg = append(vemsg, vemsgNotValid)
@@ -406,7 +415,7 @@ func (j *jewelry) validateJewelryUpdateReq() ([]errors.HSMessage, error) {
 	}
 
 	if j.StockID != "" {
-		if exist, err := isItemExistInDbByProperty("jewelrys", "stock_id", j.StockID); err != nil {
+		if exist, err := isItemExistInDbByPropertyWithDifferentID("jewelrys", "stock_id", j.StockID, j.ID); err != nil {
 			return nil, err
 		} else if exist {
 			vemsgAlreadyExist.Message = "jewelry stock_ref " + j.StockID + " already exists"

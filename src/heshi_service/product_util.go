@@ -253,7 +253,7 @@ func handleUploadedZipVideo(tempDir string) map[string]string {
 		}
 
 		if ext == "mp4" || ext == "mov" || ext == "ogv" || ext == "webm" {
-			filename = fmt.Sprintf("beyoudiamond-video-%d.%s", time.Now().UnixNano(), ext)
+			filename = fmt.Sprintf("beyoudiamond-video-%s", info.Name())
 		} else {
 			msg = fmt.Sprintf("Uploaded file %s extension is not supported", info.Name())
 			util.Println(msg)
@@ -331,7 +331,7 @@ func handleUploadedZipImagesDiamond(tempDir string) map[string]string {
 					msg = fmt.Sprintf("SKIP file %s as the file has no extension", info.Name())
 					util.Println(msg)
 				} else {
-					filename := fmt.Sprintf("beyoudiamond-image-%d.%s", time.Now().UnixNano(), filepath.Ext(info.Name()))
+					filename := fmt.Sprintf("beyoudiamond-image-%s", info.Name())
 					if err := handleImage(path, filepath.Join(".image", "diamond", filename)); err != nil {
 						msg = errors.GetMessage(err)
 					} else {

@@ -30,6 +30,37 @@ var jewelryHeaders = []string{
 	"stock_quantity",
 	"profitable",
 	"free_acc",
+	"image",
+	"image1",
+	"image2",
+	"image3",
+	"image4",
+	"image5",
+}
+
+var gemHeaders = []string{
+	"name",
+	"stock_id",
+	"size",
+	"material",
+	"shape",
+	"certificate",
+
+	"price",
+	"text",
+	"online",
+	"verified",
+	"in_stock",
+	"featured",
+	"stock_quantity",
+	"profitable",
+	"free_acc",
+	"image",
+	"image1",
+	"image2",
+	"image3",
+	"image4",
+	"image5",
 }
 
 //TODO ref

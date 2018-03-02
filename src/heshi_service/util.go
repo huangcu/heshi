@@ -141,6 +141,18 @@ func isItemExistInDbByProperty(dbName, property, propertyValue string) (bool, er
 	return true, nil
 }
 
+func isItemExistInDbByPropertyWithDifferentID(dbName, property, propertyValue, id string) (bool, error) {
+	var count int
+	q := fmt.Sprintf("SELECT count(*) FROM %s WHERE %s='%s' AND id!='%s'", dbName, property, propertyValue, id)
+	if err := dbQueryRow(q).Scan(&count); err != nil {
+		return false, err
+	}
+	if count == 0 {
+		return false, nil
+	}
+	return true, nil
+}
+
 func ItemsNotInArray(item string, items []string) []string {
 	itemStr := FormatInputString(item)
 	var notIn []string

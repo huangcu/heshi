@@ -68,7 +68,7 @@ func newGems(c *gin.Context) {
 		FreeAcc:          strings.ToUpper(c.PostForm("free_acc")),
 	}
 
-	if vemsg, err := g.validateGemReq(); err != nil {
+	if vemsg, err := g.validateGemReq(false); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	} else if len(vemsg) != 0 {
@@ -118,7 +118,7 @@ func updateGems(c *gin.Context) {
 		Profitable:       strings.ToUpper(c.PostForm("profitable")),
 		FreeAcc:          strings.ToUpper(c.PostForm("free_acc")),
 	}
-	if vemsg, err := g.validateGemUpdateReq(); err != nil {
+	if vemsg, err := g.validateGemReq(true); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	} else if len(vemsg) != 0 {

@@ -322,26 +322,46 @@ func (d *diamond) validateDiamondReq(update bool) ([]errors.HSMessage, error) {
 	if !update && d.StockRef == "" {
 		vemsgNotValid.Message = "diamond stock ref can not be empty"
 		vemsg = append(vemsg, vemsgNotValid)
-	} else if d.StockRef != "" {
+	}
+	if d.StockRef != "" {
 		if err := d.composeStockRefWithSupplierPrefix(); err != nil {
 			return nil, err
 		}
-		if exist, err := isItemExistInDbByProperty("diamonds", "stock_ref", d.StockRef); err != nil {
-			return nil, err
-		} else if exist {
-			vemsgAlreadyExist.Message = "diamond stock_ref " + d.StockRef + " already exists"
-			vemsg = append(vemsg, vemsgAlreadyExist)
+		if update {
+			if exist, err := isItemExistInDbByPropertyWithDifferentID("diamonds", "stock_ref", d.StockRef, d.ID); err != nil {
+				return nil, err
+			} else if exist {
+				vemsgAlreadyExist.Message = "diamond stock_ref " + d.StockRef + " already exists"
+				vemsg = append(vemsg, vemsgAlreadyExist)
+			}
+		} else {
+			if exist, err := isItemExistInDbByProperty("diamonds", "stock_ref", d.StockRef); err != nil {
+				return nil, err
+			} else if exist {
+				vemsgAlreadyExist.Message = "diamond stock_ref " + d.StockRef + " already exists"
+				vemsg = append(vemsg, vemsgAlreadyExist)
+			}
 		}
 	}
 	if !update && d.DiamondID == "" {
 		vemsgNotValid.Message = "diamond id can not be empty"
 		vemsg = append(vemsg, vemsgNotValid)
-	} else if d.DiamondID != "" {
-		if exist, err := isItemExistInDbByProperty("diamonds", "diamond_id", d.DiamondID); err != nil {
-			return nil, err
-		} else if exist {
-			vemsgAlreadyExist.Message = "diamond id " + d.DiamondID + " already exists"
-			vemsg = append(vemsg, vemsgAlreadyExist)
+	}
+	if d.DiamondID != "" {
+		if update {
+			if exist, err := isItemExistInDbByPropertyWithDifferentID("diamonds", "diamond_id", d.DiamondID, d.ID); err != nil {
+				return nil, err
+			} else if exist {
+				vemsgAlreadyExist.Message = "diamond id " + d.DiamondID + " already exists"
+				vemsg = append(vemsg, vemsgAlreadyExist)
+			}
+		} else {
+			if exist, err := isItemExistInDbByProperty("diamonds", "diamond_id", d.DiamondID); err != nil {
+				return nil, err
+			} else if exist {
+				vemsgAlreadyExist.Message = "diamond id " + d.DiamondID + " already exists"
+				vemsg = append(vemsg, vemsgAlreadyExist)
+			}
 		}
 	}
 
@@ -457,7 +477,7 @@ func (d *diamond) validateDiamondUpdateReq() ([]errors.HSMessage, error) {
 		}
 	}
 	if d.StockRef != "" {
-		if exist, err := isItemExistInDbByProperty("diamonds", "stock_ref", d.StockRef); err != nil {
+		if exist, err := isItemExistInDbByPropertyWithDifferentID("diamonds", "stock_ref", d.StockRef, d.ID); err != nil {
 			return nil, err
 		} else if exist {
 			vemsgAlreadyExist.Message = "diamond stock_ref " + d.StockRef + " already exists"
@@ -465,7 +485,7 @@ func (d *diamond) validateDiamondUpdateReq() ([]errors.HSMessage, error) {
 		}
 	}
 	if d.DiamondID != "" {
-		if exist, err := isItemExistInDbByProperty("diamonds", "diamond_id", d.DiamondID); err != nil {
+		if exist, err := isItemExistInDbByPropertyWithDifferentID("diamonds", "diamond_id", d.DiamondID, d.ID); err != nil {
 			return nil, err
 		} else if exist {
 			vemsgAlreadyExist.Message = "diamond id " + d.DiamondID + " already exists"

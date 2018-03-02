@@ -109,11 +109,11 @@ func (g *gem) parmsKV() map[string]interface{} {
 	return params
 }
 
-func (g *gem) validateGemReq() ([]errors.HSMessage, error) {
+func (g *gem) validateGemReq(update bool) ([]errors.HSMessage, error) {
 	var vemsg []errors.HSMessage
-	if g.SizeStr == "" {
+	if !update && g.SizeStr == "" {
 		vemsg = append(vemsg, vemsgGemSizeEmpty)
-	} else {
+	} else if g.SizeStr != "" {
 		cValue, err := util.StringToFloat(g.SizeStr)
 		if err != nil {
 			vemsg = append(vemsg, vemsgGemSizeNotValid)
@@ -123,9 +123,9 @@ func (g *gem) validateGemReq() ([]errors.HSMessage, error) {
 			g.Size = cValue
 		}
 	}
-	if g.PriceStr == "" {
+	if !update && g.PriceStr == "" {
 		vemsg = append(vemsg, vemsgGemPriceEmpty)
-	} else {
+	} else if g.PriceStr != "" {
 		pValue, err := util.StringToFloat(g.PriceStr)
 		if err != nil {
 			vemsg = append(vemsg, vemsgGemPriceNotValid)
@@ -135,9 +135,9 @@ func (g *gem) validateGemReq() ([]errors.HSMessage, error) {
 			g.Price = pValue
 		}
 	}
-	if g.StockQuantityStr == "" {
+	if !update && g.StockQuantityStr == "" {
 		vemsg = append(vemsg, vemsgStockQuantityEmpty)
-	} else {
+	} else if g.StockQuantityStr != "" {
 		prValue, err := strconv.Atoi(g.StockQuantityStr)
 		if err != nil {
 			vemsg = append(vemsg, vemsgStockQuantityNotValid)
@@ -150,10 +150,10 @@ func (g *gem) validateGemReq() ([]errors.HSMessage, error) {
 	// return vemsg, nil
 
 	//be an array
-	if g.Shape == "" {
+	if !update && g.Shape == "" {
 		vemsgNotValid.Message = "gem shape cannot be empty"
 		vemsg = append(vemsg, vemsgNotValid)
-	} else {
+	} else if g.Shape != "" {
 		s, err := jewelryShape(g.Shape)
 		if err != nil {
 			return nil, err
@@ -161,35 +161,56 @@ func (g *gem) validateGemReq() ([]errors.HSMessage, error) {
 		g.Shape = s
 	}
 
-	if g.Text == "" {
+	if !update && g.Text == "" {
 		vemsgNotValid.Message = "gem text cannot be empty"
 		vemsg = append(vemsg, vemsgNotValid)
 	}
-	if g.Certificate == "" {
+	if !update && g.Certificate == "" {
 		vemsgNotValid.Message = "gem certificate cannot be empty"
 		vemsg = append(vemsg, vemsgNotValid)
-	} else {
-		if e, err := isItemExistInDbByProperty("gems", "certificate", g.Certificate); err != nil {
-			return nil, err
-		} else if e {
-			vemsgAlreadyExist.Message = "gem certificate already exist"
-			vemsg = append(vemsg, vemsgAlreadyExist)
+	}
+	if g.Certificate != "" {
+		if update {
+			if e, err := isItemExistInDbByPropertyWithDifferentID("gems", "certificate", g.Certificate, g.ID); err != nil {
+				return nil, err
+			} else if e {
+				vemsgAlreadyExist.Message = "gem certificate already exist"
+				vemsg = append(vemsg, vemsgAlreadyExist)
+			}
+		} else {
+			if e, err := isItemExistInDbByProperty("gems", "certificate", g.Certificate); err != nil {
+				return nil, err
+			} else if e {
+				vemsgAlreadyExist.Message = "gem certificate already exist"
+				vemsg = append(vemsg, vemsgAlreadyExist)
+			}
 		}
 	}
 
-	if g.StockID == "" {
+	if !update && g.StockID == "" {
 		vemsgNotValid.Message = "gem stock id cannot be empty"
 		vemsg = append(vemsg, vemsgNotValid)
-	} else {
-		if e, err := isItemExistInDbByProperty("gems", "stock_id", g.StockID); err != nil {
-			return nil, err
-		} else if e {
-			vemsgAlreadyExist.Message = "gem stock id already exist"
-			vemsg = append(vemsg, vemsgAlreadyExist)
+	}
+	if g.StockID != "" {
+		if update {
+			if e, err := isItemExistInDbByPropertyWithDifferentID("gems", "stock_id", g.StockID, g.ID); err != nil {
+				return nil, err
+			} else if e {
+				vemsgAlreadyExist.Message = "gem stock id already exist"
+				vemsg = append(vemsg, vemsgAlreadyExist)
+			}
+
+		} else {
+			if e, err := isItemExistInDbByProperty("gems", "stock_id", g.StockID); err != nil {
+				return nil, err
+			} else if e {
+				vemsgAlreadyExist.Message = "gem stock id already exist"
+				vemsg = append(vemsg, vemsgAlreadyExist)
+			}
 		}
 	}
 
-	if g.Name == "" {
+	if !update && g.Name == "" {
 		vemsgNotValid.Message = "gem name cannot be empty"
 		vemsg = append(vemsg, vemsgNotValid)
 	}
@@ -239,7 +260,7 @@ func (g *gem) validateGemUpdateReq() ([]errors.HSMessage, error) {
 	}
 
 	if g.Certificate != "" {
-		if e, err := isItemExistInDbByProperty("gems", "stock_id", g.StockID); err != nil {
+		if e, err := isItemExistInDbByPropertyWithDifferentID("gems", "stock_id", g.StockID, g.ID); err != nil {
 			return nil, err
 		} else if e {
 			vemsgAlreadyExist.Message = "gem certificate already exist"
@@ -248,7 +269,7 @@ func (g *gem) validateGemUpdateReq() ([]errors.HSMessage, error) {
 	}
 
 	if g.StockID != "" {
-		if e, err := isItemExistInDbByProperty("gems", "stock_id", g.StockID); err != nil {
+		if e, err := isItemExistInDbByPropertyWithDifferentID("gems", "stock_id", g.StockID, g.ID); err != nil {
 			return nil, err
 		} else if e {
 			vemsgAlreadyExist.Message = "gem stock id already exist"

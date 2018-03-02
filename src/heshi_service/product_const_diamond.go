@@ -32,6 +32,12 @@ var diamondHeaders = []string{
 	"featured",
 	"recommand_words",
 	"extra_words",
+	"image",
+	"image1",
+	"image2",
+	"image3",
+	"image4",
+	"image5",
 }
 
 var smallDiamondHeaders = []string{

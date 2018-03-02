@@ -140,6 +140,8 @@ func importDiamondProducts(file string) ([]util.Row, error) {
 				d.Featured = strings.ToUpper(record[i])
 			case "extra_words":
 				d.Featured = strings.ToUpper(record[i])
+			case "image", "image1", "image2", "image3", "image4", "image5":
+				d.Images = append(d.Images, record[i])
 			}
 		}
 
@@ -153,6 +155,8 @@ func importDiamondProducts(file string) ([]util.Row, error) {
 				//TODO
 				return nil, err
 			}
+			d.diamondImages()
+
 			if err := d.processDiamondRecord(); err != nil {
 				//TODO return err for now!
 				return nil, err
@@ -453,4 +457,13 @@ func diamondGradingLab(gradingLab string) (string, error) {
 		return strings.ToUpper(gradingLab), nil
 	}
 	return "", errors.Newf("%s is not a valid grading lab")
+}
+
+func (d *diamond) diamondImages() {
+	var imageNames []string
+	for _, imageName := range d.Images {
+		name := fmt.Sprintf("beyoudiamond-image-%s-%s", d.StockRef, imageName)
+		imageNames = append(imageNames, name)
+	}
+	d.Images = imageNames
 }
