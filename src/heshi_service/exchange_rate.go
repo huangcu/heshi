@@ -8,8 +8,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/satori/go.uuid"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -261,7 +259,7 @@ func getLatestRates() error {
 		return err
 	}
 	c.Note = "FROM Open Exchange Rates API"
-	c.ID = uuid.NewV4().String()
+	c.ID = newV4()
 
 	q := c.composeInsertQuery()
 	_, err = dbExec(q)

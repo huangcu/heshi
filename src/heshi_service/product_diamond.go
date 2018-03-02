@@ -11,7 +11,6 @@ import (
 	"util"
 
 	"github.com/gin-gonic/gin"
-	uuid "github.com/satori/go.uuid"
 )
 
 type diamond struct {
@@ -98,7 +97,7 @@ func newDiamond(c *gin.Context) {
 		return
 	}
 	d := diamond{
-		ID:                    uuid.NewV4().String(),
+		ID:                    newV4(),
 		DiamondID:             strings.ToUpper(c.PostForm("diamond_id")),
 		StockRef:              strings.ToUpper(c.PostForm("stock_ref")),
 		Shape:                 strings.ToUpper(c.PostForm("shape")),

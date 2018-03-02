@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	uuid "github.com/satori/go.uuid"
 )
 
 type PriceSetting struct {
@@ -54,7 +53,7 @@ func addPriceRule(c *gin.Context) {
 		c.JSON(http.StatusOK, vemsg)
 		return
 	}
-	ps.ID = uuid.NewV4().String()
+	ps.ID = newV4()
 	q := ps.composeInsertQuery()
 	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusBadRequest, errors.GetMessage(err))

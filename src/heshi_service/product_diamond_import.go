@@ -6,8 +6,6 @@ import (
 	"heshi/errors"
 	"strings"
 	"util"
-
-	uuid "github.com/satori/go.uuid"
 )
 
 func validateDiamondHeaders(headers []string) []string {
@@ -180,7 +178,7 @@ func (d *diamond) processDiamondRecord() error {
 	if err := db.QueryRow(q).Scan(&id, &priceNoAddedValue, &priceRetail, &status); err != nil {
 		//item not exist in db
 		if err == sql.ErrNoRows {
-			d.ID = uuid.NewV4().String()
+			d.ID = newV4()
 			q := d.composeInsertQuery()
 			if _, err := dbExec(q); err != nil {
 				util.Tracef(`fail to add diamond item. diamond: %s; certificate_number: %s; grading_lab: %s; retail price %f`,

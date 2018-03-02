@@ -10,8 +10,6 @@ import (
 	"time"
 	"util"
 
-	"github.com/satori/go.uuid"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -78,7 +76,7 @@ func newLevelConfig(c *gin.Context) {
 	}
 
 	createdBy := c.MustGet("id").(string)
-	id := uuid.NewV4().String()
+	id := newV4()
 	conf := config{
 		DiscountStr: c.PostForm("discount"),
 		Level:       c.PostForm("level"),
@@ -171,7 +169,7 @@ func getRateConfig(c *gin.Context) {
 
 func newRateConfig(c *gin.Context) {
 	createdBy := c.MustGet("id").(string)
-	id := uuid.NewV4().String()
+	id := newV4()
 	rate, err := util.StringToFloat(c.PostForm("rate"))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))

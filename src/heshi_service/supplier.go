@@ -6,8 +6,6 @@ import (
 	"heshi/errors"
 	"net/http"
 
-	"github.com/satori/go.uuid"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -36,7 +34,7 @@ func newSupplier(c *gin.Context) {
 		c.JSON(http.StatusOK, vemsg)
 		return
 	}
-	ns.ID = uuid.NewV4().String()
+	ns.ID = newV4()
 	q := ns.composeInsertQuery()
 	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusBadRequest, errors.GetMessage(err))

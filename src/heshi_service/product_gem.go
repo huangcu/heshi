@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	uuid "github.com/satori/go.uuid"
 )
 
 type gem struct {
@@ -50,7 +49,7 @@ func newGems(c *gin.Context) {
 		return
 	}
 	g := gem{
-		ID:               uuid.NewV4().String(),
+		ID:               newV4(),
 		StockID:          strings.ToUpper(c.PostForm("stock_id")),
 		Shape:            FormatInputString(c.PostForm("shape")),
 		Material:         strings.ToUpper(c.PostForm("material")),

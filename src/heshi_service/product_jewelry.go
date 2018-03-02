@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	uuid "github.com/satori/go.uuid"
 )
 
 type jewelry struct {
@@ -116,7 +115,7 @@ func newJewelry(c *gin.Context) {
 		return
 	}
 	j := jewelry{
-		ID:               uuid.NewV4().String(),
+		ID:               newV4(),
 		StockID:          strings.ToUpper(c.PostForm("stock_id")),
 		Name:             c.PostForm("name"),
 		Category:         c.PostForm("category"),

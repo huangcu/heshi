@@ -6,8 +6,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/satori/go.uuid"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -99,7 +97,7 @@ func currencyRateReqValidator(h gin.HandlerFunc) gin.HandlerFunc {
 		// }
 
 		currencyRate := currency{
-			ID:   uuid.NewV4().String(),
+			ID:   newV4(),
 			Base: strings.ToUpper(c.PostForm("base")),
 			Note: "manual input",
 			Rates: Rate{

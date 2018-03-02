@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"strings"
-
-	"github.com/satori/go.uuid"
 )
 
 func userUsingRecord(URLPath, user, platform string) error {
@@ -27,7 +25,7 @@ func userUsingRecord(URLPath, user, platform string) error {
 //TODO better define
 func addUserUsingRecord(user, itemID, itemType, device string) error {
 	q := fmt.Sprintf(`INSERT INTO user_using_records (id, user_id, item_id, item_type, device) 
-	VALUES ('%s','%s','%s','%s','%s')`, uuid.NewV4().String(), user, itemID, itemType, device)
+	VALUES ('%s','%s','%s','%s','%s')`, newV4(), user, itemID, itemType, device)
 	if _, err := dbExec(q); err != nil {
 		return err
 	}
@@ -37,7 +35,7 @@ func addUserUsingRecord(user, itemID, itemType, device string) error {
 //TODO better define
 func addUserActiveRecord(user, URLPath string) error {
 	q := fmt.Sprintf(`INSERT INTO user_active_records (id, user_id, page) 
-	VALUES ('%s','%s','%s')`, uuid.NewV4().String(), user, URLPath)
+	VALUES ('%s','%s','%s')`, newV4(), user, URLPath)
 	if _, err := dbExec(q); err != nil {
 		return err
 	}

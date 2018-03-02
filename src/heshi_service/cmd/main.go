@@ -7,9 +7,9 @@ import (
 	"util"
 
 	_ "github.com/go-sql-driver/mysql"
+	uuid "github.com/satori/go.uuid"
 
 	"github.com/jinzhu/configor"
-	uuid "github.com/satori/go.uuid"
 )
 
 var config = struct {
@@ -27,7 +27,8 @@ func main() {
 		log.Fatalf("fail to open db. err: %s", err.Error())
 	}
 
-	id := uuid.NewV4().String()
+	v4, _ := uuid.NewV4()
+	id := v4.String()
 	password := util.Encrypt("admin")
 	q := `INSERT INTO users (id, username, password, email, user_type, invitation_code) 
 	VALUES (?, 'admin',?,'admin@admin.com', 'admin', 'ignore')`

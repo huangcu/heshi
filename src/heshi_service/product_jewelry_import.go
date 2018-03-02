@@ -6,8 +6,6 @@ import (
 	"heshi/errors"
 	"strings"
 	"util"
-
-	uuid "github.com/satori/go.uuid"
 )
 
 // <td width="88">唯一商品号(StockID)</td>
@@ -143,7 +141,7 @@ func importJewelryProducts(file, category string) ([]util.Row, error) {
 					continue
 				}
 				//pass validation, insert into db
-				j.ID = uuid.NewV4().String()
+				j.ID = newV4()
 				q := j.composeInsertQuery()
 				if _, err := dbExec(q); err != nil {
 					util.Printf("fail to add jewelry item. stock id: %s; err: %s", j.StockID, errors.GetMessage(err))

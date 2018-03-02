@@ -12,7 +12,6 @@ import (
 	"util"
 
 	"github.com/gin-gonic/gin"
-	uuid "github.com/satori/go.uuid"
 )
 
 type product struct {
@@ -184,7 +183,7 @@ func importSmallDiamondProducts(file string) ([]util.Row, error) {
 		//insert into db
 		if !row.Ignored {
 			q := `INSERT INTO small_diamonds (id, size_from, size_to, price, quantity) VALUSE('%s', '%f', '%f', '%f', '%d')`
-			if _, err := dbExec(fmt.Sprintf(q, uuid.NewV4().String()), sd.SizeFrom, sd.SizeTo, sd.Price, sd.Quantity); err != nil {
+			if _, err := dbExec(fmt.Sprintf(q, newV4()), sd.SizeFrom, sd.SizeTo, sd.Price, sd.Quantity); err != nil {
 				return nil, err
 			}
 		}

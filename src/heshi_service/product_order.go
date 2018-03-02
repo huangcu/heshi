@@ -7,8 +7,6 @@ import (
 	"heshi/errors"
 	"net/http"
 
-	"github.com/satori/go.uuid"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -169,7 +167,7 @@ func (oi *orderItem) checkSmallDiamondItem() error {
 }
 
 func orderSingleItem(item orderItem) error {
-	item.ID = uuid.NewV4().String()
+	item.ID = newV4()
 	item.TransactionID = item.ID
 	var oq string
 	switch item.Category {
@@ -208,11 +206,11 @@ func orderSingleItem(item orderItem) error {
 
 func orderMultipleItems(items []orderItem) error {
 	qs := make(map[string]orderItem)
-	transactionID := uuid.NewV4().String()
+	transactionID := newV4()
 	for _, item := range items {
 		var oq string
 		item.TransactionID = transactionID
-		item.ID = uuid.NewV4().String()
+		item.ID = newV4()
 		switch item.Category {
 		case DIAMOND:
 			oq = fmt.Sprintf("UPDATE diamonds SET status='ORDERED', updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", item.ItemID)

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 	"util"
+
+	uuid "github.com/satori/go.uuid"
 )
 
 func downPayment(price float64) float64 {
@@ -156,4 +158,9 @@ func FormatInputString(input string) string {
 
 func floatToFixed2(v float64) float64 {
 	return float64(int(v*100)) / 100
+}
+
+func newV4() string {
+	v4, _ := uuid.NewV4()
+	return v4.String()
 }

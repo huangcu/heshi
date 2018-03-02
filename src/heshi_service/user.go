@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	uuid "github.com/satori/go.uuid"
 )
 
 type User struct {
@@ -45,7 +44,7 @@ func newAdminAgentUser(c *gin.Context) {
 	}
 
 	nu := User{
-		ID:             uuid.NewV4().String(),
+		ID:             newV4(),
 		Username:       c.PostForm("username"),
 		Cellphone:      c.PostForm("cellphone"),
 		Email:          c.PostForm("email"),
@@ -135,7 +134,7 @@ func newAdminAgentUser(c *gin.Context) {
 
 func newUser(c *gin.Context) {
 	nu := User{
-		ID:             uuid.NewV4().String(),
+		ID:             newV4(),
 		Username:       c.PostForm("username"),
 		Cellphone:      c.PostForm("cellphone"),
 		Email:          c.PostForm("email"),

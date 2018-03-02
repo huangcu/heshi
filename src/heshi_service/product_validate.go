@@ -6,9 +6,9 @@ import (
 	"strings"
 )
 
-type ValidationErrors map[string]string
+type validationErrors map[string]string
 
-func (ve ValidationErrors) Error() string {
+func (ve validationErrors) Error() string {
 	var buff bytes.Buffer
 	for key, msg := range ve {
 		buff.WriteString(fmt.Sprintf("%s %s\n", key, msg))

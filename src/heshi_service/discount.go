@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/satori/go.uuid"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,7 +25,7 @@ func newDiscount(c *gin.Context) {
 		c.JSON(http.StatusOK, vemsgAgentDiscountNotValid)
 		return
 	}
-	id := uuid.NewV4().String()
+	id := newV4()
 	q := fmt.Sprintf(`INSERT INTO discounts (id, discount_code, discount, created_by) 
 	VALUES ('%s', '%s', '%d', '%s')`, id, nd.DiscountCode, nd.Discount, createdBy)
 	if _, err := dbExec(q); err != nil {

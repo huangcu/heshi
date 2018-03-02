@@ -7,8 +7,6 @@ import (
 	"strings"
 	"sync"
 	"util"
-
-	uuid "github.com/satori/go.uuid"
 )
 
 //daily or weekly check
@@ -179,7 +177,7 @@ func updateUserLevel(userID, oldLevel, newLevel string) error {
 
 func addActionLog(userID, action, info string) error {
 	q := fmt.Sprintf("INSERT INTO action_logs (id, action, user_id, info) VALUES('%s','%s','%s','%s')",
-		uuid.NewV4().String(), action, userID, info)
+		newV4(), action, userID, info)
 	if _, err := dbExec(q); err != nil {
 		return err
 	}
