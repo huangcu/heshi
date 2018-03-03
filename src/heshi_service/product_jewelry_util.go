@@ -462,3 +462,11 @@ func (j *jewelry) isJewelryExistByStockID() error {
 	j.ID = id
 	return nil
 }
+
+func isJewelryExistByID(id string) (bool, error) {
+	var count int
+	if err := dbQueryRow("SELECT COUNT(*) FROM jewelrys WHERE id=?", id).Scan(&count); err != nil {
+		return false, err
+	}
+	return count == 1, nil
+}

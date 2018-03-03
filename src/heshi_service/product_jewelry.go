@@ -168,6 +168,14 @@ func newJewelry(c *gin.Context) {
 }
 
 func updateJewelry(c *gin.Context) {
+	jid := c.Param("id")
+	if exist, err := isJewelryExistByID(jid); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	} else if !exist {
+		c.JSON(http.StatusBadRequest, "Item doesn't exist")
+		return
+	}
 	fileHeader, _ := c.FormFile("video")
 	filename, vemsg, err := validateUploadedSingleFile(fileHeader, "jewelry", "video", 99000000)
 	if err != nil {
@@ -188,7 +196,7 @@ func updateJewelry(c *gin.Context) {
 		return
 	}
 	j := jewelry{
-		ID:               c.Param("id"),
+		ID:               jid,
 		StockID:          strings.ToUpper(c.PostForm("stock_id")),
 		Name:             c.PostForm("name"),
 		Category:         c.PostForm("category"),

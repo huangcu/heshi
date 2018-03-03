@@ -141,6 +141,14 @@ func newDiamond(c *gin.Context) {
 }
 
 func updateDiamond(c *gin.Context) {
+	did := c.Param("id")
+	if exist, err := isDiamondExistByID(did); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	} else if !exist {
+		c.JSON(http.StatusBadRequest, "Item doesn't exist")
+		return
+	}
 	imageFileNames, vemsg, err := validateUploadedMultipleFile(c, "diamond", "image", 1*1024*1024)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
@@ -151,7 +159,7 @@ func updateDiamond(c *gin.Context) {
 		return
 	}
 	d := diamond{
-		ID:                    c.Param("id"),
+		ID:                    did,
 		DiamondID:             strings.ToUpper(c.PostForm("diamond_id")),
 		StockRef:              strings.ToUpper(c.PostForm("stock_ref")),
 		Shape:                 strings.ToUpper(c.PostForm("shape")),

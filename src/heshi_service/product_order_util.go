@@ -76,3 +76,11 @@ func (oi *orderItem) parmsKV() map[string]interface{} {
 	}
 	return params
 }
+
+func isOrderExistByID(id string) (bool, error) {
+	var count int
+	if err := dbQueryRow("SELECT COUNT(*) FROM orders WHERE id=?", id).Scan(&count); err != nil {
+		return false, err
+	}
+	return count == 1, nil
+}

@@ -64,8 +64,16 @@ func addPriceRule(c *gin.Context) {
 }
 
 func updatePriceRule(c *gin.Context) {
+	pid := c.Param("id")
+	if exist, err := isSupplierPriceRuleExistByID(pid); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	} else if !exist {
+		c.JSON(http.StatusBadRequest, "price rule doesn't exist")
+		return
+	}
 	s := PriceSetting{
-		ID:              c.Param("id"),
+		ID:              pid,
 		CaratFromStr:    c.PostForm("carat_from"),
 		CaratToStr:      c.PostForm("carat_to"),
 		Colors:          c.PostForm("color"),

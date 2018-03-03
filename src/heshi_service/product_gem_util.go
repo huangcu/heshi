@@ -288,3 +288,11 @@ func (g *gem) isGemExistByStockID() error {
 	g.ID = id
 	return nil
 }
+
+func isGemExistByID(id string) (bool, error) {
+	var count int
+	if err := dbQueryRow("SELECT COUNT(*) FROM gems WHERE id=?", id).Scan(&count); err != nil {
+		return false, err
+	}
+	return count == 1, nil
+}

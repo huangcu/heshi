@@ -6,25 +6,11 @@ import (
 	"fmt"
 	"heshi/errors"
 	"net/http"
+	"strings"
+	"util"
 
 	"github.com/gin-gonic/gin"
 )
-
-// CREATE TABLE IF NOT EXISTS orders
-// (
-// 	id VARCHAR(225) PRIMARY KEY NOT NULL,
-// 	transaction_id VARCHAR(225) NOT NULL,
-// 	item_id INT NOT NULL,
-// 	item_price FLOAT NOT NULL,
-// 	item_category INT NOT NULL,
-// 	buyer_id TINYINT(4) NOT NULL,
-// 	downpayment FLOAT,
-// 	status VARCHAR(20) NOT NULL DEFAULT 'ORDERED',
-// 	extra_info VARCHAR(225),
-// 	special_notice VARCHAR(225),
-// 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-// 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-// ) ENGINE=INNODB;
 
 type transaction struct {
 	TransactionID string      `json:"transaction_id"`
@@ -44,6 +30,62 @@ type orderItem struct {
 	TransactionID string  `json:"-"`
 	Status        string  `json:"status"`
 	InStock       int     `json:"in_stock"`
+}
+
+//ALLOW TO EDIT PRICE,SPECIALNOTICE,DOWNPAYMENT,STATUS ONLY
+func updateOrder(c *gin.Context) {
+	oid := c.Param("id")
+	if exist, err := isOrderExistByID(oid); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	} else if !exist {
+		c.JSON(http.StatusBadRequest, "Order doesn't exist")
+		return
+	}
+	oi := orderItem{
+		ID:            oid,
+		ExtraInfo:     c.PostForm("extra_info"),
+		SpecialNotice: c.PostForm("special_notice"),
+		Status:        strings.ToUpper(c.PostForm("status")),
+	}
+	priceStr := c.PostForm("price")
+	if priceStr != "" {
+		cValue, err := util.StringToFloat(priceStr)
+		if err != nil {
+			c.JSON(http.StatusOK, vemsgOrderPriceNotValid)
+			return
+		} else if cValue == 0 {
+			c.JSON(http.StatusOK, vemsgOrderPriceNotValid)
+			return
+		} else {
+			oi.Price = cValue
+		}
+	}
+	downPaymentStr := c.PostForm("downpayment")
+	if downPaymentStr != "" {
+		cValue, err := util.StringToFloat(downPaymentStr)
+		if err != nil {
+			c.JSON(http.StatusOK, vemsgOrderDownPaymentNotValid)
+			return
+		} else if cValue == 0 {
+			c.JSON(http.StatusOK, vemsgOrderDownPaymentNotValid)
+			return
+		} else {
+			oi.DownPayment = cValue
+		}
+	}
+	validStatus := []string{"ORDERED", "CANCELLED", "SOLD", "DOWNPAYMENT"}
+	if !util.IsInArrayString(oi.Status, validStatus) {
+		c.JSON(http.StatusOK, vemsgOrderStatusNotValid)
+		return
+	}
+	q := oi.composeUpdateQuery()
+	if _, err := dbExec(q); err != nil {
+		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
+		return
+	}
+
+	c.JSON(http.StatusOK, oi.ID)
 }
 
 func createOrder(c *gin.Context) {

@@ -566,3 +566,11 @@ func (d *diamond) isDiamondExistByDiamondID() error {
 	d.ID = id
 	return nil
 }
+
+func isDiamondExistByID(id string) (bool, error) {
+	var count int
+	if err := dbQueryRow("SELECT COUNT(*) FROM diamonds WHERE id=?", id).Scan(&count); err != nil {
+		return false, err
+	}
+	return count == 1, nil
+}

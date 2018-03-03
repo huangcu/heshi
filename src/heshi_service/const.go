@@ -64,6 +64,9 @@ var (
 	vemsgStockQuantityNotValidJ     = errors.HSMessage{Code: 20014, Message: "jewelry stock quantity is not valid"}
 	vemsgPriceEmpty                 = errors.HSMessage{Code: 20014, Message: "jewelry price cannot be empty"}
 	vemsgPriceNotValid              = errors.HSMessage{Code: 20014, Message: "jewelry price is not valid"}
+	vemsgOrderPriceNotValid         = errors.HSMessage{Code: 20014, Message: "order price is not valid"}
+	vemsgOrderDownPaymentNotValid   = errors.HSMessage{Code: 20014, Message: "order downpaymemnt is not valid"}
+	vemsgOrderStatusNotValid        = errors.HSMessage{Code: 20014, Message: "order status input is not valid"}
 
 	//UPLOAD PRODUCTS(30-39)
 	vemsgUploadProductsCategoryNotValid = errors.HSMessage{Code: 20090, Message: "product category not valid"}

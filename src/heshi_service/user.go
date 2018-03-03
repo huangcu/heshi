@@ -195,6 +195,13 @@ func updateUser(c *gin.Context) {
 	if id == "" {
 		id = c.MustGet("id").(string)
 	}
+	if exist, err := isUserExistByID(id); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	} else if !exist {
+		c.JSON(http.StatusBadRequest, "user doesn't exist")
+		return
+	}
 	uu := User{
 		ID:             id,
 		Username:       c.PostForm("username"),

@@ -89,6 +89,14 @@ func newGems(c *gin.Context) {
 
 //TODO what to update; stockid???
 func updateGems(c *gin.Context) {
+	gid := c.Param("id")
+	if exist, err := isGemExistByID(gid); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	} else if !exist {
+		c.JSON(http.StatusBadRequest, "Item doesn't exist")
+		return
+	}
 	imageFileNames, vemsg, err := validateUploadedMultipleFile(c, "gem", "image", 1*1024*1024)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
@@ -98,9 +106,8 @@ func updateGems(c *gin.Context) {
 		c.JSON(http.StatusOK, vemsg)
 		return
 	}
-	id := c.Param("id")
 	g := gem{
-		ID:               id,
+		ID:               gid,
 		StockID:          strings.ToUpper(c.PostForm("stock_id")),
 		Shape:            FormatInputString(c.PostForm("shape")),
 		Material:         strings.ToUpper(c.PostForm("material")),
