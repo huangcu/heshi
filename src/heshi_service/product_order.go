@@ -63,9 +63,19 @@ func createOrder(c *gin.Context) {
 
 	//continue to order
 	if len(orderItems) == 1 {
-
+		t, err := orderSingleItem(orderItems[0])
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			return
+		}
+		c.JSON(http.StatusOK, t)
 	} else {
-
+		t, err := orderMultipleItems(orderItems)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			return
+		}
+		c.JSON(http.StatusOK, t)
 	}
 }
 
@@ -166,7 +176,7 @@ func (oi *orderItem) checkSmallDiamondItem() error {
 	return nil
 }
 
-func orderSingleItem(item orderItem) error {
+func orderSingleItem(item orderItem) (*transaction, error) {
 	item.ID = newV4()
 	item.TransactionID = item.ID
 	var oq string
@@ -201,10 +211,17 @@ func orderSingleItem(item orderItem) error {
 		}
 		return nil
 	})
-	return err
+	if err != nil {
+		return nil, err
+	}
+	t := &transaction{
+		TransactionID: item.TransactionID,
+		OrderItems:    []orderItem{item},
+	}
+	return t, nil
 }
 
-func orderMultipleItems(items []orderItem) error {
+func orderMultipleItems(items []orderItem) (*transaction, error) {
 	qs := make(map[string]orderItem)
 	transactionID := newV4()
 	for _, item := range items {
@@ -247,36 +264,12 @@ func orderMultipleItems(items []orderItem) error {
 		}
 		return nil
 	})
-	return err
-}
-
-func diamondOrder(item orderItem) error {
-	r, err := dbExec(fmt.Sprintf("UPDATE diamonds SET status='ORDERED' WHERE id='%s'", item.ItemID))
 	if err != nil {
-		return err
+		return nil, err
 	}
-	if er, err := r.RowsAffected(); err != nil {
-		return err
-	} else if er == 0 {
-		errors.Newf("Item %s not AVAILABLE any more", item.ItemID)
+	t := &transaction{
+		TransactionID: transactionID,
+		OrderItems:    items,
 	}
-	return nil
-}
-
-func insertIntoOrders() {
-
-	// err := dbTransact(db, func(tx *sql.Tx) error {
-	// 	q := nu.composeInsertQuery()
-	// 	traceSQL(q)
-	// 	if _, err := tx.Exec(q); err != nil {
-	// 		return err
-	// 	}
-	// 	q = fmt.Sprintf(`INSERT INTO orders (user_id, level, discount, created_by) VALUES
-	// 										(%s', '%d', '%d', '%s')`, a.ID, a.Level, a.Discount, a.CreatedBy)
-	// 	traceSQL(q)
-	// 	if _, err := tx.Exec("q"); err != nil {
-	// 		return err
-	// 	}
-	// 	return nil
-	// })
+	return t, nil
 }

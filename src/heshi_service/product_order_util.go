@@ -4,7 +4,7 @@ import "fmt"
 
 func (oi *orderItem) composeInsertQuery() string {
 	params := oi.parmsKV()
-	q := `INSERT INTO jewelrys (id`
+	q := `INSERT INTO orders (id`
 	va := fmt.Sprintf(`VALUES ('%s'`, oi.ID)
 	for k, v := range params {
 		q = fmt.Sprintf("%s, %s", q, k)
@@ -25,7 +25,7 @@ func (oi *orderItem) composeInsertQuery() string {
 
 func (oi *orderItem) composeUpdateQuery() string {
 	params := oi.parmsKV()
-	q := `UPDATE jewelrys SET`
+	q := `UPDATE orders SET`
 	for k, v := range params {
 		switch v.(type) {
 		case string:
