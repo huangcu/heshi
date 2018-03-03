@@ -219,6 +219,13 @@ func configRoute(r *gin.Engine) {
 			apiAdmin.PUT("/products/jewelrys/:id", updateJewelry)
 			apiAdmin.POST("/products/gems", newGems)
 			apiAdmin.PUT("/products/gems/:id", updateGems)
+
+			//manage orders
+			apiAdmin.PUT("/orders/:id", updateOrder)
+			apiAdmin.POST("/orders/:id", getOrderDetail)
+			apiAdmin.POST("/transactions/detail/:id", getTransactionDetail)
+			apiAdmin.POST("/transactions/all/:id", getAllTransctionsOfUser)
+			apiAdmin.POST("/transactions/all", getAllTransctions)
 		}
 		//customer
 		api.POST("/users", newUser)
@@ -226,6 +233,12 @@ func configRoute(r *gin.Engine) {
 			apiCustomer.GET("/users", getUser)
 			apiCustomer.PATCH("/users", updateUser)
 			apiCustomer.GET("/users/:id/contactinfo", agentContactInfo)
+
+			//ORDER
+			apiCustomer.POST("/orders", createOrder)
+			apiCustomer.POST("/orders/:id", getOrderDetail)
+			apiCustomer.POST("/transactions/:id", getTransactionDetail)
+			apiCustomer.POST("/transactions", getAllTransctionsOfUser)
 
 			//action- > add, delete
 			apiCustomer.POST("/shoppingList/:action", toShoppingList)

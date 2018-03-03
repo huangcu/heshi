@@ -27,9 +27,209 @@ type orderItem struct {
 	SpecialNotice string  `json:"special_notice"`
 	DownPayment   float64 `json:"downpayment"`
 	BuyerID       string  `json:"buyer_id"`
-	TransactionID string  `json:"-"`
+	TransactionID string  `json:"transaction_id"`
 	Status        string  `json:"status"`
 	InStock       int     `json:"in_stock"`
+}
+
+func getOrderDetail(c *gin.Context) {
+	oid := c.Param("id")
+	uid := c.MustGet("id").(string)
+	q := fmt.Sprintf(`SELECT item_id, item_price, item_category, item_quantity, transaction_id, downpayment,
+	 status, extra_info, special_notice FROM orders where id='%s' AND buyer_id='%s'`, oid, uid)
+
+	var itemID, itemCategory, transactionID, status string
+	var extraInfo, specialNotice sql.NullString
+	var itemPrice, downpayment float64
+	var itemQuantity int
+
+	if err := dbQueryRow(q).Scan(&itemID, &itemPrice, &itemCategory, &itemQuantity, &transactionID,
+		&downpayment, &status, &extraInfo, &specialNotice); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	oi := orderItem{
+		ID:            oid,
+		ItemID:        itemID,
+		Category:      itemCategory,
+		Quantity:      itemQuantity,
+		Price:         itemPrice,
+		ExtraInfo:     extraInfo.String,
+		SpecialNotice: specialNotice.String,
+		DownPayment:   downpayment,
+		BuyerID:       uid,
+		TransactionID: transactionID,
+		Status:        status,
+	}
+	c.JSON(http.StatusOK, oi)
+}
+
+func getTransactionDetail(c *gin.Context) {
+	tid := c.Param("id")
+	uid := c.MustGet("id").(string)
+	q := fmt.Sprintf(`SELECT id, item_id, item_price, item_category, item_quantity, downpayment,
+	 status, extra_info, special_notice FROM orders where transaction_id='%s' AND buyer_id='%s'`, tid, uid)
+
+	rows, err := dbQuery(q)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	var ois []orderItem
+	for rows.Next() {
+		var id, itemID, itemCategory, status string
+		var extraInfo, specialNotice sql.NullString
+		var itemPrice, downpayment float64
+		var itemQuantity int
+		if err := rows.Scan(&id, &itemID, &itemPrice, &itemCategory, &itemQuantity,
+			&downpayment, &status, &extraInfo, &specialNotice); err != nil {
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			return
+		}
+		oi := orderItem{
+			ID:            id,
+			ItemID:        itemID,
+			Category:      itemCategory,
+			Quantity:      itemQuantity,
+			Price:         itemPrice,
+			ExtraInfo:     extraInfo.String,
+			SpecialNotice: specialNotice.String,
+			DownPayment:   downpayment,
+			BuyerID:       uid,
+			TransactionID: tid,
+			Status:        status,
+		}
+		ois = append(ois, oi)
+	}
+	c.JSON(http.StatusOK, transaction{
+		TransactionID: tid,
+		OrderItems:    ois,
+	})
+}
+
+func getAllTransctionsOfUser(c *gin.Context) {
+	//for admin, pass userid in query, for user, from login session
+	uid := c.Param("id")
+	if uid == "" {
+		uid = c.MustGet("id").(string)
+	}
+	q := fmt.Sprintf(`SELECT transaction_id FROM orders WHERE buyer_id='%s'`, uid)
+	rows, err := dbQuery(q)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	var transactionIDs []string
+	for rows.Next() {
+		var transactionID string
+		if err := rows.Scan(&transactionID); err != nil {
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			return
+		}
+		transactionIDs = append(transactionIDs, transactionID)
+	}
+	var ts []transaction
+	for _, transactionID := range transactionIDs {
+		q := fmt.Sprintf(`SELECT id, item_id, item_price, item_category, item_quantity, downpayment,
+			status, extra_info, special_notice FROM orders WHERE buyer_id='%s' AND transcation_id='%s'`, uid, transactionID)
+		rows, err := dbQuery(q)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			return
+		}
+		var ois []orderItem
+		for rows.Next() {
+			var id, itemID, itemCategory, status string
+			var extraInfo, specialNotice sql.NullString
+			var itemPrice, downpayment float64
+			var itemQuantity int
+			if err := rows.Scan(&id, &itemID, &itemPrice, &itemCategory, &itemQuantity,
+				&downpayment, &status, &extraInfo, &specialNotice); err != nil {
+				c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+				return
+			}
+			oi := orderItem{
+				ID:            id,
+				ItemID:        itemID,
+				Category:      itemCategory,
+				Quantity:      itemQuantity,
+				Price:         itemPrice,
+				ExtraInfo:     extraInfo.String,
+				SpecialNotice: specialNotice.String,
+				DownPayment:   downpayment,
+				BuyerID:       uid,
+				TransactionID: transactionID,
+				Status:        status,
+			}
+			ois = append(ois, oi)
+		}
+		t := transaction{
+			TransactionID: transactionID,
+			OrderItems:    ois,
+		}
+		ts = append(ts, t)
+	}
+	c.JSON(http.StatusOK, ts)
+}
+
+//ADMIN only
+func getAllTransctions(c *gin.Context) {
+	rows, err := dbQuery("SELECT transaction_id FROM orders")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	var transactionIDs []string
+	for rows.Next() {
+		var transactionID string
+		if err := rows.Scan(&transactionID); err != nil {
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			return
+		}
+		transactionIDs = append(transactionIDs, transactionID)
+	}
+	var ts []transaction
+	for _, transactionID := range transactionIDs {
+		q := fmt.Sprintf(`SELECT id, item_id, item_price, item_category, item_quantity, downpayment,
+			buyer_id, status, extra_info, special_notice FROM orders WHERE transaction_id='%s'`, transactionID)
+		rows, err := dbQuery(q)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			return
+		}
+		var ois []orderItem
+		for rows.Next() {
+			var id, itemID, itemCategory, buyerID, status string
+			var extraInfo, specialNotice sql.NullString
+			var itemPrice, downpayment float64
+			var itemQuantity int
+			if err := rows.Scan(&id, &itemID, &itemPrice, &itemCategory, &itemQuantity,
+				&downpayment, &buyerID, &status, &extraInfo, &specialNotice); err != nil {
+				c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+				return
+			}
+			oi := orderItem{
+				ID:            id,
+				ItemID:        itemID,
+				Category:      itemCategory,
+				Quantity:      itemQuantity,
+				Price:         itemPrice,
+				ExtraInfo:     extraInfo.String,
+				SpecialNotice: specialNotice.String,
+				DownPayment:   downpayment,
+				BuyerID:       buyerID,
+				TransactionID: transactionID,
+				Status:        status,
+			}
+			ois = append(ois, oi)
+		}
+		t := transaction{
+			TransactionID: transactionID,
+			OrderItems:    ois,
+		}
+		ts = append(ts, t)
+	}
+	c.JSON(http.StatusOK, ts)
 }
 
 //ALLOW TO EDIT PRICE,SPECIALNOTICE,DOWNPAYMENT,STATUS ONLY
