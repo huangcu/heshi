@@ -110,8 +110,7 @@ func wechatEventHandler(msg core.MixedMsg) (string, error) {
 			return "", nil
 		}
 	case menu.EventTypeClick:
-		reply := handleMenuClick(msg)
-		bs, err := xml.Marshal(reply)
+		bs, err := handleMenuClick(msg)
 		if err != nil {
 			return "", err
 		}

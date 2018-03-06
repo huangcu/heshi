@@ -1,8 +1,7 @@
 package main
 
 import (
-	"fmt"
-	"time"
+	"encoding/xml"
 	"util"
 
 	"gopkg.in/chanxuehong/wechat.v2/mp/core"
@@ -95,15 +94,30 @@ func handleMenuEvent(msg core.MixedMsg) {
 // <MsgType>< ![CDATA[text] ]></MsgType>
 // <Content>< ![CDATA[你好] ]></Content>
 // </xml>
-type replyText struct {
+type replyMsgHeader struct {
 	ToUserName   CDATAText `xml:"ToUserName"  `
 	FromUserName CDATAText `xml:"FromUserName"`
-	CreateTime   CDATAText `xml:"CreateTime"  `
+	CreateTime   int64     `xml:"CreateTime"  `
 	MsgType      CDATAText `xml:"MsgType"     `
-	Content      CDATAText `xml:"Content"`
 }
 type CDATAText struct {
 	Text string `xml:",innerxml"`
+}
+
+type autoReplyMsg struct {
+	XMLName struct{} `xml:"xml" json:"-"`
+	replyMsgHeader
+	Content CDATAText `xml:"Content" json:"Content"`
+}
+
+type transferToCustomerServiceReply struct {
+	XMLName struct{} `xml:"xml" json:"-"`
+	replyMsgHeader
+	TransInfo *transInfo `xml:"TransInfo,omitempty" json:"TransInfo,omitempty"`
+}
+
+type transInfo struct {
+	KfAccount CDATAText `xml:"KfAccount" json:"KfAccount"`
 }
 
 // <xml>
@@ -114,18 +128,17 @@ type CDATAText struct {
 // <Event><![CDATA[CLICK]]></Event>
 // <EventKey><![CDATA[EVENTKEY]]></EventKey>
 // </xml>
-func handleMenuClick(msg core.MixedMsg) replyText {
+func handleMenuClick(msg core.MixedMsg) (string, error) {
 	var reply string
 	if msg.EventKey == "KEY_KEFU" {
 		reply = "您好，有什么可以帮您的？"
 	}
-	return replyText{
-		ToUserName:   CDATAText{Text: cdataStartLiteral + msg.FromUserName + cdataEndLiteral},
-		FromUserName: CDATAText{Text: cdataStartLiteral + msg.ToUserName + cdataEndLiteral},
-		MsgType:      CDATAText{Text: cdataStartLiteral + "Text" + cdataEndLiteral},
-		CreateTime:   CDATAText{Text: fmt.Sprintf("%s%d%s", cdataStartLiteral, time.Now().Unix(), cdataEndLiteral)},
-		Content:      CDATAText{Text: cdataStartLiteral + reply + cdataEndLiteral},
+	art := autoReplyText(msg, reply)
+	bs, err := xml.Marshal(art)
+	if err != nil {
+		return "", err
 	}
+	return string(bs), nil
 }
 
 // <xml>
