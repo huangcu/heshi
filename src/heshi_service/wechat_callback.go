@@ -11,7 +11,11 @@ import (
 	"strings"
 	"util"
 
+	"gopkg.in/chanxuehong/wechat.v2/mp/menu"
+
 	"github.com/gin-gonic/gin"
+	"gopkg.in/chanxuehong/wechat.v2/mp/core"
+	"gopkg.in/chanxuehong/wechat.v2/mp/message/callback/request"
 	"gopkg.in/chanxuehong/wechat.v2/mp/message/template"
 )
 
@@ -38,7 +42,7 @@ func wechatCallback(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	var msg MixedMsg
+	var msg core.MixedMsg
 	util.Printf("msg body received from wechat server: %s", string(bs))
 	err = xml.Unmarshal(bs, &msg)
 	if err != nil {
@@ -46,11 +50,18 @@ func wechatCallback(c *gin.Context) {
 		return
 	}
 	util.Printf("response msg from wechat %v", msg)
+	var reply string
 	switch msg.MsgType {
 	case "event":
-		wechatEventHandler(msg)
+		reply, err = wechatEventHandler(msg)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err.Error())
+			return
+		}
 	case "text":
+		handleTextMsg(msg)
 	case "image":
+		handleImageMsg(msg)
 	case "voice":
 	case "video", "shortvideo":
 	case "location":
@@ -61,7 +72,7 @@ func wechatCallback(c *gin.Context) {
 	// 	假如服务器无法保证在五秒内处理并回复，必须做出下述回复，这样微信服务器才不会对此作任何处理，并且不会发起重试（这种情况下，可以使用客服消息接口进行异步回复），否则，将出现严重的错误提示。详见下面说明：
 	// （推荐方式）直接回复success
 	// 直接回复空串（指字节长度为0的空字符串，而不是XML结构体中content字段的内容为空）
-	c.String(http.StatusOK, "")
+	c.String(http.StatusOK, reply)
 }
 
 func checkSignature(signature, timestamp, nonce string) bool {
@@ -84,22 +95,29 @@ func checkSignature(signature, timestamp, nonce string) bool {
 	return false
 }
 
-func wechatEventHandler(msg MixedMsg) error {
+func wechatEventHandler(msg core.MixedMsg) (string, error) {
 	switch msg.EventType {
-	case EventTypeSubscribe, EventTypeScan:
+	case request.EventTypeSubscribe, request.EventTypeScan:
 		if err := redisClient.Set(msg.EventKey, msg.FromUserName, 0).Err(); err != nil {
 			util.Printf("fail to write to redis db. err: %s", err.Error())
-			return err
+			return "", err
 		}
 		sendTemplateMsg(msg.FromUserName, "http://721e2175.ngrok.io/api/wechat/auth")
-	case EventTypeUnsubscribe:
-	case EventTypeLocation:
-	case EventTypeTemplateSendJobFinish:
+	case request.EventTypeUnsubscribe:
+	case request.EventTypeLocation:
+	case template.EventTypeTemplateSendJobFinish:
 		if msg.Status == "success" {
-			return nil
+			return "", nil
 		}
+	case menu.EventTypeClick:
+		reply := handleMenuClick(msg)
+		bs, err := xml.Marshal(reply)
+		if err != nil {
+			return "", err
+		}
+		return string(bs), nil
 	}
-	return nil
+	return "", nil
 }
 
 func sendTemplateMsg(toUser, url string) error {

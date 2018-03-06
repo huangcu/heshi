@@ -348,6 +348,7 @@ func composeUser(rows *sql.Rows) ([]User, error) {
 			Username:            username.String,
 			Cellphone:           cellphone.String,
 			Email:               email.String,
+			RealName:            realName.String,
 			UserType:            userType,
 			WechatID:            wechatID.String,
 			WechatName:          wechatName.String,

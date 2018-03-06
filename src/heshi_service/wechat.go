@@ -35,9 +35,11 @@ const (
 	wxAppIDDebug     = "wxa6c9fc631124397a"
 	wxAppSecretDebug = "ad23b9ed5679d5be74f69db6875dcd7f"
 
-	wxOriID         = "oriid"
-	wxToken         = "token"
-	wxEncodedAESKey = "aeskey"
+	wxOriID           = "oriid"
+	wxToken           = "token"
+	wxEncodedAESKey   = "aeskey"
+	cdataStartLiteral = "<![CDATA["
+	cdataEndLiteral   = "]]>"
 )
 
 var (
