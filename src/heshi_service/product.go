@@ -64,7 +64,7 @@ func uploadAndProcessProducts(c *gin.Context) {
 		return
 	}
 	// Upload the file to specific dst.
-	if err := os.MkdirAll(filepath.Join(UPLOADFILEDIR, id), 0644); err != nil {
+	if err := os.MkdirAll(filepath.Join(UPLOADFILEDIR, id), 0755); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}

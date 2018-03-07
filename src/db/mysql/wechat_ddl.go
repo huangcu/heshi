@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS messages
 	content VARCHAR(225),
 	kf_account VARCHAR(225),
 	direction VARCHAR(8),
-	media_id VARCHAR(225),
+	pic_url VARCHAR(225),
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 ) ENGINE=INNODB;
 `

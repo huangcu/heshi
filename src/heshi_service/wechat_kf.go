@@ -2,6 +2,10 @@ package main
 
 import (
 	"fmt"
+	"heshi/errors"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
 
 	"gopkg.in/chanxuehong/wechat.v2/mp/dkf"
 	kfaccount "gopkg.in/chanxuehong/wechat.v2/mp/dkf/account"
@@ -9,8 +13,15 @@ import (
 	"gopkg.in/chanxuehong/wechat.v2/mp/message/custom"
 )
 
-func addKfAccount() error {
-	return kfaccount.Add(wechatClient, "account", "nickname", "password", true)
+func addKfAccount(c *gin.Context) {
+	account := c.PostForm("account")
+	password := c.PostForm("password")
+	nickname := c.PostForm("nickname")
+	if err := kfaccount.Add(wechatClient, account+"@"+wxAppAccount, nickname, password, true); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	c.JSON(http.StatusOK, "Success")
 }
 
 func updateKfAccountHeadImg() error {
@@ -89,6 +100,14 @@ func logTextMsgToDB(user, kfAccout, content, direction string) error {
 	q := fmt.Sprintf(`INSERT into messages (id, user, content, kf_account, direction) 
 	VALUES('%s','%s','%s','%s','%s')`,
 		newV4(), user, kfAccout, content, direction)
+	_, err := dbExec(q)
+	return err
+}
+
+func logImageMsgToDB(user, kfAccout, picURL, direction string) error {
+	q := fmt.Sprintf(`INSERT into messages (id, user, pic_url, kf_account, direction) 
+	VALUES('%s','%s','%s','%s','%s')`,
+		newV4(), user, kfAccout, picURL, direction)
 	_, err := dbExec(q)
 	return err
 }

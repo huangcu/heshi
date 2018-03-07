@@ -226,6 +226,10 @@ func configRoute(r *gin.Engine) {
 			apiAdmin.POST("/transactions/detail/:id", getTransactionDetail)
 			apiAdmin.POST("/transactions/all/:id", getAllTransctionsOfUser)
 			apiAdmin.POST("/transactions/all", getAllTransctions)
+
+			//wechat kf manage
+			apiAdmin.POST("/wechat/kf", addKfAccount)
+			apiAdmin.POST("/wechat/menu", createMenu)
 		}
 		//customer
 		api.POST("/users", newUser)

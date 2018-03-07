@@ -32,6 +32,7 @@ import (
 const (
 	// 	wxAppID          = "wx7147ea39c1a30036"               //wx02b69905483c2df2
 	// 	wxAppSecret      = "ba9e572ca65c6000c70cdb159254e32c" //wx02b69905483c2df2&secret=029248abec380aaab05b95edf58681bd
+	wxAppAccount     = "gh_5bd700510a86"
 	wxAppIDDebug     = "wxa6c9fc631124397a"
 	wxAppSecretDebug = "ad23b9ed5679d5be74f69db6875dcd7f"
 

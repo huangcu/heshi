@@ -2,13 +2,17 @@ package main
 
 import (
 	"encoding/xml"
+	"heshi/errors"
+	"net/http"
 	"util"
+
+	"github.com/gin-gonic/gin"
 
 	"gopkg.in/chanxuehong/wechat.v2/mp/core"
 	"gopkg.in/chanxuehong/wechat.v2/mp/menu"
 )
 
-func createMenu() error {
+func createMenu(c *gin.Context) {
 	b1 := menu.Button{
 		Type: "click",
 		Name: "请来问我",
@@ -57,23 +61,27 @@ func createMenu() error {
 		Name: "我的积分",
 		URL:  "http://beyoudiamond.com/myaccount.php?platform=weixin#section-mypoints",
 	}
-	b3s3 := menu.Button{
-		Type:    "view",
-		Name:    "总部地址向导",
-		MediaId: "R575haACuEdixb-MfiD4pv-YAJC1eYjM1e5UC48WvnA",
-	}
+	// b3s3 := menu.Button{
+	// 	Type:    "view",
+	// 	Name:    "总部地址向导",
+	// 	MediaId: "R575haACuEdixb-MfiD4pv-YAJC1eYjM1e5UC48WvnA",
+	// }
 	b3s4 := menu.Button{
 		Type: "view",
 		Name: "推荐给朋友",
 		URL:  "http://beyoudiamond.com/recommendtofriend-weixin.php?platform=weixin",
 	}
-	b3.SubButtons = append(b3.SubButtons, b3s1, b3s2, b3s3, b3s4)
+	b3.SubButtons = append(b3.SubButtons, b3s1, b3s2, b3s4)
 	m := menu.Menu{
 		Buttons: []menu.Button{b1, b2, b3},
 	}
 
 	//{"errcode":0,"errmsg":"ok"} create success
-	return menu.Create(wechatClient, &m)
+	if err := menu.Create(wechatClient, &m); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	c.JSON(http.StatusOK, "SUCCESS")
 }
 
 // https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1421141016

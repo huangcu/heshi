@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"heshi/errors"
 	"io/ioutil"
 	"net/http"
 	"sort"
@@ -49,19 +50,28 @@ func wechatCallback(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	util.Printf("response msg from wechat %v", msg)
 	var reply string
 	switch msg.MsgType {
 	case "event":
 		reply, err = wechatEventHandler(msg)
 		if err != nil {
+			util.Traceln(errors.GetMessage(err))
 			c.JSON(http.StatusInternalServerError, err.Error())
 			return
 		}
 	case "text":
-		handleTextMsg(msg)
+		reply, err = handleTextMsg(msg)
+		if err != nil {
+			util.Traceln(errors.GetMessage(err))
+			c.JSON(http.StatusInternalServerError, err.Error())
+			return
+		}
 	case "image":
-		handleImageMsg(msg)
+		if err := handleImageMsg(msg); err != nil {
+			util.Traceln(errors.GetMessage(err))
+			c.JSON(http.StatusInternalServerError, err.Error())
+			return
+		}
 	case "voice":
 	case "video", "shortvideo":
 	case "location":
@@ -115,6 +125,8 @@ func wechatEventHandler(msg core.MixedMsg) (string, error) {
 			return "", err
 		}
 		return string(bs), nil
+	case menu.EventTypeView:
+		handleMenuView(msg)
 	}
 	return "", nil
 }

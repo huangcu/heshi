@@ -60,7 +60,7 @@ func validateUploadedSingleFile(fileHeader *multipart.FileHeader, product string
 		filename = fmt.Sprintf("beyoudiamond-image-%d.%s", time.Now().UnixNano(), ext)
 	}
 	// Upload the file to specific dst.
-	if err := os.MkdirAll(filepath.Join("."+fileType, product), 0644); err != nil {
+	if err := os.MkdirAll(filepath.Join("."+fileType, product), 0755); err != nil {
 		return "", errors.HSMessage{}, err
 	}
 
@@ -211,7 +211,7 @@ func bulkUpload(c *gin.Context) {
 
 func handleUploadedZip(file, product, fileType string) (map[string]string, error) {
 	tempDir := os.TempDir() + strconv.Itoa(time.Now().Nanosecond())
-	if err := os.MkdirAll(tempDir, 0644); err != nil {
+	if err := os.MkdirAll(tempDir, 0755); err != nil {
 		return nil, err
 	}
 	if err := util.Unzip(file, tempDir); err != nil {
