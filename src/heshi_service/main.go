@@ -80,8 +80,12 @@ func main() {
 		stop <- true
 	}()
 
-	// log.Fatal(startWebServer(":443"))
-	log.Fatal(startWebServer(":8080"))
+	port := ":8080"
+	if os.Getenv("STAGE") != "dev" {
+		port = ":8443"
+	}
+
+	log.Fatal(startWebServer(port))
 }
 
 func startWebServer(port string) error {
@@ -101,6 +105,8 @@ func startWebServer(port string) error {
 	}
 
 	r.Use(gin.Recovery())
+	//CORS
+	r.Use(CORSMiddleware())
 	configRoute(r)
 	if os.Getenv("STAGE") != "dev" {
 		webServer := &http.Server{Addr: port, Handler: r, TLSConfig: config}
@@ -115,8 +121,6 @@ func configRoute(r *gin.Engine) {
 	if os.Getenv("STAGE") != "dev" {
 		//auth - access service api
 		// api.Use(AuthMiddleWare())
-		//CORS
-		api.Use(CORSMiddleware())
 
 		// Cross-Site Request Forgery (CSRF)
 		// api.Use(csrf.Middleware(csrf.Options{
