@@ -3,7 +3,9 @@ export default {
   data: function (params) {
     return {
       login_feedback: '',
-      upgrade_feedback: ''
+      upgrade_feedback: '',
+      username: '',
+      password: ''
     }
   },
   props: {
@@ -26,13 +28,13 @@ export default {
         }
       }
     },
-    login: function (user, password) {
+    login: function () {
       var formData = new FormData()
-      formData.append('username', user)
-      formData.append('password', password)
+      formData.append('username', this.username)
+      formData.append('password', this.password)
 
       this.$http.post(
-        this.$userURL + 'login',
+        this.$userURL + '/login',
         formData,
         {
           headers: {
@@ -41,20 +43,23 @@ export default {
         }).then(response => {
           if (response.status === 200) {
             // token
-            this.loginResult = JSON.parse(response.bodyText)
-            this.$cookies.set('beyou', this.loginResult.id)
-            this.$cookies.set('token', this.loginResult.token)
+            console.log(response.body)
+            this.loginResult = JSON.parse(response.body)
+            this.cookies.set('_account', this.loginResult._account)
+            this.cookies.set('hssessionid', this.loginResult.hs_sessionuserid)
+            // this.$cookies.set('beyou', this.loginResult.id)
+            // this.$cookies.set('token', this.loginResult.token)
           }
-          return response.bodyText
-        }, err => { console.log(err); alert('error:' + err.bodyText) })
+          return response.body
+        }, err => { console.log(err); alert('error:' + err.body) })
     },
     logout: function () {
       this.$http.post(
-        this.$userURL + 'logout'
+        this.$userURL + '/logout'
       ).then(response => {
         console.log('logout')
         this.$route.router.go('/')
-      }, err => { console.log(err); alert('error:' + err.bodyText) })
+      }, err => { console.log(err); alert('error:' + err.body) })
     },
     getQRCode: function () {
       //MAX 1 - 4294967295

@@ -9,7 +9,7 @@ import VueLocalStorage from 'vue-localstorage'
 import VueFilter from 'vue-filter'
 import VueCookies from 'vue-cookies'
 import vueHeadful from 'vue-headful'
-
+import VeeValidate from 'vee-validate'
 // import 'bootstrap/dist/css/bootstrap.css'
 // import 'bootstrap-vue/dist/bootstrap-vue.css'
 require('bootstrap/dist/css/bootstrap.min.css')
@@ -17,6 +17,7 @@ Vue.use(VueCookies)
 Vue.use(VueResource)
 Vue.use(VueLocalStorage)
 Vue.use(VueFilter)
+Vue.use(VeeValidate)
 // Vue.use(BootstrapVue)
 Vue.config.productionTip = false
 Vue.prototype.$currentPage = 'Index'

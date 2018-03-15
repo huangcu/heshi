@@ -30,7 +30,7 @@ export default {
       formData.append('password', password)
 
       this.$http.post(
-        this.$userURL + 'login',
+        this.$userURL + '/login',
         formData,
         {
           headers: {
@@ -48,7 +48,7 @@ export default {
     },
     logout: function () {
       this.$http.post(
-        this.$userURL + 'logout'
+        this.$userURL + '/logout'
       ).then(response => {
         console.log('logout')
         this.$route.replace('/')
@@ -60,7 +60,8 @@ export default {
       this.$http.get(
         this.$wechatURL + '/temp_qrcode?sceneID='+sceneID
       ).then(response => {
-        this.$cookies.set('sceneID', sceneID)
+        this.$cookies.set('sceneID', sceneID, 60 * 2)
+        window.sessionStorage.setItem("HSSESSIONID", sceneID)
         this.qrCodeSrc = response.body
       }, err => { console.log(err); alert('error:' + err.body) })
     },
@@ -70,7 +71,7 @@ export default {
       ).then(response => {
         console.log(response.body)
         if (response.body !== '') {
-          this.cookies.set("openID", response.body)
+          this.cookies.set("openID", response.body, 60 * 30)
           this.$route.replace('/')
         }
       }, err => { console.log(err); alert('error:' + err.body) })

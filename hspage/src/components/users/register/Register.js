@@ -2,7 +2,7 @@ export default {
   name: 'LoginPage',
   data: function () {
     return {
-      errors: [],
+      registerErrors: [],
       email: null,
       username: null,
       password: null,
@@ -19,28 +19,28 @@ export default {
   methods: {
     checkForm: function (e) {
       var formData = new FormData()
-      this.errors = []
+      this.registerErrors = []
       if (!this.email) {
-        this.errors.push('请输入邮箱.')
+        this.registerErrors.push('请输入邮箱.')
       } else if (!this.validEmail(this.email)) {
-        this.errors.push('邮箱格式不正确.')
+        this.registerErrors.push('邮箱格式不正确.')
       } else {
         formData.append('email', this.email)
       }
       if (!this.password) {
-        this.errors.push('请输入密码.')
+        this.registerErrors.push('请输入密码.')
       } else {
         if (!this.password2) {
-          this.errors.push('请输入确认密码.')
+          this.registerErrors.push('请输入确认密码.')
         } else if (this.password !== this.password2) {
-          this.errors.push('两次输入的密码不匹配')
+          this.registerErrors.push('两次输入的密码不匹配')
         } else {
           formData.append('password', this.password)
         }
       }
       if (this.username) {
         if (!this.validUsername(this.username)) {
-          this.errors.push('请输入正确的用户名格式')
+          this.registerErrors.push('请输入正确的用户名格式')
         } else {
           formData.append('username', this.username)
         }
@@ -52,7 +52,7 @@ export default {
       if (this.additionalinfo) formData.append('additional_info', this.additionalinfo)
       if (this.recommendedby) formData.append('recommended_by', this.recommendedby)
       if (this.icon) formData.append('icon', this.icon)
-      if (!this.errors.length) {
+      if (!this.registerErrors.length) {
         this.$http.post(
           this.$userURL + '/users',
           formData,

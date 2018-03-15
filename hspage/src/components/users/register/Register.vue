@@ -6,10 +6,10 @@
       <h6 class="memeberbenefitexpl"><span class="glyphicon glyphicon-piggy-bank"></span> 立即享受会员折扣和积分</h6>
       <!-- <form action="" method="post" id="the_signup_form"> -->
       <form id="the_signup_form" @submit.prevent="checkForm" novalidate="true">
-        <p v-if="errors.length">
+        <p v-if="registerErrors.length">
           <b>Please correct the following error(s):</b>
           <ul>
-            <li v-bind:key="error" v-for="error in errors">{{ error }}</li>
+            <li v-bind:key="error" v-for="error in registerErrors">{{ error }}</li>
           </ul>
         </p>
         <p>
@@ -41,7 +41,7 @@
           <input type="text" name="tel" id="tel" class="inputtextforloginform" v-model="cellphone" placeholder="手机号码">
         </p>
         <p>
-          <input type="submit" d="registerformsubmitbtn" value="Submit">
+          <input type="submit" id="registerformsubmitbtn" value="Submit">
         </p>
         <!-- <input name="newaccountemail" id="newaccountemail" type="text" class="inputtextforloginform" placeholder="电子邮箱" />
         <input name="newaccountpassword" id="newaccountpassword" type="password" class="inputtextforloginform" placeholder="密码" />

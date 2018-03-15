@@ -1,3 +1,4 @@
+let _images = require.context('@/_images/', false, /\.png$/)
 export default {
   name: 'Header',
   props: {
@@ -19,35 +20,41 @@ export default {
       isBrandstory: this.$currentPage === 'brandstory',
       isLocalStorageSaved: false,
       appToken: '',
-      accountId: '',
+      accountID: '',
       interestedItems: [],
       orders: []
     }
   },
   methods: {
     getAccount() {
-      if (this.$cookies.isKey('beyou')) {
-        return this.$cookies('beyou')
+      if (this.$cookies.isKey('_account')) {
+        return this.$cookies.get('_account')
       } else {
         return ''
       }
     },
     getInterestedItems: function () {
-      if (this.accountId === '') {
+      if (this.accountID === undefined) {
+        return
+      }
+      if (this.accountID === '') {
         if (this.$cookies.isKey('interestedItems')) {
-          return this.$cookies('interestedItems')
+          this.interestedItems = this.$cookies.get('interestedItems')
         }
       } else {
         // TODO post
-        this.$http.post(this.$userURL + 'interestedItems/' + this.accountId).then(response => {
+        this.$http.post(this.$userURL + '/interestedItems/' + this.accountID).then(response => {
           return response.bodyText
         }, err => { console.log(err); alert('error:' + err.bodyText) })
       }
     },
     // TODO post
     getOrders: function () {
-      if (this.accountId !== '') {
-        this.$http.post(this.$userURL + 'interestedItems/' + this.accountId).then(response => {
+      if (this.accountID === undefined) {
+        return
+      }
+      if (this.accountID !== '') {
+        this.$http.post(this.$userURL + '/interestedItems/' + this.accountID).then(response => {
           return response.bodyText
         }, err => { console.log(err); alert('error:' + err.bodyText) })
       }
@@ -68,13 +75,12 @@ export default {
       this.$router.replace('/');
     },
     _images: function (name) {
-      var _images = require.context('@/_images/', false, /\.png$/)
       return _images('./' + name + ".png")
     }
   },
-  created() {
-    this.getInterestedItems()
-    this.getAccount()
-    this.getOrders()
+  mounted() {
+    // this.getInterestedItems()
+    this.accountID = this.getAccount()
+    // this.getOrders()
   }
 }
