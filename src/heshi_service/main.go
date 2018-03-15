@@ -107,6 +107,13 @@ func startWebServer(port string) error {
 	r.Use(gin.Recovery())
 	//CORS
 	r.Use(CORSMiddleware())
+	//session
+	store = sessions.NewCookieStore([]byte("secret"))
+	store.Options(sessions.Options{
+		MaxAge: int(30 * time.Minute), //30min
+		Path:   "/",
+	})
+	r.Use(sessions.Sessions("SESSIONID", store))
 	configRoute(r)
 	if os.Getenv("STAGE") != "dev" {
 		webServer := &http.Server{Addr: port, Handler: r, TLSConfig: config}
@@ -131,13 +138,6 @@ func configRoute(r *gin.Engine) {
 		// 	},
 		// }))
 	}
-	//session
-	store = sessions.NewCookieStore([]byte("secret"))
-	store.Options(sessions.Options{
-		MaxAge: int(30 * time.Minute), //30min
-		Path:   "/",
-	})
-	api.Use(sessions.Sessions("SESSIONID", store))
 	//access api log
 	api.Use(RequestLogger())
 
@@ -275,7 +275,7 @@ func configRoute(r *gin.Engine) {
 		apiWechat.GET("/qrcode", wechatQrCode)
 		apiWechat.GET("/temp_qrcode", wechatTempQrCode)
 
-		api.POST("/wechat/status", wechatQrCodeStatus)
+		api.GET("/wechat/status", wechatQrCodeStatus)
 		api.GET("/wechat/callback", wechatCallback)
 		api.POST("/wechat/callback", wechatCallback)
 

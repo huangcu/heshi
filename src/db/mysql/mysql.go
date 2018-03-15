@@ -71,6 +71,7 @@ func OpenDB() (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	db.SetMaxIdleConns(0)
 	return db, nil
 }
 

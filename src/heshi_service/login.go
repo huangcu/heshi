@@ -43,10 +43,12 @@ func userLogin(c *gin.Context) {
 	s.Set(USER_SESSION_KEY, id)
 	if userType == ADMIN {
 		s.Set(ADMIN_KEY, id)
+		c.SetCookie(ADMIN_KEY, id, 30*60, "/", "localhost", false, false)
 	}
 	s.Save()
+	c.SetCookie(USER_SESSION_KEY, id, 30*60, "/", "localhost", false, false)
 
-	c.JSON(http.StatusOK, "success")
+	c.JSON(http.StatusOK, id)
 }
 
 func userLogout(c *gin.Context) {
