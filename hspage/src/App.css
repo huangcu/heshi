@@ -1,0 +1,21 @@
+* {
+    font-family: arial, 'Hiragino Sans GB', 'Microsoft YaHei', 'STHeiti Light', 'SimHei', 'Helvetica neue', Arial, sans-serif;
+}
+
+a {
+    color: #01934d;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #ffed00;
+    cursor: pointer;
+}
+
+h2 {
+    font-size: 28px;
+}
+
+h2.pagetitle {
+    text-align: center;
+}

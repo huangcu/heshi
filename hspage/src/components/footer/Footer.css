@@ -1,0 +1,473 @@
+div.bottom-infobloc {
+    position: relative;
+    background-color: #f2f2f2;
+}
+
+div.bottom-infobloc-inner {
+    position: relative;
+    text-align: center;
+    max-width: 980px;
+    margin: 0 auto;
+    padding-top: 35px;
+}
+
+div#why_heshi_box {
+    display: block;
+    float: none;
+    clear: both;
+    text-align: left;
+    background-color: #f2f2f2;
+    padding: 35px 0;
+    border-bottom-style: solid;
+    border-width: 1px;
+    border-color: #fff;
+}
+
+#brandstorybtnbox,
+#contactbtnbox,
+#appobtnbox {
+    float: right;
+}
+
+#why_heshi_box span.whyquestion {
+    display: inline-block;
+    margin: 0 20px 0 60px;
+    position: relative;
+}
+
+#why_heshi_box .whyanswer {
+    position: relative;
+    display: inline-block;
+    margin: 0 20px;
+    color: #01934d;
+}
+
+.blocksmall1,
+.blocksmall2,
+.blocksmall3,
+.blocksmall4 {
+    float: left;
+    width: 238px;
+    margin: 50px 6px 50px 0;
+    text-align: left;
+}
+
+.blocksmall1 {
+    text-align: center;
+}
+
+img.bottomlogo {
+    width: 118px;
+    opacity: 0.7;
+}
+
+.blocksmall2,
+.blocksmall3,
+.blocksmall4 {
+    padding-left: 25px;
+    padding-right: 10px;
+    border-left-style: solid;
+    border-width: 1px;
+    border-color: #fff;
+}
+
+.blocksmall1 h4,
+.blocksmall2 h4,
+.blocksmall3 h4,
+.blocksmall4 h4 {
+    margin-top: 0;
+    color: #777;
+}
+
+.blocksmall1 p,
+.blocksmall2 p,
+.blocksmall3 p,
+.blocksmall4 p {
+    font-size: 12px;
+    color: #777;
+}
+
+footer {
+    position: relative;
+    padding: 8px;
+    margin: 0;
+    background-color: #333;
+    color: #FFF;
+    text-align: center;
+    font-size: 12px;
+    color: #999;
+}
+
+footer p {
+    margin: 5px;
+}
+
+p.qrcodebox {
+    width: 108px;
+    position: relative;
+    text-align: center;
+    background-color: #FFF;
+    padding: 0 0 5px 0;
+    margin-top: 0;
+    margin-left: 30px;
+}
+
+span#num-gift {
+    position: relative;
+    display: inline-block;
+    width: 23px;
+    height: 23px;
+    background-color: #c00;
+    border-radius: 100%;
+    color: #fff;
+    font-weight: bold;
+    padding: 0;
+    font-size: 14px;
+    text-align: center;
+    border-style: solid;
+    border-width: 2px;
+    border-color: #C00;
+}
+
+
+/*================================================*/
+
+
+/*============ 页面载入时的元素 ===============*/
+
+
+/*================================================*/
+
+div#loadingcover,
+div#feedbackcover {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(205, 225, 218, 0.68);
+    top: 0;
+    left: 0;
+    z-index: 1088;
+    display: none;
+}
+
+span#loadingindicontainer {
+    display: block;
+    position: absolute;
+    top: 38%;
+    left: 50%;
+    margin-left: -61px;
+    width: 126px;
+    height: 122px;
+    border-radius: 100%;
+    overflow: hidden;
+    border-style: solid;
+    border-width: 2px;
+    border-color: #01934d;
+    box-shadow: 0 0 3px #593;
+}
+
+div#feedbackbox {
+    display: block;
+    position: absolute;
+    top: 38%;
+    left: 50%;
+    margin-left: -149px;
+    width: 298px;
+    height: 152px;
+    border-radius: 12px;
+    overflow: hidden;
+    border-style: solid;
+    border-width: 2px;
+    border-color: #01934d;
+    box-shadow: 0 0 3px #593;
+    background-color: #CFC;
+    text-align: center;
+    background-image: url(/_images/constant/congrats-stars.gif);
+    background-size: 316px auto;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+p.ordersuccwords {
+    margin: 38px 0 28px 0;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 3px 0;
+    z-index: 1;
+    position: relative;
+    text-shadow: 0 0 2px #FFf;
+}
+
+img#loadingindiicon {
+    display: block;
+    position: absolute;
+    width: 200px;
+    height: 150px;
+    left: -38px;
+    top: -32px;
+}
+
+span#loadingtxt {
+    display: inline-block;
+    width: 100%;
+    font-size: 12px;
+    text-align: center;
+    top: 62px;
+    color: #01934d;
+    position: absolute;
+}
+
+#loadingtxt strong {
+    font-size: 18px;
+    display: inline-block;
+    padding: 0 5px;
+}
+
+a.livechatlinker {
+    display: block;
+    position: fixed;
+    right: 0;
+    top: 35%;
+    width: 65px;
+    height: 106px;
+    background-color: #6bba62;
+    background-image: url(/_images/constant/chat.jpg);
+    background-position: center top;
+    background-repeat: no-repeat;
+    background-size: 65px auto;
+    box-shadow: 0 0 5px rgba(0, 82, 0, 0.8);
+    z-index: 88;
+}
+
+span.messagebtntxt {
+    display: block;
+    position: absolute;
+    width: 100%;
+    left: 0;
+    top: 62px;
+    text-align: center;
+    font-size: 14px;
+    color: #FFF;
+}
+
+span.messagebtntxt.new-0 {
+    font-size: 14px;
+}
+
+span#newmessagenumindi-normal-btn.m-n-0 {
+    display: none;
+}
+
+span.livechatlinkertxt-smallversion {
+    display: inline-block;
+    font-size: 14px;
+    color: #FFF;
+    padding: 5px;
+    display: none;
+}
+
+span.livechatlinkertxt-smallversion-txt {
+    display: inline-block;
+    margin-top: 8px;
+}
+
+br.clear {
+    clear: both;
+    height: 0;
+}
+
+div#messagenotification {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    z-index: 829;
+    display: none;
+}
+
+div#messagenotification.show-message {
+    display: block;
+}
+
+p#message-noti-txt {
+    position: relative;
+    width: 252px;
+    margin: 0 auto;
+    padding: 5px;
+    background-color: #C00;
+    font-size: 14px;
+    color: #FFF;
+    text-align: center;
+    border-radius: 0 0 5px 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.58);
+}
+
+a#messageopenlinker {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 3px;
+    background-color: rgba(255, 255, 255, 0.29);
+    margin-left: 12px;
+    color: #FFF;
+}
+
+span#newmessagenumindi-normal-btn {
+    display: inline-block;
+    font-size: 14px;
+    padding: 1px 3px;
+}
+
+@media (max-width: 995px) {
+    div.blocksmall1 {
+        display: none;
+    }
+    div.blocksmall2 {
+        margin-left: 58px;
+    }
+    div.blocksmall2,
+    div.blocksmall3,
+    div.blocksmall4 {
+        width: 208px;
+    }
+    a.logobox {
+        margin-left: 20px;
+        margin-right: 0;
+        left: 0;
+    }
+    div.small-buttons-container {
+        left: 0;
+        margin-left: auto;
+        margin-right: 35px;
+    }
+    /*
+	a.livechatlinker{
+		display:block;
+		position:relative;
+		top:0;
+		left:0;		
+		width:100%;
+		height:136px;
+		margin:0 auto;
+		background-color:#f2f2f2;
+		box-shadow:none;
+		padding-bottom:25px;
+		background-position: center top;
+	}
+	*/
+    #why_heshi_box span.whyquestion {
+        margin: 0 15px 0 60px;
+    }
+    #why_heshi_box a.whyanswer {
+        margin: 0 9px;
+    }
+}
+
+@media (max-width: 767px) {
+    #brandstorybtnbox,
+    #contactbtnbox,
+    #appobtnbox {
+        float: none;
+    }
+    div.small-buttons-container {
+        text-align: center;
+        top: 0px;
+        left: 0px;
+        padding: 25px 0;
+        width: auto;
+        margin-right: auto;
+    }
+    .container>.navbar-header,
+    .container-fluid>.navbar-header,
+    .container>.navbar-collapse,
+    .container-fluid>.navbar-collapse {
+        margin-left: 0;
+        margin-right: 0;
+    }
+    p.qrcodebox {
+        margin: 0 auto;
+    }
+    div.deco-left {
+        left: -188px;
+        background-image: url(/_images/constant/headerdeco.jpg);
+        background-position: right 42px;
+        background-size: 418px auto;
+    }
+    a.logobox {
+        margin-left: auto;
+        margin-right: auto;
+    }
+    #why_heshi_box span.whyquestion,
+    #why_heshi_box .whyanswer {
+        display: block;
+        width: 200px;
+        margin: 3px auto;
+        padding: 5px 0 0 43px;
+        text-align: left;
+    }
+}
+
+@media (max-width: 762px) {
+    nav.navbar {
+        display: block;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        left: 0;
+    }
+    div.small-buttons-container {
+        display: none;
+    }
+    div.small-buttons-container-mobile {
+        display: block;
+    }
+    a.logobox {
+        position: relative;
+        height: 50px;
+        z-index: 88;
+        margin: 0;
+        padding: 0;
+    }
+    img#site-logo {
+        position: fixed;
+        left: 16px;
+        top: 10px;
+        width: 102px;
+        height: auto;
+    }
+    nav.navbar {
+        z-index: 87;
+    }
+    div.blocksmall2,
+    div.blocksmall3,
+    div.blocksmall4 {
+        float: none;
+        display: block;
+        width: 238px;
+        border: none;
+        text-align: center;
+        margin: 0 auto;
+        padding: 15px 10px;
+    }
+    footer {
+        padding-bottom: 28px;
+        background-color: #999;
+        color: #FFF;
+        visibility: hidden;
+    }
+}
+
+@media (max-width: 562px) {
+    a.livechatlinker {
+        background-image: none;
+        width: 25px;
+        background-color: 6bba62;
+        height: auto;
+    }
+    span.messagebtntxt.new-0 {
+        display: none;
+    }
+    span.livechatlinkertxt-smallversion {
+        display: inline-block;
+    }
+}
