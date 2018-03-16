@@ -1,5 +1,6 @@
 <template>
   <div>
+    <app-header></app-header>
   </div>
 </template>
 <script src='./Jewelrys.js'></script>

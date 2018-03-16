@@ -3,7 +3,7 @@ let Images = require.context('@/_images/constant/', false, /\.(png|jpg)$/);
 export default {
   name: 'MyAccount',
   props: {
-    _account: String,
+    account: String,
   },
   data: function () {
     return {

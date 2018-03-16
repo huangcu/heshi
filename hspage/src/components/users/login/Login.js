@@ -2,13 +2,34 @@ export default {
   name: 'Login',
   data: function () {
     return {
-      qrCodeSrc: ''
+      qrCodeSrc: '',
+      login_feedback: '',
+      upgrade_feedback: '',
+      account: '',
+      previewmode: ''
     }
   },
   props: {
-    referer: String,
+    // referer: String,
     for: String,
     loginResult: null
+  },
+  computed: {
+    referer: function () {
+      // `this` points to the vm instance
+      console.log(this.$route.params.referer)
+      if (this.$route.params.referer === undefined) {
+        return ''
+      }
+      return ''
+    },
+    appointment: function () {
+      console.log(this.$route.params.referer)
+      if (this.$route.params.referer === undefined) {
+        return ''
+      }
+      return ''
+    }
   },
   methods: {
     reference: function () {
@@ -70,7 +91,6 @@ export default {
         this.$http.get(
           this.$wechatURL + '/status?sceneID=' + this.$cookies.get('sceneID')
         ).then(response => {
-          console.log(response.body)
           if (response.body !== '') {
             this.cookies.set("openID", response.body, 60 * 30)
             this.$route.replace('/')
@@ -79,13 +99,23 @@ export default {
       }
     }
   },
-  created: function () {
-    this.getQRCode()
-    setInterval(function () {
-      this.getQRCode();
-    }.bind(this), 2 * 60 * 1000);
-    setInterval(function () {
-      this.isQRCodeScanned();
-    }.bind(this), 5000);
+  mounted() {
+    if (this.$cookies.isKey('_account')) {
+      this.account = this.$cookies.get('_account')
+    } else {
+      this.account = ''
+      this.getQRCode()
+      setInterval(function () {
+        this.getQRCode();
+      }.bind(this), 2 * 60 * 1000);
+      setInterval(function () {
+        this.isQRCodeScanned();
+      }.bind(this), 5000);
+    }
+    // this.getInterestedItems()
+    // this.getOrders()
+  },
+  created() {
+    this.$currentPage = 'LOGIN'
   }
 }

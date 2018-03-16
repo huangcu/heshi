@@ -24,7 +24,7 @@ export default new Router({
       },
       props: (route) => ({
         referer: route.query.referer,
-        for: route.query.for
+        appointment: route.query.appointment
       })
     },
     {

@@ -1,6 +1,7 @@
 <template>
   <div>
     <vue-title title="合适钻石  BEYOU DIAMOND  用户注册"></vue-title>
+    <app-header></app-header>
     <div id="signupform">
       <h4>注册合适账户</h4>
       <h6 class="memeberbenefitexpl"><span class="glyphicon glyphicon-piggy-bank"></span> 立即享受会员折扣和积分</h6>

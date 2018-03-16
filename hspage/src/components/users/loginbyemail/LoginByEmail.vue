@@ -1,6 +1,7 @@
 <template>
   <div>
     <vue-title title="合适钻石  BEYOU DIAMOND  用户登录"></vue-title>
+    <app-header></app-header>
     <div id="maincontentbox">
       <div id="userloginform">
         <h4>我的合适账户</h4>

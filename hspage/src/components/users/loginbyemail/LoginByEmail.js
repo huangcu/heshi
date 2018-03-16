@@ -74,5 +74,8 @@ export default {
     returnPic: function () {
       return 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=gQGo8DwAAAAAAAAAAS5odHRwOi8vd2VpeGluLnFxLmNvbS9xLzAyR3UtUEVDclFleGoxSWxDRnhxMTAAAgSd5alaAwR4AAAA'
     }
+  },
+  created()  {
+    this.$currentPage = 'LOGIN'
   }
 }
