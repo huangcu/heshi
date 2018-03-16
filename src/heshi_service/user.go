@@ -101,7 +101,7 @@ func newAdminAgentUser(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
-		c.JSON(http.StatusOK, a.ID)
+		c.JSON(http.StatusOK, a)
 	}
 
 	if userType == ADMIN {
@@ -128,7 +128,7 @@ func newAdminAgentUser(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
-		c.JSON(http.StatusOK, a.ID)
+		c.JSON(http.StatusOK, a)
 	}
 }
 
@@ -170,7 +170,7 @@ func newUser(c *gin.Context) {
 
 	//TODO redirect to login
 	// c.Redirect(http.StatusFound, redirectLogin)
-	c.JSON(http.StatusOK, nu.ID)
+	c.JSON(http.StatusOK, nu)
 }
 
 func updateAdminAgent(c *gin.Context) {
@@ -234,7 +234,7 @@ func updateUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, uu.ID)
+	c.JSON(http.StatusOK, uu)
 }
 
 func getUser(c *gin.Context) {

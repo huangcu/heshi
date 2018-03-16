@@ -370,6 +370,7 @@ func (mw *GinJWTMiddleware) LoginHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":   http.StatusOK,
 		"token":  tokenString,
+		"id":     userID,
 		"expire": expire.Format(time.RFC3339),
 	})
 }

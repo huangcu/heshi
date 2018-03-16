@@ -126,8 +126,8 @@ func startWebServer(port string) error {
 func configRoute(r *gin.Engine) {
 	api := r.Group("/api")
 	if os.Getenv("STAGE") != "dev" {
-		//auth - access service api
-		// api.Use(AuthMiddleWare())
+		// auth - access service api
+		api.Use(AuthMiddleWare())
 
 		// Cross-Site Request Forgery (CSRF)
 		// api.Use(csrf.Middleware(csrf.Options{
@@ -273,8 +273,8 @@ func configRoute(r *gin.Engine) {
 		apiWechat.GET("/auth", wechatAuth)
 		apiWechat.GET("/token", wechatToken)
 		apiWechat.GET("/qrcode", wechatQrCode)
-		apiWechat.GET("/temp_qrcode", wechatTempQrCode)
 
+		api.GET("/wechat/temp_qrcode", wechatTempQrCode)
 		api.GET("/wechat/status", wechatQrCodeStatus)
 		api.GET("/wechat/callback", wechatCallback)
 		api.POST("/wechat/callback", wechatCallback)

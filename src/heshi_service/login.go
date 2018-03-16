@@ -48,7 +48,10 @@ func userLogin(c *gin.Context) {
 	s.Save()
 	c.SetCookie(USER_SESSION_KEY, id, 30*60, "/", "localhost", false, false)
 
-	c.JSON(http.StatusOK, id)
+	c.JSON(http.StatusOK, gin.H{
+		"_account":       id,
+		USER_SESSION_KEY: id,
+	})
 }
 
 func userLogout(c *gin.Context) {
