@@ -58,7 +58,12 @@ export default {
       //MAX 1 - 4294967295
       var sceneID = Math.floor(Math.random() * 1000 * 1000 *1000)
       this.$http.get(
-        this.$wechatURL + '/temp_qrcode?sceneID='+sceneID
+        this.$wechatURL + '/temp_qrcode?sceneID='+sceneID,
+        {
+          headers: {
+            'X-Auth-Token': 'Jbm6XfXQj/KqmMTqz6c4GQWl9U6JMLQ/T4LzPWIEi2W2Q23GDkuIfxvbUC/rar8ZJIWWSVo68fZ/hv6n0oAeXaQKEfhKmGUZ8m8JHm5TteBZwqZuqXAbOeowTJVBn8aaUhfSfZbmgNnXwDEnhjZ1DZ8jG2Khy9uzoHu5ogwbVHQ=',
+          }
+        }
       ).then(response => {
         this.$cookies.set('sceneID', sceneID, 60 * 2)
         window.sessionStorage.setItem("HSSESSIONID", sceneID)
@@ -66,15 +71,22 @@ export default {
       }, err => { console.log(err); alert('error:' + err.body) })
     },
     isQRCodeScanned: function () {
-      this.$http.get(
-        this.$wechatURL + '/status?sceneID=' + this.$cookies.get('sceneID')
-      ).then(response => {
-        console.log(response.body)
-        if (response.body !== '') {
-          this.cookies.set("openID", response.body, 60 * 30)
-          this.$route.replace('/')
-        }
-      }, err => { console.log(err); alert('error:' + err.body) })
+      if (this.$cookies.isKey('sceneID')) {
+        this.$http.get(
+          this.$wechatURL + '/status?sceneID=' + this.$cookies.get('sceneID'),
+          {
+            headers: {
+              'X-Auth-Token': 'Jbm6XfXQj/KqmMTqz6c4GQWl9U6JMLQ/T4LzPWIEi2W2Q23GDkuIfxvbUC/rar8ZJIWWSVo68fZ/hv6n0oAeXaQKEfhKmGUZ8m8JHm5TteBZwqZuqXAbOeowTJVBn8aaUhfSfZbmgNnXwDEnhjZ1DZ8jG2Khy9uzoHu5ogwbVHQ=',
+            }
+          }
+        ).then(response => {
+          console.log(response.body)
+          if (response.body !== '') {
+            this.cookies.set("openID", response.body, 60 * 30)
+            this.$route.replace('/')
+          }
+        }, err => { console.log(err); alert('error:' + err.body) })
+      }
     }
   },
   created: function () {
