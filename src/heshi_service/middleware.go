@@ -71,6 +71,10 @@ func userLogin1(username string, password1 string, c *gin.Context) (string, bool
 		return vemsgLoginErrorUserName.Message, false
 	}
 
+	userProfile, err := getUserByID(id)
+	if err != nil {
+		return errors.GetMessage(err), false
+	}
 	s := sessions.Default(c)
 	s.Set(USER_SESSION_KEY, id)
 
@@ -78,7 +82,7 @@ func userLogin1(username string, password1 string, c *gin.Context) (string, bool
 		s.Set(ADMIN_KEY, id)
 	}
 	s.Save()
-	return id, true
+	return userProfile, true
 }
 
 func AuthMiddleWare() gin.HandlerFunc {

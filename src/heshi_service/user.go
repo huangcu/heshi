@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"heshi/errors"
 	"net/http"
@@ -377,4 +378,56 @@ func selectUserQuery(id string) string {
 		q = fmt.Sprintf("%s WHERE status='active' AND id='%s'", q, id)
 	}
 	return q
+}
+
+func getUserByID(id string) (string, error) {
+	userType, err := getUserType(id)
+	if err != nil {
+		return "", err
+	}
+	q := selectUserQuery(id)
+
+	rows, err := dbQuery(q)
+	if err != nil {
+		return "", err
+	}
+	defer rows.Close()
+
+	us, err := composeUser(rows)
+	if err != nil {
+		return "", err
+	}
+
+	if userType == CUSTOMER {
+		bs, err := json.Marshal(us[0])
+		if err != nil {
+			return "", err
+		}
+		return string(bs), nil
+	}
+	if userType == ADMIN {
+		a, err := getAdmin(id)
+		if err != nil {
+			return "", err
+		}
+		a.User = us[0]
+		bs, err := json.Marshal(a)
+		if err != nil {
+			return "", err
+		}
+		return string(bs), nil
+	}
+	if userType == AGENT {
+		a, err := getAgent(id)
+		if err != nil {
+			return "", err
+		}
+		a.User = us[0]
+		bs, err := json.Marshal(a)
+		if err != nil {
+			return "", err
+		}
+		return string(bs), nil
+	}
+	return "", errors.Newf("invalid user type: %s", userType)
 }

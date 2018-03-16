@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"heshi/errors"
 	"net/http"
 	"util"
 
@@ -39,6 +40,11 @@ func userLogin(c *gin.Context) {
 		return
 	}
 
+	userProfile, err := getUserByID(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
+		return
+	}
 	s := sessions.Default(c)
 	s.Set(USER_SESSION_KEY, id)
 	if userType == ADMIN {
@@ -49,8 +55,7 @@ func userLogin(c *gin.Context) {
 	c.SetCookie(USER_SESSION_KEY, id, 30*60, "/", "localhost", false, false)
 
 	c.JSON(http.StatusOK, gin.H{
-		"_account":       id,
-		USER_SESSION_KEY: id,
+		"userprofile": userProfile,
 	})
 }
 
