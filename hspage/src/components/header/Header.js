@@ -19,20 +19,12 @@ export default {
       isContact: this.$currentPage === 'contact',
       isBrandstory: this.$currentPage === 'brandstory',
       isLocalStorageSaved: false,
-      appToken: '',
       accountID: '',
       interestedItems: [],
       orders: []
     }
   },
   methods: {
-    getAccount() {
-      if (this.$cookies.isKey('_account')) {
-        return this.$cookies.get('_account')
-      } else {
-        return ''
-      }
-    },
     getInterestedItems: function () {
       if (this.accountID === undefined) {
         return
@@ -79,8 +71,12 @@ export default {
     }
   },
   mounted() {
+    if (this.$cookies.isKey('_account')) {
+      this.accountID = this.$cookies.get('_account')
+    } else {
+      this.accountID = ''
+    }
     // this.getInterestedItems()
-    this.accountID = this.getAccount()
     // this.getOrders()
   }
 }

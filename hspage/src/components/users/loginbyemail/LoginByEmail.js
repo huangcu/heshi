@@ -5,14 +5,13 @@ export default {
       login_feedback: '',
       upgrade_feedback: '',
       username: '',
-      password: ''
+      password: '',
     }
   },
   props: {
     _ref: String,
     _for: String,
     _account: String,
-    loginResult: null
   },
   methods: {
     reference: function () {
@@ -42,15 +41,17 @@ export default {
             }
         }).then(response => {
           if (response.status === 200) {
-            // token
-            console.log(response.body)
-            this.loginResult = JSON.parse(response.body)
-            this.cookies.set('_account', this.loginResult._account)
-            this.cookies.set('hssessionid', this.loginResult.hs_sessionuserid)
-            // this.$cookies.set('beyou', this.loginResult.id)
-            // this.$cookies.set('token', this.loginResult.token)
+            var loginResult = JSON.parse(response.bodyText)
+            if (loginResult.code !== 200 ) {
+              this.login_feedback = loginResult.message
+              return
+            }
+            this.$cookies.set('token', loginResult.token)
+            var userprofile = JSON.parse(loginResult.userprofile)
+            this.$cookies.set('_account', userprofile.id)
+            this.$cookies.set('userprofile', loginResult.userprofile)
+            this.$router.replace('/home')
           }
-          return response.body
         }, err => { console.log(err); alert('error:' + err.body) })
     },
     logout: function () {

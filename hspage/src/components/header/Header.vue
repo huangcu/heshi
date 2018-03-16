@@ -46,7 +46,7 @@
           <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
             登录 | 注册
         </a>
-        <a v-else  id="myaccountbtn-mobile" href="'/myaccount?id=' + accountID">
+        <a v-else  id="myaccountbtn-mobile" :href="'/myaccount?id=' + accountID">
           <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
             账户
         </a>

@@ -23,7 +23,7 @@
           <p class="registerindibox">还没有合适账户? <a id="registeropenbtn" href="/register">立即注册</a></p>
         </div>
         <div v-else>
-          <p>您已经登录。<a href="/myaccount?_account=">回到我的帐户 &raquo;</a></p>
+          <p>您已经登录。<a :href="'/myaccount?_account='+accountID">回到我的帐户 &raquo;</a></p>
         </div>
       </div>
     </div>

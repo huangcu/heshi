@@ -1,6 +1,7 @@
 <template>
   <div>
     <vue-title title="比利时钻石, 安特卫普钻石, 合适钻石, BEYOU DIAMOND"></vue-title>
+    <app-header></app-header>
     <div id="main-col1" class="highlighted-products">
         <div id="main-col1-1">
           <a href="/jewelry-custom" class="linker-imageholder-featured" :style="{ 'background-image': 'url(' + backgroudImgUrl + ')' }">

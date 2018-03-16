@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import Header from '@/components/header/Header.vue'
 import titleComponent from '@/components/title.component.vue'
 import diamondFilter from '@/components/products/diamond/diamondfilter/DiamondFilter.vue'
 Vue.use(Router)
@@ -78,5 +79,6 @@ export default new Router({
   ]
 })
 
+Vue.component('app-header', Header)
 Vue.component('vue-title', titleComponent)
 Vue.component('diamond-filter', diamondFilter)
