@@ -1,0 +1,1210 @@
+div.contentmainwrapper {
+    position: relative;
+    text-align: center;
+    max-width: 980px;
+    margin: 35px auto 120px auto;
+}
+
+#normalusericon {
+    color: #999;
+}
+
+div.generalinfo {
+    text-align: left;
+    padding: 20px;
+    background-color: #c6e3e1;
+    margin: 0;
+}
+
+div#generalinfo {
+    border-style: solid;
+    border-width: 9px;
+    border-color: #c6e3e1;
+    background-color: transparent;
+    padding: 30px;
+}
+
+h3.g-info-title {
+    margin-top: 3px;
+}
+
+h4.g-info-content {
+    margin: 3px 0 12px 0;
+}
+
+p.ticket-question {
+    margin-top: 20px;
+    font-size: 18px;
+    color: #01934d;
+    cursor: pointer;
+}
+
+input#offerticketcode {
+    display: inline-block;
+    font-size: 16px;
+    padding: 8px;
+    background-color: #FFE;
+    border-style: solid;
+    border-width: 3px;
+    border-color: #01934d;
+}
+
+button#offerticketsubmitbtn {
+    position: relative;
+    margin-left: 15px;
+    background-color: #01934d;
+    color: #FFF;
+    border-style: solid;
+    border-bottom-width: 1px;
+    border-color: #01934d;
+    border-radius: 6px;
+    padding: 8px 22px 8px 15px;
+}
+
+div.orders,
+div.history,
+div.accountinfobox,
+div.history-recommenedusers,
+div.mywebsite {
+    padding: 5px 25px;
+    border-style: solid;
+    border-color: #c6e3e1;
+    border-width: 3px;
+    background-color: #EFFCEF;
+    margin-bottom: 15px;
+}
+
+div.orders,
+div.history-recommenedusers,
+div.discountticketbox,
+div.mywebsite {
+    background-color: #FAf2f0;
+    border-color: rgba(255, 208, 207, 1);
+}
+
+.orders h4,
+.historybox h4 {
+    margin: 25px 0 15px 0;
+}
+
+.orders>ul,
+.historybox>ul {
+    margin: 0;
+    padding: 0;
+}
+
+li.dia-order-history,
+li.transactionpiece {
+    list-style: none;
+    display: block;
+    position: relative;
+    padding: 20px 20px 5px 20px;
+    text-align: left;
+    margin-bottom: 15px;
+    background-color: #d0dfd5;
+}
+
+.orders li.dia-order-history {
+    background-color: #c6e3e1;
+}
+
+.historybox li.dia-order-history {
+    background-color: #d0dfd5;
+    padding-bottom: 20px;
+}
+
+li.dia-order-history.oneyear {
+    background-color: #c6e3e1;
+}
+
+li.dia-order-history.noprofit {
+    background-color: #d6d8d8;
+    margin-bottom: 3px;
+}
+
+span.picfororder {
+    display: inline-block;
+    padding: 0;
+    margin: 0 25px 0 0;
+    width: 68px;
+    height: 68px;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: 80px auto;
+    float: left;
+    position: relative;
+}
+
+img.img-dia-for-jew {
+    position: absolute;
+    top: -12px;
+    left: -16px;
+    width: 38px;
+    height: auto;
+}
+
+span.dia-description,
+span.jewelry-description,
+span.totalpricecrr,
+span.jewelry-name,
+span.paidpricecrr,
+span.pointstatusbox {
+    display: inline-block;
+    padding: 6px 12px;
+    background-color: rgba(255, 255, 255, 0.8);
+    float: left;
+    margin-right: 5px;
+    margin-top: 3px;
+}
+
+span.pointstatusbox {
+    background-color: #EFFCEF;
+}
+
+span.pointstatusbox.returned {
+    background-color: #FAf2f0;
+}
+
+span.pointstatusbox.na {
+    background-color: #ccc;
+}
+
+.pointstatusbox span.glyphicon-ok {
+    color: #01934d;
+}
+
+.pointstatusbox span.glyphicon-hourglass {
+    color: #C00;
+}
+
+span.orderedtime {
+    display: block;
+    position: absolute;
+    top: 2px;
+    right: 5px;
+    font-size: 12px;
+    color: #666;
+}
+
+p.order-status {
+    clear: both;
+    text-align: center;
+    position: relative;
+    min-width: 200px;
+    max-width: 320px;
+    margin: 0 auto;
+    padding: 5px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #063;
+    height: 28px;
+    line-height: 15px;
+    background-color: #FFC;
+}
+
+p.downpaymentreceived {
+    background-color: #EFE;
+}
+
+p.total-topay {
+    margin: 32px 0 12px 0;
+    font-size: 18px;
+}
+
+p.total-downpayment {
+    font-size: 16px;
+    margin: 0 0 30px 0;
+}
+
+div.historysummary {
+    margin-top: 35px;
+    padding-top: 35px;
+    border-top-style: solid;
+    border-top-width: 3px;
+    border-color: #c6e3e1;
+    margin-left: 35px;
+    margin-right: 35px;
+}
+
+span.thepricevalue {
+    font-size: 18px;
+}
+
+li.no-order {
+    list-style: none;
+}
+
+.accountinfobox>div {
+    display: block;
+    max-width: 288px;
+    padding: 20px;
+    background-color: #c6e3e1;
+    text-align: center;
+    margin: 20px auto;
+}
+
+.accountinfobox label {
+    display: inline-block;
+    width: 58px;
+    text-align: left;
+}
+
+div.logoutbtnbox {
+    position: relative;
+    margin: 38px;
+    text-align: center;
+}
+
+span#thetxtofpagetitle {
+    display: inline-block;
+    position: relative;
+}
+
+form#logoutform {
+    display: inline-block;
+    position: absolute;
+    right: 50px;
+}
+
+input#logoutbtn {
+    display: inline-block;
+    background-color: #FfeCeC;
+    color: #000;
+    font-size: 12px;
+    padding: 0;
+    width: auto;
+    overflow: visible;
+    position: relative;
+    left: 12px;
+    top: -3px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #999;
+    padding: 2px 3px;
+}
+
+#changeinfosavebtn {
+    position: relative;
+    background-color: #01934d;
+    color: #FFF;
+    border-style: solid;
+    border-bottom-width: 1px;
+    border-color: #01934d;
+    border-radius: 6px;
+    padding: 3px 12px;
+    font-size: 14px;
+    margin-top: 15px;
+}
+
+.accountlevelstars {
+    color: #FC0;
+}
+
+ul.recommenduserslist {
+    margin: 0;
+    padding: 0;
+}
+
+.recommenduserslist li {
+    display: block;
+    padding: 5px 12px;
+    background-color: #CEE6E5;
+    margin: 8px auto;
+    text-align: left;
+    position: relative;
+}
+
+.extendedclients .recommenduserslist li {
+    display: inline-block;
+}
+
+.ru_name,
+.ru_price {
+    display: inline-block;
+    margin-right: 20px;
+}
+
+span.clientpic {
+    display: inline-block;
+    position: relative;
+    width: 32px;
+    height: 32px;
+    background-position: center;
+    background-size: auto 32px;
+    background-repeat: no-repeat;
+    margin: 5px 12px 5px 0;
+    background-color: #EEE;
+    float: left;
+}
+
+span.noprice {
+    color: #999;
+}
+
+span.neworder {
+    color: #C00;
+}
+
+.newpoints span.glyphicon {
+    color: #F90;
+}
+
+span#myreferenceticket {
+    display: inline-block;
+    font-size: 16px;
+    padding: 6px 15px;
+    background-color: #FFE;
+    border-style: solid;
+    border-width: 3px;
+    border-color: #01934d;
+    margin: 8px;
+}
+
+div#myreferenceticketbox {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top-style: dotted;
+    border-width: 3px;
+    border-color: #c6e3e1;
+}
+
+p.advanceduser-ticketexpl {
+    font-size: 15px;
+}
+
+a#recommenduserurl {
+    display: inline-block;
+    font-size: 10px;
+    padding: 3px 12px;
+    background-color: #FFE;
+    border-style: solid;
+    border-width: 2px;
+    border-color: #01934d;
+    text-align: center;
+    margin: 10px 0 0 0;
+    cursor: pointer;
+}
+
+div.share-ticket-tools {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top-style: dotted;
+    border-width: 1px;
+    border-color: #FFF;
+}
+
+div.ticket-answer,
+#ticke-expl {
+    display: none;
+}
+
+span.usertotalamout,
+span.ru_name {
+    color: #000;
+    display: inline-block;
+    white-space: nowrap;
+    margin-right: 20px;
+    margin-top: 13px;
+    min-width: 88px;
+}
+
+span.usertotalamout {
+    float: left;
+    max-width: 350px;
+}
+
+span.userdetailbtn {
+    display: inline-block;
+    white-space: nowrap;
+}
+
+span.ru_name {
+    font-size: 20px;
+    font-weight: bold;
+    float: left;
+    margin-top: 8px;
+}
+
+.extendedclients span.ru_name {
+    float: none;
+    margin-top: 0;
+    min-width: auto;
+}
+
+.order-expl span.glyphicon-info-sign {
+    color: #F90;
+}
+
+p.orderredbytxt {
+    position: relative;
+    margin-top: -2px;
+    max-width: 228px;
+    padding: 0;
+}
+
+span.thetxtofusername {
+    display: inline-block;
+    padding: 2px 8px;
+    background-color: #a7d0d0;
+    border-radius: 2px;
+    color: #555;
+}
+
+p.agentlevelwords {
+    font-size: 18px;
+    margin: 15px 0;
+    padding: 8px 0;
+    border-top-style: dotted;
+    border-bottom-style: dotted;
+    border-color: #c6e3e1;
+    border-width: 1px;
+}
+
+span.agentprice {
+    background-color: #CF9;
+}
+
+p#titleformyreference {
+    position: relative;
+    margin: 0px;
+    font-size: 24px;
+    color: #01934d;
+    text-shadow: 0 1px 1px #FFF;
+    cursor: pointer;
+}
+
+div.share-ticket-tools {
+    font-size: 18px;
+}
+
+p#toolexpl {
+    font-size: 14px;
+    margin: 0;
+}
+
+div.heshibi-box {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.heshibi-box h3 {
+    margin-bottom: 35px;
+}
+
+div.my-heshibi {
+    position: relative;
+    width: 358px;
+    height: 151px;
+    margin: 20px auto;
+    padding: 0;
+    background-image: url(/_images/constant/heishibi-big.jpg);
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 358px auto;
+    box-shadow: 3px 3px 5px rgba(56, 56, 56, 0.8);
+}
+
+div.my-heshibi-amount-box {
+    position: absolute;
+    left: 50%;
+    bottom: 38px;
+    font-size: 26px;
+    font-weight: 700;
+    color: #FFF;
+    white-space: nowrap;
+    text-shadow: 0 -1px 1px #000;
+    width: 50%;
+    background-color: transparent;
+    overflow: visible;
+    text-align: left;
+}
+
+h4.heshibitranferbtnbox {
+    position: relative;
+    margin-top: 35px;
+}
+
+img#heshibisign {
+    height: 26px;
+    position: relative;
+}
+
+div.heshibibox {
+    max-width: 428px;
+    margin: 25px auto 15px auto;
+    padding: 0 15px 20px 15px;
+    border-top-style: dotted;
+    border-bottom-style: dotted;
+    border-width: 3px;
+    border-color: #FFF;
+}
+
+p.heshibiinuse {
+    position: relative;
+    padding: 10px;
+    text-align: center;
+    margin-bottom: 15px;
+    background-color: rgba(204, 153, 0, 0.28);
+    border-style: solid;
+    border-width: 3px;
+    border-color: #C90;
+}
+
+img.heshibi-inuse-sign {
+    position: relative;
+    height: 45px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #01934d;
+    width: auto;
+    padding: 3px;
+    background-color: #aed9b7;
+    margin-right: 20px;
+}
+
+span.heshibiinuseamount {
+    display: inline-block;
+    font-size: 18px;
+    position: relative;
+}
+
+span.buyername,
+span.transactiondiamonds,
+span.transactionjewelry,
+span.transactiontotalprice,
+span.transactionheshibi,
+span.transactionfinalprice,
+span.agentprice {
+    display: inline-block;
+    width: 112px;
+    padding: 5px;
+    background-color: #FFF;
+    margin-right: 8px;
+    font-size: 14px;
+    margin-top: 3px;
+}
+
+.buyername a,
+span.transactionfinalprice,
+span.agentprice {
+    color: #01934d;
+    font-size: 16px;
+}
+
+span.transactionfinalprice label,
+span.agentprice label {
+    color: #000;
+    font-size: 14px;
+}
+
+span.transactiontime {
+    position: absolute;
+    top: 2px;
+    right: 5px;
+    font-size: 12px;
+    color: #555;
+}
+
+.transactionpiece span label {
+    display: block;
+}
+
+p.transactionstatusactionsbox {
+    position: relative;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top-style: dotted;
+    border-width: 2px;
+    border-color: #FFF;
+}
+
+p.special-notice-box {
+    display: block;
+    text-align: center;
+    margin: 8px 0 5px 0;
+    /*background-color:#EFFCEF;*/
+    padding: 3px;
+}
+
+.special-notice-box label {
+    margin-bottom: 0;
+}
+
+.special-notice-box span.glyphicon.glyphicon-info-sign {
+    color: #01934d;
+}
+
+span.precessinginfo {
+    color: #555;
+}
+
+button.transactioncompletebtn {
+    position: relative;
+    background-color: #01934d;
+    color: #FFF;
+    border-style: solid;
+    border-bottom-width: 1px;
+    border-color: #01934d;
+    border-radius: 6px;
+    padding: 2px 12px;
+}
+
+button.archivebtn {
+    position: relative;
+    background-color: #960;
+    color: #FFF;
+    border-style: solid;
+    border-bottom-width: 1px;
+    border-color: #960;
+    border-radius: 6px;
+    padding: 2px 12px;
+    margin-left: 12px;
+}
+
+.transactiondiamonds span.glyphicon-ok,
+.transactionjewelry span.glyphicon-ok,
+.tr_complete_words {
+    color: #01934d;
+}
+
+.transactiondiamonds span.glyphicon-hourglass,
+.transactionjewelry span.glyphicon-hourglass {
+    color: #C00;
+}
+
+a.bankinfolinker {
+    display: inline-block;
+    margin-left: 15px;
+}
+
+.paymentinfo span.glyphicon-exclamation-sign {
+    color: #01934d;
+}
+
+span.paidpricecrr {
+    background-color: #EFE;
+}
+
+strong.pointofrecommendation {
+    color: #C00;
+    font-size: 20px;
+}
+
+p.appointmentinfo {
+    display: block;
+    position: relative;
+    margin: 25px auto 15px auto;
+    padding: 5px 15px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #01934d;
+    width: 258px;
+    border-radius: 6px;
+}
+
+p.heshibitransfer-expl {
+    font-size: 12px;
+}
+
+h4.retrievable-title {
+    position: relative;
+    margin-top: 30px;
+    padding-top: 15px;
+    max-width: 388px;
+    margin-left: auto;
+    margin-right: auto;
+    border-top-style: dotted;
+    border-width: 2px;
+    border-color: #FFF;
+}
+
+div.retrievableheshibi {
+    position: relative;
+    padding: 12px;
+    background-color: #FAf2f0;
+    margin: 5px 0;
+}
+
+span.createdtime {
+    display: block;
+    clear: both;
+    font-size: 12px;
+    text-align: left;
+    margin-top: -3px;
+    margin-bottom: 5px;
+}
+
+img.heshibipic {
+    position: relative;
+    width: 150px;
+    height: auto;
+    float: left;
+}
+
+span.heshibiamount,
+span.heshibiinfo {
+    display: inline-block;
+    float: left;
+}
+
+span.heshibiamount {
+    font-size: 18px;
+    line-height: 18px;
+    padding: 12px 15px;
+}
+
+span.usedamountheshibi {
+    font-size: 14px;
+}
+
+span.heshibiinfo {
+    font-size: 14px;
+    line-height: 18px;
+    padding: 12px 15px;
+    background-color: rgba(255, 255, 255, 0.88);
+}
+
+p.retrieve-time {
+    position: relative;
+    clear: both;
+    text-align: left;
+    margin: 0;
+    padding-top: 12px;
+}
+
+.retrieve-time .glyphicon {
+    color: #F00;
+}
+
+img.dt-pic {
+    display: inline-block;
+    box-shadow: 0 0 3px #333;
+    height: 128px;
+    margin: 3px;
+}
+
+p.discountticketexplwords {
+    margin-top: 12px;
+}
+
+.heshibitranferbtnbox.dt a {
+    color: #C60;
+}
+
+img.useddtpic {
+    position: relative;
+    float: left;
+    height: 38px;
+}
+
+p#downloadbtnbox {
+    margin: 0 0;
+    position: relative;
+}
+
+a#listdownloadbtn {
+    background-color: #FFF;
+    border-color: #000;
+}
+
+span.discountticketcontainer {
+    display: inline-block;
+    position: relative;
+    text-align: center;
+    width: 301px;
+    padding-bottom: 6px;
+}
+
+span.dt-time {
+    font-size: 12px;
+}
+
+div#qrcodebg,
+div#qrcodebg-watch {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    background-color: rgba(255, 255, 255, 0.97);
+    z-index: 888;
+    text-align: center;
+}
+
+div#qrcode-box {
+    position: relative;
+    top: 50%;
+    margin-top: -218px;
+    width: 288px;
+    margin-left: auto;
+    margin-right: auto;
+    height: 358px;
+}
+
+p.qrexpl {
+    margin-bottom: 8px;
+}
+
+p.no_weixin,
+p.expire_expl {
+    margin-top: 22px;
+    color: #999;
+    font-size: 12px;
+}
+
+p.no_weixin {
+    margin-top: 0;
+}
+
+.no_weixin a {
+    color: #793;
+}
+
+#qrcode-img-container {
+    position: relative;
+    padding: 0;
+    margin: 0 auto;
+    width: 221px;
+    height: 221px;
+    background-image: url('/_images/constant/circle-loading-icon.gif');
+    background-size: 88px auto;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #F3FCFF;
+    border-style: solid;
+    border-width: 3px;
+    border-color: #86c610;
+}
+
+span#loading-txt {
+    display: inline-block;
+    position: absolute;
+    bottom: 25px;
+    width: 100%;
+    text-align: center;
+    z-index: 0;
+    left: 0;
+}
+
+#the_account_qrcode,
+#the_account_qrcode_w {
+    width: 215px;
+    z-index: 8;
+    position: relative;
+    background-color: #FFF;
+    background-image: url('/_images/constant/circle-loading-icon.gif');
+    background-size: 88px auto;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+img#weixin-indi {
+    display: inline-block;
+    height: 26px;
+    margin-right: 3px;
+    position: relative;
+}
+
+#logoutform-inqrstatus {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+}
+
+input#logoutbtn-qrstates {
+    display: inline-block;
+    background-color: #FCC;
+    color: #c00;
+    font-size: 14px;
+    padding: 2px 15px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #C00;
+    border-radius: 6px;
+}
+
+.accountinfobox form input {
+    position: relative;
+    width: 188px;
+    font-size: 14px;
+    padding: 2px 5px;
+    background-color: #EFFCEF;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #01934d;
+}
+
+button#x-it {
+    display: inline-block;
+    background-color: #FCC;
+    color: #c00;
+    font-size: 14px;
+    padding: 2px 8px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #C00;
+    border-radius: 6px;
+}
+
+p.need-verification-to-order-notice {
+    margin: 15px 0;
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+}
+
+p#updatewarning {
+    color: #C00;
+    font-size: 14px;
+}
+
+div#reco-contentbox {
+    display: none;
+}
+
+p.inpage-navi-box {
+    position: relative;
+    margin: 35px 0 15px 0;
+}
+
+.inpage-navi {
+    display: inline-block;
+    padding: 3px 12px;
+    background-color: #EFFCEF;
+    color: #000;
+    border-style: solid;
+    border-width: 3px;
+    border-color: #01934d;
+    margin: 5px 0 0 0;
+}
+
+.inpage-navi.active {
+    background-color: #01934d;
+    color: #FFF;
+}
+
+div#clientorders,
+div#mypoints,
+div#myclients,
+div.history-recommenedusers.extendedclients,
+div#coupon,
+div.generalinfo.heshibi-box,
+div.accountinfobox,
+div#personalinfo,
+div#mywebsite {
+    display: none;
+}
+
+#mypointdetailbtn {
+    display: inline-block;
+    font-size: 14px;
+    margin: 0;
+    background: none;
+    border: none;
+    color: #01934d;
+}
+
+a.userhistorybtn {
+    margin-right: 25px;
+    display: inline-block;
+}
+
+a.chatlinker {
+    display: inline-block;
+    position: relative;
+    margin-right: 35px;
+    margin-top: 8px;
+    float: right;
+    min-width: 128px;
+    font-size: 16px;
+}
+
+.chatlinker span.glyphicon.glyphicon-comment {
+    font-size: 20px;
+    position: relative;
+    top: 5px;
+    color: #01934d;
+}
+
+span.messagemn {
+    font-size: 12px;
+    color: #777;
+}
+
+span.messagemn.newmessage {
+    color: #C00;
+    font-size: 14px;
+}
+
+li#no-profit-title-box {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 14px;
+    text-align: center;
+}
+
+span#new-iconbox {
+    display: inline-block;
+    position: relative;
+    width: 0;
+    overflow: visible;
+    left: -12px;
+    top: -22px;
+}
+
+img#newicon-mysite {
+    display: inline-block;
+    width: 36px;
+}
+
+#inpage-navi_mywebsite {
+    padding: 7px 22px;
+    border-radius: 6px;
+    font-size: 16px;
+    background-color: rgba(255, 228, 227, 1);
+    border-color: rgba(255, 158, 157, 1);
+}
+
+button.mywebsitebtn.active {
+    background-color: rgba(255, 158, 157, 1) !important;
+    border-color: rgba(255, 158, 157, 1);
+    color: #000;
+}
+
+div.mysitemanagingbloc {
+    float: left;
+    width: 65%;
+    text-align: left;
+    padding: 25px;
+    background-color: #Fff9f5;
+}
+
+div.tech_support_bloc {
+    float: left;
+    width: 35%;
+    text-align: center;
+    padding: 25px;
+}
+
+div#mywebsite {
+    padding: 5px;
+}
+
+#mywebsite::after {
+    content: '';
+    clear: both;
+}
+
+img.tech-support-wechat-pic {
+    width: 128px;
+}
+
+p.sitestatuswords {
+    margin-bottom: 29px;
+}
+
+.mysitemanagingbloc form label {
+    display: inline-blok;
+    width: 112px;
+}
+
+.mysitemanagingbloc form input {
+    width: 128px;
+}
+
+input#resellerpriceratio {
+    width: 52px;
+}
+
+div.sitemanageformbox {
+    padding-top: 15px;
+    margin-top: 15px;
+    border-top-style: dotted;
+    border-width: 2px;
+    border-color: #F39;
+}
+
+.mysitemanagingbloc form input[type=submit] {
+    background-color: #01934d;
+    color: #fff;
+    padding: 5px 12px;
+    border-radius: 4px;
+    border-width: 1px;
+    width: auto;
+    font-size: 16px;
+}
+
+.mysitemanagingbloc form p {
+    border-bottom-style: solid;
+    border-width: 1px;
+    border-color: rgba(255, 208, 207, 0.4);
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+}
+
+button#domaincheckbtn {
+    background-color: #EFFCEF;
+    border-width: 1px;
+    border-radius: 4px;
+    color: #000;
+    border-style: solid;
+    border-color: #01934d;
+}
+
+span.note {
+    display: inline-block;
+    width: 100%;
+    font-size: 12px;
+    padding: 12px 0;
+}
+
+.mysitemanagingbloc .glyphicon-exclamation-sign {
+    color: #C00;
+}
+
+.mysitemanagingbloc .glyphicon-info-sign {
+    color: #01934d;
+}
+
+@media (max-width: 825px) {
+    a.chatlinker {
+        float: none;
+        position: absolute;
+        top: 2px;
+        right: 5px;
+    }
+    span.usertotalamout {
+        display: block;
+        clear: both;
+        white-space: normal;
+    }
+    div.mysitemanagingbloc {
+        float: left;
+        width: 100%;
+        text-align: left;
+        padding: 25px;
+    }
+    div.tech_support_bloc {
+        float: left;
+        width: 100%;
+        text-align: left;
+        padding: 25px;
+    }
+}
+
+@media (max-width: 463px) {
+    input#recommenduserurl {
+        width: 100%;
+        font-size: 10px;
+    }
+    a#listdownloadbtn {}
+}
+
+@media (max-width: 398px) {
+    div.my-heshibi {
+        width: 100%;
+        background-size: 100% auto;
+    }
+}

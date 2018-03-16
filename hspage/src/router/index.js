@@ -39,6 +39,17 @@ export default new Router({
       })
     },
     {
+      path: '/qrsign',
+      name: 'QRSign',
+      components: {
+        default: () => import('@/components/users/qrsign/QRSign.vue')
+      },
+      props: (route) => ({
+        _ref: route.query._ref,
+        _for: route.query._for
+      })
+    },
+    {
       path: '/register',
       name: 'Register',
       components: {
