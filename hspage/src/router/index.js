@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Header from '@/components/header/Header.vue'
 import titleComponent from '@/components/title.component.vue'
 import diamondFilter from '@/components/products/diamond/diamondfilter/DiamondFilter.vue'
+import diamondsData from '@/components/products/diamond/diamondsdata/DiamondsData.vue'
 Vue.use(Router)
 
 export default new Router({
@@ -85,3 +86,4 @@ export default new Router({
 Vue.component('app-header', Header)
 Vue.component('vue-title', titleComponent)
 Vue.component('diamond-filter', diamondFilter)
+Vue.component('diamond-data', diamondsData)

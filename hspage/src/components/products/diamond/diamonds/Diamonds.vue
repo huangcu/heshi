@@ -8,8 +8,12 @@
       <p class="subtitle-expl">
         <span class="glyphicon glyphicon-hand-right"></span> 将您选好的钻石放到预订单中，提交后可以预约到公司来看钻石。
       </p>
-      <diamond-filter></diamond-filter>
-      <div id="diamondlist"></div>
+      <diamond-filter>
+      </diamond-filter>
+      <div id="diamondlist">
+        <diamonds-data>
+        </diamonds-data>
+      </div>
       <div id="list-page-navi">第 <span id="diapagenavi"></span> 页</div>
       </div>
       <div id="feedbackcover">
