@@ -32,22 +32,14 @@ export default new Router({
       name: 'LoginByEmail',
       components: {
         default: () => import('@/components/users/loginbyemail/LoginByEmail.vue')
-      },
-      props: (route) => ({
-        _ref: route.query._ref,
-        _for: route.query._for
-      })
+      }
     },
     {
       path: '/qrsign',
       name: 'QRSign',
       components: {
         default: () => import('@/components/users/qrsign/QRSign.vue')
-      },
-      props: (route) => ({
-        _ref: route.query._ref,
-        _for: route.query._for
-      })
+      }
     },
     {
       path: '/register',

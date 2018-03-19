@@ -10,32 +10,28 @@ export default {
     }
   },
   props: {
-    // referer: String,
-    for: String,
     loginResult: null
   },
   computed: {
     referer: function () {
       // `this` points to the vm instance
-      console.log(this.$route.params.referer)
-      if (this.$route.params.referer === undefined) {
+      if (this.$route.query.referer === undefined) {
         return ''
       }
-      return ''
+      return this.$route.query.referer
     },
     appointment: function () {
-      console.log(this.$route.params.referer)
-      if (this.$route.params.referer === undefined) {
+      if (this.$route.query.for === undefined) {
         return ''
       }
-      return ''
+      return this.$route.query.for
     }
   },
   methods: {
     reference: function () {
       if (this.referer) {
-        if (this.for) {
-          if (this.for === 'appointment') {
+        if (this.appointment) {
+          if (this.appointment === 'appointment') {
             this.$http.headers.common['Location'] = 'appointment'
           } else {
             this.$http.headers.common['Location'] = 'myaccount'
@@ -114,8 +110,5 @@ export default {
     }
     // this.getInterestedItems()
     // this.getOrders()
-  },
-  created() {
-    this.$currentPage = 'LOGIN'
   }
 }

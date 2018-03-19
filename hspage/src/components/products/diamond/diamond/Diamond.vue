@@ -1,6 +1,7 @@
 <template>
   <div>
     <vue-title title="合适钻石 | BEYOU DIAMOND | 推荐详情"></vue-title>
+    <app-header></app-header>
     <div class="contentmainwrapper">
     <h2 class="jewelry-title">合适推荐钻石</h2>
     <div v-if="status !== 'AVAIABLE'">
@@ -58,3 +59,5 @@
     </p>
   </div>
 </template>
+<script src='./Diamond.js'></script>
+<style src='./Diamond.css'></style>

@@ -5,7 +5,6 @@
     <div id="signupform">
       <h4>注册合适账户</h4>
       <h6 class="memeberbenefitexpl"><span class="glyphicon glyphicon-piggy-bank"></span> 立即享受会员折扣和积分</h6>
-      <!-- <form action="" method="post" id="the_signup_form"> -->
       <form id="the_signup_form" @submit.prevent="checkForm" novalidate="true">
         <p v-if="registerErrors.length">
           <b>Please correct the following error(s):</b>
@@ -44,13 +43,6 @@
         <p>
           <input type="submit" id="registerformsubmitbtn" value="Submit">
         </p>
-        <!-- <input name="newaccountemail" id="newaccountemail" type="text" class="inputtextforloginform" placeholder="电子邮箱" />
-        <input name="newaccountpassword" id="newaccountpassword" type="password" class="inputtextforloginform" placeholder="密码" />
-        <input name="newaccountpasswordagain" id="newaccountpasswordagain" type="password" class="inputtextforloginform" placeholder="密码确认" />
-        <input name="realname" id="realname" type="text" class="inputtextforloginform" placeholder="姓名" />
-        <input name="wechatid" id="wechatid" type="text" class="inputtextforloginform" placeholder="微信ID(可选)" />
-        <input name="tel" id="tel" type="text" class="inputtextforloginform" placeholder="手机号码(可选)" />
-        <button type="button" id="registerformsubmitbtn" onclick="processthesignupform()">注册</button> -->
       </form>
     </div>
   </div>

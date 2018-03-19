@@ -5,7 +5,7 @@ export default {
       login_feedback: '',
       upgrade_feedback: '',
       appointment: '',
-      account: 'test',
+      account: '',
       therecommendticketcode: '',
       wechatopenID: ''
     }
@@ -29,6 +29,13 @@ export default {
   created() {
     if (!this.$cookies.isKey('wechatopenID')) {
       // this.$router.replace('/login')
+    }
+  },
+  mounted() {
+    if (this.$cookies.isKey('_account')) {
+      this.account = this.$cookies.get('_account')
+    } else {
+      this.account = ''
     }
   }
 }

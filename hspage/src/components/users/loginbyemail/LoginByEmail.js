@@ -6,18 +6,29 @@ export default {
       upgrade_feedback: '',
       username: '',
       password: '',
+      account: '',
     }
   },
-  props: {
-    _ref: String,
-    _for: String,
-    _account: String,
+  computed: {
+    referer: function () {
+      // `this` points to the vm instance
+      if (this.$route.query.referer === undefined) {
+        return ''
+      }
+      return this.$route.query.referer
+    },
+    appointment: function () {
+      if (this.$route.query.for === undefined) {
+        return ''
+      }
+      return this.$route.query.for
+    }
   },
   methods: {
     reference: function () {
       if (this.referer) {
-        if (this.for) {
-          if (this.for === 'appointment') {
+        if (this.appointment) {
+          if (this.appointment === 'appointment') {
             this.$http.headers.common['Location'] = 'appointment'
           } else {
             this.$http.headers.common['Location'] = 'myaccount'
@@ -77,5 +88,12 @@ export default {
   },
   created()  {
     this.$currentPage = 'LOGIN'
+  },
+  mounted() {
+    if (this.$cookies.isKey('_account')) {
+      this.account = this.$cookies.get('_account')
+    } else {
+      this.account = ''
+    }
   }
 }

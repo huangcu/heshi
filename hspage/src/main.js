@@ -25,9 +25,9 @@ Vue.http.interceptors.push((request, next) => {
 // Vue.use(BootstrapVue)
 Vue.config.productionTip = false
 Vue.prototype.$currentPage = 'Index'
-Vue.prototype.$userURL = 'https://localhost:8443/api'
-Vue.prototype.$wechatURL = 'https://localhost:8443/api/wechat'
-Vue.prototype.$adminURL = 'https://localhost:8443/api/admin'
+Vue.prototype.$userURL = (Vue.config.productionTip) ? 'http://localhost:8080/api' : 'https://localhost:8443/api'
+Vue.prototype.$wechatURL = (Vue.config.productionTip) ? 'http://localhost:8080/api/wechat' : 'https://localhost:8443/api/wechat'
+Vue.prototype.$adminURL = (Vue.config.productionTip) ? 'http://localhost:8080/api/admin' : 'https://localhost:8443/api/admin'
 
 /* eslint-disable no-new */
 new Vue({

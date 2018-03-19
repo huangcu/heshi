@@ -26,9 +26,9 @@
           <form action="qr_sign.php" method="post" id="sign-form">
             <input type="hidden" id="signID" value="<?php echo $the_sign_id; ?>" />
             <input type="hidden" name="wechatopenID" id="wechatopenID" value="" />
-            <p v-if="referer" id="recommend-ticket-box">
+            <p v-if="referer!==''" id="recommend-ticket-box">
               <label style="font-size:10px;">推荐人:</label>
-              <input type="text" readonly="readonly" id="therecommendticketcode" name="therecommendticketcode-readonly" value="<>" />
+              <input type="text" readonly="readonly" id="therecommendticketcode" name="therecommendticketcode-readonly" :value="referer" />
             </p>
             <input type="hidden" name="therecommendticketcode" value="<>" />
           </form>
