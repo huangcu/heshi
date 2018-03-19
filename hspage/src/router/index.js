@@ -86,4 +86,4 @@ export default new Router({
 Vue.component('app-header', Header)
 Vue.component('vue-title', titleComponent)
 Vue.component('diamond-filter', diamondFilter)
-Vue.component('diamond-data', diamondsData)
+Vue.component('diamonds-data', diamondsData)
