@@ -62,8 +62,8 @@
           <ul class="navbar-nav">
             <li class="nav-item"><a class="text-sm-center nav-link "  v-bind:class="{ active: isIndexPage }" href="/"><span class="glyphicon glyphicon-home"></span>首页</a></li>
             <li class="nav-item"><a class="text-sm-center nav-link "  v-bind:class="{ active: isDiamond }" href="/product/diamonds">钻石</a></li>
-            <li class="nav-item"><a class="text-sm-center nav-link "  v-bind:class="{ active: isJewelryNeedMounting }" href="/product/jewelry?class=mounting">空托</a></li>
-            <li class="nav-item"><a class="text-sm-center nav-link "  v-bind:class="{ active: isJewelry }" href="/product/jewelry">首饰</a></li>
+            <li class="nav-item"><a class="text-sm-center nav-link "  v-bind:class="{ active: isJewelryNeedMounting }" href="/product/jewelrys?class=mounting">空托</a></li>
+            <li class="nav-item"><a class="text-sm-center nav-link "  v-bind:class="{ active: isJewelry }" href="/product/jewelrys">首饰</a></li>
             <li class="nav-item"><a class="text-sm-center nav-link "  v-bind:class="{ active: isGem }" href="/product/colored-gems">彩宝</a></li>
             <li class="nav-item"><a class="text-sm-center nav-link "  v-bind:class="{ active: isCustomizedJewelry }" href="/jewelry-custom">定制</a></li>
             <li class="nav-item"><a class="text-sm-center nav-link "  v-bind:class="{ active: isKnowledge }" href="/press/category/knowledge/">珠宝知识</a></li>

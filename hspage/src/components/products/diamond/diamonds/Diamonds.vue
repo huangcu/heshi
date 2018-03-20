@@ -1,7 +1,6 @@
 <template>
   <div>
     <vue-title title="合适钻石 | BEYOU DIAMOND | 挑选钻石"></vue-title>
-    <app-header></app-header>
     <div class="contentmainwrapper">
       <h2 class="pagetitle">合适钻石</h2>
       <h3 class="pagesubtitle">挑选适合您的钻石</h3>

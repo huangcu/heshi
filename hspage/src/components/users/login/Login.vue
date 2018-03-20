@@ -1,7 +1,6 @@
 <template>
   <div>
     <vue-title title="BEYOU DIAMOND|合适钻石 登录"></vue-title>
-    <app-header></app-header>
     <div id="maincontentbox">
       <p v-if="login_feedback !== ''"  class="loginfeedbackwords">{{ login_feedback }}</p>
       <p v-if="upgrade_feedback !== ''" class="registerfeedbackmessage">{{ upgrade_feedback }}</p>

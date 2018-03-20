@@ -2,26 +2,49 @@ let _images = require.context('@/_images/', false, /\.png$/)
 export default {
   name: 'Header',
   props: {
+    currentPage: String,
     jobType: String,
     platform: String,
     deviceType: String
   },
   data: function () {
     return {
-      isIndexPage: this.$currentPage === 'Index',
-      isDiamond: this.$currentPage === 'diamonds',
-      isJewelry: this.$currentPage === 'jewelry',
-      isJewelryNeedMounting: this.$currentPage === 'needMounting',
-      isGem: this.$currentPage === 'gem',
-      isCustomizedJewelry: this.$currentPage === 'customizedJewelry',
-      isKnowledge: this.$currentPage === 'knowledge',
-      isAppointment: this.$currentPage === 'appointment',
-      isContact: this.$currentPage === 'contact',
-      isBrandstory: this.$currentPage === 'brandstory',
       isLocalStorageSaved: false,
       accountID: '',
       interestedItems: [],
       orders: []
+    }
+  },
+  computed: {
+    isIndexPage: function () {
+      return this.currentPage === 'index'
+    },
+    isDiamond: function () {
+      return this.currentPage === 'diamonds'
+    },
+    isJewelry: function () {
+      return this.currentPage === 'jewelry'
+    },
+    isJewelryNeedMounting: function () {
+      return this.currentPage === 'jewelry' && this.$router.query.class === "mounting"
+    },
+    isGem: function () {
+      return this.currentPage === 'gem'
+    },
+    isCustomizedJewelry: function () {
+      return this.currentPage === 'customizedJewelry'
+    },
+    isKnowledge: function () {
+      return this.currentPage === 'knowledge'
+    },
+    isAppointment: function () {
+      return this.currentPage === 'appointment'
+    },
+    isContact: function () {
+      return this.currentPage === 'contact'
+    },
+    isBrandstory: function () {
+      return this.currentPage === 'brandstory'
     }
   },
   methods: {

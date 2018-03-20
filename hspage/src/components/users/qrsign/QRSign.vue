@@ -1,7 +1,6 @@
 <template>
   <div>
     <vue-title title="合适钻石  BEYOU DIAMOND  用户登录"></vue-title>
-    <app-header></app-header>
     <div id="maincontentbox">
       <div id="userloginform">
       <h4><span class="glyphicon glyphicon-ok-circle"></span> 恭喜！您成功创建了合适帐户</h4>

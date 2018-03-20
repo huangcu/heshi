@@ -9,7 +9,10 @@ export default {
       return Images('./beyoudiamond-20160122_130349.jpg');
     }
   },
-  created() {
-    this.$currentPage = 'Index'
+  beforeCreate() {
+    this.$emit('getCurrentPage', 'index')
+  },
+  beforeDestroy() {
+    this.$emit('getCurrentPage', '')
   }
 }
