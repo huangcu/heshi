@@ -66,14 +66,6 @@ export default {
           }
         }, err => { console.log(err); alert('error:' + err.body) })
     },
-    logout: function () {
-      this.$http.post(
-        this.$userURL + '/logout'
-      ).then(response => {
-        console.log('logout')
-        this.$route.router.go('/')
-      }, err => { console.log(err); alert('error:' + err.body) })
-    },
     getQRCode: function () {
       //MAX 1 - 4294967295
       var sceneID = Math.floor(Math.random() * 1000 * 1000 * 1000)

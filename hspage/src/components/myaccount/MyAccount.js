@@ -47,6 +47,14 @@ export default {
           }
         }, err => { console.log(err); alert('error:' + err.body) })
       }
+    },
+    logout: function () {
+      this.$http.post(
+        this.$customerURL + '/logout'
+      ).then(response => {
+        console.log('logout')
+        this.$route.router.go('/')
+      }, err => { console.log(err); alert('error:' + err.body) })
     }
   },
   created() {

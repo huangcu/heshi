@@ -96,14 +96,5 @@ export default {
     _images: function (name) {
       return _images('./' + name + ".png")
     }
-  },
-  mounted() {
-    if (this.$cookies.isKey('_account')) {
-      this.account = this.$cookies.get('_account')
-    } else {
-      this.account = ''
-    }
-    // this.getInterestedItems()
-    // this.getOrders()
   }
 }

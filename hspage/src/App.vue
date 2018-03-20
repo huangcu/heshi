@@ -62,6 +62,13 @@ export default {
       // poll server every 2 hrs
       this.getCurrencyRate()
     }.bind(this), 2 * 60 * 60 * 1000)
+  },
+  mounted () {
+    if (this.$cookies.isKey('_account')) {
+      this.account = this.$cookies.get('_account')
+    } else {
+      this.account = ''
+    }
   }
 }
 </script>
