@@ -95,7 +95,7 @@ export default new Router({
       }
     },
     {
-      path: '/product/jewelry',
+      path: '/product/jewelrys',
       name: 'Jewelry',
       components: {
         default: () => import('@/components/products/jewelry/jewelrys/Jewelrys.vue')

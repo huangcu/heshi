@@ -6,7 +6,7 @@ export default {
     }
   },
   beforeCreate() {
-    this.$emit('getCurrentPage', 'jewelrys')
+    this.$emit('getCurrentPage', 'jewelry')
   },
   beforeDestroy() {
     this.$emit('getCurrentPage', '')

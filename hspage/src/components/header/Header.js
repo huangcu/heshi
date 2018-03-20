@@ -26,7 +26,7 @@ export default {
       return this.currentPage === 'jewelry'
     },
     isJewelryNeedMounting: function () {
-      return this.currentPage === 'jewelry' && this.$router.query.class === "mounting"
+      return this.currentPage === 'jewelry' && this.$route.query.class === "mounting"
     },
     isGem: function () {
       return this.currentPage === 'gem'
