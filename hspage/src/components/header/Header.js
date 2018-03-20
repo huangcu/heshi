@@ -5,17 +5,21 @@ export default {
     currentPage: String,
     jobType: String,
     platform: String,
-    deviceType: String
+    deviceType: String,
+    account: String
   },
   data: function () {
     return {
       isLocalStorageSaved: false,
-      accountID: '',
       interestedItems: [],
       orders: []
     }
   },
   computed: {
+    accountID: function () {
+      console.log(this.account)
+      return this.account
+    },
     isIndexPage: function () {
       return this.currentPage === 'index'
     },
@@ -95,9 +99,9 @@ export default {
   },
   mounted() {
     if (this.$cookies.isKey('_account')) {
-      this.accountID = this.$cookies.get('_account')
+      this.account = this.$cookies.get('_account')
     } else {
-      this.accountID = ''
+      this.account = ''
     }
     // this.getInterestedItems()
     // this.getOrders()

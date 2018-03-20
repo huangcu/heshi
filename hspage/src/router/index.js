@@ -4,7 +4,18 @@ import Header from '@/components/header/Header.vue'
 import titleComponent from '@/components/title.component.vue'
 import diamondFilter from '@/components/products/diamond/diamondfilter/DiamondFilter.vue'
 import diamondsData from '@/components/products/diamond/diamondsdata/DiamondsData.vue'
+import pageNotFound from '@/components/page.not.found.vue'
+import currencyCaculator from '@/util/currency_caculator.js'
+import agentPrice from '@/util/agentprice.js'
+import accountPrice from '@/util/accountprice.js'
 Vue.use(Router)
+
+// TODO global mixin - post to server to log user activity
+Vue.mixin({
+  methods: {
+    capitalizeFirstLetter: str => str.charAt(0).toUpperCase() + str.slice(1)
+  }
+})
 
 export default new Router({
   mode: 'history',
@@ -62,6 +73,7 @@ export default new Router({
     {
       path: '/product/diamonds',
       name: 'Diamonds',
+      mixins: [currencyCaculator, agentPrice, accountPrice],
       components: {
         default: () => import('@/components/products/diamond/diamonds/Diamonds.vue')
       }
@@ -100,6 +112,10 @@ export default new Router({
       components: {
         default: () => import('@/components/products/jewelry/jewelrys/Jewelrys.vue')
       }
+    },
+    {
+      path: '*',
+      component: pageNotFound
     }
   ]
 })

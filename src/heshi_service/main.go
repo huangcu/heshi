@@ -253,6 +253,9 @@ func configRoute(r *gin.Engine) {
 			apiCustomer.POST("/logout", userLogout)
 		}
 
+		// exchange rate
+		api.GET("/exchangerate", getCurrencyRate)
+
 		//products
 		api.GET("/products", getAllProducts)
 		api.GET("/products/diamonds", getAllDiamonds)

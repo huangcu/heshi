@@ -41,7 +41,6 @@ export default {
         this.$http.get(
           this.$wechatURL + '/status?sceneID=' + this.$cookies.get('sceneID')
         ).then(response => {
-          console.log(response.body)
           if (response.body !== '') {
             this.cookies.set("openID", response.body, 60 * 30)
             this.$route.replace('/')
@@ -76,22 +75,6 @@ function parseTheHash() {
   // goToSection(theHashSTR);
 }
 
-function checkQRresult() {
-  $.get("/_content/ajax/weixin-link-status.php", function (data) {
-    //$('#notificationpad').html(data);
-    console.log(data);
-    if (data == 'LINKED') {
-      $('img#the_account_qrcode').attr('src', '/_images/constant/success.jpg')
-      $('#qrcodebg').delay(1288).fadeOut('normal', function () {
-        $('#qrcodebg').remove();
-      });
-      clearTimeout(qrCounter);
-    } else {
-      clearTimeout(qrCounter);
-      qrCounter = setTimeout(checkQRresult, 1280);
-    }
-  });
-}
 function x() {
   $('div#qrcodebg-watch').fadeOut('fast', function () {
     $('div#qrcodebg').remove();
@@ -106,7 +89,6 @@ function showRegulation() {
   $('div.ticket-answer').slideDown();
   $('div#reco-contentbox').slideUp();
 }
-
 
 function goToSection(sectionID) {
   $('div#generalinfo, div#clientorders, div#mypoints, div#myclients, div.history-recommenedusers.extendedclients, div#coupon, div.generalinfo.heshibi-box, div.accountinfobox, div#personalinfo, div#mywebsite').not('#' + sectionID).css('display', 'none');

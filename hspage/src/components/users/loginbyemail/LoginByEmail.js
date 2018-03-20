@@ -61,6 +61,7 @@ export default {
             var userprofile = JSON.parse(loginResult.userprofile)
             this.$cookies.set('_account', userprofile.id)
             this.$cookies.set('userprofile', loginResult.userprofile)
+            this.$emit('updateAccount', userprofile.id)
             this.$router.replace('/home')
           }
         }, err => { console.log(err); alert('error:' + err.body) })
@@ -81,15 +82,9 @@ export default {
       ).then(response => {
         return response.body
       }, err => { console.log(err); alert('error:' + err.body) })
-    },
-    returnPic: function () {
-      return 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=gQGo8DwAAAAAAAAAAS5odHRwOi8vd2VpeGluLnFxLmNvbS9xLzAyR3UtUEVDclFleGoxSWxDRnhxMTAAAgSd5alaAwR4AAAA'
     }
   },
-  created()  {
-    this.$currentPage = 'LOGIN'
-  },
-  mounted() {
+  created() {
     if (this.$cookies.isKey('_account')) {
       this.account = this.$cookies.get('_account')
     } else {

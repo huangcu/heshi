@@ -30,15 +30,15 @@ export default {
       if (account!=='') {
         //get from cookie, if it is agent 
         if (if_agent) {
-          this.agent_account = true;
-          this.the_order_confirm_btn = '<span class="glyphicon glyphicon-check"></span> 预定';
-          this.the_order_confirm_btn_expl = '<span class="btn-expl-words ordered"><span class="glyphicon glyphicon-hand-left"></span> 决定购买了请点这里</span>';
+          this.agent_account = true
+          this.the_order_confirm_btn = '<span class="glyphicon glyphicon-check"></span> 预定'
+          this.the_order_confirm_btn_expl = '<span class="btn-expl-words ordered"><span class="glyphicon glyphicon-hand-left"></span> 决定购买了请点这里</span>'
         }
       }
       //if vat_choice is selected 
       if (vat_choice!==undefined) {
         if (vat_choice !== 'YES') {
-          this.vat_status_txt = '(含税)';
+          this.vat_status_txt = '(含税)'
         }
       }
     },

@@ -58,7 +58,6 @@ export default {
           formData,
           {
             headers: {
-              'X-Auth-Token': 'Jbm6XfXQj/KqmMTqz6c4GQWl9U6JMLQ/T4LzPWIEi2W2Q23GDkuIfxvbUC/rar8ZJIWWSVo68fZ/hv6n0oAeXaQKEfhKmGUZ8m8JHm5TteBZwqZuqXAbOeowTJVBn8aaUhfSfZbmgNnXwDEnhjZ1DZ8jG2Khy9uzoHu5ogwbVHQ=',
               'Content-Type': 'multipart/form-data'
             }
           }).then(response => {

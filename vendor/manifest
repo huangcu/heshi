@@ -22,7 +22,7 @@
 		{
 			"importpath": "github.com/asaskevich/govalidator",
 			"repository": "https://github.com/asaskevich/govalidator",
-			"revision": "4b3d68f87f176641ffc147420296013aff66ea32",
+			"revision": "7d2e70ef918f16bd6455529af38304d6d025c952",
 			"branch": "master"
 		},
 		{
@@ -59,13 +59,13 @@
 		{
 			"importpath": "github.com/dgrijalva/jwt-go",
 			"repository": "https://github.com/dgrijalva/jwt-go",
-			"revision": "dbeaa9332f19a944acb5736b4456cfcc02140e29",
+			"revision": "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/disintegration/imaging",
 			"repository": "https://github.com/disintegration/imaging",
-			"revision": "1884593a19ddc6f2ea050403430d02c1d0fc1283",
+			"revision": "fd34ef7671b12cdf1b024d98c6b327b2770d32c4",
 			"branch": "master"
 		},
 		{
@@ -89,14 +89,14 @@
 		{
 			"importpath": "github.com/garyburd/redigo/internal",
 			"repository": "https://github.com/garyburd/redigo",
-			"revision": "a7327d8ced8067e916e7e35490522fd0182fa839",
+			"revision": "0b5cd0856798cbbcbd01e8240333e9eeadd337b9",
 			"branch": "master",
 			"path": "/internal"
 		},
 		{
 			"importpath": "github.com/garyburd/redigo/redis",
 			"repository": "https://github.com/garyburd/redigo",
-			"revision": "a7327d8ced8067e916e7e35490522fd0182fa839",
+			"revision": "0b5cd0856798cbbcbd01e8240333e9eeadd337b9",
 			"branch": "master",
 			"path": "/redis"
 		},
@@ -134,7 +134,7 @@
 		{
 			"importpath": "github.com/gin-gonic/gin",
 			"repository": "https://github.com/gin-gonic/gin",
-			"revision": "5d3f30cfc81f9109850fa9043a19783cbbde68a5",
+			"revision": "65a65c2edd4e86f96634a553f07a25c38f2b1c75",
 			"branch": "master"
 		},
 		{
@@ -152,13 +152,13 @@
 		{
 			"importpath": "github.com/go-redis/redis",
 			"repository": "https://github.com/go-redis/redis",
-			"revision": "d0a2b8bdf3d0104a8d766370a6af5b7697d93f25",
+			"revision": "877867d2845fbaf86798befe410b6ceb6f5c29a3",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/go-sql-driver/mysql",
 			"repository": "https://github.com/go-sql-driver/mysql",
-			"revision": "bc14601d1bd56421dd60f561e6052c9ed77f9daf",
+			"revision": "1a676ac6e4dce68e9303a1800773861350374a9e",
 			"branch": "master"
 		},
 		{
@@ -183,13 +183,13 @@
 		{
 			"importpath": "github.com/gorilla/sessions",
 			"repository": "https://github.com/gorilla/sessions",
-			"revision": "7087b4d669d1bc3da42fb4e2eda73ae139a24439",
+			"revision": "7910f5bb5ac86ab08f97d8bda39b476fc117b684",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/jinzhu/configor",
 			"repository": "https://github.com/jinzhu/configor",
-			"revision": "6ecfe629230f24c2e92c7894c6ab21b83b757a39",
+			"revision": "ec34f328956f53dfbd06e9f5306e37e6943443c3",
 			"branch": "master"
 		},
 		{
@@ -207,7 +207,7 @@
 		{
 			"importpath": "github.com/mattn/go-colorable",
 			"repository": "https://github.com/mattn/go-colorable",
-			"revision": "7dc3415be66d7cc68bf0182f35c8d31f8d2ad8a7",
+			"revision": "efa589957cd060542a26d2dd7832fd6a6c6c3ade",
 			"branch": "master"
 		},
 		{
@@ -243,77 +243,77 @@
 		{
 			"importpath": "github.com/ugorji/go/codec",
 			"repository": "https://github.com/ugorji/go",
-			"revision": "16f09ef744fd4227190f626f14cfdefb14362b3b",
+			"revision": "02537d3a3e32ef636a53519265d211bd208ca488",
 			"branch": "master",
 			"path": "/codec"
 		},
 		{
 			"importpath": "golang.org/x/crypto/acme",
 			"repository": "https://go.googlesource.com/crypto",
-			"revision": "91a49db82a88618983a78a06c1cbd4e00ab749ab",
+			"revision": "c3a3ad6d03f7a915c0f7e194b7152974bb73d287",
 			"branch": "master",
 			"path": "/acme"
 		},
 		{
 			"importpath": "golang.org/x/crypto/acme/autocert",
 			"repository": "https://go.googlesource.com/crypto",
-			"revision": "91a49db82a88618983a78a06c1cbd4e00ab749ab",
+			"revision": "c3a3ad6d03f7a915c0f7e194b7152974bb73d287",
 			"branch": "master",
 			"path": "/acme/autocert"
 		},
 		{
 			"importpath": "golang.org/x/crypto/bcrypt",
 			"repository": "https://go.googlesource.com/crypto",
-			"revision": "91a49db82a88618983a78a06c1cbd4e00ab749ab",
+			"revision": "c3a3ad6d03f7a915c0f7e194b7152974bb73d287",
 			"branch": "master",
 			"path": "/bcrypt"
 		},
 		{
 			"importpath": "golang.org/x/crypto/blowfish",
 			"repository": "https://go.googlesource.com/crypto",
-			"revision": "91a49db82a88618983a78a06c1cbd4e00ab749ab",
+			"revision": "c3a3ad6d03f7a915c0f7e194b7152974bb73d287",
 			"branch": "master",
 			"path": "/blowfish"
 		},
 		{
 			"importpath": "golang.org/x/image/bmp",
 			"repository": "https://go.googlesource.com/image",
-			"revision": "12117c17ca67ffa1ce22e9409f3b0b0a93ac08c7",
+			"revision": "f3a9b89b59def9194717c1d0bd4c0d08fa1afa7b",
 			"branch": "master",
 			"path": "/bmp"
 		},
 		{
 			"importpath": "golang.org/x/image/tiff",
 			"repository": "https://go.googlesource.com/image",
-			"revision": "12117c17ca67ffa1ce22e9409f3b0b0a93ac08c7",
+			"revision": "f3a9b89b59def9194717c1d0bd4c0d08fa1afa7b",
 			"branch": "master",
 			"path": "/tiff"
 		},
 		{
 			"importpath": "golang.org/x/net/context",
 			"repository": "https://go.googlesource.com/net",
-			"revision": "22ae77b79946ea320088417e4d50825671d82d57",
+			"revision": "6078986fec03a1dcc236c34816c71b0e05018fda",
 			"branch": "master",
 			"path": "/context"
 		},
 		{
 			"importpath": "golang.org/x/net/html",
 			"repository": "https://go.googlesource.com/net",
-			"revision": "22ae77b79946ea320088417e4d50825671d82d57",
+			"revision": "6078986fec03a1dcc236c34816c71b0e05018fda",
 			"branch": "master",
 			"path": "/html"
 		},
 		{
 			"importpath": "golang.org/x/net/websocket",
 			"repository": "https://go.googlesource.com/net",
-			"revision": "22ae77b79946ea320088417e4d50825671d82d57",
+			"revision": "6078986fec03a1dcc236c34816c71b0e05018fda",
 			"branch": "master",
 			"path": "/websocket"
 		},
 		{
 			"importpath": "golang.org/x/sync/errgroup",
 			"repository": "https://go.googlesource.com/sync",
-			"revision": "fd80eb99c8f653c847d294a001bdf2a3a6f768f5",
+			"revision": "1d60e4601c6fd243af51cc01ddf169918a5407ca",
 			"branch": "master",
 			"path": "/errgroup"
 		},
@@ -326,7 +326,7 @@
 		{
 			"importpath": "gopkg.in/dgrijalva/jwt-go.v3",
 			"repository": "https://gopkg.in/dgrijalva/jwt-go.v3",
-			"revision": "dbeaa9332f19a944acb5736b4456cfcc02140e29",
+			"revision": "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e",
 			"branch": "master"
 		},
 		{

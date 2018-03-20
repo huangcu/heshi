@@ -53,15 +53,16 @@ export default {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
-        }).then(response => {
-          if (response.status === 200) {
-            // token
-            this.loginResult = JSON.parse(response.bodyText)
-            this.$cookies.set('beyou', this.loginResult.id)
-            this.$cookies.set('token', this.loginResult.token)
-          }
-          return response.bodyText
-        }, err => { console.log(err); alert('error:' + err.bodyText) })
+        }
+      ).then(response => {
+        if (response.status === 200) {
+          // token
+          this.loginResult = JSON.parse(response.body)
+          this.$cookies.set('beyou', this.loginResult.id)
+          this.$cookies.set('token', this.loginResult.token)
+        }
+        return response.body
+      }, err => { console.log(err); alert('error:' + err.body) })
     },
     logout: function () {
       this.$http.post(
@@ -69,7 +70,7 @@ export default {
       ).then(response => {
         console.log('logout')
         this.$route.replace('/')
-      }, err => { console.log(err); alert('error:' + err.bodyText) })
+      }, err => { console.log(err); alert('error:' + err.body) })
     },
     getQRCode: function () {
       //MAX 1 - 4294967295
