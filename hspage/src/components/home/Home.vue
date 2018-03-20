@@ -38,13 +38,13 @@
               <br>为钻石赋予个性</h2>
             <div class="featuredtxt">
               <p>
-                <a href="/product/jewelry">赋予了灵气的珠宝，款款精彩&nbsp;»</a>
+                <a href="/product/jewelrys">赋予了灵气的珠宝，款款精彩&nbsp;»</a>
               </p>
             </div>
           </div>
         </div>
         <div id="main-col2-2">
-          <a href="/product/jewelry" class="linker-imageholder-featured" :style="{ 'background-image': 'url(' + backgroudImgUrl2 + ')' }">
+          <a href="/product/jewelrys" class="linker-imageholder-featured" :style="{ 'background-image': 'url(' + backgroudImgUrl2 + ')' }">
             <span class="big-pic-holder-outer">
               <span class="big-pic-holder-middle">
                 <span class="big-pic-holder-inner" :style="{ 'background-image': 'url(' + backgroudImgUrl2 + ')' }">
@@ -75,7 +75,7 @@
         <h3 class="why-expl">为什么通过网站来预订钻石？</h3>
         <p>通过您在网站上直接挑选
           <a href="/product/diamonds" class="color-txt">钻石</a>和
-          <a href="/product/jewelry" class="color-txt">首饰</a>并且下订单，不但可以省去昂贵的人工服务费用，而且能够更有效的帮助您挑选到最称心的钻石。
+          <a href="/product/jewelrys" class="color-txt">首饰</a>并且下订单，不但可以省去昂贵的人工服务费用，而且能够更有效的帮助您挑选到最称心的钻石。
           <br />世界上每一颗钻石都独一无二，在别人把她买走之前，您只需轻轻点击一下‘预订’，即可把她留住。
           <br />您通过网站来预订并购买合适商品，为我们节省了可观的人工服务成本，这不但可以直接体现在合适钻石的价格优势上面，而且我们会回馈给您精美礼品或返点作为回报。</p>
         <p>
