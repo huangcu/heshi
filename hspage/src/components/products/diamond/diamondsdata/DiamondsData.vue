@@ -29,7 +29,7 @@
         <span v-if= "account!==''" class="valuetxt value_price">
           <div v-if="account_level_assigned==-1">
             参考价{{ vat_status_txt }}
-            <span  class="thevalue">{{  DollarToEuro(diamond.price_retail*reference_price_ratio) }}</span> €
+            <span  class="thevalue">{{ DollarToEuro(diamond.price_retail*reference_price_ratio) }}</span> €
           </div>
           <div v-else>
             参考价{{ vat_status_txt }}
@@ -62,7 +62,7 @@
             <label class="commentwords-label"><span class="glyphicon glyphicon-asterisk"></span> 公司检验结论</label>
             <span class="thecomment">{{ diamond.recommend_words }}</span>
           </p><!-- TODO handle images -->
-          <label v-if="diamond.images.length!=0" class="realpics-label"><span class="glyphicon glyphicon-camera"></span> 实拍照片(点击放大)</label>
+          <label v-if="diamond.images!=0" class="realpics-label"><span class="glyphicon glyphicon-camera"></span> 实拍照片(点击放大)</label>
           <p v-for="(image, imageNumber) in diamond.images" class="dia-pics-container" :key="imageNumber">
             <a :href="'/_images/diamond/'+image" class="biggerimglinker fancybox" :rel="diamond.id"><!-- TODO handle thumbs images(small image) -->
             <span class="dia-detail-pic-holder" :style="'background-image:url(/_images/diamond/thumbs/' + image"></span>
@@ -74,7 +74,7 @@
           </p>
         </div>
         <div class="detailcol detailcol3"><!-- TODO handle diamonds page with query in url -->
-          <span>钻石ID: <a target="_blank" style="color:#000; text-decoration:underline;" :href="'/diamonds?show=singule&ref='+diamond.stock_ref">{{ diamond.stock_ref }}</a></span>
+          <span>钻石ID: <a target="_blank" style="color:#000; text-decoration:underline;" :href="'/product/diamonds?show=singule&ref='+diamond.stock_ref">{{ diamond.stock_ref }}</a></span>
           <div v-if="diamond.profitable=='YES'">
             <div v-if="account!==''">
               <div v-if="account_level_assigned==-1">
@@ -117,7 +117,7 @@
                 <p class="actionbuttonsbox ordered-bt-box" :id="'ordered-btn-box_'+ diamond.stock_ref">
                   <button type="button" class="btnfororder" :title="diamond.stock_ref" v-on:click="makeorder_confirmed(diamond.id)"> {{ the_order_confirm_btn }}</button>
                     <!-- todo addringfordiamond.php list -->
-                    <a class="addringfordiamondbtn confirmed" :id="'addringfordiamondbtn_confirmed_'+diamond.stock_ref" :href="'addringfordiamond?ref='+diamond.stock_ref+'&ordered=yes'">选空托</a>
+                    <a class="addringfordiamondbtn confirmed" :id="'addringfordiamondbtn_confirmed_'+diamond.stock_ref" :href="'/product/ringfordiamond?ref='+diamond.stock_ref+'&ordered=yes'">选空托</a>
                     <!-- todo shoppinglist-confirmed.php list -->
                     <a class="checkmyorderlistbtn" :id="'checkmyorderlistbtn_confirmed_'+ diamond.stock_ref" href="/shoppinglist-confirmed">{{ checklist_ordered_txt }}</a>
                   {{the_order_btn_expl}}
@@ -126,13 +126,13 @@
               <div v-else>
                 <p class="actionbuttonsbox interested-btn-box" :id="'interested-btn-box_'+ diamond.stock_ref">
                   <button type="button" class="btnfororder interested" :title="diamond.stock_ref" v-on:click="makeorder(diamond.stock_ref)">{{ the_order_btn }}</button>
-                  <a class="addringfordiamondbtn interested" :id="'addringfordiamondbtn_'+diamond.stock_ref" :href="'addringfordiamond?ref='+ diamond.stock_ref">选空托</a>
+                  <a class="addringfordiamondbtn interested" :id="'addringfordiamondbtn_'+diamond.stock_ref" :href="'/product/ringfordiamond?ref='+ diamond.stock_ref">选空托</a>
                   <a class="checkmyorderlistbtn" :id="'checkmyorderlistbtn_'+diamond.stock_ref" href="/shoppinglist.php">{{ checklisttxt }}</a>
                   <span v-if="the_order_btn_expl!=''"> {{ the_order_btn_expl }} </span>
                 </p>
                 <p class="actionbuttonsbox ordered-bt-box" :id="'ordered-btn-box_'+ diamond.stock_ref">
                   <button type="button" class="btnfororder ordered" :title="diamond.stock_ref" v-on:click="makeorder_confirmed( diamond.stock_ref)"> {{ the_order_confirm_btn }}</button>
-                  <a class="addringfordiamondbtn confirmed" :id="'addringfordiamondbtn_confirmed_'+  diamond.stock_ref" :href="'addringfordiamond.php?ref='+  diamond.stock_ref + '&ordered=yes'">选空托</a>
+                  <a class="addringfordiamondbtn confirmed" :id="'addringfordiamondbtn_confirmed_'+  diamond.stock_ref" :href="'/product/ringfordiamond?ref='+  diamond.stock_ref + '&ordered=yes'">选空托</a>
                   <a class="checkmyorderlistbtn" :id="'checkmyorderlistbtn_confirmed_'+ diamond.stock_ref" href="/shoppinglist-confirmed.php"> {{ checklist_ordered_txt }}</a>
                   <span v-if="the_order_btn_expl!=''"> {{ the_order_confirm_btn_expl }} </span>
                 </p>
@@ -141,7 +141,7 @@
           </div><!-- end of profitable -->
           <!-- not profitable -->
           <div v-else>
-            <a class="specialofferlinker" href="/diamond-of-this-week.php">
+            <a class="specialofferlinker" href="/product/diamondoftheweek">
             <span class="glyphicon glyphicon-gift"></span> 特惠详情 &raquo;</a>
           </div>
           <p class="closebtnplaceholder"></p>

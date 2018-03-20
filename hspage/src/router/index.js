@@ -74,6 +74,27 @@ export default new Router({
       }
     },
     {
+      path: '/product/ringfordiamond',
+      name: 'RingForDiamond',
+      components: {
+        default: () => import('@/components/products/diamond/ringfordiamond/RingForDiamond.vue')
+      }
+    },
+    {
+      path: '/product/diamondoftheweek',
+      name: 'DiamondOfTheWeek',
+      components: {
+        default: () => import('@/components/products/diamond/diamondsoftheweek/DiamondsOfTheWeek.vue')
+      }
+    },
+    {
+      path: '/product/recommenddiamonds',
+      name: 'RecommendDiamonds',
+      components: {
+        default: () => import('@/components/products/diamond/recommenddiamonds/RecommendDiamonds.vue')
+      }
+    },
+    {
       path: '/product/jewelry',
       name: 'Jewelry',
       components: {

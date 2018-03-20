@@ -22,8 +22,8 @@ export default {
     }
   },
   props: {
-    vat_choice: String ,
-    diamonds: []
+    vat_choice: String,
+    diamonds: Array
   },
   methods: {
     getData: function () {
@@ -200,8 +200,93 @@ export default {
     priceretail: function (price) {
       return price.toFixed(2)
     },
-    makeorder: function () {
+    showOrderSuccessFeedback: function () {
+      $('div#feedbackcover').fadeIn(500)
+    },
+    makeorder: function (theRef) {
       // TODO
+      var itemtype = "DIAMOND"
+      $('div#loadingcover').fadeIn('fast')
+      $.post(
+        "/_includes/functions/addtoshoppinglist.php",
+        { id: theRef, item_type: itemtype },
+        function (data) {
+          console.log('order feedback: ' + data)
+          if ($.trim(data) == 'OK') {
+            //alert('ordered')
+            $('button.btnfororder.interested[title="' + theRef + '"]').html('<span class="glyphicon glyphicon-ok"></span> 已收藏').addClass('itemordered').attr('disabled', 'disabled')
+            $('div.details_' + theRef + ' span.btn-expl-words.interested').fadeOut('fast')
+            $('a#addringfordiamondbtn_' + theRef).fadeIn('fast')
+            $('a#checkmyorderlistbtn_' + theRef).fadeIn('fast')
+            var crr_list_num = parseInt($('#num-shoppinglist').html())
+            var new_list_num = crr_list_num + 1
+            $('#num-shoppinglist, #num-shoppinglist-mobile').html(new_list_num)
+            $('#num-shoppinglist-container, #num-shoppinglist-container-mobile').removeAttr('style')
+          } else {
+            alert('Server is busy, please try later!')
+          }
+          $('div#loadingcover').fadeOut('fast')
+        }
+      )
+    },
+    makeorder_confirmed: function (theRef) {
+      // TODO
+      var itemtype = "DIAMOND"
+      $('div#loadingcover').fadeIn('fast')
+      $.post(
+        "/_includes/functions/addtoshoppinglist.php",
+        { id: theRef, item_type: itemtype, confirm_for_check: "YES" },
+        function (data) {
+          console.log('order feedback: ' + data)
+          if ($.trim(data) == 'OK') {
+            //alert('ordered')
+            $('button.btnfororder.ordered[title="' + theRef + '"]').html('<span class="glyphicon glyphicon-ok"></span> 已预定').addClass('itemordered').attr('disabled', 'disabled')
+            $('div.details_' + theRef + ' span.btn-expl-words.ordered').fadeOut('fast')
+            $('p#interested-btn-box_' + theRef).fadeOut('fast')
+            $('a#addringfordiamondbtn_confirmed_' + theRef).fadeIn('fast')
+            $('a#checkmyorderlistbtn_confirmed_' + theRef).fadeIn('fast')
+            var crr_list_num = parseInt($('#num-shoppinglist-c').html())
+            var new_list_num = crr_list_num + 1
+            $('#num-shoppinglist-c, #num-shoppinglist-c-mobile').html(new_list_num)
+            $('#num-shoppinglist-c-container, #num-shoppinglist-c-container-mobile').removeAttr('style')
+
+            crr_ordered_diamond = theRef
+            showOrderSuccessFeedback()
+          } else if ($.trim(data) == 'NEED-VERIFICATION') {
+            window.location.href = "/myaccount.php?r=order"
+          } else {
+            alert('Server is busy, please try later!')
+          }
+          $('div#loadingcover').fadeOut('fast')
+        }
+      )
+    },
+    openDiaDetail: function (theRef) {
+      detailOpened++
+      $('div.details').not(".details_" + theRef).slideUp()
+      $('div.details_' + theRef).slideDown()
+      //dia-piece-box
+      $('div.dia-piece-box').removeClass('detailisopen')
+      $('div.details_' + theRef).parent('div.dia-piece-box').addClass('detailisopen')
+      var crr_browser_width = $(window).width()
+      if (crr_browser_width > 680) {
+        var thedevice = "PC"
+      } else {
+        var thedevice = "MOBILE"
+      }
+      $.post(
+        // TODO post back -record use viewed this, and interested in this diamonds
+        '/_includes/functions/userusingrecord.php',
+        { ref: theRef, device: thedevice }
+      )
+      if ($('div#thelettertoagents-container').length > 0) {
+        $('body').addClass('no-overflow')
+        $('div#thelettertoagents-container').fadeIn(1888)
+      }
+    },
+    closeDiaDetail: function (theRef) {
+      $('div.details_' + theRef).slideUp()
+      $('div.dia-piece-box').removeClass('detailisopen')
     }
   },
   mounted() {
@@ -210,7 +295,7 @@ export default {
     } else {
       this.accountID = ''
     }
-    console.log(this.$currentPage)
+    console.log(this.diamonds.length)
     // this.getInterestedItems()
     // this.getOrders()
   }

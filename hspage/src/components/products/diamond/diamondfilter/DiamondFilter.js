@@ -3,6 +3,7 @@ export default {
   name: 'DiamondFilter',
   data: function () {
     return {
+      diamonds: [],
       featured: 'NO',
       shape: [],
       color: [],
