@@ -72,7 +72,7 @@ export default {
         this.$userURL + '/logout'
       ).then(response => {
         console.log('logout')
-        this.$route.replace('/')
+        this.$router.replace('/')
       }, err => { console.log(err); alert('error:' + err.body) })
     },
     getQRCode: function () {

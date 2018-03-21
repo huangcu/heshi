@@ -62,6 +62,9 @@ export default {
     },
     isAdmin: function () {
       return this.userProfile.user_type == 'ADMIN'
+    },
+    justsignedup: function () {
+      return this.$route.query.justsignedup == 'justsignedup'
     }
   },
   methods: {
@@ -86,9 +89,14 @@ export default {
         ).then(response => {
           if (response.body !== '') {
             this.cookies.set("openID", response.body, 60 * 30)
-            this.$route.replace('/')
+            this.$router.replace('/')
           }
         }, err => { console.log(err); alert('error:' + err.body) })
+      }
+    },
+    getUserProfile: function () {
+      if (this.$cookies.isKey('userprofile')) {
+        this.userProfile = JSON.parse(this.$cookies.get('userprofile'))
       }
     },
     logout: function () {
@@ -120,6 +128,7 @@ export default {
     if (!this.$cookies.isKey('_account')) {
       // this.$router.replace('/login')
     }
+    this.getUserProfile()
     this.getQRCode()
     this.QRCodeHandle = setInterval(function () {
       this.getQRCode()

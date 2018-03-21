@@ -446,7 +446,7 @@ export default {
     },
     gotoMountingsfor: function () {
       var mountingURL = '/products/ringfordiamond?ref=' + crr_ordered_diamond + '&ordered=yes';
-      this.$route.replace(mountingURL)
+      this.$router.replace(mountingURL)
     },
     xtheSfdb: function () {
       $('div#feedbackcover').fadeOut(50);

@@ -57,10 +57,10 @@ export default {
               this.login_feedback = loginResult.message
               return
             }
-            this.$cookies.set('token', loginResult.token)
+            this.$cookies.set('token', loginResult.token, { expires: '30m' })
             var userprofile = JSON.parse(loginResult.userprofile)
-            this.$cookies.set('_account', userprofile.id)
-            this.$cookies.set('userprofile', loginResult.userprofile)
+            this.$cookies.set('_account', userprofile.id, { expires: '30m' })
+            this.$cookies.set('userprofile', loginResult.userprofile, { expires: '30m' })
             this.$emit('updateAccount', userprofile.id)
             this.$router.replace('/home')
           }

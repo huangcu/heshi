@@ -36,6 +36,10 @@
         </div>
       </div><!-- end of account info -->
       <div class="logoutbtnbox">
+        <form action="" @submit.prevent="logout()" id="logoutform">
+          <input type="hidden" name="logout" value="confirmed" />
+          <input type="submit" value="登出账号" name="logoutbtn" id="logoutbtn" />
+        </form>
       </div>
     </div> <!-- end of contentmainwrapper -->
 
@@ -53,12 +57,12 @@
         </div>
         <p class="expire_expl">有效期为两分钟，过期请刷新页面</p>
         <p class="no_weixin">没有微信? 请<a href="contact.php">联系我们</a></p>
-        <!-- <div class="logoutbtnbox"> -->
-        <form action="" @submit.prevent="logout()" id="logoutform-inqrstatus">
-          <input type="hidden" name="logout" value="confirmed" />
-          <input type="submit" value="登出账号" name="logoutbtn" id="logoutbtn-qrstates" />
-        </form>
-        <!-- </div> -->
+        <div class="logoutbtnbox">
+          <form action="" @submit.prevent="logout()" id="logoutform-inqrstatus">
+            <input type="hidden" name="logout" value="confirmed" />
+            <input type="submit" value="登出账号" name="logoutbtn" id="logoutbtn-qrstates" />
+          </form>
+        </div>
       </div>
     </div>
     <div v-else-if="wechat_open_idwechatnameicon">
