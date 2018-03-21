@@ -49,10 +49,10 @@ func userLogin(c *gin.Context) {
 	s.Set(USER_SESSION_KEY, id)
 	if userType == ADMIN {
 		s.Set(ADMIN_KEY, id)
-		c.SetCookie(ADMIN_KEY, id, 30*60, "/", "localhost", false, false)
+		c.SetCookie(ADMIN_KEY, id, 10, "/", "localhost", true, false)
 	}
 	s.Save()
-	c.SetCookie(USER_SESSION_KEY, id, 30*60, "/", "localhost", false, false)
+	c.SetCookie(USER_SESSION_KEY, id, 10, "/", "localhost", true, false)
 
 	c.JSON(http.StatusOK, gin.H{
 		"userprofile": userProfile,
@@ -62,5 +62,7 @@ func userLogin(c *gin.Context) {
 func userLogout(c *gin.Context) {
 	s := sessions.Default(c)
 	s.Delete(USER_SESSION_KEY)
+	s.Delete(ADMIN_KEY)
+	s.Save()
 	c.JSON(http.StatusOK, "User logout!")
 }
