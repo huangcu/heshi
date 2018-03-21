@@ -69,6 +69,8 @@ export default {
     } else {
       this.account = ''
     }
+  },
+  beforeDestroy () {
   }
 }
 </script>

@@ -6,7 +6,10 @@ export default {
       login_feedback: '',
       upgrade_feedback: '',
       account: '',
-      previewmode: ''
+      previewmode: '',
+      sceneID: '',
+      QRCodeHandle: null,
+      QRCodeStatusHandle: null
     }
   },
   props: {
@@ -78,19 +81,19 @@ export default {
       this.$http.get(
         this.$wechatURL + '/temp_qrcode?sceneID='+sceneID,
       ).then(response => {
-        this.$cookies.set('sceneID', sceneID, 60 * 2)
+        this.sceneID = sceneID
         window.sessionStorage.setItem("HSSESSIONID", sceneID)
         this.qrCodeSrc = response.body
       }, err => { console.log(err); alert('error:' + err.body) })
     },
     isQRCodeScanned: function () {
-      if (this.$cookies.isKey('sceneID')) {
+      if (this.sceneID !=='') {
         this.$http.get(
-          this.$wechatURL + '/status?sceneID=' + this.$cookies.get('sceneID')
+          this.$wechatURL + '/status?sceneID=' + this.sceneID
         ).then(response => {
           if (response.body !== '') {
             this.cookies.set("openID", response.body, 60 * 30)
-            this.$route.replace('/')
+            this.$router.replace('/')
           }
         }, err => { console.log(err); alert('error:' + err.body) })
       }
@@ -102,14 +105,18 @@ export default {
     } else {
       this.account = ''
       this.getQRCode()
-      setInterval(function () {
+      this.QRCodeHandle = setInterval(function () {
         this.getQRCode();
       }.bind(this), 2 * 60 * 1000);
-      setInterval(function () {
+      this.QRCodeStatusHandle = setInterval(function () {
         this.isQRCodeScanned();
       }.bind(this), 5000);
     }
     // this.getInterestedItems()
     // this.getOrders()
+  },
+  beforeDestroy() {
+    clearInterval(this.QRCodeHandle)
+    clearInterval(this.QRCodeStatusHandle)
   }
 }
