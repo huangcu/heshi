@@ -4,6 +4,7 @@ import Header from '@/components/header/Header.vue'
 import titleComponent from '@/components/title.component.vue'
 import diamondFilter from '@/components/products/diamond/diamondfilter/DiamondFilter.vue'
 import diamondsData from '@/components/products/diamond/diamondsdata/DiamondsData.vue'
+import agent from '@/components/myaccount/agent/Agent.vue'
 import pageNotFound from '@/components/page.not.found.vue'
 import currencyCaculator from '@/util/currency_caculator.js'
 import agentPrice from '@/util/agentprice.js'
@@ -124,3 +125,4 @@ Vue.component('app-header', Header)
 Vue.component('vue-title', titleComponent)
 Vue.component('diamond-filter', diamondFilter)
 Vue.component('diamonds-data', diamondsData)
+Vue.component('agent', agent)

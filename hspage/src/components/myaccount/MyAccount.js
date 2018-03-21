@@ -7,11 +7,29 @@ export default {
   },
   data: function () {
     return {
+      userProfile: {
+        id: '',
+        username: '',
+        cellphone: '',
+        email: '',
+        user_type: '',
+        real_name: '',
+        wechat_id: 'test',
+        wechat_name: 'test',
+        wechat_qr: '',
+        address: '',
+        additional_info: '',
+        recommended_by: '',
+        invitation_code: '',
+        user_level: 0,
+        user_discount: '',
+        point: 0,
+        total_purchase_amount: 0,
+        icon: ''
+      },
       agent: '',
       accountLevel: 0,
       emailnotbeyoudiamond: '',
-      wechat_open_id: '',
-      wechat_open_idwechatnameicon: '',
       updatefeedback: '',
       qrCodeSrc: '',
       sceneID: '',
@@ -25,10 +43,19 @@ export default {
     },
     ourQRCode: function () {
       return Images('./qr_code.jpg');
+    },
+    currentUserProfile: function () {
+      return this.userProfile
+    },
+    wechat_open_idwechatnameicon: function () {
+      return this.userProfile.wechat_id!=='' && this.userProfile.wechat_name==''
     }
   },
   methods: {
     getQRCode: function () {
+      if (this.userProfile.wechat_id!=='') {
+        return
+      }
       //MAX 1 - 4294967295
       var sceneID = Math.floor(Math.random() * 1000 * 1000 * 1000)
       this.$http.get(
@@ -107,27 +134,4 @@ function x() {
   $('div#qrcodebg-watch').fadeOut('fast', function () {
     $('div#qrcodebg').remove();
   });
-}
-
-function openRecoContent() {
-  $('div#reco-contentbox').slideDown();
-  $('div.ticket-answer').slideUp();
-}
-function showRegulation() {
-  $('div.ticket-answer').slideDown();
-  $('div#reco-contentbox').slideUp();
-}
-
-function goToSection(sectionID) {
-  $('div#generalinfo, div#clientorders, div#mypoints, div#myclients, div.history-recommenedusers.extendedclients, div#coupon, div.generalinfo.heshibi-box, div.accountinfobox, div#personalinfo, div#mywebsite').not('#' + sectionID).css('display', 'none');
-  $('#' + sectionID).fadeIn('fast');
-  $('button.inpage-navi').removeClass('active');
-  $('button#inpage-navi_' + sectionID).addClass('active');
-  if (sectionID == 'myclients') {
-    $('div.history-recommenedusers.extendedclients').fadeIn('fast');
-  }
-  if (sectionID == 'coupon') {
-    $('div.generalinfo.heshibi-box').fadeIn('fast');
-  }
-  location.hash = 'section-' + sectionID;
 }
