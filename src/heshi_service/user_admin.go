@@ -11,8 +11,6 @@ import (
 )
 
 type Admin struct {
-	User
-	// UserInfo   User   `json:"user"`
 	Level      int    `json:"admin_level"`
 	LevelStr   string `json:"-"`
 	WechatKefu string `json:"wechat_kefu"`
@@ -64,27 +62,27 @@ func updateAdmin(c *gin.Context) {
 	c.JSON(http.StatusOK, "success")
 }
 
-func (a *Admin) newAdmin() error {
+func (a *User) newAdmin() error {
 	q := fmt.Sprintf(`INSERT INTO admins (user_id, level, wechat_kefu, created_by) VALUES ('%s', '%d', '%s', '%s')`,
-		a.ID, a.Level, a.WechatKefu, a.CreatedBy)
+		a.ID, a.Admin.Level, a.Admin.WechatKefu, a.Admin.CreatedBy)
 	_, err := dbExec(q)
 	return err
 }
 
-func (a *Admin) prevalidateNewAdmin() ([]errors.HSMessage, error) {
+func (a *User) prevalidateNewAdmin() ([]errors.HSMessage, error) {
 	var vemsg []errors.HSMessage
 	//TODO admin level
 	//TODO validate wechat_kefu???
-	if !util.IsInArrayString(a.LevelStr, VALID_ADMINLEVEL) {
+	if !util.IsInArrayString(a.Admin.LevelStr, VALID_ADMINLEVEL) {
 		vemsg = append(vemsg, vemsgAdminLevelNotValid)
 	} else {
-		level, err := strconv.Atoi(a.LevelStr)
+		level, err := strconv.Atoi(a.Admin.LevelStr)
 		if err != nil {
 			vemsg = append(vemsg, vemsgAdminLevelNotValid)
 		} else if level < 0 || level > 10 {
 			vemsg = append(vemsg, vemsgAdminLevelNotValid)
 		} else {
-			a.Level = level
+			a.Admin.Level = level
 		}
 	}
 

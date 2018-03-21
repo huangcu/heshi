@@ -5,13 +5,17 @@
       <h2>
       <span id="thetxtofpagetitle">我的合适账户</span>
       </h2>
-      <!-- <div v-if ="agent">
+      <div v-if="isAgent">
         <agent></agent>
       </div>
       <div v-else>
-        <div v-if ="accountLevel"></div>
-        <div v-else></div>
-      </div> -->
+        <div v-if ="currentUserProfile.user_level==6">
+          <!-- _includes/documentparts/myaccount-recommender.php -->
+        </div>
+        <div v-else>
+          <!-- _includes/documentparts/myaccount-highleveluser.php -->
+        </div>
+      </div>
       <!-- account info -->
       <div class="accountinfobox" id="personalinfo">
         <h3>个人信息</h3>

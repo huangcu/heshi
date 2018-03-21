@@ -21,8 +21,8 @@ import (
 
 func CORSMiddleware() gin.HandlerFunc {
 	config := cors.Config{
-		// AllowAllOrigins:  true,
-		AllowOrigins:     []string{"http://localhost:8080"},
+		AllowAllOrigins: true,
+		// AllowOrigins:     []string{"http://localhost:8080"},
 		AllowMethods:     []string{"PUT", "POST", "GET", "DELETE"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
@@ -34,6 +34,10 @@ func CORSMiddleware() gin.HandlerFunc {
 	allowHeaders = append(allowHeaders, []string{"Authorization", "Cookie", "Cache-Control", "X-Auth-Token"}...)
 	allowHeaders = append(allowHeaders, []string{"Cache-Control", "Connection", "User-Agent"}...)
 	config.AddAllowHeaders(allowHeaders...)
+	if os.Getenv("STAGE") != "dev" {
+		config.AllowAllOrigins = false
+		config.AllowOrigins = []string{"http://localhost:8080"}
+	}
 	return cors.New(config)
 	// cors.DefaultConfig()
 }

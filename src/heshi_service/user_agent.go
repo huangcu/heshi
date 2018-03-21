@@ -12,8 +12,6 @@ import (
 )
 
 type Agent struct {
-	User
-	// UserInfo    User   `json:"user"`
 	Level       int    `json:"agent_level"`
 	LevelStr    string `json:"-"`
 	Discount    int    `json:"agent_discount"`
@@ -87,9 +85,9 @@ func updateAgent(c *gin.Context) {
 	c.JSON(http.StatusOK, "success")
 }
 
-func (a *Agent) newAgent() error {
+func (a *User) newAgent() error {
 	q := fmt.Sprintf(`INSERT INTO agents (user_id, level, discount, created_by) VALUES (%s', '%d', '%d', '%s')`,
-		a.ID, a.Level, a.Discount, a.CreatedBy)
+		a.ID, a.Agent.Level, a.Agent.Discount, a.Agent.CreatedBy)
 	_, err := dbExec(q)
 	return err
 }
@@ -147,28 +145,28 @@ func getUserContactInfoInvitationCode(userID string) (*ContactInfo, error) {
 	}, nil
 }
 
-func (a *Agent) prevalidateNewAgent() ([]errors.HSMessage, error) {
+func (a *User) prevalidateNewAgent() ([]errors.HSMessage, error) {
 	var vemsg []errors.HSMessage
-	if !util.IsInArrayString(a.LevelStr, VALID_AGENTLEVEL) {
+	if !util.IsInArrayString(a.Agent.LevelStr, VALID_AGENTLEVEL) {
 		vemsg = append(vemsg, vemsgAgentLevelNotValid)
 	} else {
-		level, err := strconv.Atoi(a.LevelStr)
+		level, err := strconv.Atoi(a.Agent.LevelStr)
 		if err != nil {
 			vemsg = append(vemsg, vemsgAgentLevelNotValid)
 		} else if level < 0 || level > 10 {
 			vemsg = append(vemsg, vemsgAgentLevelNotValid)
 		} else {
-			a.Level = level
+			a.Agent.Level = level
 		}
 	}
 
-	discount, err := strconv.Atoi(a.DiscountStr)
+	discount, err := strconv.Atoi(a.Agent.DiscountStr)
 	if err != nil {
 		vemsg = append(vemsg, vemsgAgentDiscountNotValid)
 	} else if discount < 0 || discount > 100 {
 		vemsg = append(vemsg, vemsgAgentDiscountNotValid)
 	} else {
-		a.Discount = discount
+		a.Agent.Discount = discount
 	}
 	vmsg, err := a.validNewUser()
 	if err != nil {

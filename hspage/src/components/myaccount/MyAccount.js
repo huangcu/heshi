@@ -8,28 +8,35 @@ export default {
   data: function () {
     return {
       userProfile: {
-        id: '',
-        username: '',
-        cellphone: '',
-        email: '',
-        user_type: '',
-        real_name: '',
-        wechat_id: 'test',
-        wechat_name: 'test',
-        wechat_qr: '',
-        address: '',
-        additional_info: '',
-        recommended_by: '',
-        invitation_code: '',
+        id: "18590ce0-ff5b-4a2d-8af9-118ce328fcf5",
+        username: "huangcu45",
+        cellphone: "13764540228",
+        email: "",
+        user_type: "ADMIN",
+        real_name: "",
+        wechat_id: "test",
+        wechat_name: "test",
+        wechat_qr: "",
+        address: "",
+        additional_info: "",
+        recommended_by: "",
+        invitation_code: "",
         user_level: 0,
-        user_discount: '',
+        user_discount: 0,
         point: 0,
         total_purchase_amount: 0,
-        icon: ''
+        icon: "",
+        admin: {
+          admin_level: 1,
+          wechat_kefu: "",
+          created_by: "system_dev_admin"
+        },
+        agent: {
+          agent_level: 0,
+          agent_discount: 0,
+          created_by: ""
+        }
       },
-      agent: '',
-      accountLevel: 0,
-      emailnotbeyoudiamond: '',
       updatefeedback: '',
       qrCodeSrc: '',
       sceneID: '',
@@ -49,6 +56,12 @@ export default {
     },
     wechat_open_idwechatnameicon: function () {
       return this.userProfile.wechat_id!=='' && this.userProfile.wechat_name==''
+    },
+    isAgent: function () {
+      return this.userProfile.user_type == 'AGENT'
+    },
+    isAdmin: function () {
+      return this.userProfile.user_type == 'ADMIN'
     }
   },
   methods: {

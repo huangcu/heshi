@@ -14,6 +14,7 @@ var (
 
 	// //User Login (20-29)
 	vemsgLoginErrorUserName   = errors.HSMessage{Code: 20020, Message: "wrong username or password"}
+	vemsgLoginErrorPassword   = errors.HSMessage{Code: 20020, Message: "wrong password"}
 	vemsgLoginMissingUserName = errors.HSMessage{Code: 20021, Message: "missing username or password"}
 
 	//fail to find in db

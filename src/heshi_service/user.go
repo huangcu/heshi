@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"heshi/errors"
 	"net/http"
+	"strings"
+	"util"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -31,13 +33,15 @@ type User struct {
 	Point               int     `json:"point"`
 	TotalPurchaseAmount float64 `json:"total_purchase_amount"`
 	Icon                string  `json:"icon"`
+	Admin               Admin   `json:"admin"`
+	Agent               Agent   `json:"agent"`
 	// CreatedAt      time.Time `json:"created_at"`
 	// UpdatedAt      time.Time `json:"updated_at"`
 }
 
 func newAdminAgentUser(c *gin.Context) {
 	adminID := c.MustGet("id").(string)
-	userType := c.PostForm("user_type")
+	userType := strings.ToUpper(c.PostForm("user_type"))
 	if userType != AGENT && userType != ADMIN {
 		vemsgUserUsertypeNotValid.Message = fmt.Sprintf("user type can only be %s or %s", ADMIN, AGENT)
 		c.JSON(http.StatusOK, vemsgUserUsertypeNotValid)
@@ -62,13 +66,12 @@ func newAdminAgentUser(c *gin.Context) {
 	}
 
 	if userType == AGENT {
-		a := Agent{
-			User:        nu,
+		nu.Agent = Agent{
 			LevelStr:    c.PostForm("level"),
 			DiscountStr: c.PostForm("discount"),
 			CreatedBy:   adminID,
 		}
-		if vemsg, err := a.prevalidateNewAgent(); err != nil {
+		if vemsg, err := nu.prevalidateNewAgent(); err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		} else if len(vemsg) != 0 {
@@ -91,7 +94,7 @@ func newAdminAgentUser(c *gin.Context) {
 				return err
 			}
 			q = fmt.Sprintf(`INSERT INTO agents (user_id, level, discount, created_by) VALUES 
-											(%s', '%d', '%d', '%s')`, a.ID, a.Level, a.Discount, a.CreatedBy)
+											(%s', '%d', '%d', '%s')`, nu.ID, nu.Agent.Level, nu.Agent.Discount, nu.Agent.CreatedBy)
 			traceSQL(q)
 			if _, err := tx.Exec(q); err != nil {
 				return err
@@ -102,34 +105,50 @@ func newAdminAgentUser(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
-		c.JSON(http.StatusOK, a)
+		c.JSON(http.StatusOK, nu)
 	}
 
 	if userType == ADMIN {
-		a := Admin{
-			User:       nu,
+		nu.Admin = Admin{
 			LevelStr:   c.PostForm("level"),
 			WechatKefu: c.PostForm("wechat_kefu"),
 			CreatedBy:  adminID,
 		}
-		if vemsg, err := a.prevalidateNewAdmin(); err != nil {
+		if vemsg, err := nu.prevalidateNewAdmin(); err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		} else if len(vemsg) != 0 {
 			c.JSON(http.StatusOK, vemsg)
 			return
 		}
-
-		q := nu.composeInsertQuery()
-		if _, err := dbExec(q); err != nil {
-			c.JSON(http.StatusBadRequest, errors.GetMessage(err))
-			return
-		}
-		if err := a.newAdmin(); err != nil {
+		// q := nu.composeInsertQuery()
+		// if _, err := dbExec(q); err != nil {
+		// 	c.JSON(http.StatusBadRequest, errors.GetMessage(err))
+		// 	return
+		// }
+		// if err := nu.newAdmin(); err != nil {
+		// 	c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		// 	return
+		// }
+		err := dbTransact(db, func(tx *sql.Tx) error {
+			q := nu.composeInsertQuery()
+			traceSQL(q)
+			if _, err := tx.Exec(q); err != nil {
+				return err
+			}
+			q = fmt.Sprintf(`INSERT INTO admins (user_id, level, wechat_kefu, created_by) VALUES ('%s', '%d', '%s', '%s')`,
+				nu.ID, nu.Admin.Level, nu.Admin.WechatKefu, nu.Admin.CreatedBy)
+			traceSQL(q)
+			if _, err := tx.Exec(q); err != nil {
+				return err
+			}
+			return nil
+		})
+		if err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
-		c.JSON(http.StatusOK, a)
+		c.JSON(http.StatusOK, nu)
 	}
 }
 
@@ -204,11 +223,11 @@ func updateUser(c *gin.Context) {
 		return
 	}
 	uu := User{
-		ID:             id,
-		Username:       c.PostForm("username"),
-		Cellphone:      c.PostForm("cellphone"),
-		Email:          c.PostForm("email"),
-		Password:       c.PostForm("password"),
+		ID:        id,
+		Username:  c.PostForm("username"),
+		Cellphone: c.PostForm("cellphone"),
+		Email:     c.PostForm("email"),
+		// Password:       c.PostForm("password"), not allow update password here, call changepassword api
 		UserType:       c.PostForm("user_type"),
 		RealName:       c.PostForm("real_name"),
 		WechatID:       c.PostForm("wechat_id"),
@@ -280,8 +299,8 @@ func getUser(c *gin.Context) {
 			c.JSON(http.StatusOK, vemsgUserNotExist)
 			return
 		}
-		a.User = us[0]
-		c.JSON(http.StatusOK, a)
+		us[0].Admin = *a
+		c.JSON(http.StatusOK, us[0])
 		return
 	}
 	if userType == AGENT {
@@ -291,8 +310,8 @@ func getUser(c *gin.Context) {
 			c.JSON(http.StatusOK, vemsgUserNotExist)
 			return
 		}
-		a.User = us[0]
-		c.JSON(http.StatusOK, a)
+		us[0].Agent = *a
+		c.JSON(http.StatusOK, us[0])
 		return
 	}
 }
@@ -328,6 +347,41 @@ func disableUser(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, "SUCCESS")
+}
+
+func changePassword(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		id = c.MustGet("id").(string)
+	}
+	q := fmt.Sprintf(`SELECT password FROM users where id='%s'`, id)
+
+	var password string
+	if err := dbQueryRow(q).Scan(&password); err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusOK, vemsgUserNotExist)
+			return
+		}
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	oPass := c.PostForm("old_password")
+	if !util.IsPassOK(oPass, password) {
+		c.JSON(http.StatusOK, vemsgLoginErrorPassword)
+		return
+	}
+	nPass := c.PostForm("new_password")
+	q = fmt.Sprintf(`update users set password='%s',updated_at=(CURRENT_TIMESTAMP) where id='%s'`, util.Encrypt(nPass), id)
+	if _, err := dbExec(q); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	// TODO should relogin, clean session ??
+	// s := sessions.Default(c)
+	// s.Delete(USER_SESSION_KEY)
+	// s.Delete(ADMIN_KEY)
+	// s.Save()
+	c.JSON(http.StatusOK, "PASSWORD changed!")
 }
 
 func composeUser(rows *sql.Rows) ([]User, error) {
@@ -410,8 +464,8 @@ func getUserByID(id string) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		a.User = us[0]
-		bs, err := json.Marshal(a)
+		us[0].Admin = *a
+		bs, err := json.Marshal(us[0])
 		if err != nil {
 			return "", err
 		}
@@ -422,8 +476,8 @@ func getUserByID(id string) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		a.User = us[0]
-		bs, err := json.Marshal(a)
+		us[0].Agent = *a
+		bs, err := json.Marshal(us[0])
 		if err != nil {
 			return "", err
 		}
