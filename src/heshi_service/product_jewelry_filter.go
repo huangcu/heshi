@@ -39,7 +39,7 @@ func searchJewelrys(c *gin.Context) ([]jewelry, error) {
 	}
 	q := fmt.Sprintf(`SELECT id, stock_id, category, unit_number, dia_shape, material, metal_weight, need_diamond, name, 
 	 dia_size_min, dia_size_max, small_dias, small_dia_num, small_dia_carat, mounting_type, main_dia_num, main_dia_size, 
-	 video_link, text, online, verified, in_stock, featured, price, stock_quantity, profitable,
+	 video_link, images, text, online, verified, in_stock, featured, price, stock_quantity, profitable,
 	 totally_scanned, free_acc, last_scan_at,offline_at
 	 FROM jewelrys WHERE need_diamond = '%s' AND stock_id = '%s' AND online = 'YES'`, needDiamond, c.PostForm("ref"))
 	rows, err := dbQuery(q)
@@ -87,10 +87,10 @@ func composeFilterJewelryQuery(c *gin.Context) (string, error) {
 	}
 	querys = append(querys, fmt.Sprintf("need_diamond='%s'", needDiamond))
 	if c.PostForm("category") != "" {
-		querys = append(querys, fmt.Sprintf("category='%s'", c.PostForm("category")))
+		querys = append(querys, fmt.Sprintf("category='%s'", strings.ToUpper(c.PostForm("category"))))
 	}
 	if c.PostForm("material") != "" {
-		querys = append(querys, fmt.Sprintf("material='%s'", c.PostForm("material")))
+		querys = append(querys, fmt.Sprintf("material='%s'", strings.ToUpper(c.PostForm("material"))))
 	}
 	if c.PostForm("size") != "" {
 		cValue, err := strconv.ParseFloat(c.PostForm("weight_from"), 64)
@@ -122,11 +122,11 @@ func composeFilterJewelryQuery(c *gin.Context) (string, error) {
 	}
 
 	if c.PostForm("mounting_type") != "" {
-		querys = append(querys, fmt.Sprintf("mounting_type='%s'", c.PostForm("mounting_type")))
+		querys = append(querys, fmt.Sprintf("mounting_type='%s'", strings.ToUpper(c.PostForm("mounting_type"))))
 	}
 
 	if c.PostForm("diashape") != "" {
-		querys = append(querys, fmt.Sprintf("dia_shape LIKE '%s'", c.PostForm("diashape")))
+		querys = append(querys, fmt.Sprintf("dia_shape LIKE '%s'", strings.ToUpper(c.PostForm("diashape"))))
 	}
 
 	var limit string
@@ -142,10 +142,10 @@ func composeFilterJewelryQuery(c *gin.Context) (string, error) {
 	}
 	q := fmt.Sprintf(`SELECT id, stock_id, category, unit_number, dia_shape, material, metal_weight, need_diamond, name, 
 	 dia_size_min, dia_size_max, small_dias, small_dia_num, small_dia_carat, mounting_type, main_dia_num, main_dia_size, 
-	 video_link, text, online, verified, in_stock, featured, price, stock_quantity, profitable,
+	 video_link, images, text, online, verified, in_stock, featured, price, stock_quantity, profitable,
 	 totally_scanned, free_acc, last_scan_at,offline_at
-	 FROM jewelrys WHERE '(%s)' GROUP BY name ORDER BY online DESC, stock_quantity DESC, created_at DESC %s`,
-		strings.Join(querys, ")' AND '("), limit)
+	 FROM jewelrys WHERE (%s) GROUP BY name ORDER BY online DESC, stock_quantity DESC, created_at DESC %s`,
+		strings.Join(querys, ") AND ("), limit)
 	util.Println(q)
 	return q, nil
 }

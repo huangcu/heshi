@@ -84,10 +84,10 @@ func filterProducts(c *gin.Context) {
 }
 
 func searchDiamonds(c *gin.Context) ([]diamond, error) {
-	ref := c.PostForm("ref")
+	ref := strings.ToUpper(c.PostForm("ref"))
 	q := fmt.Sprintf(`SELECT id, diamond_id, stock_ref, shape, carat, color, clarity, grading_lab, 
 		certificate_number, cut_grade, polish, symmetry, fluorescence_intensity, country, supplier, 
-		price_no_added_value, price_retail, featured, recommand_words, extra_words, status,
+		price_no_added_value, price_retail, featured, recommand_words, images, extra_words, status,
 		 ordered_by, picked_up, sold_price, profitable 
 	 FROM diamonds WHERE stock_ref='%s' OR certificate_number='%s'`,
 		ref, ref)
@@ -253,9 +253,9 @@ func composeFilterDiamondsQuery(c *gin.Context) (string, error) {
 	sort := sortDiamondsByQuery(c.PostForm("sorting"), direction)
 	q := fmt.Sprintf(`SELECT id, diamond_id, stock_ref, shape, carat, color, clarity, grading_lab, 
 		certificate_number, cut_grade, polish, symmetry, fluorescence_intensity, country, supplier, 
-		price_no_added_value, price_retail, featured, recommand_words, extra_words, status,
+		price_no_added_value, price_retail, featured, recommand_words, images, extra_words, status,
 		 ordered_by, picked_up, sold_price, profitable 
-	 FROM diamonds WHERE '(%s)' %s %s`, strings.Join(querys, ")' AND '("), limit, sort)
+	 FROM diamonds WHERE (%s) %s %s`, strings.Join(querys, ") AND ("), limit, sort)
 	util.Println(q)
 	return q, nil
 }

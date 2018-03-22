@@ -200,7 +200,7 @@ func jewelryMaterial(material string) string {
 	if util.IsInArrayString(m, VALID_MATERIAL) {
 		return m
 	}
-	return "UNKNOW-" + m
+	return "UNKNOWN-" + m
 }
 
 func jewelryShape(shapeStr string) (string, error) {
