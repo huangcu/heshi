@@ -47,7 +47,7 @@ func searchJewelrys(c *gin.Context) ([]jewelry, error) {
 		needDiamond = "YES"
 	}
 	if needDiamond != "" {
-		q = fmt.Sprintf("%s need_diamond= '%s'", q, needDiamond)
+		q = fmt.Sprintf("%s AND need_diamond= '%s'", q, needDiamond)
 	}
 	rows, err := dbQuery(q)
 	if err != nil {
