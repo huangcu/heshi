@@ -48,8 +48,8 @@ var smallDiamondHeaders = []string{
 }
 
 //  "BR" :"圆形" /_images/constant/ico-stones.png - round
-//  "PS": "梨形" /_images/constant/ico-stones.png - pear
-// 	"PR": "公主方" /_images/constant/ico-stones.png - princess
+//  "PS": "梨形" /_images/constant/ico-stones.png - princess
+// 	"PR": "公主方" /_images/constant/ico-stones.png - pear
 // 	"HS": "心形" /_images/constant/ico-stones.png - heart
 // 	"MQ": "橄榄形" /_images/constant/ico-stones.png - marquise
 // 	"OV": "椭圆形" /_images/constant/ico-stones.png - oval

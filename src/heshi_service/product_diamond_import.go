@@ -456,7 +456,7 @@ func diamondGradingLab(gradingLab string) (string, error) {
 	if util.IsInArrayString(strings.ToUpper(gradingLab), VALID_GRADING_LAB) {
 		return strings.ToUpper(gradingLab), nil
 	}
-	return "", errors.Newf("%s is not a valid grading lab")
+	return "", errors.Newf("%s is not a valid grading lab", gradingLab)
 }
 
 func (d *diamond) diamondImages() {

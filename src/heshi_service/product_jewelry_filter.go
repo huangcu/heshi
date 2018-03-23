@@ -32,16 +32,23 @@ func searchJewelrys(c *gin.Context) ([]jewelry, error) {
 	// 	$sql='SELECT * FROM jewelry WHERE need_diamond = "'.$need_diamond.'" '.$query_category.$query_size.$query_material.$query_price.$query_mountingtype.$query_sds.$query_diashape.' GROUP BY name ORDER BY online DESC, stock_quantity DESC, created_at DESC LIMIT '.$startFrom.',32';
 	// 	$stmt=$conn->query($sql);
 	// }
-	class := c.Query("class")
-	needDiamond := "NO"
-	if class == "mounting" {
-		needDiamond = "YES"
-	}
 	q := fmt.Sprintf(`SELECT id, stock_id, category, unit_number, dia_shape, material, metal_weight, need_diamond, name, 
 	 dia_size_min, dia_size_max, small_dias, small_dia_num, small_dia_carat, mounting_type, main_dia_num, main_dia_size, 
 	 video_link, images, text, online, verified, in_stock, featured, price, stock_quantity, profitable,
 	 totally_scanned, free_acc, last_scan_at,offline_at
-	 FROM jewelrys WHERE need_diamond = '%s' AND stock_id = '%s' AND online = 'YES'`, needDiamond, c.PostForm("ref"))
+	 FROM jewelrys WHERE stock_id = '%s' AND online = 'YES'`, strings.ToUpper(c.PostForm("ref")))
+
+	class := strings.ToUpper(c.Query("class"))
+	needDiamond := ""
+	if class == "NOMOUNTING" {
+		needDiamond = "NO"
+	}
+	if class == "MOUNTING" {
+		needDiamond = "YES"
+	}
+	if needDiamond != "" {
+		q = fmt.Sprintf("%s need_diamond= '%s'", q, needDiamond)
+	}
 	rows, err := dbQuery(q)
 	if err != nil {
 		return nil, err
@@ -93,7 +100,7 @@ func composeFilterJewelryQuery(c *gin.Context) (string, error) {
 		querys = append(querys, fmt.Sprintf("material='%s'", strings.ToUpper(c.PostForm("material"))))
 	}
 	if c.PostForm("size") != "" {
-		cValue, err := strconv.ParseFloat(c.PostForm("weight_from"), 64)
+		cValue, err := strconv.ParseFloat(c.PostForm("size"), 64)
 		if err != nil {
 			return "", err
 		}
@@ -127,6 +134,10 @@ func composeFilterJewelryQuery(c *gin.Context) (string, error) {
 
 	if c.PostForm("diashape") != "" {
 		querys = append(querys, fmt.Sprintf("dia_shape LIKE '%s'", strings.ToUpper(c.PostForm("diashape"))))
+	}
+
+	if c.PostForm("stock_quantity") != "" {
+		querys = append(querys, fmt.Sprintf("stock_quantity > '%s'", strings.ToUpper(c.PostForm("stock_quantity"))))
 	}
 
 	var limit string

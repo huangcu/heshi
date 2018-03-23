@@ -376,6 +376,17 @@ func (d *diamond) validateDiamondReq(update bool) ([]errors.HSMessage, error) {
 		d.Shape = s
 	}
 
+	if !update && d.GradingLab == "" {
+		vemsgNotValid.Message = "diamond grading lab can not be empty"
+		vemsg = append(vemsg, vemsgNotValid)
+	} else if d.GradingLab != "" {
+		s, err := diamondGradingLab(d.GradingLab)
+		if err != nil {
+			return nil, err
+		}
+		d.GradingLab = s
+	}
+
 	if !update && d.Color == "" {
 		vemsgNotValid.Message = "diamond color can not be empty"
 		vemsg = append(vemsg, vemsgNotValid)
