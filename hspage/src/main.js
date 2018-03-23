@@ -33,7 +33,7 @@ Vue.prototype.$adminURL = (Vue.config.productionTip) ? 'http://localhost:8080/ap
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
-  router: router,
+  router,
   components: { App },
   template: '<App/>'
 })

@@ -1,3 +1,5 @@
+let Images = require.context('@/_images/constant/', false, /\.(png|jpg)$/);
+
 export default {
   name: "DiamondsData",
   data: function () {
@@ -16,8 +18,8 @@ export default {
       if_agent: false,
       dia_items_shoppinglist: [],
       dia_items_shoppinglist_confirmed: [],
-      pic_where: "0",
-      pic_name: "round.png",
+      pic_where: 0,
+      pic_name: 'round.png',
       shape_TXT: '圆形'
     }
   },
@@ -25,7 +27,54 @@ export default {
     vat_choice: String,
     diamonds: Array
   },
+  computed: {
+    getImage: function () {
+      return Images('./ico-stones.png')
+    },
+    imagePosition: function () {
+      console.log(this.pic_name)
+      switch (this.pic_name) {
+        case 'round.png':
+          this.pic_where = 0
+          break
+        case 'cushion.png':
+          this.pic_where = -198
+          break
+        case 'emerald.png':
+          this.pic_where = -176
+          break
+        case 'asscher.png':
+          this.pic_where = -22
+          break
+        case 'heart.png':
+          this.pic_where = -154
+          break
+        case 'marquise.png':
+          this.pic_where = -132
+          break
+        case 'oval.png':
+          this.pic_where = -110
+          break
+        case 'square.png':
+          this.pic_where = -66
+          break
+        case 'pear.png':
+          this.pic_where = -87
+          break
+        case 'radiant.png':
+          this.pic_where = -44
+          break
+        default:
+          this.pic_where = 0
+      }
+      return this.pic_where
+    }
+  },
   methods: {
+    in_dia_items_shoppinglist_confirmed: function () {
+    // TODO sudo function
+      return false
+    },
     getData: function () {
       if (account!=='') {
         //get from cookie, if it is agent 
@@ -115,11 +164,11 @@ export default {
           this.shape_TXT = shape
       }
 
-      if (this.output == 'PICTURE') {
+      if (output === 'PICTURE') {
         return this.pic_name
-      } else if (this.output == 'NAMECN') {
+      } else if (output === 'NAMECN') {
         return this.shape_TXT
-      } else if (this.output == 'PIC_POSITION') {
+      } else if (output === 'PIC_POSITION') {
         return this.pic_where
       }
     },
@@ -163,12 +212,11 @@ export default {
           crr_color_TXT = '<span class="fancycolortxt">浅棕灰</span>'
           break
         default:
-          crr_color_TXT = crr_dia_color
       }
       return crr_color_TXT
     },
     diamondCutGrade: function (cut_grade) {
-      if (cut_grade == NULL || cut_grade === '' || cut_grade === undefined) {
+      if (cut_grade == null || cut_grade === '' || cut_grade === undefined) {
         return ''
       } else {
         return cut_grade

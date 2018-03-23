@@ -8,7 +8,8 @@
       </div>
       <div :class="index" class="generalinfobox">
         <span class="shapedesc-box">
-          <span class="shapeiconcontainer" :style="'background-position:' + detail_forDiamond_byShape(diamond.shape,'PIC_POSITION') + 'px 0px;'" style="background-image:url(/_images/constant/ico-stones.png);"></span>
+          <!-- :style="{ 'background-position:'' + imagePosition + 'px 0px; background-image': 'url(' + getImage + ')' }" -->
+          <span class="shapeiconcontainer" :style="{ 'background-image': 'url(' + getImage + ')'}"></span>
           <span class="shape-txt">{{ detail_forDiamond_byShape(diamond.shape, "NAMECN") }}></span>
         </span>
         <span class="valuetxt value_carat">

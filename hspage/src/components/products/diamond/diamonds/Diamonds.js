@@ -1,6 +1,13 @@
-let Images = require.context('@/_images/constant/', false, /\.(png|jpg)$/);
+let Images = require.context('@/_images/constant/', false, /\.(png|jpg)$/)
+import diamondFilter from '@/components/products/diamond/diamondfilter/DiamondFilter.vue'
+import diamondsData from '@/components/products/diamond/diamondsdata/DiamondsData.vue'
+
 export default {
   name: 'Diamonds',
+  components: {
+    'diamond-filter': diamondFilter,
+    'diamonds-data': diamondsData
+  },
   data: function () {
     return {
       diamonds: [],
@@ -40,6 +47,15 @@ export default {
     }
   },
   methods: {
+    getDiamonds: function () {
+      this.$http.get(
+        this.$userURL + '/products/diamonds'
+      ).then(response => {
+        if (response.status === 200) {
+          this.diamonds = response.body
+        }
+      }, err => { console.log(err); alert('error:' + err.body) })
+    },
     update: function () {
       $('#loadingtxt').html('载入中...')
       $('div#loadingcover').fadeIn('fast')
@@ -542,6 +558,9 @@ export default {
     if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
       mobileFunctions()
     }
+  },
+  created () {
+    this.getDiamonds()
   },
   beforeCreate() {
     this.$emit('getCurrentPage', 'diamonds')
