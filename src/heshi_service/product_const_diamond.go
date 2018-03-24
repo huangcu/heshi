@@ -199,8 +199,18 @@ var VALID_CUT_GRADE = []string{
 	// "NN",
 }
 
-var VALID_COLOR = []string{}
+var VALID_COLOR = []string{
+	"FY", "FANCY YELLOW",
+	"FLY",
+	"FANCY BROWNISH YELLOW", "FBY",
+	"FANCY LIGHT BROWNISH YELLOW", "FLBY",
+	"FANCY INTENSE YELLOW", "FIY",
+	"FVY", "FANCY VIVID YELLOW",
+	"FLBGY",
+}
 
+// | FY             |
+// | FANCY YELLOW   |
 // | J              |
 // | G              |
 // | F              |
@@ -212,7 +222,6 @@ var VALID_COLOR = []string{}
 // | D              |
 // | K              |
 // | L, Faint Brown |
-// | FY             |
 // | N              |
 // | -              |
 // | O-P            |
@@ -236,9 +245,33 @@ var VALID_COLOR = []string{}
 // | W-X            |
 // | FLBGY          |
 // | NBY            |
-// | FANCY YELLOW   |
 // | N-O            |
 // | FDBY
+
+//   case 'FY':
+//   return '<span class="fancycolortxt">黄色</span>'
+// case 'FANCY YELLOW':
+//   return '<span class="fancycolortxt">黄色</span>'
+// case 'FLY':
+//   return '<span class="fancycolortxt">浅黄色</span>'
+// case 'FANCY BROWNISH YELLOW':
+//   return '<span class="fancycolortxt">棕黄色</span>'
+// case 'FBY':
+//   return '<span class="fancycolortxt">棕黄色</span>'
+// case 'FANCY LIGHT BROWNISH YELLOW':
+//   return '<span class="fancycolortxt">浅棕黄</span>'
+// case 'FLBY':
+//   return '<span class="fancycolortxt">浅棕黄</span>'
+// case 'FANCY INTENSE YELLOW':
+//   return '<span class="fancycolortxt">浓彩黄</span>'
+// case 'FIY':
+//   return '<span class="fancycolortxt">浓彩黄</span>'
+// case 'FANCY VIVID YELLOW':
+//   return '<span class="fancycolortxt">艳黄色</span>'
+// case 'FVY':
+//   return '<span class="fancycolortxt">艳黄色</span>'
+// case 'FLBGY':
+//   return '<span class="fancycolortxt">浅棕灰</span>'
 
 var VALID_DIAMOND_STATUS = []string{
 	"SOLD",

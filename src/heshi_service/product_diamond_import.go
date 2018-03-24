@@ -382,7 +382,24 @@ func diamondCutGradeSymmetryPolish(cutGrade string) string {
 
 //TODO
 func diamondColor(color string) string {
-	return strings.ToUpper(color)
+	if len(color) != 0 {
+		switch strings.ToUpper(color) {
+		case "FY", "FANCY YELLOW":
+			return "FY"
+		case "FLY":
+			return "FLY"
+		case "FANCY BROWNISH YELLOW", "FBY":
+			return "FBY"
+		case "FANCY LIGHT BROWNISH YELLOW", "FLBY":
+			return "FLBY"
+		case "FANCY INTENSE YELLOW", "FIY":
+			return "FIY"
+		case "FVY", "FANCY VIVID YELLOW":
+			return "FVY"
+		case "FLBGY":
+			return "FLBGY"
+		}
+	}
 	//  D
 	//  E
 	//  F
@@ -406,7 +423,7 @@ func diamondColor(color string) string {
 	//  X
 	//  Y
 	//  Z
-	// return "UNKOWN-" + strings.ToUpper(color)
+	return "UNKOWN-" + strings.ToUpper(color)
 }
 
 func diamondShape(shape string) (string, error) {
