@@ -92,19 +92,19 @@ func (a *User) newAgent() error {
 	return err
 }
 
-//find user is recommanded by - user_id
-//from invitation code, get which user recommanded this
-// if the recommand is agent ???
+//find user is recommended by - user_id
+//from invitation code, get which user recommended this
+// if the recommend is agent ???
 func agentContactInfo(c *gin.Context) {
 	id := c.MustGet("id").(string)
 
-	q := fmt.Sprintf(`SELECT recommanded_by from users where id=%s`, id)
-	var recommandedBy string
-	if err := dbQueryRow(q).Scan(&recommandedBy); err != nil {
+	q := fmt.Sprintf(`SELECT recommended_by from users where id=%s`, id)
+	var recommendedBy string
+	if err := dbQueryRow(q).Scan(&recommendedBy); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
-	ci, err := getUserContactInfoInvitationCode(recommandedBy)
+	ci, err := getUserContactInfoInvitationCode(recommendedBy)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
@@ -112,10 +112,10 @@ func agentContactInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, *ci)
 }
 
-// func userRecommandedByAgent(uid string) (string, error) {
-// 	q := fmt.Sprintf(`SELECT recommanded_by from users where id=%s`, uid)
-// 	var recommandedBy string
-// 	if err := dbQueryRow(q).Scan(&recommandedBy); err != nil {
+// func userRecommendedByAgent(uid string) (string, error) {
+// 	q := fmt.Sprintf(`SELECT recommended_by from users where id=%s`, uid)
+// 	var recommendedBy string
+// 	if err := dbQueryRow(q).Scan(&recommendedBy); err != nil {
 // 		return "", err
 // 	}
 

@@ -94,10 +94,10 @@ func (u *User) validRecommnadedBy() errors.HSMessage {
 		var count int
 		q := fmt.Sprintf("SELECT COUNT(*) FROM users WHERE invitation_code=%s", u.RecommendedBy)
 		if err := dbQueryRow(q).Scan(&count); err != nil {
-			return vemsgUserErrorRecommandCode
+			return vemsgUserErrorRecommendCode
 		}
 		if count == 0 {
-			return vemsgUserErrorRecommandCode
+			return vemsgUserErrorRecommendCode
 		}
 	}
 

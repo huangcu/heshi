@@ -30,7 +30,7 @@ var diamondHeaders = []string{
 	// optional fields
 	"price_retail",
 	"featured",
-	"recommand_words",
+	"recommend_words",
 	"extra_words",
 	"image",
 	"image1",

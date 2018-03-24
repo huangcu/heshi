@@ -102,8 +102,8 @@ func (d *diamond) parmsKV() map[string]interface{} {
 	if d.Featured != "" {
 		params["featured"] = d.Featured
 	}
-	if d.RecommandWords != "" {
-		params["recommand_words"] = d.RecommandWords
+	if d.RecommendWords != "" {
+		params["recommend_words"] = d.RecommendWords
 	}
 	if d.ExtraWords != "" {
 		params["extra_words"] = d.ExtraWords
@@ -233,7 +233,7 @@ func importDiamondsCustomizeHeaders(headers map[string]string, records [][]strin
 							d.PriceRetail = cValue
 						case "featured":
 							d.Featured = strings.ToUpper(record[i])
-						case "recommand_words":
+						case "recommend_words":
 							d.Featured = strings.ToUpper(record[i])
 						case "extra_words":
 							d.Featured = strings.ToUpper(record[i])

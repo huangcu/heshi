@@ -7,9 +7,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//TODO another field to indicate recommand by heshi
+//TODO another field to indicate recommend by heshi
 func recommnadDiamonds(c *gin.Context) {
-	///api/recommand/diamonds?sort='carat'&order='up'
+	///api/recommend/diamonds?sort='carat'&order='up'
 	sort := "carat"
 	if c.Query("sort") == "price_retail" {
 		sort = "price_retail"

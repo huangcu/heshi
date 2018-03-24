@@ -136,7 +136,7 @@ func importDiamondProducts(file string) ([]util.Row, error) {
 				d.PriceRetail = cValue
 			case "featured":
 				d.Featured = strings.ToUpper(record[i])
-			case "recommand_words":
+			case "recommend_words":
 				d.Featured = strings.ToUpper(record[i])
 			case "extra_words":
 				d.Featured = strings.ToUpper(record[i])
