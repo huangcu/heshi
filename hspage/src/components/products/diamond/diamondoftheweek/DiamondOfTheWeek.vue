@@ -27,7 +27,7 @@
           <a class="certi_linker" target="_blank" :href="diamonds[0].certificate_link">查看证书: <span class="glyphicon glyphicon-new-window"></span>
           </a>
         </p>
-        <div v-if="diamonds[0].recommand_word" id="reco-words">{{ diamonds[0].recommand_word }}</div>
+        <div v-if="diamonds[0].recommend_word" id="reco-words">{{ diamonds[0].recommend_word }}</div>
         <div class="pricebox">
           <div v-if="promo_type=='FREE_ACC'">
             <span class="title-free_acc">买特价钻石，而且免费送空托</span>

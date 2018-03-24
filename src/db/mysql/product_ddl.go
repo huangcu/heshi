@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS diamonds
 	price_no_added_value DECIMAL(12,2) NOT NULL,
 	price_retail DECIMAL(12,2) NOT NULL,
 	featured VARCHAR(5) NOT NULL DEFAULT 'NO',
-	recommand_words TEXT,
+	recommend_words TEXT,
 	extra_words VARCHAR(255),
 	images VARCHAR(225),
 	status VARCHAR(20) NOT NULL DEFAULT 'AVAILABLE',

@@ -53,6 +53,10 @@ export default {
       ).then(response => {
         if (response.status === 200) {
           this.diamonds = response.body
+          if (this.diamonds !== null) {
+            $('span#found-diamonds-num').html(this.diamonds.length)
+            this.diamondlistpagenavi(this.diamonds.length)
+          }
         }
       }, err => { console.log(err); alert('error:' + err.body) })
     },
@@ -467,19 +471,19 @@ export default {
     xtheSfdb: function () {
       $('div#feedbackcover').fadeOut(50);
     },
-    agentLetterOk: function () {
-      $.post(
-        "/_content/ajax/agent-letter-read.php",
-        { read: "YES" },
-        function (data) {
-          console.log(data);
-        }
-      )
-      $('body').removeClass('no-overflow')
-      $('div#thelettertoagents-container').fadeOut(588, function () {
-        $('div#thelettertoagents-container').remove();
-      })
-    }
+    // agentLetterOk: function () {
+    //   $.post(
+    //     "/_content/ajax/agent-letter-read.php",
+    //     { read: "YES" },
+    //     function (data) {
+    //       console.log(data);
+    //     }
+    //   )
+    //   $('body').removeClass('no-overflow')
+    //   $('div#thelettertoagents-container').fadeOut(588, function () {
+    //     $('div#thelettertoagents-container').remove();
+    //   })
+    // }
   },
   created() {
     var theHashSTR = location.hash.replace('#', '')

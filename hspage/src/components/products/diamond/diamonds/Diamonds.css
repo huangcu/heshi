@@ -576,6 +576,7 @@ span.shapeiconcontainer {
     height: 20px;
     overflow: hidden;
     background-repeat: no-repeat;
+    background-image: url('../../../../_images/constant/ico-stones.png');
     top: 3px;
 }
 
