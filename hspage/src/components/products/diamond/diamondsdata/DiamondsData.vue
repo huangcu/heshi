@@ -82,7 +82,7 @@
           </p>
         </div>
         <div class="detailcol detailcol3"><!-- TODO handle diamonds page with query in url -->
-          <span>钻石ID: <a target="_blank" style="color:#000; text-decoration:underline;" :href="'/product/diamond?&ref='+diamond.id">{{ diamond.stock_ref }}</a></span>
+          <span>钻石ID: <a target="_blank" style="color:#000; text-decoration:underline;" :diamond="diamond" :href="'/product/diamond/'+diamond.id">{{ diamond.stock_ref }}</a></span>
           <div v-if="diamond.profitable==='YES'">
             <div v-if="userprofile!==''">
               <div v-if="userprofile.user_level===-1">
