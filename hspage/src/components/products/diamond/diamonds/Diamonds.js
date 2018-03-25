@@ -1,7 +1,6 @@
 let Images = require.context('@/_images/constant/', false, /\.(png|jpg)$/)
 import diamondFilter from '@/components/products/diamond/diamondfilter/DiamondFilter.vue'
 import diamondsData from '@/components/products/diamond/diamondsdata/DiamondsData.vue'
-
 export default {
   name: 'Diamonds',
   components: {
@@ -172,6 +171,7 @@ export default {
       let vm = this
       $('li#filter_clarity' + theclarity).toggleClass('btn-active')
       $('.filter_clarity_outer>li.btn-active').each(function () {
+        var crr_obj = $(this)
         vm.clarity.push(crr_obj.attr('title'))
       })
       console.log(this.clarity);
@@ -560,10 +560,8 @@ export default {
     })
 
     if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-      mobileFunctions()
+      this.mobileFunctions()
     }
-  },
-  created () {
     this.getDiamonds()
   },
   beforeCreate() {

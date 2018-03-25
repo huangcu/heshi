@@ -65,6 +65,11 @@ const devWebpackConfig = merge(baseWebpackConfig, {
         ignore: ['.*']
       }
     ]),
+    // new webpack.LoaderOptionsPlugin({
+    //   options: {
+    //     callbackLoader: require('vue-icons/icon-loader')(['material-add'])
+    //   }
+    // }),
     new webpack.ProvidePlugin({
       $: 'jquery',
       jquery: 'jquery',

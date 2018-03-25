@@ -3,6 +3,7 @@ const path = require('path')
 const utils = require('./utils')
 const config = require('../config')
 const vueLoaderConfig = require('./vue-loader.conf')
+const iconLoader = require("vue-icons/icon-loader")(["fa-thumbs-up"])
 
 function resolve (dir) {
   return path.join(__dirname, '..', dir)
@@ -36,6 +37,10 @@ module.exports = {
     alias: {
       'vue$': 'vue/dist/vue.esm.js',
       '@': resolve('src'),
+      // // bind version of jquery-ui
+      // "jquery-ui": "jquery-ui/jquery-ui.js",
+      // // bind to modules;
+      // modules: path.join(__dirname, "node_modules"),
     }
   },
   module: {
@@ -75,6 +80,11 @@ module.exports = {
           name: utils.assetsPath('fonts/[name].[hash:7].[ext]')
         }
       }
+      // {
+      //   test: /vue-icons/,
+      //   loader: 'callback-loader',
+      //   enforce: 'post'
+      // }
     ]
   },
   node: {

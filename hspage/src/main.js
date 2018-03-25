@@ -12,6 +12,9 @@ import VeeValidate from 'vee-validate'
 import BootstrapVue from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+// import 'jquery-ui-css/jquery-ui.min.css'
+import 'jquery-ui/themes/base/all.css'
+// import 'jquery-ui/themes/base/slider.css'
 
 Vue.use(VueCookies)
 Vue.use(VueResource)

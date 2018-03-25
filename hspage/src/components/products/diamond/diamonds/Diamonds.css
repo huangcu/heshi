@@ -1,5 +1,18 @@
 body {}
 
+.ui-state-default,
+.ui-widget-content .ui-state-default,
+.ui-widget-header .ui-state-default {
+    border: 1px solid #72b42d !important;
+    color: #ffffff !important;
+    background-color: #ecfbe1 !important;
+}
+
+.ui-widget-header {
+    background-color: #97f054 !important;
+    color: #ffffff !important;
+}
+
 body.no-overflow {
     overflow: hidden;
 }
