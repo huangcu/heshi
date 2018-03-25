@@ -3,7 +3,7 @@ const path = require('path')
 const utils = require('./utils')
 const config = require('../config')
 const vueLoaderConfig = require('./vue-loader.conf')
-const iconLoader = require("vue-icons/icon-loader")(["fa-thumbs-up"])
+// const iconLoader = require("vue-icons/icon-loader")(["fa-thumbs-up"])
 
 function resolve (dir) {
   return path.join(__dirname, '..', dir)
