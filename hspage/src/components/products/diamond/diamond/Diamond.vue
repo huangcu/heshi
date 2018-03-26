@@ -26,19 +26,19 @@
     <div class="pricebox">
       <div v-if="userprofile!==''">
         <div v-if="userprofile.user_type === 'AGENT'">
-          <span class="price">合适价: {{priceforagent(userprofile.agent.level, diamond.retail_price)}} 欧元</span>
-          <span class="price-special"> 您的代理价: {{priceforagent(userprofile.agent.level, diamond.retail_price)}} 美元</span>
+          <span class="price">合适价: {{DollarToEuro(priceForAgent(userprofile.agent.level, diamond.retail_price), rate.EUR)}} 欧元</span>
+          <span class="price-special"> 您的代理价: {{priceForAgent(userprofile.agent.level, diamond.retail_price)}} 美元</span>
         </div>
         <div v-else-if="userprofile.user_level === -1">
-          <span class="price">合适价:{{ priceforaccount(userprofile.user_level, diamond.retail_price)}} 欧元</span>
-          <span class="price-special">您的会员价: {{ priceforaccount(userprofile.user_level, diamond.retail_price)}} 美元</span>
+          <span class="price">合适价:{{ DollarToEuro(priceForAccount(userprofile.user_level, diamond.retail_price), rate.EUR)}} 欧元</span>
+          <span class="price-special">您的会员价: {{ priceForAccount(userprofile.user_level, diamond.retail_price)}} 美元</span>
         </div>
         <div v-else>
           <span class="price">合适价: {{ diamond.retail_price }}美元</span>
         </div>
       </div>
       <div v-else>
-        <span class="btnforprice">价格:  <a href="/login">请先登录／注册</a></span>
+        <span class="btnforprice">价格: <a href="/login">请先登录／注册</a></span>
       </div>
     </div>
     <div v-if="diamond.images!== null" class="jewelry-pics">

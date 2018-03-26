@@ -1,16 +1,20 @@
 import diamondMixin from '../diamondcommon.js'
+import agentPriceMixin from '@/util/agentprice.js'
+import accountPriceMixin from '@/util/accountprice.js'
+import currentCaculatorMixin from '@/util/currency_caculator.js'
 
 export default {
   name: 'Diamond',
+  mixins: [diamondMixin, agentPriceMixin, accountPriceMixin, currentCaculatorMixin],
+  props: {
+    rate: Object,
+    diamondID: String,
+  },
   data: function () {
     return {
       diamond: '',
       userprofile:''
     }
-  },
-  mixins: [diamondMixin],
-  props: {
-    diamondID: String,
   },
   methods: {
     getDiamond: function (theID) {

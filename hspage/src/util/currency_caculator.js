@@ -1,4 +1,4 @@
-export default {
+var currentCaculatorMixin = {
   methods: {
     DollarToEuro: function (thePrice, rateEUR) {
       return (rateEUR * thePrice).toFixed(2)
@@ -20,3 +20,5 @@ export default {
     }
   }
 }
+
+export default currentCaculatorMixin

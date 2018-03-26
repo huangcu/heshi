@@ -3,6 +3,12 @@ import diamondFilter from '@/components/products/diamond/diamondfilter/DiamondFi
 import diamondsData from '@/components/products/diamond/diamondsdata/DiamondsData.vue'
 export default {
   name: 'Diamonds',
+  props: {
+    rate: {
+      type: Object,
+      required: true
+    }
+  },
   components: {
     'diamond-filter': diamondFilter,
     'diamonds-data': diamondsData
@@ -33,7 +39,7 @@ export default {
       sorting_price_direction: 'ASC',
       sorting_direction: 'ASC',
       vat_include: 'NO',
-      crr_page: 1
+      crr_page: 1,
     }
   },
   computed: {

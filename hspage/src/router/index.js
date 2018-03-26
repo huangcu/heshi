@@ -3,9 +3,6 @@ import Router from 'vue-router'
 import Header from '@/components/header/Header.vue'
 import titleComponent from '@/components/title.component.vue'
 import pageNotFound from '@/components/page.not.found.vue'
-import currencyCaculator from '@/util/currency_caculator.js'
-import agentPrice from '@/util/agentprice.js'
-import accountPrice from '@/util/accountprice.js'
 // import RoutingGuard from './routerguard.js'
 Vue.use(Router)
 
@@ -72,7 +69,6 @@ const router = new Router({
     {
       path: '/product/diamonds',
       name: 'Diamonds',
-      mixins: [currencyCaculator, agentPrice, accountPrice],
       components: {
         default: () => import('@/components/products/diamond/diamonds/Diamonds.vue')
       }
@@ -80,7 +76,6 @@ const router = new Router({
     {
       path: '/product/diamond/:id',
       name: 'Diamond',
-      mixins: [currencyCaculator, agentPrice, accountPrice],
       components: {
         default: () => import('@/components/products/diamond/diamond/Diamond.vue')
       }

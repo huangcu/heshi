@@ -9,8 +9,9 @@
       <div :class="index" class="generalinfobox">
         <span class="shapedesc-box">
           <!-- :style="{ 'background-position:'' + imagePosition + 'px 0px; background-image': 'url(' + getImage + ')' }" -->
-          <span class="shape-txt">{{ detail_forDiamond_byShape(diamond.shape, "NAMECN") }}</span>
+          <span style="display:none">{{ diamondPosition(diamond.shape) }}</span>
           <span class="shapeiconcontainer" :style="{ 'background-position': ' '+ imagePosition + 'px 0px'}"></span>
+          <span class="shape-txt">{{ diamondShape(diamond.shape) }}</span>
           <!-- <span class="shapeiconcontainer" :style="{ 'background-image': 'url(' + getImage + ');' + 'background-position': + imagePosition + 'px 0px' }"></span> -->
         </span>
         <span class="valuetxt value_carat">
@@ -31,11 +32,11 @@
         <span v-if= "userprofile!==''" class="valuetxt value_price">
           <div v-if="userprofile.user_level ==-1">
             参考价{{ vat_status_txt }}
-            <span  class="thevalue">{{ DollarToEuro(diamond.price_retail*userprofile.user_discount) }}</span> €
+            <span  class="thevalue">{{ DollarToEuro(diamond.price_retail*userprofile.user_discount, rate.EUR) }}</span> €
           </div>
           <div v-else>
             参考价{{ vat_status_txt }}
-            <span class="thevalue">{{ DollarToEuro(diamond.price_retail*userprofile.user_discount) }}</span> €
+            <span class="thevalue">{{ DollarToEuro(diamond.price_retail*userprofile.user_discount, rate.EUR) }}</span> €
           </div>
         </span>
         <span v-else>
@@ -86,23 +87,22 @@
           <div v-if="diamond.profitable==='YES'">
             <div v-if="userprofile!==''">
               <div v-if="userprofile.user_level===-1">
-                参考价{{ vat_status_txt}} {{ DollarToEuro(diamond.price_retail*reference_price_ratio) }} €
+                参考价{{ vat_status_txt}} {{ DollarToEuro(diamond.price_retail*reference_price_ratio, rate.EUR) }} €
               </div>
               <div v-else>
                 <div v-if="userprofile.user_type==='AGENT'">
-                  <span class="btnforprice">合适价{{ vat_status_txt }}: {{ DollarToEuro(diamond.price_retail) }}<span class="currencyunit">欧元</span> ({{ priceretail(diamond.price_retail) }}<span class="currencyunit">美元</span>, {{ DollarToYuan(diamond.retail_price) }}<span class="currencyunit">人民币</span>)</span>
-                  <span class="btnforprice">您的代理价{{ vat_status_txt }}: <span class="specialprice">{{ DollarToEuro(priceForAgent(agentLevel, diamond.price_retail)) }} </span><span class="currencyunit">欧元</span> ({{ priceForAgent(agentlevel, diamond.price_retail) }}<span class="currencyunit">美元</span>, {{ DollarToYuan(priceForAgent(agentLevel, diamond.price_retail)) }}<span class="currencyunit">人民币</span>)</span>
+                  <span class="btnforprice">合适价{{ vat_status_txt }}: {{ DollarToEuro(diamond.price_retail, rate.EUR) }}<span class="currencyunit">欧元</span> ({{ diamond.price_retail }}<span class="currencyunit">美元</span>, {{ DollarToYuan(diamond.retail_price, rate.CNY) }}<span class="currencyunit">人民币</span>)</span>
+                  <span class="btnforprice">您的代理价{{ vat_status_txt }}: <span class="specialprice">{{ DollarToEuro(priceForAgent(userprofile.agent.level, diamond.price_retail)) }} </span><span class="currencyunit">欧元</span> ({{ priceForAgent(agentlevel, diamond.price_retail) }}<span class="currencyunit">美元</span>, {{ DollarToYuan(priceForAgent(agentLevel, diamond.price_retail), rate.CNY) }}<span class="currencyunit">人民币</span>)</span>
                 </div>
                 <div v-else>
-                  <span class="btnforprice">合适价{{ vat_status_txt }}: {{ DollarToEuro(diamond.price_retail) }}<span class="currencyunit">欧元</span> ({{ priceretail(diamond.price_retail) }}<span class="currencyunit">美元</span>, {{ DollarToYuan(diamond.retail_price) }}<span class="currencyunit">人民币</span>)</span>
-                  <span class="btnforprice">参考价{{ vat_status_txt }}: <span class="specialprice">{{ DollarToEuro(priceForAccount(accountLevel, diamond.price_retail)) }}</span><span class="currencyunit">欧元</span> ({{ priceForAccount(agentlevel, diamond.price_retail) }}<span class="currencyunit">美元</span>, {{ DollarToYuan(priceForAccount(accountLevel, diamond.price_retail)) }}<span class="currencyunit">人民币</span>)</span>
+                  <span class="btnforprice">合适价{{ vat_status_txt }}: {{ DollarToEuro(diamond.price_retail, rate.EUR) }}<span class="currencyunit">欧元</span> ({{ toFixedTwo(diamond.price_retail) }}<span class="currencyunit">美元</span>, {{ DollarToYuan(diamond.retail_price, rate.CNY) }}<span class="currencyunit">人民币</span>)</span>
+                  <span class="btnforprice">参考价{{ vat_status_txt }}: <span class="specialprice">{{ DollarToEuro(priceForAccount(userprofile.user_level, diamond.price_retail), rate.EUR) }}</span><span class="currencyunit">欧元</span> ({{ priceForAccount(agentlevel, diamond.price_retail) }}<span class="currencyunit">美元</span>, {{ DollarToYuan(priceForAccount(accountLevel, diamond.price_retail), rate.CNY) }}<span class="currencyunit">人民币</span>)</span>
                 </div>
               </div>
             </div>
             <div v-else>
-              <span class="btnforprice">价格:  <a href="/login">请先登录／注册</a></span>
+              <span class="btnforprice">价格: <a href="/login">请先登录／注册</a></span>
             </div>
-
             <div v-if="diamond.status==='SOLD'">
               <button type="button" class="btnfororder disabledbtn itemordered" title="chosenitem" disabled="disabled">
                 <span class="glyphicon glyphicon-globe"></span> 该钻已售

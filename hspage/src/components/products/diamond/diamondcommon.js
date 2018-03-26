@@ -77,6 +77,59 @@ var diamondMixin = {
         default:
           return 'round.png'
       }
+    },
+    diamondColor: function (color) {
+      // TODO color map to backend db
+      switch (color.toUpperCase()) {
+        case 'FY':
+          return '<span class="fancycolortxt">黄色</span>'
+        case 'FANCY YELLOW':
+          return '<span class="fancycolortxt">黄色</span>'
+        case 'FLY':
+          return '<span class="fancycolortxt">浅黄色</span>'
+        case 'FANCY BROWNISH YELLOW':
+          return '<span class="fancycolortxt">棕黄色</span>'
+        case 'FBY':
+          return '<span class="fancycolortxt">棕黄色</span>'
+        case 'FANCY LIGHT BROWNISH YELLOW':
+          return '<span class="fancycolortxt">浅棕黄</span>'
+        case 'FLBY':
+          return '<span class="fancycolortxt">浅棕黄</span>'
+        case 'FANCY INTENSE YELLOW':
+          return '<span class="fancycolortxt">浓彩黄</span>'
+        case 'FIY':
+          return '<span class="fancycolortxt">浓彩黄</span>'
+        case 'FANCY VIVID YELLOW':
+          return '<span class="fancycolortxt">艳黄色</span>'
+        case 'FVY':
+          return '<span class="fancycolortxt">艳黄色</span>'
+        case 'FLBGY':
+          return '<span class="fancycolortxt">浅棕灰</span>'
+        default:
+          return color.toUpperCase()
+      }
+    },
+    diamondCutGrade: function (cutGrade) {
+      if (cutGrade == null || cutGrade === '' || cutGrade === undefined) {
+        return ''
+      } else {
+        return cutGrade
+      }
+    },
+    diamondPlace: function (country) {
+      var place = ''
+      if (country === 'SZ') {
+        place = '中国深圳'
+      } else if (country === 'HK' || country === 'HSTHK') {
+        place = '香港'
+      } else if (country === 'IND') {
+        place = '印度'
+      } else if (country === 'Belgi' || country === 'Belgium' || country === '-' || country === undefined) {
+        place = '安特卫普'
+      } else if (country === 'China' || country === 'CN') {
+        place = '中国'
+      }
+      return place
     }
   }
 }

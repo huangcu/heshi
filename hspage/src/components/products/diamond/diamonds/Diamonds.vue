@@ -193,7 +193,7 @@
         <br class="clear" />
       </div><!-- end of </diamond-filter> -->
       <div id="diamondlist">
-        <diamonds-data :diamonds="diamonds">
+        <diamonds-data :diamonds="diamonds" :rate="rate">
         </diamonds-data>
       </div>
       <div id="list-page-navi">第 <span id="diapagenavi"></span> 页</div>
