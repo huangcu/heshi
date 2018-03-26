@@ -1,0 +1,370 @@
+body {}
+
+h2.pagetitle {
+    margin-top: 50px;
+}
+
+p.title-expl {
+    font-size: 14px;
+    text-align: center;
+}
+
+div.category-filterbox {
+    position: relative;
+    text-align: center;
+    max-width: 556px;
+    margin: 25px auto;
+    background-color: #c6e3e1;
+    padding: 12px;
+}
+
+div.category-filterbox.filter_complete {
+    background-color: rgba(255, 228, 227, 1);
+}
+
+div.mountingorcompletebox {
+    display: block;
+    position: relative;
+    text-align: center;
+    padding: 12px 0 25px 0;
+    border-bottom-style: solid;
+    border-width: 1px;
+    border-color: #c6e3e1;
+    max-width: 980px;
+    margin: 5px auto 25px auto;
+}
+
+a.jew_class_btn {
+    display: inline-block;
+    padding: 12px 0;
+    background-color: #EFFCEF;
+    color: #000;
+    width: 128px;
+    border-style: solid;
+    border-width: 3px;
+    border-color: #01934d;
+    margin-top: 5px;
+}
+
+a.jew_class_btn:hover {
+    background-color: #01934d;
+    color: #FFF;
+    text-decoration: none;
+}
+
+a.jew_class_btn.crr_class {
+    background-color: #01934d;
+    color: #FFF;
+}
+
+h6.titleofjewfilter {
+    font-size: 20px;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+form#searchbyrefform {
+    position: absolute;
+    top: 20px;
+    right: 18px;
+    height: 22px;
+    overflow: hidden;
+}
+
+input#searchref {
+    position: relative;
+    width: 108px;
+    font-size: 12px;
+    padding: 3px 5px;
+    background-color: #EFFCEF;
+    border-style: none;
+    font-weight: normal;
+    border-radius: 0;
+    margin: 0 25px 0 0;
+    height: 22px;
+}
+
+span#searchicon {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 14px;
+    padding: 3px 5px;
+    background-color: #FFF;
+    width: 25px;
+    line-height: 14px;
+    text-align: center;
+    height: 22px;
+}
+
+input#searchsubmitbtn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: transparent;
+    line-height: 14px;
+    width: 25px;
+    height: 25px;
+    border: none;
+}
+
+ul.categoryfilter {
+    padding: 0;
+    margin: 0;
+    height: 22px;
+}
+
+li.cate {
+    display: inline-block;
+    padding: 0;
+    background-color: #EFFCEF;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #01934d;
+    border-radius: 5px;
+}
+
+.filter_complete li.cate {
+    background-color: #FAf2f0;
+}
+
+li.crr_cate,
+.filter_complete li.crr_cate {
+    background-color: #01934d;
+    color: #FFF;
+}
+
+.cate a {
+    display: inline-block;
+    padding: 3px;
+    width: 88px;
+    color: #000;
+}
+
+.crr_cate a {
+    color: #FFF;
+}
+
+.cate a:hover {
+    text-decoration: none;
+}
+
+div.jewelry-container-box {
+    position: relative;
+    text-align: center;
+    max-width: 1000px;
+    margin: 35px auto;
+}
+
+div.jewelrybox {
+    position: relative;
+    display: block;
+    float: left;
+    width: 230px;
+    height: 332px;
+    padding: 0;
+    margin: 0 10px 30px 10px;
+    background-color: #f6f6f6;
+    border-radius: 6px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #f2f2f2;
+}
+
+div.jewelrybox.mounting {
+    height: 426px;
+}
+
+a.seedetailbtn-big {
+    position: relative;
+    display: block;
+    width: 228px;
+}
+
+span.imageholder {
+    display: inline-block;
+    width: 228px;
+    height: 268px;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: auto 268px;
+    padding: 0;
+    margin: 0;
+    background-color: #fff;
+    border-radius: 6px;
+}
+
+span.jewelryname,
+span.jewelryprice,
+span.jewelry-dia-size,
+span.stocknum {
+    display: inline-block;
+    width: 100%;
+    font-size: 14px;
+    color: #000;
+    text-align: center;
+    overflow: hidden;
+    padding: 8px 0 3px 0;
+    white-space: nowrap;
+}
+
+span.jewelryprice,
+span.jewelry-dia-size {
+    font-size: 12px;
+    padding-top: 5px;
+}
+
+span.fitsizenum {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+span.needorder {
+    color: #960;
+}
+
+p.actionbox {
+    margin: 0;
+    padding-top: 8px;
+    text-align: center;
+}
+
+a.seedetailbtn,
+a.choosebtn {
+    position: relative;
+    display: inline-block;
+    font-size: 14px;
+    padding: 0px 10px;
+}
+
+p.jew-filter-box {
+    padding: 25px 0 15px 0;
+}
+
+div#dia-size-picker-box {
+    position: relative;
+    margin: 0 auto;
+    width: 288px;
+    text-align: center;
+}
+
+p#dia-size-picker-txt {
+    margin: 0;
+    text-align: center;
+}
+
+span#min-size-txt,
+span#max-size-txt {
+    position: relative;
+    display: inline-block;
+    width: 28px;
+}
+
+#dia-size-picker-txt label {
+    margin-bottom: 0;
+}
+
+.filterselection {
+    font-size: 12px;
+    background-color: #EFFCEF;
+    border-color: #01934d;
+    margin: 2px 0;
+    width: 90px;
+}
+
+.filter_complete .filterselection {
+    background-color: #FAf2f0;
+}
+
+span#size-txt {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+p.foundnumbox {
+    text-align: center;
+}
+
+p.returnallbtnbox {
+    margin-top: 20px;
+    margin-bottom: 0;
+}
+
+input#size-txt {
+    width: 50px;
+}
+
+button#allsizebtn,
+button#updatesizebtn {
+    position: relative;
+    margin-left: 15px;
+    background-color: #EFFCEF;
+    color: #01934d;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #01934d;
+    border-radius: 6px;
+    padding: 2px 8px 1px 8px;
+    font-size: 12px;
+}
+
+button#allsizebtn {
+    padding: 1px 5px;
+    font-size: 10px;
+    border: none;
+}
+
+button#updatesizebtn {
+    color: #FFF;
+    background-color: #01934d;
+}
+
+.filter_complete button#allsizebtn {
+    background-color: #FAf2f0;
+}
+
+.filter_complete .ui-widget-content {
+    background-color: #FAf2f0;
+}
+
+div.sortingbtncontainer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+input#orderbtn {
+    position: relative;
+    margin-left: 3px;
+    background-color: #EFFCEF;
+    color: #01934d;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #01934d;
+    border-radius: 6px;
+    padding: 2px 8px 1px 8px;
+    font-size: 12px;
+}
+
+@media (max-width: 1012px) {
+    div.jewelry-container-box {
+        width: 750px;
+    }
+}
+
+@media (max-width: 762px) {
+    div.jewelry-container-box {
+        width: 500px;
+    }
+}
+
+@media (max-width: 512px) {
+    div.jewelry-container-box {
+        width: auto;
+    }
+    div.jewelrybox {
+        display: block;
+        float: none;
+        margin: 10px auto;
+    }
+}

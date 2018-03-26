@@ -1,6 +1,18 @@
-let Images = require.context('@/_images/constant/', false, /\.(png|jpg)$/);
+let Images = require.context('@/_images/constant/', false, /\.(png|jpg)$/)
+import diamondFilter from '@/components/products/diamond/diamondfilter/DiamondFilter.vue'
+import diamondsData from '@/components/products/diamond/diamondsdata/DiamondsData.vue'
 export default {
   name: 'Diamonds',
+  props: {
+    rate: {
+      type: Object,
+      required: true
+    }
+  },
+  components: {
+    'diamond-filter': diamondFilter,
+    'diamonds-data': diamondsData
+  },
   data: function () {
     return {
       diamonds: [],
@@ -27,7 +39,7 @@ export default {
       sorting_price_direction: 'ASC',
       sorting_direction: 'ASC',
       vat_include: 'NO',
-      crr_page: 1
+      crr_page: 1,
     }
   },
   computed: {
@@ -40,6 +52,19 @@ export default {
     }
   },
   methods: {
+    getDiamonds: function () {
+      this.$http.get(
+        this.$userURL + '/products/diamonds'
+      ).then(response => {
+        if (response.status === 200) {
+          this.diamonds = response.body
+          if (this.diamonds !== null) {
+            $('span#found-diamonds-num').html(this.diamonds.length)
+            this.diamondlistpagenavi(this.diamonds.length)
+          }
+        }
+      }, err => { console.log(err); alert('error:' + err.body) })
+    },
     update: function () {
       $('#loadingtxt').html('载入中...')
       $('div#loadingcover').fadeIn('fast')
@@ -152,6 +177,7 @@ export default {
       let vm = this
       $('li#filter_clarity' + theclarity).toggleClass('btn-active')
       $('.filter_clarity_outer>li.btn-active').each(function () {
+        var crr_obj = $(this)
         vm.clarity.push(crr_obj.attr('title'))
       })
       console.log(this.clarity);
@@ -451,19 +477,19 @@ export default {
     xtheSfdb: function () {
       $('div#feedbackcover').fadeOut(50);
     },
-    agentLetterOk: function () {
-      $.post(
-        "/_content/ajax/agent-letter-read.php",
-        { read: "YES" },
-        function (data) {
-          console.log(data);
-        }
-      )
-      $('body').removeClass('no-overflow')
-      $('div#thelettertoagents-container').fadeOut(588, function () {
-        $('div#thelettertoagents-container').remove();
-      })
-    }
+    // agentLetterOk: function () {
+    //   $.post(
+    //     "/_content/ajax/agent-letter-read.php",
+    //     { read: "YES" },
+    //     function (data) {
+    //       console.log(data);
+    //     }
+    //   )
+    //   $('body').removeClass('no-overflow')
+    //   $('div#thelettertoagents-container').fadeOut(588, function () {
+    //     $('div#thelettertoagents-container').remove();
+    //   })
+    // }
   },
   created() {
     var theHashSTR = location.hash.replace('#', '')
@@ -540,8 +566,9 @@ export default {
     })
 
     if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-      mobileFunctions()
+      this.mobileFunctions()
     }
+    this.getDiamonds()
   },
   beforeCreate() {
     this.$emit('getCurrentPage', 'diamonds')

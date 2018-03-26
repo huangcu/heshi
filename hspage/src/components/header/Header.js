@@ -6,7 +6,7 @@ export default {
     jobType: String,
     platform: String,
     deviceType: String,
-    account: String
+    userprofile: String
   },
   data: function () {
     return {
@@ -17,8 +17,11 @@ export default {
   },
   computed: {
     accountID: function () {
-      console.log(this.account)
-      return this.account
+      if (this.userprofile ==='' || this.userprofile === undefined) {
+        return ''
+      } else {
+        return this.userprofile.id
+      }
     },
     isIndexPage: function () {
       return this.currentPage === 'index'

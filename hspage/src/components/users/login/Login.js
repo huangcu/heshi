@@ -5,7 +5,7 @@ export default {
       qrCodeSrc: '',
       login_feedback: '',
       upgrade_feedback: '',
-      account: '',
+      userprofile: '',
       previewmode: '',
       sceneID: '',
       QRCodeHandle: null,
@@ -92,18 +92,18 @@ export default {
           this.$wechatURL + '/status?sceneID=' + this.sceneID
         ).then(response => {
           if (response.body !== '') {
-            this.cookies.set("openID", response.body, 60 * 30)
-            this.$router.replace('/')
+            this.$cookies.set("wechatopenID", response.body, 60 * 30)
+            this.$router.replace('/qrsign/'+response.body+'?referer='+this.referer)
           }
         }, err => { console.log(err); alert('error:' + err.body) })
       }
     }
   },
   mounted() {
-    if (this.$cookies.isKey('_account')) {
-      this.account = this.$cookies.get('_account')
+    if (this.$cookies.isKey('userprofile')) {
+      this.userprofile = this.$cookies.get('userprofile')
     } else {
-      this.account = ''
+      this.userprofile = ''
       this.getQRCode()
       this.QRCodeHandle = setInterval(function () {
         this.getQRCode();

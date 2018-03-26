@@ -2,13 +2,8 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Header from '@/components/header/Header.vue'
 import titleComponent from '@/components/title.component.vue'
-import diamondFilter from '@/components/products/diamond/diamondfilter/DiamondFilter.vue'
-import diamondsData from '@/components/products/diamond/diamondsdata/DiamondsData.vue'
-import agent from '@/components/myaccount/agent/Agent.vue'
 import pageNotFound from '@/components/page.not.found.vue'
-import currencyCaculator from '@/util/currency_caculator.js'
-import agentPrice from '@/util/agentprice.js'
-import accountPrice from '@/util/accountprice.js'
+// import RoutingGuard from './routerguard.js'
 Vue.use(Router)
 
 // TODO global mixin - post to server to log user activity
@@ -18,7 +13,10 @@ Vue.mixin({
   }
 })
 
-export default new Router({
+Vue.component('app-header', Header)
+Vue.component('vue-title', titleComponent)
+
+const router = new Router({
   mode: 'history',
   routes: [
     {
@@ -34,11 +32,7 @@ export default new Router({
       name: 'Login',
       components: {
         default: () => import('@/components/users/login/Login.vue')
-      },
-      props: (route) => ({
-        referer: route.query.referer,
-        appointment: route.query.appointment
-      })
+      }
     },
     {
       path: '/loginbyemail',
@@ -48,7 +42,7 @@ export default new Router({
       }
     },
     {
-      path: '/qrsign',
+      path: '/qrsign/:wechatopenID',
       name: 'QRSign',
       components: {
         default: () => import('@/components/users/qrsign/QRSign.vue')
@@ -67,6 +61,7 @@ export default new Router({
       components: {
         default: () => import('@/components/myaccount/MyAccount.vue')
       },
+      meta: {requiresAuth: true, role: ['CUSTOMER', 'AGENT']},
       props: (route) => ({
         _account: route.query._account
       })
@@ -74,20 +69,19 @@ export default new Router({
     {
       path: '/product/diamonds',
       name: 'Diamonds',
-      mixins: [currencyCaculator, agentPrice, accountPrice],
       components: {
         default: () => import('@/components/products/diamond/diamonds/Diamonds.vue')
       }
     },
     {
-      path: '/product/diamond',
+      path: '/product/diamond/:id',
       name: 'Diamond',
       components: {
         default: () => import('@/components/products/diamond/diamond/Diamond.vue')
       }
     },
     {
-      path: '/product/ringfordiamond',
+      path: '/product/ringfordiamond/:id',
       name: 'RingForDiamond',
       components: {
         default: () => import('@/components/products/diamond/ringfordiamond/RingForDiamond.vue')
@@ -97,7 +91,7 @@ export default new Router({
       path: '/product/diamondoftheweek',
       name: 'DiamondOfTheWeek',
       components: {
-        default: () => import('@/components/products/diamond/diamondsoftheweek/DiamondsOfTheWeek.vue')
+        default: () => import('@/components/products/diamond/diamondoftheweek/DiamondOfTheWeek.vue')
       }
     },
     {
@@ -109,10 +103,23 @@ export default new Router({
     },
     {
       path: '/product/jewelrys',
-      name: 'Jewelry',
+      name: 'Jewelrys',
       components: {
         default: () => import('@/components/products/jewelry/jewelrys/Jewelrys.vue')
       }
+    },
+    {
+      path: '/admin',
+      name: 'Admin',
+      components: {
+        default: () => import('@/components/products/jewelry/jewelrys/Jewelrys.vue')
+      },
+      meta: {requiresAuth: true, role: ['ADMIN']},
+      redirect: '/admin/login',
+      children: [{
+        path: 'login',
+        name: 'AdminLogin'
+      }]
     },
     {
       path: '*',
@@ -121,8 +128,6 @@ export default new Router({
   ]
 })
 
-Vue.component('app-header', Header)
-Vue.component('vue-title', titleComponent)
-Vue.component('diamond-filter', diamondFilter)
-Vue.component('diamonds-data', diamondsData)
-Vue.component('agent', agent)
+// router.beforeResolve(RoutingGuard)
+
+export default router

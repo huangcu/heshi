@@ -9,18 +9,32 @@
       </p>
       <!-- start of <diamond-filter -->
       <div id="filter_box">
-        <a id="fancycolorbtn" href="/product/recommenddiamonds"><span class="glyphicon glyphicon-thumbs-up"></span> 合适推荐 &raquo;</a>
+        <a id="fancycolorbtn" href="/product/recommenddiamonds"> <span class="glyphicon glyphicon-thumbs-up"></span> 合适推荐 &raquo;</a>
         <div id="weightandpricebox">
           <div class="filter_line_dependent" id="filter_line_weight">
             <span class="filter_title">钻重</span>
-            <div id="slider-range-weight" style="width:288px;"></div>
+            <div id="slider-range-weight" style="width:288px;" class="ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all">
+              <div class="ui-slider-range ui-widget-header ui-corner-all" style="left: 4.16667%; width: 25.8333%;"></div>
+              <span class="ui-slider-handle ui-state-default ui-corner-all" tabindex="0" style="left: 4.16667%;"></span>
+              <span class="ui-slider-handle ui-state-default ui-corner-all" tabindex="0" style="left: 30%;"></span>
+            </div>
+            <!-- <div id="slider-range-weight" class="ui-slider-range ui-widget-header ui-corner-all" style="left: 0.359712%; width: 89.5683%;">
+              <div class="ui-slider-range ui-widget-header ui-corner-all" style="left: 4.16667%; width: 25.8333%;"></div>
+              <span class="ui-slider-handle ui-state-default ui-corner-all" tabindex="0" style="left: 4.16667%;"></span>
+              <span class="ui-slider-handle ui-state-default ui-corner-all" tabindex="0" style="left: 30%;"></span>
+            </div> -->
             <input type="number" id="weight_from" value="0.2" step=".1" /> - <input type="number" id="weight_to" value="20" step=".1" /> ct <button type="button" id="btn_weight" v-on:click="filter_weight()"><span class="glyphicon glyphicon-refresh"></span> 刷新</button>
             <span id="tooltip-weight"></span>
           </div>
 
           <div class="filter_line_dependent" id="filter_line_price">
             <span class="filter_title">价格</span>
-            <div id="slider-range" style="width:288px;"></div>
+            <!-- <div id="slider-range" style="width:288px;"></div> -->
+            <div id="slider-range-weight" style="width:288px;" class="ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all">
+              <div class="ui-slider-range ui-widget-header ui-corner-all" style="left: 4.16667%; width: 25.8333%;"></div>
+              <span class="ui-slider-handle ui-state-default ui-corner-all" tabindex="0" style="left: 4.16667%;"></span>
+              <span class="ui-slider-handle ui-state-default ui-corner-all" tabindex="0" style="left: 30%;"></span>
+            </div>
             <input type="number" id="price_from" value="100" /> - <input type="number" id="price_to" value="899999" /> € <button type="button" id="btn_price" v-on:click="filter_price()"><span class="glyphicon glyphicon-refresh"></span> 刷新</button>
             <span class="vatchoicebox"><input type="checkbox" id="vat-choice" class="vat-choice" name="vat-choice" onchange="vatChoice()" /> 价格含税</span>
             <span id="tooltip-price"></span>
@@ -179,7 +193,7 @@
         <br class="clear" />
       </div><!-- end of </diamond-filter> -->
       <div id="diamondlist">
-        <diamonds-data :diamonds="diamonds">
+        <diamonds-data :diamonds="diamonds" :rate="rate">
         </diamonds-data>
       </div>
       <div id="list-page-navi">第 <span id="diapagenavi"></span> 页</div>

@@ -107,12 +107,21 @@ func checkSignature(signature, timestamp, nonce string) bool {
 
 func wechatEventHandler(msg core.MixedMsg) (string, error) {
 	switch msg.EventType {
-	case request.EventTypeSubscribe, request.EventTypeScan:
+	// 第一次扫码，在手机端弹出 关注公众号 界面， 确认关注后redirect到授权页面
+	case request.EventTypeSubscribe:
 		if err := redisClient.Set(msg.EventKey, msg.FromUserName, 0).Err(); err != nil {
 			util.Printf("fail to write to redis db. err: %s", err.Error())
 			return "", err
 		}
-		sendTemplateMsg(msg.FromUserName, "http://721e2175.ngrok.io/api/wechat/auth")
+		sendTemplateMsg(msg.FromUserName, serverURI+"/api/wechat/auth")
+	// 已经关注公众号，再次扫码二维码
+	case request.EventTypeScan:
+		if err := redisClient.Set(msg.EventKey, msg.FromUserName, 0).Err(); err != nil {
+			util.Printf("fail to write to redis db. err: %s", err.Error())
+			return "", err
+		}
+		sendTemplateMsg(msg.FromUserName, serverURI+"/api/wechat/auth")
+	// 取消关注公众号
 	case request.EventTypeUnsubscribe:
 	case request.EventTypeLocation:
 	case template.EventTypeTemplateSendJobFinish:
@@ -129,6 +138,28 @@ func wechatEventHandler(msg core.MixedMsg) (string, error) {
 		handleMenuView(msg)
 	}
 	return "", nil
+}
+
+func sendLoginTemplateMsg(toUser, accountID string) error {
+	templateData := TemplateData{
+		First:    DataItem{Value: "合适帐户登录成功"},
+		Keyword1: DataItem{Value: "合适总部"},
+		Keyword2: DataItem{Value: "刚刚"},
+		Remark:   DataItem{Value: "如果不是本人操作， 点击这里登出账户 >>", Color: "#01934d"},
+	}
+	d, _ := json.Marshal(templateData)
+	templateMessage := template.TemplateMessage{
+		ToUser: toUser,
+		TemplateId: "Ip8ZsW20EuQhHVZVyNDUvKGS9_K3PCrzrhZdyfuZLa8	",
+		URL:  "http://localhost:8081/logout/?id=" + accountID,
+		Data: []byte(d),
+	}
+	msgID, err := template.Send(wechatClient, templateMessage)
+	if err != nil {
+		return err
+	}
+	util.Printf("message: %v sent out. msgid: %d", templateMessage, msgID)
+	return nil
 }
 
 func sendTemplateMsg(toUser, url string) error {

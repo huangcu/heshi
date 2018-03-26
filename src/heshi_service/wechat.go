@@ -44,15 +44,16 @@ const (
 )
 
 var (
-	redirectURI                              = "http://44c4412e.ngrok.io/api/wechat/token"
-	redirectLogin                            = "http://44c4412e.ngrok.io/webpage/login.html"
+	serverURI                                = "http://cee8c7f5.ngrok.io"
+	redirectURI                              = serverURI + "/api/wechat/token"
+	redirectLogin                            = serverURI + "/webpage/login.html"
 	endPoint                                 = mpoauth2.NewEndpoint(wxAppIDDebug, wxAppSecretDebug) //*mpoauth2.Endpoint
 	accessTokenServer core.AccessTokenServer = core.NewDefaultAccessTokenServer(wxAppIDDebug, wxAppSecretDebug, nil)
 	wechatClient                             = core.NewClient(accessTokenServer, nil) //*core.Client
 )
 
 // ec2-52-221-233-143.ap-southeast-1.compute.amazonaws.com
-// https://open.weixin.qq.com/connect/outh2/authorize?appid=wxa6c9fc631124397a&redirect_uri=https://ec2-52-221-255-156.ap-southeast-1.compute.amazonaws.com/api/wechat/token&response_type=code&scope=snsapi_base#wechat_redirect
+// https://open.weixin.qq.com/connect/outh2/authorize?appid=wxa6c9fc631124397a&redirect_uri=http://cee8c7f5.ngrok.io/api/wechat/token&response_type=code&scope=snsapi_base#wechat_redirect
 // $auth_url='https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx02b69905483c2df2
 // &redirect_uri='.urlencode("http://www.beyoudiamond.com/authreceiver.php").
 // '&response_type=code&scope=snsapi_base#wechat_redirect';
@@ -132,8 +133,9 @@ func wechatToken(c *gin.Context) {
 		util.Printf("userinfo: %+v\r\n", userinfo)
 	}
 	s.Set(USER_SESSION_KEY, token.OpenId)
-	util.Println("redirect to login page " + redirectLogin)
-	c.Redirect(http.StatusFound, redirectLogin)
+	s.Save()
+	util.Println("redirect to home page: http://localhost:8081")
+	c.Redirect(http.StatusFound, "http://localhost:8081")
 }
 
 // subscribe	用户是否订阅该公众号标识，值为0时，代表此用户没有关注该公众号，拉取不到其余信息。

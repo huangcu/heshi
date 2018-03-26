@@ -11,17 +11,17 @@
             <span id="num-shoppinglist">{{ interestedItems.length }}</span>
           </span>
         </a>
-        <a v-if="accountID != ''" id="shoppingcartbtn-confirmed" href="/shoppinglistconfirmed">
+        <a v-if="accountID !== ''" id="shoppingcartbtn-confirmed" href="/shoppinglistconfirmed">
           <span class="glyphicon glyphicon-list" aria-hidden="true"></span> 预定单
         </a>
-        <a v-if="accountID != ''" id="shoppingcartbtn-confirmed" href="/orders">
+        <a v-if="accountID !==''" id="shoppingcartbtn-confirmed" href="/orders">
           <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> 已下单
         </a>
         <a v-if="accountID === ''" id="myaccountbtn" href="/login">
           <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
             登录 | 注册
         </a>
-        <a v-else id="myaccountbtn" :href="'/myaccount?id=' + accountID">
+        <a v-else id="myaccountbtn" href="/myaccount">
           <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
             我的账户
         </a>
@@ -46,7 +46,7 @@
           <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
             登录 | 注册
         </a>
-        <a v-else  id="myaccountbtn-mobile" :href="'/myaccount?id=' + accountID">
+        <a v-else  id="myaccountbtn-mobile" href="/myaccount">
           <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
             账户
         </a>

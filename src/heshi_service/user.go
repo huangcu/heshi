@@ -386,7 +386,7 @@ func changePassword(c *gin.Context) {
 
 func composeUser(rows *sql.Rows) ([]User, error) {
 	var id, userType, icon, invitationCode string
-	var username, cellphone, email, realName, recommandedBy sql.NullString
+	var username, cellphone, email, realName, recommendedBy sql.NullString
 	var wechatID, wechatName, wechatQR, address, additionalInfo sql.NullString
 	var level, discount, point int
 	var totalPurchaseAmount float64
@@ -394,7 +394,7 @@ func composeUser(rows *sql.Rows) ([]User, error) {
 	var us []User
 	for rows.Next() {
 		if err := rows.Scan(&id, &username, &cellphone, &email, &realName, &userType, &wechatID,
-			&wechatName, &wechatQR, &address, &additionalInfo, &recommandedBy, &invitationCode,
+			&wechatName, &wechatQR, &address, &additionalInfo, &recommendedBy, &invitationCode,
 			&level, &discount, &point, &totalPurchaseAmount, &icon); err != nil {
 			return nil, err
 		}
@@ -410,7 +410,7 @@ func composeUser(rows *sql.Rows) ([]User, error) {
 			WechatQR:            wechatID.String,
 			Address:             address.String,
 			AdditionalInfo:      additionalInfo.String,
-			RecommendedBy:       recommandedBy.String,
+			RecommendedBy:       recommendedBy.String,
 			InvitationCode:      invitationCode,
 			UserLevel:           level,
 			UserDiscount:        float64(discount) / 100,

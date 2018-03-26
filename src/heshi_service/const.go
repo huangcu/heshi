@@ -8,9 +8,9 @@ var (
 	vemsgShouldNotBeEmpty   = errors.HSMessage{Code: 2000, Message: "should not be empty"}
 	vemsgAlreadyExist       = errors.HSMessage{Code: 2000, Message: "already exists."}
 	vemsgServerError        = errors.HSMessage{Code: 500, Message: "something is wrong, please try later"}
-	vemsgAlreadyRecommanded = errors.HSMessage{Code: 2000, Message: "您以前已经输入过一次推荐码，不需要再用其他推荐码了"}
-	vemsgNoNeedRecommanded  = errors.HSMessage{Code: 2000, Message: "您的用户级别已经很高，不需要再被别人推荐了"}
-	vemsgCannotRecommand    = errors.HSMessage{Code: 2000, Message: "被您推荐的人不能再推荐您"}
+	vemsgAlreadyRecommended = errors.HSMessage{Code: 2000, Message: "您以前已经输入过一次推荐码，不需要再用其他推荐码了"}
+	vemsgNoNeedRecommended  = errors.HSMessage{Code: 2000, Message: "您的用户级别已经很高，不需要再被别人推荐了"}
+	vemsgCannotRecommend    = errors.HSMessage{Code: 2000, Message: "被您推荐的人不能再推荐您"}
 
 	// //User Login (20-29)
 	vemsgLoginErrorUserName   = errors.HSMessage{Code: 20020, Message: "wrong username or password"}
@@ -35,7 +35,7 @@ var (
 	vemsgUserCellphoneNotValid   = errors.HSMessage{Code: 20008, Message: "cellphone input is not a valid cellphone number;"}
 	vemsgUserCellphoneDuplicate  = errors.HSMessage{Code: 20009, Message: "cellphone already register!"}
 	vemsgUserUsertypeNotValid    = errors.HSMessage{Code: 20010, Message: "user_type value is not valid;"}
-	vemsgUserErrorRecommandCode  = errors.HSMessage{Code: 20011, Message: "your invitation code is not correct, please verify;"}
+	vemsgUserErrorRecommendCode  = errors.HSMessage{Code: 20011, Message: "your invitation code is not correct, please verify;"}
 
 	//AGENT (11-19)
 	vemsgAdminLevelNotValid         = errors.HSMessage{Code: 20015, Message: "admin level is not valid"}
