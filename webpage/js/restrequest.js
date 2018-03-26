@@ -1,10 +1,9 @@
- //Get inContact Token
- var accessToken = '123123';
+ var accessToken = 'Jbm6XfXQj/KqmMTqz6c4GQWl9U6JMLQ/T4LzPWIEi2W2Q23GDkuIfxvbUC/rar8ZJIWWSVo68fZ/hv6n0oAeXaQKEfhKmGUZ8m8JHm5TteBZwqZuqXAbOeowTJVBn8aaUhfSfZbmgNnXwDEnhjZ1DZ8jG2Khy9uzoHu5ogwbVHQ=';
  var baseURI = 'http://localhost:8080/';
 
  function userregister()
  {
-		var auth_token = 'AppName@VendorName:BusinessUnit';
+		var auth_token = accessToken;
 		
 		var url_base = baseURI + 'api/users';
 		
@@ -13,7 +12,7 @@
 			'username': $('input#realname').val(),
 			'password':  $('input#newaccountpassword').val(),
 			'email': $('input#newaccountemail').val(),
-			'user_type': 'admin'
+			'user_type': 'CUSTOMER'
 		};
 
 	$.ajax({
@@ -21,9 +20,8 @@
 		'type': 'POST',
 		'content-Type': 'multipart/form-data',
 		'headers': {
-			// Use access_token previously retrieved from inContact token 
-			// service.
-			'Authorization': 'basic ' + auth_token
+			// Use access_token 
+			'X-Auth-Token': auth_token
 		},
 		'data': requestPayload,
 		'success': function (result) {
@@ -47,7 +45,7 @@
 
  function userlogin()
  {
-		var auth_token = 'AppName@VendorName:BusinessUnit';
+		var auth_token = accessToken;
 		
 		var url_base = baseURI + 'api/login';
 		
@@ -63,14 +61,13 @@
 		'headers': {
 			// Use access_token previously retrieved from inContact token 
 			// service.
-			'Authorization': 'basic ' + auth_token
+			'X-Auth-Token': auth_token
 		},
 		'data': requestPayload,
 		'success': function (result) {
 			//Process success actions
 		//	accessToken = result.access_token;
 			baseURI = result.resource_server_base_uri;
-			//document.getElementById('userloginform').innerHTML = "注册成功！";
 			setTimeout(document.location.href = 'home.html',"5000")
 			return result;
 		},
@@ -115,14 +112,11 @@
 		   //Process success actions
 		   accessToken = result.access_token;
 		   baseURI = result.resource_server_base_uri;
-		   alert('Success!\r\nAccess Token:\r' + accessToken + 
-			   '\r\nBase URI:\r' + baseURI)
 		   document.getElementById('pageDiv').innerHTML = result.access_token;
 		   return result;
 		 },
 		 'error': function (XMLHttpRequest, textStatus, errorThrown) {
 		   //Process error actions
-		   alert('Error: ' + errorThrown);
 		   console.log(XMLHttpRequest.status + ' ' + 
 			   XMLHttpRequest.statusText);
 		   return false;
@@ -130,42 +124,136 @@
 	 });
    }
 
- // PUT CALL BELOW HERE!!!
-
- // BU Agents List
- function getAgentList() {
-	 // The baseURI variable is created by the result.base_server_base_uri 
-	 // which is returned when getting a token and should be used to 
-	 // create the url_base.
-	 var url_base = baseURI;
+ // List products
+ function getproductsList(Jtype) {
+	var auth_token = accessToken;
+	var url_base = baseURI + 'api/products/'+ Jtype;
 	 $.ajax({
-		 'url': url_base + '/services/{version}/agents',
+		 'url': url_base,
 		 'type': 'GET',
 		 'content-Type': 'x-www-form-urlencoded',
 		 'dataType': 'json',
 		 'headers': {
-		   // Use access_token previously retrieved from inContact token 
-		   // service.
-		   'Authorization': 'bearer ' + accessToken
+		   // Use access_token 
+		   'X-Auth-Token': auth_token
 		 },
 		 'success': function (result) {
 		   //Process success actions
 		   var returnResult = JSON.stringify(result);
-		   alert('Success!\r\n' + returnResult);
-		   document.getElementById('callResults').innerHTML = returnResult;
+		   document.getElementById('productsList').innerHTML = returnResult;
 		   return result;
 		 },
 		 'error': function (XMLHttpRequest, textStatus, errorThrown) {
 		   //Process error actions
-		   alert('Error: ' + errorThrown);
-		   console.log(XMLHttpRequest.status + ' ' + 
-			   XMLHttpRequest.statusText);
+			 document.getElementById('productsList').innerHTML = XMLHttpRequest.status + ' ' + XMLHttpRequest.statusText;
 		   return false;
 		 }
 	 });
  }
+
+ function getproductbyID(Jtype, ID) {
+	var auth_token = accessToken;
+	var url_base = baseURI + 'api/products/search/'+ Jtype;
+	var requestPayload = { 
+		// search prosuct by Stok_ID
+		'ref': $('input[name=searchref]').val(),
+	};
+	 $.ajax({
+		 'url': url_base,
+		 'type': 'POST',
+		 'content-Type': 'x-www-form-urlencoded',
+		 'dataType': 'json',
+		 'data': requestPayload,
+		 'headers': {
+		   // Use access_token 
+		   'X-Auth-Token': auth_token
+		 },
+		 
+		 'success': function (result) {
+		   //Process success actions
+		   var returnResult = JSON.stringify(result);
+		   document.getElementById('productsList').innerHTML = returnResult;
+		   return result;
+		 },
+		 'error': function (XMLHttpRequest, textStatus, errorThrown) {
+		   //Process error actions
+			 document.getElementById('productsList').innerHTML = XMLHttpRequest.status + ' ' + XMLHttpRequest.statusText;
+		   return false;
+		 }
+	 });
+ }
+
+ function getproductsbyCategory(Jtype, category) {
+	var auth_token = accessToken;
+	var url_base = baseURI + 'api/products/filter/'+ Jtype;
+	var requestPayload = {
+		// search prosuct by Stok_ID
+		'category': category,
+	};
+	 $.ajax({
+		 'url': url_base,
+		 'type': 'POST',
+		 'content-Type': 'x-www-form-urlencoded',
+		 'dataType': 'json',
+		 'data': requestPayload,
+		 'headers': {
+		   // Use access_token 
+		   'X-Auth-Token': auth_token
+		 },
+		 
+		 'success': function (result) {
+		   //Process success actions
+		   var returnResult = JSON.stringify(result);
+		   document.getElementById('productsList').innerHTML = returnResult;
+		   return result;
+		 },
+		 'error': function (XMLHttpRequest, textStatus, errorThrown) {
+		   //Process error actions
+			 document.getElementById('productsList').innerHTML = XMLHttpRequest.status + ' ' + XMLHttpRequest.statusText;
+		   return false;
+		 }
+	 });
+ }
+
+ function getUserinfro()
+ {
+	var auth_token = accessToken;
+		
+	var url_base = baseURI + '/api/admin/users';
+	
+	var requestPayload = {	};
+
+$.ajax({
+	'url': url_base,
+	'type': 'POST',
+	'content-Type': 'multipart/form-data',
+	'headers': {
+		// Use access_token previously retrieved from inContact token 
+		// service.
+		'X-Auth-Token': auth_token
+	},
+	'data': requestPayload,
+	'success': function (result) {
+		//Process success actions
+	//	accessToken = result.access_token;
+		baseURI = result.resource_server_base_uri;
+		setTimeout(document.location.href = 'home.html',"5000")
+		return result;
+	},
+	'error': function (XMLHttpRequest, responseText) {
+		//Process error actions
+		document.getElementById('userloginform').innerHTML ='Error: ' + XMLHttpRequest.responseText ;
+		sleep(2000);
+		document.location.href = 'login.html';
+		return false;
+	}
+ });
+
+ }
+
+
   
- //END CALL ABOVE HERE
+
  
  
  
