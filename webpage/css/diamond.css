@@ -3,9 +3,6 @@ body{
 body.no-overflow{
 	overflow:hidden;
 }
-.contentmainwrapper{
-	
-}
 .pagetitle{
 	display:none;
 }
@@ -273,8 +270,7 @@ span.shapedesc-box{
 	padding:0 8px;
 	width:82px;
 }
-span.shape-txt{
-}
+
 .shapedesc-box span.shapeiconcontainer{
 	top:5px;
 }
@@ -467,8 +463,6 @@ span#dia-num-bg{
 	z-index:0;
 	border-radius:3px;
 }
-
-
 
 span.shapeiconcontainer{
 	display:inline-block;

@@ -128,7 +128,8 @@
  function getproductsList(Jtype) {
 	var auth_token = accessToken;
 	var url_base = baseURI + 'api/products/'+ Jtype;
-	 $.ajax({
+
+ $.ajax({
 		 'url': url_base,
 		 'type': 'GET',
 		 'content-Type': 'x-www-form-urlencoded',
@@ -139,9 +140,9 @@
 		 },
 		 'success': function (result) {
 		   //Process success actions
-		   var returnResult = JSON.stringify(result);
-		   document.getElementById('productsList').innerHTML = returnResult;
-		   return result;
+			document.getElementById('productsList').innerHTML = renderJresult(result, "没有对应的产品")
+		
+			 return true
 		 },
 		 'error': function (XMLHttpRequest, textStatus, errorThrown) {
 		   //Process error actions
@@ -171,9 +172,9 @@
 		 
 		 'success': function (result) {
 		   //Process success actions
-		   var returnResult = JSON.stringify(result);
-		   document.getElementById('productsList').innerHTML = returnResult;
-		   return result;
+		
+		 document.getElementById('productsList').innerHTML = renderJresult(result, "没有对应ID的产品")
+			return true
 		 },
 		 'error': function (XMLHttpRequest, textStatus, errorThrown) {
 		   //Process error actions
@@ -203,9 +204,8 @@
 		 
 		 'success': function (result) {
 		   //Process success actions
-		   var returnResult = JSON.stringify(result);
-		   document.getElementById('productsList').innerHTML = returnResult;
-		   return result;
+			 document.getElementById('productsList').innerHTML = renderJresult(result, "没有对应的产品")
+			 return true
 		 },
 		 'error': function (XMLHttpRequest, textStatus, errorThrown) {
 		   //Process error actions
@@ -251,11 +251,27 @@ $.ajax({
 
  }
 
+ function renderJresult(result, message)
+ {
+	if (result == null)
+	{
+		Prosuctbox = message
+	}
+	else 
+	{
+	 var Prosuctbox = '';
 
-  
-
- 
- 
- 
- 
-
+	 for(var i=0;i<result.length;i++)
+	 {
+		 var prosuctDataline = '<div class="jewelrybox complete"><a class="seedetailbtn-big demo-box" href="jewelrydetail.html?id='+ result[i]["id"] + '">' +
+		 '<span class="imageholder" style="background-image:url("/pic/jewelry/thumbs/' + result[i]["images"] + '")"></span>'+ 
+		 '<span class="jewelryname">'+ result[i]["name"]+'</span>'+
+		 '<span class="jewelryprice">'+ result[i]["price"]+'</span>'+
+		 '<span class="stocknum">'+ result[i]["stock_quantity"]+'</span>' +
+		 '</a><p class="actionbox"><a class="seedetailbtn" href="jewelrydetail.php?id=1299"><span class="glyphicon glyphicon-eye-open"></span> 详情</a><a class="choosebtn" href=""><span class="glyphicon glyphicon-gift"></span> 购买</a></p><span class="indi-icons-container"><span class="glyphicon glyphicon-film"></span></span></div>';
+		 Prosuctbox = Prosuctbox+prosuctDataline;
+	 }   
+	
+	}
+	return Prosuctbox
+ }
