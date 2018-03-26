@@ -6,7 +6,7 @@ export default {
       upgrade_feedback: '',
       username: '',
       password: '',
-      account: '',
+      userprofile: '',
     }
   },
   computed: {
@@ -59,7 +59,6 @@ export default {
             }
             this.$cookies.set('token', loginResult.token, 60 * 30)
             var userprofile = JSON.parse(loginResult.userprofile)
-            this.$cookies.set('_account', userprofile.id, 60 * 30)
             this.$cookies.set('userprofile', loginResult.userprofile, 60 * 30)
             this.$emit('updateAccount', userprofile.id)
             this.$router.replace('/home')
@@ -77,10 +76,10 @@ export default {
     }
   },
   created() {
-    if (this.$cookies.isKey('_account')) {
-      this.account = this.$cookies.get('_account')
+    if (this.$cookies.isKey('userprofile')) {
+      this.userprofile = this.$cookies.get('userprofile')
     } else {
-      this.account = ''
+      this.userprofile = ''
     }
   }
 }

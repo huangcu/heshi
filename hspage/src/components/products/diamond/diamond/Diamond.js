@@ -1,3 +1,5 @@
+import diamondMixin from '../diamondcommon.js'
+
 export default {
   name: 'Diamond',
   data: function () {
@@ -6,6 +8,7 @@ export default {
       userprofile:''
     }
   },
+  mixins: [diamondMixin],
   props: {
     diamondID: String,
   },

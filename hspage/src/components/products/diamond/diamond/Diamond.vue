@@ -9,7 +9,7 @@
     <div v-else class="jewely-description">
       <p>商品编号: <strong>{{ diamond.stock_ref }}></strong></p>
       <span class="dia-description">{{ diamond.carat }}克拉</span>
-      <span class="dia-description">{{ diamond.shape}}</span>
+      <span class="dia-description">{{ diamondShape(diamond.shape)}}</span>
       <span class="dia-description">{{ diamond.color}}色</span>
       <span class="dia-description">净度: {{ diamond.clarity}}</span>
       <span class="dia-description">切工: {{ diamond.cut_grade}}／ 抛光: {{ diamond.polish}}／ 对称: {{ diamond.symmetry}}</span>
@@ -26,12 +26,12 @@
     <div class="pricebox">
       <div v-if="userprofile!==''">
         <div v-if="userprofile.user_type === 'AGENT'">
-          <span class="price">合适价: {{agentPrice}} 欧元</span>
-          <span class="price-special"> 您的代理价: {{agentPrice}}美元</span>
+          <span class="price">合适价: {{priceforagent(userprofile.agent.level, diamond.retail_price)}} 欧元</span>
+          <span class="price-special"> 您的代理价: {{priceforagent(userprofile.agent.level, diamond.retail_price)}} 美元</span>
         </div>
         <div v-else-if="userprofile.user_level === -1">
-          <span class="price">合适价:{{ customerPrice}} 欧元</span>
-          <span class="price-special">您的会员价: {{ customerPrice}} 美元</span>
+          <span class="price">合适价:{{ priceforaccount(userprofile.user_level, diamond.retail_price)}} 欧元</span>
+          <span class="price-special">您的会员价: {{ priceforaccount(userprofile.user_level, diamond.retail_price)}} 美元</span>
         </div>
         <div v-else>
           <span class="price">合适价: {{ diamond.retail_price }}美元</span>

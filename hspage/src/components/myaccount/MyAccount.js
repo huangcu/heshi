@@ -7,36 +7,7 @@ export default {
   },
   data: function () {
     return {
-      userProfile: {
-        id: "18590ce0-ff5b-4a2d-8af9-118ce328fcf5",
-        username: "huangcu45",
-        cellphone: "13764540228",
-        email: "",
-        user_type: "ADMIN",
-        real_name: "",
-        wechat_id: "test",
-        wechat_name: "test",
-        wechat_qr: "",
-        address: "",
-        additional_info: "",
-        recommended_by: "",
-        invitation_code: "",
-        user_level: 0,
-        user_discount: 0,
-        point: 0,
-        total_purchase_amount: 0,
-        icon: "",
-        admin: {
-          admin_level: 1,
-          wechat_kefu: "",
-          created_by: "system_dev_admin"
-        },
-        agent: {
-          agent_level: 0,
-          agent_discount: 0,
-          created_by: ""
-        }
-      },
+      userProfile: '',
       updatefeedback: '',
       qrCodeSrc: '',
       sceneID: '',
@@ -111,7 +82,6 @@ export default {
       ).then(response => {
         console.log('logout')
         this.$cookies.remove('token')
-        this.$cookies.remove('_account')
         this.$cookies.remove('userprofile')
         this.$cookies.remove('SESSIONID')
         this.$emit('updateAccount','')
@@ -120,12 +90,12 @@ export default {
     }
   },
   created() {
-    if (!this.$cookies.isKey('_account')) {
+    if (!this.$cookies.isKey('userprofile')) {
       // this.$router.replace('/login')
     }
   },
   mounted() {
-    if (!this.$cookies.isKey('_account')) {
+    if (!this.$cookies.isKey('userprofile')) {
       // this.$router.replace('/login')
     }
     this.getUserProfile()

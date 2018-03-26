@@ -1,6 +1,6 @@
 <template>
 <div>
-  <app-header :currentPage="currentPage" :account='account'></app-header>
+  <app-header :currentPage="currentPage" :userprofile='userprofile'></app-header>
   <div id="app">
     <router-view :rate='rate' @getCurrentPage='getCurrentPage' @updateAccount='updateAccount'/>
   </div>
@@ -18,7 +18,7 @@ export default {
   data: function () {
     return {
       currentPage: '',
-      account: '',
+      userprofile: '',
       rate: {
         USD: 1,
         CNY: 6.332200,
@@ -40,7 +40,7 @@ export default {
       this.currentPage = arg
     },
     updateAccount: function (arg) {
-      this.account = arg
+      this.userprofile = arg
     },
     getCurrencyRate: function () {
       this.$http.get(
@@ -64,10 +64,10 @@ export default {
     }.bind(this), 2 * 60 * 60 * 1000)
   },
   mounted () {
-    if (this.$cookies.isKey('_account')) {
-      this.account = this.$cookies.get('_account')
+    if (this.$cookies.isKey('userprofile')) {
+      this.userprofile = this.$cookies.get('userprofile')
     } else {
-      this.account = ''
+      this.userprofile = ''
     }
   },
   beforeDestroy () {

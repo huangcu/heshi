@@ -9,7 +9,7 @@
         <div v-if="appointment !==''">
           <p class="loginforappointmentwords">欢迎您和我们预约看钻石和首饰<br />请先登录您的帐户</p>
         </div>
-        <div v-if="account==''">
+        <div v-if="userprofile==''">
           <form action="" @submit.prevent="login()">
             <input name="email" type="text" class="inputtextforloginform" v-model="username" v-validate="'required'" placeholder="电子邮箱" />
             <input name="accountpassword" type="password" class="inputtextforloginform" v-model="password" v-validate="'required'" placeholder="密码" />

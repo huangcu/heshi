@@ -45,14 +45,14 @@ const router = new Router({
       }
     },
     {
-      path: '/qrsign',
+      path: '/qrsign/:wechatopenID',
       name: 'QRSign',
       components: {
         default: () => import('@/components/users/qrsign/QRSign.vue')
       }
     },
     {
-      path: '/egister',
+      path: '/register',
       name: 'Register',
       components: {
         default: () => import('@/components/users/register/Register.vue')
@@ -80,6 +80,7 @@ const router = new Router({
     {
       path: '/product/diamond/:id',
       name: 'Diamond',
+      mixins: [currencyCaculator, agentPrice, accountPrice],
       components: {
         default: () => import('@/components/products/diamond/diamond/Diamond.vue')
       }
