@@ -1,0 +1,775 @@
+body{
+}
+body.no-overflow{
+	overflow:hidden;
+}
+.contentmainwrapper{
+	
+}
+.pagetitle{
+	display:none;
+}
+h3.pagesubtitle{
+	margin:15px 0 0 0;
+	padding:30px 0 35px 0;
+	text-align:center;
+	font-size:24px;
+}
+p.subtitle-expl{
+	text-align:center;
+	margin:0 0 20px 0;
+	display:none;
+}
+div#filter_box, div#diamondsorting-box, div#diamondlist, div#list-page-navi, div#found-diamonds-num-box{
+	background-color:#c6e3e1;
+	display:block;
+	position:relative;
+	max-width:980px;
+	margin:0 auto;
+	padding:15px 35px 0 35px;
+}
+div#diamondsorting-box{
+	padding-top:20x;
+	background-color:transparent;
+	margin-top:35px;
+	margin-bottom:0;
+	border-top-style:solid;
+	border-width:1px;
+	border-color:#000;
+}
+
+div#weightandpricebox{
+	position:relative;
+}
+div.filter_line_dependent{
+	float:left;
+	width:50%;
+	padding:15px 0;
+	margin-bottom:15px;
+	border-bottom-style:solid;
+	border-width:1px;
+	border-color:#fff;
+	min-width:450px;
+	position:relative;
+}
+div#filterline-stockref{
+	border-bottom:none;
+	border-top-style:solid;
+	margin-top:15px;
+	width:100%;
+	margin-bottom:0;
+	padding-bottom:0;
+}
+div#filterboxinner-left, div#filterboxinner-right{
+	float:left;
+	width:50%;
+	padding-right:25px;
+	min-width:450px;
+}
+ul.fileber_shape_outer, ul.filter_color_outer, ul.filter_clarity_outer, ul.filter_certi_outer, ul.filter_cut_outer, ul.filter_polish_outer, ul.filter_sym_outer, ul.filter_fluo_outer{
+	position:relative;
+	padding:0 0 0 50px;
+	margin:7px 0;
+	min-height:35px;
+}
+li.filter_shape, li.filter_color, li.filter_clarity, li.filter_cut, li.filter_polish, li.filter_sym, li.filter_certi, li.filter_fluo, li.sortingbtn{
+	display:inline-block;
+	height:32px;
+	line-height:28px;
+	background-color:#fff;
+	padding:2px 0;
+	text-align:center;
+	font-size:12px;
+	cursor:pointer;
+	margin-bottom:2px;
+	margin-right:5px;
+}
+
+span.filter_title, label.filter_title{
+	position:absolute;
+	display:inline-block;
+	padding:2px 0;
+	height:32px;
+	line-height:28px;
+}
+li.filter_shape{
+	width:32px;
+}
+li.filter_color{
+	width:23px;
+	position:relative;
+}
+li#filter_colorFancy{
+	width:45px;
+	font-weight:bold;
+}
+#filter_colorFancy a{
+	white-space:nowrap;
+	color:#000;
+}
+li#filter_colorN{
+	width:35px;
+}
+li.filter_clarity{
+	width:32px;
+}
+li#filter_clarityVVS1, li#filter_clarityVVS2{
+	width:46px;
+}
+li#filter_clarityVS1, li#filter_clarityVS2{
+	width:36px;
+}
+li.filter_certi{
+	width:118px;
+}
+li.filter_cut, li.filter_polish, li.filter_sym{
+	width:59px;
+}
+li.filter_fluo{
+	width:46px;
+}
+li#filter_fluoVST{
+	width:47px;
+}
+.filter_line>ul>li:hover{
+	background-color:#b2e0d8;
+}
+li.btn-active, li.btn-active:hover{
+	background-color:#97f055 !important;
+	box-shadow:0 0 1px #666;
+}
+
+#slider-range-weight, #slider-range{
+	position:relative;
+	margin:10px 0 12px 50px;
+}
+input#weight_from, input#weight_to, input#price_from, input#price_to, input#stockreftosearch{
+	position:relative;
+	width:62px;
+	font-size:14px;
+	padding:2px 5px;
+	background-color:#EFFCEF;
+	border-style:solid;
+	border-width:1px;
+	border-color:#CCC;
+}
+input#price_from, input#price_to{
+	width:77px;
+}
+input#stockreftosearch{
+	width:150px;
+}
+input#weight_from, input#price_from, input#stockreftosearch{
+	margin-left:50px;
+}
+button#btn_weight, button#btn_price, button#stockrefbtn{
+	position:relative;
+	margin-left:15px;
+	background-color:#01934d;
+	color:#FFF;
+	border-style:solid;
+	border-bottom-width:1px;
+	border-color:#01934d;
+	border-radius:6px;
+	padding:2px 8px;
+	font-size:12px;
+}
+ul.sortingbox{
+	padding-left:50px;
+}
+li.sortingbtn{
+	float:left;
+	width:72px;
+	border-left-style:solid;
+	border-width:1px;
+	border-color:#fff;
+	background-color:#c6e3e1;
+	padding-left:5px;
+}
+li#sortingby_weight{
+	border:none;
+}
+
+span#therefsearcherbox{
+	position: relative;
+	display:inline-block;
+	width: 182px;
+	font-size: 14px;
+	padding: 0;
+	background-color: #EFFCEF;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #CCC;
+	margin-left:50px;
+}
+input#stockreftosearch{
+	margin-left:0;
+	border:none;
+}
+button#stockrefbtn{
+	position:absolute;
+	height:100%;
+	top:0;
+	right:0;
+	background-color:#fff;
+	color:  #01934d;
+	border-style:none;
+	padding: 2px;
+	width:28px;
+	text-align:center;
+}
+
+span.vatchoicebox{
+	display:inline-block;
+	margin-left:15px;
+}
+
+p.placechoosercontainer{
+	margin:0;
+}
+
+select#placechooser{
+	margin-left:50px;
+	background-color:#EFFCEF;
+	margin-top:4px;
+}
+
+/*     =========== diamond list =======        */
+
+div#diamondlist{
+	padding:20px;
+}
+div.dia-piece-box{
+	position:relative;
+	background-color:#FFF;
+	padding:15px 15px 10px 15px;
+	margin:0 0 1px 0;
+}
+span.valuetxt, span.detail-btn, span.shapedesc-box{
+	position:relative;
+	display:inline-block;
+	height:32px;
+	line-height:20px;
+	padding:6px 2px;
+	margin:0 5px 5px 0;
+	background-color:#f2f2f2;
+	font-size:12px;
+	color:#666;
+	width:82px;
+	white-space:nowrap;
+	text-align:center;
+}
+span.value_cut, span.value_polish, span.value_symmetry{
+	width:68px;
+}
+span.thevalue{
+	font-size:14px;
+	color:#000;
+}
+span.shapedesc-box{
+	display:inline-block;
+	background-color:#f2f2f2;
+	height:30px;
+	padding:0 8px;
+	width:82px;
+}
+span.shape-txt{
+}
+.shapedesc-box span.shapeiconcontainer{
+	top:5px;
+}
+span.value_color{
+	width:68px;
+	text-overflow: ellipsis; 
+}
+span.value_price{
+	width:165px;
+}
+span.detail-btn{
+	background-color:#01934d;
+	color:#FFF;
+	border-radius:6px;
+	margin-left:16px;
+	font-size:12px;
+	cursor:pointer;
+	width:68px;
+}
+div.details{
+	margin:12px 0 5px 0;
+	display:none;
+}
+div.detailcol{
+	display:block;
+	float:left;
+}
+div.detailcol1{
+	width:168px;
+	background-color:#f2f2f2;
+	text-align:center;
+	padding:8px 0;
+	margin-right:35px;
+}
+.detailcol1 img.dia-demo-pic{
+	width:88px;
+}
+.detailcol1 img.certi-demo-pic{
+	width:153px;
+	border-style:solid;
+	border-width:1px;
+	border-color:#ccc;
+	
+}
+
+div.detailcol2, div.detailcol3{
+	width:218px;
+	padding:0 18px 0 0;
+	margin-top:15px;
+	margin-right:25px;
+	border-right-style:solid;
+	border-width:1px;
+	border-color:#CCC;
+}
+div.detailcol3{
+	width:445px;
+	border-right:none;
+	margin-right:0;
+	padding-right:0;
+}
+.detailcol2 span, .detailcol3 span{
+	width:100%;
+	display:inline-block;
+	text-align:left;
+	font-size:14px;
+	line-height:28px;
+}
+span.specialprice, span.currencyunit{
+	width:auto;
+}
+span.currencyunit{
+	color:#666;
+	display:inline-block;
+	font-size:12px;
+	padding-left:3px;
+}
+p.actionbuttonsbox{
+	margin-bottom:0;
+	margin-top:5px;
+}
+button.btnfororder{
+	background-color:#01934d;
+	border-style:solid;
+	border-width:1px;
+	border-color:#01934d;
+	border-radius:6px;
+	padding:5px 0;
+	width:95px;
+	white-space:nowrap;
+	color:#fff;
+	margin-top:5px;
+}
+button.btnfororder.interested{
+	background-color:#EFFCEF;
+	color:#01934d;
+}
+button.itemordered, button.btnfororder.interested.itemordered{
+	color:#999;
+	background-color:#e0e0e0;
+	padding:2px 0;
+	margin-right:12px;
+	background-color:transparent;
+	border-style:none;
+	width:auto;
+}
+a.addringfordiamondbtn, a.checkmyorderlistbtn{
+	background-color:#01934d;
+	border-style:solid;
+	border-width:1px;
+	border-color:#01934d;
+	border-radius:6px;
+	padding:5px 12px;
+	color:#fff;
+	margin-top:12px;
+	display:none;
+}
+a.checkmyorderlistbtn{
+	background-color: #EFFCEF;
+	border-color: #01934d;
+  color: #01934d;
+}
+.glyphicon{
+	width:auto !important;
+	line-height:normal !important;
+}
+
+
+
+
+
+
+div#list-page-navi{
+	background-color:transparent;
+}
+span.dia-page-btn{
+	display:inline-block;
+	padding:0 3px;
+	background-color:#c6e3e1;
+	margin:0 5px 0 0;
+	font-size:12px;
+	line-height:20px;
+	min-width:20px;
+	text-align:center;
+	cursor:pointer;
+}
+span#crr_page{
+	border-style:solid;
+	border-width:1px;
+	border-color:#01934d;
+}
+
+
+
+div#found-diamonds-num-box{
+	height:25px;
+	overflow:visible;
+	padding:0;
+	background:none;
+	padding-right:25px;
+	text-align:right;
+	font-size:12px;
+	color:#333;
+	position:absolute;
+	top:17px;
+	right:0;
+}
+span#found-diamonds-num-container{
+	display:inline-block;
+	position:relative;
+	padding:0;
+	margin:0 3px;
+}
+span#found-diamonds-num{
+	display:inline-block;
+	font-size:16px;
+	padding:1px 5px;
+	color:#000;
+	position:relative;
+	margin:0;
+	z-index:1;
+}
+span#dia-num-bg{
+	display:inline-block;
+	width:100%;
+	height:100%;
+	position:absolute;
+	top:0;
+	left:0;
+	background-color:#FC0;
+	z-index:0;
+	border-radius:3px;
+}
+
+
+
+span.shapeiconcontainer{
+	display:inline-block;
+	position:relative;
+	width: 22px;
+	height: 20px;
+	overflow: hidden;
+	background-repeat:no-repeat;
+	top:3px;
+}
+.sortingbtn span.glyphicon-menu-up{
+	display:none;
+}
+.DESC span.glyphicon-menu-up{
+	display:inline-block;
+}
+.DESC span.glyphicon-menu-down{
+	display:none;
+}
+
+a#fancycolorbtn{
+	display:inline-block;
+	position:absolute;
+	top:5px;
+	right:5px;
+	background-color: #d1b328;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #d1b328;
+	border-radius: 5px;
+	padding:3px 10px 3px 15px;
+	color:#01934d;
+	z-index:1;
+	color:#000;
+}
+
+span#tooltip-weight, span#tooltip-price{
+	display:block;
+	position:absolute;
+	width:68px;
+	text-align:center;
+	padding:5px 0;
+	background-color:rgba(255,255,255,0.88);
+	top:-26px;
+	left:0;
+	font-size:20px;
+	color:#555;
+	border-radius:6px;
+	display:none;
+}
+span#tooltip-price{
+	width:88px;
+}
+span.fancycolortxt{
+	font-size:12px;
+}
+span.btn-expl-words{
+	width:auto;
+	display:inline-block;
+	padding:0 0 0 6px;
+	font-size:12px;
+	color:#777;
+}
+
+
+div#thelettertoagents-container{
+	display:block;
+	position:fixed;
+	top:0;
+	left:0;
+	width:100%;
+	height:100%;
+	overflow:auto;
+	background-color:rgba(0,18,8, 0.88);
+	z-index:88;
+	display:none;
+}
+img#thelettertoagents{
+	display:block;
+	position:relative;
+	width:100%;
+	max-width:680px;
+	margin:18px auto;
+	padding-bottom:38px;
+	background-color:#fff;
+}
+p.agentletter-actionbox{
+	padding:0px 0 30px 0;
+	text-align:center;
+	position:relative;
+	top:-88px;	
+}
+button#agentletterokbtn{
+	position: relative;
+	margin-left: 15px;
+	background-color: #01934d;
+	color: #FFF;
+	border-style: solid;
+	border-bottom-width: 1px;
+	border-color: #01934d;
+	border-radius: 6px;
+	padding: 8px 22px;
+	font-size: 16px;
+}
+button#agentletterokbtn:hover{
+	text-shadow:0 0 1px #fff;
+}
+
+p.commentbox{
+	margin-bottom:3px;
+}
+label.commentwords-label, label.realpics-label{
+	display:inline-block;
+	margin:8px 0 0 0;
+	font-size:14px;
+}
+label.realpics-label{
+	margin-top:0;
+}
+.commentwords-label span.glyphicon.glyphicon-asterisk, .realpics-label span.glyphicon.glyphicon-camera{
+	color:#01934d;
+}
+span.thecomment{
+	font-size:12px;
+	padding:0 5px 0 18px;
+	line-height:1.5em;
+}
+
+
+p.dia-pics-container{
+	display:block;
+	width:100%;
+	padding:5px 0;
+	position:relative;
+}
+.biggerimglinker{
+	display:inline-block;
+	margin-right:2px;
+	position:relative;
+}
+span.dia-detail-pic-holder{
+	display:inline-block;
+	position:relative;
+	height:42px;
+	width:42px;
+	margin:0;
+	background-color:#CFC;
+	background-position:center center;
+	background-size:auto 45px;
+	background-repeat:no-repeat;
+	border-radius:6px;
+	border-width:1px;
+	border-color:#01934d;
+	border-style:solid;
+	margin-top:5px;
+}
+span.dia-detail-pic-holder:hover{
+	background-size:auto 48px;
+}
+span.r-indi{
+	display:block;
+	position:absolute;
+	top:13px;
+	left:-8px;
+	background-color:#fff;
+	font-size:14px;
+	padding:0;	
+	color:#d1b328;
+	z-index:5;
+	padding:3px;
+	border-radius:3px;
+	width:28px;
+	text-align:center;
+}
+span.r-indi.non-profit{
+	background-color:#c90;
+	color:#fff;
+}
+span.reco-txt{
+	display:inline-block;
+	font-size:10px;
+}
+.r-indi.non-profit span.glyphicon.glyphicon-certificate{
+	font-size:18px;
+}
+.r-indi.non-profit span.reco-txt{
+}
+div.dia-piece-box.detailisopen{
+	background-color:#f9ffe9;
+}
+.dia-piece-box.detailisopen span.detail-btn{
+	display:none;
+}
+p.closebtnplaceholder{
+	display:block;
+	position:relative;
+	height:35px;
+	margin:0;
+	padding:0;
+}
+button.closeDetailBtn{
+	position:absolute;
+	right:30px;
+	bottom:12px;
+	background-color: #f1d378;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #d1b328;
+	border-radius: 5px;
+	padding: 3px 10px;
+	color: #000;
+	opacity:0;
+	transition: 0.3s all ease-in;
+	-moz-transition: 0.3s all ease-in;
+	-ms-transition: 0.3s all ease-in;
+	-o-transition: 0.3s all ease-in;
+	-webkit-transition: 0.3s all ease-in;
+}
+.dia-piece-box.detailisopen button.closeDetailBtn{
+	opacity:1;
+}
+#ordersuccshoppinglistlinker, #ordersuccmountinglinker, #ordersuccsfdbcXbtn{
+	display:inline-block;
+	position: relative;
+	margin: 5px;
+	background-color: #EFFCEF;
+	color: #01934d;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #01934d;
+	border-radius: 6px;
+	padding: 2px 5px 1px 5px;
+	font-size: 14px;
+}
+#ordersuccsfdbcXbtn{
+	background-color:transparent;
+	border:none;
+	color:#000;
+	margin:5px 2px;
+	padding:2px 0px 1px 3px;
+}
+
+
+@media (max-width: 990px){
+	span.detail-btn{
+		margin-left:0;
+	}
+}
+@media (max-width: 628px){
+	div#found-diamonds-num-box{
+		margin-top:0;
+		background-color:#c6e3e1;
+		padding-left:25px;
+		text-align:left;
+		height:auto;
+	}
+}
+@media (max-width: 500px){
+	div#filterboxinner-left, div#filterboxinner-right, div.filter_line_dependent{
+		width:98%;
+	}
+	div#filter_box, div#diamondsorting-box, div#diamondlist, div#list-page-navi, div#found-diamonds-num-box{
+		padding-left:5px;
+		padding-right:5px;
+	}
+	div#filterboxinner-left, div#filterboxinner-right, div.filter_line_dependent{
+		min-width:320px;
+	}
+	li.filter_certi{
+		width:50px;
+	}
+	li.filter_cut, li.filter_polish, li.filter_sym{
+		width:36px;
+	}
+	li.filter_color{
+		width:36px;
+	}
+	li.filter_fluo{
+		width:32px;
+	}
+}
+@media (max-width: 400px){
+	div#found-diamonds-num-box{
+		position:relative;
+		padding-left:50px;
+		margin-top:-5px;
+		padding-bottom:15px;
+	}
+	div.detailcol2, div.detailcol3{
+		padding-left:0;
+		width:100%;
+	}
+}
+@media (max-width: 350px){
+	#slider-range-weight, #slider-range{
+		margin-left:5px;
+	}
+	#filter_line_weight span.filter_title, #filter_line_price span.filter_title{
+		top:-12px;
+	}
+	input#weight_from, input#price_from{
+		margin-left:5px;
+	}
+}
