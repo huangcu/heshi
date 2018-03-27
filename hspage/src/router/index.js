@@ -109,17 +109,12 @@ const router = new Router({
       }
     },
     {
-      path: '/admin',
-      name: 'Admin',
+      path: '/admins',
+      name: 'Admins',
       components: {
-        default: () => import('@/components/products/jewelry/jewelrys/Jewelrys.vue')
+        default: () => import('@/components/admin/admins/Admins.vue')
       },
-      meta: {requiresAuth: true, role: ['ADMIN']},
-      redirect: '/admin/login',
-      children: [{
-        path: 'login',
-        name: 'AdminLogin'
-      }]
+      meta: {requiresAuth: true, role: ['ADMIN']}
     },
     {
       path: '*',
