@@ -51,10 +51,11 @@ func userLogin(c *gin.Context) {
 		s.Set(ADMIN_KEY, id)
 		c.SetCookie(ADMIN_KEY, id, 10, "/", "localhost", true, false)
 	}
-	s.Save()
 	c.SetCookie(USER_SESSION_KEY, id, 10, "/", "localhost", true, false)
-
+	s.Save()
 	c.JSON(http.StatusOK, gin.H{
+		"code":        http.StatusOK,
+		"token":       "faketoken",
 		"userprofile": userProfile,
 	})
 }

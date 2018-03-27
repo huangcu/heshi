@@ -33,6 +33,7 @@ type User struct {
 	Point               int     `json:"point"`
 	TotalPurchaseAmount float64 `json:"total_purchase_amount"`
 	Icon                string  `json:"icon"`
+	Status              string  `json:"status"`
 	Admin               Admin   `json:"admin"`
 	Agent               Agent   `json:"agent"`
 	// CreatedAt      time.Time `json:"created_at"`
@@ -263,11 +264,6 @@ func getUser(c *gin.Context) {
 		id = c.MustGet("id").(string)
 	}
 
-	userType, err := getUserType(id)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
-		return
-	}
 	q := selectUserQuery(id)
 
 	rows, err := dbQuery(q)
@@ -288,36 +284,21 @@ func getUser(c *gin.Context) {
 		return
 	}
 
-	if userType == CUSTOMER {
-		c.JSON(http.StatusOK, us[0])
-		return
-	}
-	if userType == ADMIN {
-		a, err := getAdmin(id)
-		if err != nil {
-			vemsgUserNotExist.Message = fmt.Sprintf("Fail to find user with id: %s", c.Param("id"))
-			c.JSON(http.StatusOK, vemsgUserNotExist)
-			return
-		}
-		us[0].Admin = *a
-		c.JSON(http.StatusOK, us[0])
-		return
-	}
-	if userType == AGENT {
-		a, err := getAgent(id)
-		if err != nil {
-			vemsgUserNotExist.Message = fmt.Sprintf("Fail to find user with id: %s", c.Param("id"))
-			c.JSON(http.StatusOK, vemsgUserNotExist)
-			return
-		}
-		us[0].Agent = *a
-		c.JSON(http.StatusOK, us[0])
-		return
-	}
+	c.JSON(http.StatusOK, us[0])
+	return
 }
 
 func getAllUsers(c *gin.Context) {
-	q := selectUserQuery("")
+	userType := strings.ToUpper(c.Query("user_type"))
+	if !util.IsInArrayString(userType, VALID_USERTYPE) {
+		c.JSON(http.StatusBadRequest, userType+" not a valid user type")
+	}
+	q := `SELECT id,username,cellphone,email,real_name,user_type,wechat_id,
+	wechat_name,wechat_qr,address,additional_info,recommended_by,invitation_code,
+	level,discount,point,total_purchase_amount,icon,status FROM users WHERE status='ACTIVE'`
+	if userType != "" {
+		q = fmt.Sprintf("%s AND user_type='%s'", q, userType)
+	}
 	rows, err := dbQuery(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
@@ -330,11 +311,11 @@ func getAllUsers(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
-	if us == nil {
-		vemsgUserNotExist.Message = "Fail to find users"
-		c.JSON(http.StatusOK, vemsgUserNotExist)
-		return
-	}
+	// if us == nil {
+	// 	vemsgUserNotExist.Message = "Fail to find users"
+	// 	c.JSON(http.StatusOK, vemsgUserNotExist)
+	// 	return
+	// }
 	c.JSON(http.StatusOK, us)
 }
 
@@ -385,7 +366,7 @@ func changePassword(c *gin.Context) {
 }
 
 func composeUser(rows *sql.Rows) ([]User, error) {
-	var id, userType, icon, invitationCode string
+	var id, userType, icon, invitationCode, status string
 	var username, cellphone, email, realName, recommendedBy sql.NullString
 	var wechatID, wechatName, wechatQR, address, additionalInfo sql.NullString
 	var level, discount, point int
@@ -395,7 +376,7 @@ func composeUser(rows *sql.Rows) ([]User, error) {
 	for rows.Next() {
 		if err := rows.Scan(&id, &username, &cellphone, &email, &realName, &userType, &wechatID,
 			&wechatName, &wechatQR, &address, &additionalInfo, &recommendedBy, &invitationCode,
-			&level, &discount, &point, &totalPurchaseAmount, &icon); err != nil {
+			&level, &discount, &point, &totalPurchaseAmount, &icon, &status); err != nil {
 			return nil, err
 		}
 		u := User{
@@ -417,6 +398,27 @@ func composeUser(rows *sql.Rows) ([]User, error) {
 			Point:               point,
 			TotalPurchaseAmount: totalPurchaseAmount,
 			Icon:                icon,
+			Status:              status,
+		}
+		if userType == ADMIN {
+			a, err := getAdmin(id)
+			if err != nil {
+				if err == sql.ErrNoRows {
+					return nil, errors.Newf("Fail to find admin info with user id: %s", u.ID)
+				}
+				return nil, err
+			}
+			u.Admin = *a
+		}
+		if userType == AGENT {
+			a, err := getAgent(id)
+			if err != nil {
+				if err == sql.ErrNoRows {
+					return nil, errors.Newf("Fail to find agent info with user id: %s", u.ID)
+				}
+				return nil, err
+			}
+			u.Agent = *a
 		}
 		us = append(us, u)
 	}
@@ -426,19 +428,15 @@ func composeUser(rows *sql.Rows) ([]User, error) {
 func selectUserQuery(id string) string {
 	q := `SELECT id,username,cellphone,email,real_name,user_type,wechat_id,
 	wechat_name,wechat_qr,address,additional_info,recommended_by,invitation_code,
-	level,discount,point,total_purchase_amount,icon FROM users`
+	level,discount,point,total_purchase_amount,icon,status FROM users WHERE status='ACTIVE'`
 
 	if id != "" {
-		q = fmt.Sprintf("%s WHERE status='active' AND id='%s'", q, id)
+		q = fmt.Sprintf("%s AND id='%s'", q, id)
 	}
 	return q
 }
 
 func getUserByID(id string) (string, error) {
-	userType, err := getUserType(id)
-	if err != nil {
-		return "", err
-	}
 	q := selectUserQuery(id)
 
 	rows, err := dbQuery(q)
@@ -452,36 +450,9 @@ func getUserByID(id string) (string, error) {
 		return "", err
 	}
 
-	if userType == CUSTOMER {
-		bs, err := json.Marshal(us[0])
-		if err != nil {
-			return "", err
-		}
-		return string(bs), nil
+	bs, err := json.Marshal(us[0])
+	if err != nil {
+		return "", err
 	}
-	if userType == ADMIN {
-		a, err := getAdmin(id)
-		if err != nil {
-			return "", err
-		}
-		us[0].Admin = *a
-		bs, err := json.Marshal(us[0])
-		if err != nil {
-			return "", err
-		}
-		return string(bs), nil
-	}
-	if userType == AGENT {
-		a, err := getAgent(id)
-		if err != nil {
-			return "", err
-		}
-		us[0].Agent = *a
-		bs, err := json.Marshal(us[0])
-		if err != nil {
-			return "", err
-		}
-		return string(bs), nil
-	}
-	return "", errors.Newf("invalid user type: %s", userType)
+	return string(bs), nil
 }
