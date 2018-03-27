@@ -335,10 +335,10 @@ func (mw *GinJWTMiddleware) LoginHandler(c *gin.Context) {
 		return
 	}
 
-	userID, ok := mw.Authenticator(loginVals.Username, loginVals.Password, c)
+	authResult, ok := mw.Authenticator(loginVals.Username, loginVals.Password, c)
 
 	if !ok {
-		mw.hsunauthorized(c, http.StatusOK, hserror.HSMessage{Code: 20020, Message: "wrong username or password"})
+		mw.hsunauthorized(c, http.StatusOK, hserror.HSMessage{Code: 20020, Message: authResult})
 		return
 	}
 
@@ -352,12 +352,12 @@ func (mw *GinJWTMiddleware) LoginHandler(c *gin.Context) {
 		}
 	}
 
-	if userID == "" {
-		userID = loginVals.Username
+	if authResult == "" {
+		authResult = loginVals.Username
 	}
 
 	expire := mw.TimeFunc().Add(mw.Timeout)
-	claims["id"] = userID
+	claims["id"] = authResult
 	claims["exp"] = expire.Unix()
 	claims["orig_iat"] = mw.TimeFunc().Unix()
 	tokenString, err := mw.signedString(token)
@@ -370,7 +370,7 @@ func (mw *GinJWTMiddleware) LoginHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":        http.StatusOK,
 		"token":       tokenString,
-		"userprofile": userID,
+		"userprofile": authResult,
 		"expire":      expire.Format(time.RFC3339),
 	})
 }

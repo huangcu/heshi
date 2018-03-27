@@ -401,9 +401,12 @@ func composeUser(rows *sql.Rows) ([]User, error) {
 			Status:              status,
 		}
 		if userType == ADMIN {
+			fmt.Println("===============")
 			a, err := getAdmin(id)
 			if err != nil {
+				fmt.Println("===============")
 				if err == sql.ErrNoRows {
+					fmt.Println("===============")
 					return nil, errors.Newf("Fail to find admin info with user id: %s", u.ID)
 				}
 				return nil, err
@@ -450,9 +453,12 @@ func getUserByID(id string) (string, error) {
 		return "", err
 	}
 
-	bs, err := json.Marshal(us[0])
-	if err != nil {
-		return "", err
+	if len(us) > 0 {
+		bs, err := json.Marshal(us[0])
+		if err != nil {
+			return "", err
+		}
+		return string(bs), nil
 	}
-	return string(bs), nil
+	return "", errors.Newf("fail to find user with id %s", id)
 }

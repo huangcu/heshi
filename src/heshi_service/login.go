@@ -22,16 +22,23 @@ func userLogin(c *gin.Context) {
 		Password: c.PostForm("password"),
 	}
 
-	q := fmt.Sprintf(`SELECT id, password, user_type FROM users where username='%s' or cellphone='%s' or email='%s'`,
+	q := fmt.Sprintf(`SELECT id, password, user_type, status FROM users where username='%s' or cellphone='%s' or email='%s'`,
 		loginUser.Username, loginUser.Username, loginUser.Username)
 
-	var id, password, userType string
-	if err := dbQueryRow(q).Scan(&id, &password, &userType); err != nil {
+	var id, password, userType, status string
+	if err := dbQueryRow(q).Scan(&id, &password, &userType, &status); err != nil {
 		if err == sql.ErrNoRows {
+			vemsgLoginErrorUserName.Message = fmt.Sprintf("%s not exists", loginUser.Username)
 			c.JSON(http.StatusOK, vemsgLoginErrorUserName)
 			return
 		}
 		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if status != "ACTIVE" {
+		vemsgLoginErrorUserName.Message = fmt.Sprintf("%s is not an active user!", loginUser.Username)
+		c.JSON(http.StatusOK, vemsgLoginErrorUserName)
 		return
 	}
 
