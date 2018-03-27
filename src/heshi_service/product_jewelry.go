@@ -299,7 +299,7 @@ func composeJewelry(rows *sql.Rows) ([]jewelry, error) {
 		}
 		if images.String != "" {
 			for _, image := range strings.Split(images.String, ";") {
-				d.Images = append(d.Images, "image/jewelry/"+image)
+				d.Images = append(d.Images, image)
 			}
 		}
 		ds = append(ds, d)

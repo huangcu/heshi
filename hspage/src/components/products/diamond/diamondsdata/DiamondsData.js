@@ -1,4 +1,7 @@
 let Images = require.context('@/_images/constant/', false, /\.(png|jpg)$/);
+let diamondImage = require.context('@/.image/diamond/', false, /\.(png|jpg)$/);
+let diamondImageThumbs = require.context('@/.image/diamond/thumbs/', false, /\.(png|jpg)$/);
+
 import diamondMixin from '../diamondcommon.js'
 import agentPriceMixin from '@/util/agentprice.js'
 import accountPriceMixin from '@/util/accountprice.js'
@@ -65,6 +68,12 @@ export default {
     }
   }, 
   methods: {
+    getDiamondImageThumb: function (theName) {
+      return diamondImageThumbs("./"+theName)
+    },
+    getDiamondImage: function (theName) {
+      return diamondImage("./"+theName)
+    },
     getData: function () {
       if (userprofile!=='') {
         //get from cookie, if it is agent 

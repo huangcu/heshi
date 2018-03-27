@@ -93,6 +93,8 @@ var (
 	USER_SESSION_KEY      = "hs_sessionuserid"
 	ADMIN_KEY             = "hs_sessionadmin"
 	UPLOADFILEDIR         = ".uploaded"
+	videoPath             = ".video"
+	imagePath             = ".image"
 )
 
 const (

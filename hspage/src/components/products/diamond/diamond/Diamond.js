@@ -1,3 +1,4 @@
+let diamondImage = require.context('@/.image/diamond/', false, /\.(png|jpg)$/);
 import diamondMixin from '../diamondcommon.js'
 import agentPriceMixin from '@/util/agentprice.js'
 import accountPriceMixin from '@/util/accountprice.js'
@@ -17,6 +18,9 @@ export default {
     }
   },
   methods: {
+    getDiamondImage: function (theName) {
+      return diamondImage("./" + theName)
+    },
     getDiamond: function (theID) {
       this.$http.get(
         this.$userURL + '/products/diamonds/' + theID
@@ -28,7 +32,6 @@ export default {
           } else {
             alert('error: ' + diamonds)
           }
-          console.log(this.diamond)
         }
       }, err => { console.log(err); alert('error:' + err.body) })
     },

@@ -42,7 +42,7 @@
       </div>
     </div>
     <div v-if="diamond.images!== null" class="jewelry-pics">
-      <img class="jewelry-img" v-if="diamond.images.length!==0" v-for="(image, index) in diamond.images" :key="index" v-bind:src="image"/>
+      <img class="jewelry-img" v-if="diamond.images.length!==0" v-for="(image, index) in diamond.images" :key="index" v-bind:src="getDiamondImage(image)"/>
     </div>
       <p class="choosebtnbox">
         <a class="choosebtn" :href="'shoppinglist-confirmed.php?type=diamond&id='+diamond.id+'&action=add'">

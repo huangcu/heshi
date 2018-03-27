@@ -168,5 +168,8 @@ func readBody(reader io.Reader) string {
 	buf.ReadFrom(reader)
 
 	s := buf.String()
+	if len(s) > 2000 {
+		return string(s[0:2000])
+	}
 	return s
 }

@@ -215,7 +215,7 @@ func composeDiamond(rows *sql.Rows) ([]diamond, error) {
 	for rows.Next() {
 		if err := rows.Scan(&id, &diamondID, &stockRef, &shape, &carat, &color, &clarity, &gradingLab, &certificateNumber,
 			&cutGrade, &polish, &symmetry, &fluorescenceIntensity, &country, &supplier, &priceNoAddedValue, &priceRetail,
-			&featured, &recommendWords, &images, &extraWords, &status, &orderedBy, &pickedUp, &soldPrice, &profitable); err != nil {
+			&featured, &recommendWords, &extraWords, &images, &status, &orderedBy, &pickedUp, &soldPrice, &profitable); err != nil {
 			return nil, err
 		}
 		d := diamond{
@@ -248,7 +248,7 @@ func composeDiamond(rows *sql.Rows) ([]diamond, error) {
 		}
 		if images.String != "" {
 			for _, image := range strings.Split(images.String, ";") {
-				d.Images = append(d.Images, "image/diamond/"+image)
+				d.Images = append(d.Images, image)
 			}
 		}
 		ds = append(ds, d)

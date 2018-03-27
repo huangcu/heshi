@@ -16,6 +16,10 @@ import (
 	"time"
 	"util"
 
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
+
 	"github.com/disintegration/imaging"
 	"github.com/gin-gonic/gin"
 	filetype "gopkg.in/h2non/filetype.v1"
@@ -26,7 +30,7 @@ func validateUploadedSingleFile(fileHeader *multipart.FileHeader, product string
 		return "", errors.HSMessage{}, nil
 	}
 	if fileHeader.Size > fileMaxSize {
-		return "", errors.HSMessage{Code: 20020, Message: "File size too big"}, nil
+		return "", errors.HSMessage{Code: 20020, Message: fileHeader.Filename + " File size too big"}, nil
 	}
 
 	file, err := fileHeader.Open()
@@ -42,14 +46,14 @@ func validateUploadedSingleFile(fileHeader *multipart.FileHeader, product string
 	if ext == "" {
 		return "", errors.HSMessage{Code: 20020, Message: "Uploaded file has no extension"}, nil
 	}
-
+	fmt.Println(ext)
 	var filename string
 	if fileType == "video" {
 		if !filetype.IsVideo([]byte(Buf.String())) {
 			return "", errors.HSMessage{Code: 20020, Message: "Uploaded file is not video"}, nil
 		}
-		if ext == "mp4" || ext == "mov" || ext == "ogv" || ext == "webm" {
-			filename = fmt.Sprintf("beyoudiamond-video-%d.%s", time.Now().UnixNano(), ext)
+		if ext == ".mp4" || ext == ".mov" || ext == ".ogv" || ext == ".webm" {
+			filename = fmt.Sprintf("beyoudiamond-video-%d%s", time.Now().UnixNano(), ext)
 		} else {
 			return "", errors.HSMessage{Code: 20020, Message: "Uploaded file extension is not supported"}, nil
 		}
@@ -57,11 +61,7 @@ func validateUploadedSingleFile(fileHeader *multipart.FileHeader, product string
 		if !filetype.IsImage([]byte(Buf.String())) {
 			return "", errors.HSMessage{Code: 20020, Message: "Uploaded file is not image"}, nil
 		}
-		filename = fmt.Sprintf("beyoudiamond-image-%d.%s", time.Now().UnixNano(), ext)
-	}
-	// Upload the file to specific dst.
-	if err := os.MkdirAll(filepath.Join("."+fileType, product), 0755); err != nil {
-		return "", errors.HSMessage{}, err
+		filename = fmt.Sprintf("beyoudiamond-image-%d%s", time.Now().UnixNano(), ext)
 	}
 
 	return filename, errors.HSMessage{}, nil
@@ -109,15 +109,14 @@ func saveUploadedMultipleFile(c *gin.Context, product string, fileType string, f
 	form, _ := c.MultipartForm()
 	files := form.File["images"]
 	for k, file := range files {
-		dst := filepath.Join("."+fileType, product, fileNames[k])
-		if err := saveImage(file, dst); err != nil {
+		if err := saveImage(file, filepath.Join("."+fileType, product), fileNames[k]); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func saveImage(fileHeader *multipart.FileHeader, dst string) error {
+func saveImage(fileHeader *multipart.FileHeader, dstPath, filename string) error {
 	src, err := fileHeader.Open()
 	if err != nil {
 		return err
@@ -128,28 +127,52 @@ func saveImage(fileHeader *multipart.FileHeader, dst string) error {
 	if err != nil {
 		return err
 	}
-
-	if imgConfig.Height > 640 || imgConfig.Width > 320 {
-		//limit image with to 320 pixel, resize image
-		img, err := imaging.Decode(src)
-		if err != nil {
-			return err
-		}
-		img = imaging.Resize(img, 320, 0, imaging.Lanczos)
-		return imaging.Save(img, dst)
+	// multipart file: somehow(maybe is it decodeconfig) reads to the end of the file.
+	// Must Seek back to the beginning of the file before call image.Decode
+	// otherwize: "image: unknown format"
+	if _, err := src.Seek(0, 0); err != nil {
+		return err
 	}
-	out, err := os.Create(dst)
+
+	img, _, err := image.Decode(src)
 	if err != nil {
 		return err
 	}
-	defer out.Close()
 
-	_, err = io.Copy(out, src)
-	return err
+	var imgThumbs image.Image
+	// image : w 960 h 1280 pixels || w 1280 h 960 pixels
+	//limit image w/h to 960x1280|| 1280x960 pixel, resize image
+	if imgConfig.Height > imgConfig.Width {
+		if imgConfig.Height > 1280 {
+			img = imaging.Resize(img, 0, 1280, imaging.Lanczos)
+		}
+		if imgConfig.Height > 450 {
+			imgThumbs = imaging.Resize(img, 0, 450, imaging.Lanczos)
+		} else {
+			imgThumbs = img
+		}
+	}
+
+	if imgConfig.Width > imgConfig.Height {
+		if imgConfig.Width > 1280 {
+			img = imaging.Resize(img, 1280, 0, imaging.Lanczos)
+		}
+		if imgConfig.Width > 450 {
+			imgThumbs = imaging.Resize(img, 450, 0, imaging.Lanczos)
+		} else {
+			imgThumbs = img
+		}
+	}
+
+	if err := imaging.Save(img, filepath.Join(dstPath, filename)); err != nil {
+		return err
+	}
+
+	return imaging.Save(imgThumbs, filepath.Join(dstPath, "thumbs", filename))
 }
 
-func handleImage(filepath, dst string) error {
-	src, err := os.Open(filepath)
+func handleImage(srcPath, dstPath, filename string) error {
+	src, err := os.Open(srcPath)
 	if err != nil {
 		return err
 	}
@@ -159,24 +182,38 @@ func handleImage(filepath, dst string) error {
 	if err != nil {
 		return err
 	}
-
-	if imgConfig.Height > 640 || imgConfig.Width > 320 {
-		//limit image with to 320 pixel, resize image
-		img, err := imaging.Decode(src)
-		if err != nil {
-			return err
-		}
-		img = imaging.Resize(img, 320, 0, imaging.Lanczos)
-		return imaging.Save(img, dst)
+	// multipart file: somehow(maybe is it decodeconfig) reads to the end of the file.
+	// Must Seek back to the beginning of the file before call image.Decode
+	// otherwize: "image: unknown format"
+	if _, err := src.Seek(0, 0); err != nil {
+		return err
 	}
-	out, err := os.Create(dst)
+
+	img, _, err := image.Decode(src)
 	if err != nil {
 		return err
 	}
-	defer out.Close()
 
-	_, err = io.Copy(out, src)
-	return err
+	var imgThumbs image.Image
+	// image : w 960 h 1280 pixels || w 1280 h 960 pixels
+	//limit image w/h to 960x1280|| 1280x960 pixel, resize image
+	if imgConfig.Height > imgConfig.Width {
+		if imgConfig.Height > 1280 {
+			img = imaging.Resize(img, 0, 1280, imaging.Lanczos)
+		}
+		imgThumbs = imaging.Resize(img, 0, 450, imaging.Lanczos)
+	}
+	if imgConfig.Width > imgConfig.Height {
+		if imgConfig.Width > 1280 {
+			img = imaging.Resize(img, 1280, 0, imaging.Lanczos)
+		}
+		imgThumbs = imaging.Resize(img, 450, 0, imaging.Lanczos)
+	}
+
+	if err := imaging.Save(img, filepath.Join(dstPath, filename)); err != nil {
+		return err
+	}
+	return imaging.Save(imgThumbs, filepath.Join(dstPath, "thumbs", filename))
 }
 
 func bulkUpload(c *gin.Context) {
@@ -332,7 +369,7 @@ func handleUploadedZipImagesDiamond(tempDir string) map[string]string {
 					util.Println(msg)
 				} else {
 					filename := fmt.Sprintf("beyoudiamond-image-%s", info.Name())
-					if err := handleImage(path, filepath.Join(".image", "diamond", filename)); err != nil {
+					if err := handleImage(path, filepath.Join(".image", "diamond"), filename); err != nil {
 						msg = errors.GetMessage(err)
 					} else {
 						filenames = append(filenames, filename)
@@ -396,7 +433,7 @@ func handleUploadedZipImagesJewelry(tempDir string) map[string]string {
 					util.Println(msg)
 				} else {
 					filename := fmt.Sprintf("beyoudiamond-image-%d.%s", time.Now().UnixNano(), filepath.Ext(info.Name()))
-					if err := handleImage(path, filepath.Join(".image", "jewelry", filename)); err != nil {
+					if err := handleImage(path, filepath.Join(".image", "jewelry"), filename); err != nil {
 						msg = errors.GetMessage(err)
 					} else {
 						filenames = append(filenames, filename)
@@ -460,7 +497,7 @@ func handleUploadedZipImagesGem(tempDir string) map[string]string {
 					util.Println(msg)
 				} else {
 					filename := fmt.Sprintf("beyoudiamond-image-%d.%s", time.Now().UnixNano(), filepath.Ext(info.Name()))
-					if err := handleImage(path, filepath.Join(".image", "gem", filename)); err != nil {
+					if err := handleImage(path, filepath.Join(".image", "gem"), filename); err != nil {
 						msg = errors.GetMessage(err)
 					} else {
 						filenames = append(filenames, filename)

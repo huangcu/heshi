@@ -319,6 +319,9 @@ func init() {
 		}
 		fmt.Printf("flushed redis db. %s \n", val)
 	}
+	if err := mkDir(); err != nil {
+		log.Fatalf("fail to create neccesary path. err: %s", err.Error())
+	}
 	// if err := getLatestRates(); err != nil {
 	// 	log.Fatalf("init fail. err: %s;", err.Error())
 	// }
@@ -330,4 +333,20 @@ func chdir() error {
 		return err
 	}
 	return os.Chdir(pwd)
+}
+
+func mkDir() error {
+	for _, t := range []string{videoPath, imagePath} {
+		for _, p := range []string{"diamond", "jewelry", "gem"} {
+			if err := os.MkdirAll(filepath.Join(t, p), 0755); err != nil {
+				return err
+			}
+			if t == imagePath {
+				if err := os.MkdirAll(filepath.Join(t, p, "thumbs"), 0755); err != nil {
+					return err
+				}
+			}
+		}
+	}
+	return nil
 }

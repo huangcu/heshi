@@ -221,7 +221,7 @@ func composeGem(rows *sql.Rows) ([]gem, error) {
 		}
 		if images.String != "" {
 			for _, image := range strings.Split(images.String, ";") {
-				g.Images = append(g.Images, "image/gem/"+image)
+				g.Images = append(g.Images, image)
 			}
 		}
 		gs = append(gs, g)

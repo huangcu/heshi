@@ -71,10 +71,12 @@
             </label>
             <span class="thecomment">{{ diamond.recommend_words }}</span>
           </p><!-- TODO handle images -->
-          <label v-if="diamond.images!=0" class="realpics-label"><span class="glyphicon glyphicon-camera"></span> 实拍照片(点击放大)</label>
+          <label v-if="diamond.images!== null" class="realpics-label">
+            <span class="glyphicon glyphicon-camera"></span> 实拍照片(点击放大)
+          </label>
           <p v-for="(image, imageNumber) in diamond.images" class="dia-pics-container" :key="imageNumber">
-            <a :href="'/_images/diamond/'+image" class="biggerimglinker fancybox" :rel="diamond.id"><!-- TODO handle thumbs images(small image) -->
-            <span class="dia-detail-pic-holder" :style="'background-image:url(/_images/diamond/thumbs/' + image"></span>
+            <a :href="getDiamondImage(image)" class="biggerimglinker fancybox" :rel="diamond.id"><!-- TODO handle thumbs images(small image) -->
+            <span class="dia-detail-pic-holder" :style="{'background-image':'url(' + getDiamondImageThumb(image)+')'}"></span>
             </a>
           </p>
           <p v-if="diamond.extra_words!==''" class="commentbox">
