@@ -15,7 +15,8 @@
         <h4>我的合适账户</h4>
         <div v-if="userprofile == ''">
           <p v-if="appointment!==''" class="loginforappointmentwords">欢迎您和我们预约看钻石和首饰<br />请先登录您的帐户</p>
-          <p class="weixin-sign-title"><img id="weixin-indi" src="../../../_images/constant/weixin2.png" /> 使用微信注册、登录</p>
+          <p class="weixin-sign-title">
+            <img id="weixin-indi" src="../../../_images/constant/weixin2.png" /> 使用微信注册、登录</p>
           <p class="weixin-sign-expl">请用微信扫(或长按)二维码</p>
           <div id="qrcode-img-container">
             <span id="loading-txt">生成二维码中...</span>
@@ -31,13 +32,13 @@
             <input type="hidden" name="therecommendticketcode" value="<>" />
           </form> -->
           <p class="registerindibox">
-            <a href="/loginbyemail" id="registeropenbtn"> 电子邮箱登录 &raquo;</a>
+            <a href="/users/loginbyemail" id="registeropenbtn"> 电子邮箱登录 &raquo;</a>
           </p>
         </div>
         <div v-else>
-          <p>您已经登录。<a href="/myaccount" >回到我的帐户 &raquo;</a></p>
+          <p>您已经登录。<a href="/users/myaccount" >回到我的帐户 &raquo;</a></p>
           <div class="logoutbtnbox" style="text-align:center;">
-            <form method="post" @submit="logout" action="/MyAccount" id="logoutform">
+            <form method="post" @submit="logout" action="/users/myaccount" id="logoutform">
               <input type="hidden" name="logout" value="confirmed" />
               <input type="submit" value="登出账号" name="logoutbtn" id="logoutbtn" />
             </form>

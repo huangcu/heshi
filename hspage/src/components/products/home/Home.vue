@@ -61,7 +61,7 @@
 
       <div id="infobloc" class="infobloc">
         <div class="leftblock">
-          <img src="../../_images/constant/antwerp-diamond-district.jpg" alt="安特卫普钻石" />
+          <img :src="mapImgUrl" alt="安特卫普钻石" />
           <p class="diamondcenterwords">
             这里是世界著名的安特卫普钻石街
             <br />我们的公司就在前面的 A.D.C 大楼里，四大钻石交易所里面的一家

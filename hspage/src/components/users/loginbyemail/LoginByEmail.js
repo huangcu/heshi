@@ -59,6 +59,7 @@ export default {
             }
             this.$cookies.set('token', loginResult.token, 60 * 30)
             var userprofile = JSON.parse(loginResult.userprofile)
+            console.log(userprofile)
             this.$cookies.set('userprofile', loginResult.userprofile, 60 * 30)
             this.$emit('updateAccount', userprofile.id)
             this.$router.replace('/home')

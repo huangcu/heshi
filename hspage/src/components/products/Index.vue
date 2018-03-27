@@ -5,4 +5,4 @@
     <app-footer></app-footer>
   </div>
 </template>
-<script src='./Users.js'></script>
+<script src='./Index.js'></script>

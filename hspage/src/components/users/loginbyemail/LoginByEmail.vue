@@ -20,10 +20,10 @@
             <input name="loginformsubmit" type="submit" id="loginbtn" value="登录" />
           </form>
           <p class="getbackpassword">忘记密码了？<a href="retrievepass.php">点击找回 &raquo;</a></p>
-          <p class="registerindibox">还没有合适账户? <a id="registeropenbtn" href="/register">立即注册</a></p>
+          <p class="registerindibox">还没有合适账户? <a id="registeropenbtn" href="/users/register">立即注册</a></p>
         </div>
         <div v-else>
-          <p>您已经登录。<a href="/myaccount">回到我的帐户 &raquo;</a></p>
+          <p>您已经登录。<a href="/users/myaccount">回到我的帐户 &raquo;</a></p>
         </div>
       </div>
     </div>

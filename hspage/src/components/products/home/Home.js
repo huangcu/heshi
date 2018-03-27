@@ -1,4 +1,5 @@
 let Images = require.context('@/_images/articles/', false, /\.(png|jpg)$/);
+let ImagesConstant = require.context('@/_images/constant/', false, /\.(png|jpg)$/);
 export default {
   name: 'Home',
   computed: {
@@ -7,6 +8,9 @@ export default {
     },
     backgroudImgUrl2: function () {
       return Images('./beyoudiamond-20160122_130349.jpg');
+    },
+    mapImgUrl: function () {
+      return ImagesConstant('./antwerp-diamond-district.jpg')
     }
   },
   beforeCreate() {

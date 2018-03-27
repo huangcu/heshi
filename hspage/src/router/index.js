@@ -21,100 +21,129 @@ const router = new Router({
   routes: [
     {
       path: '/',
-      name: 'Home',
       components: {
-        default: () => import('@/components/home/Home.vue')
+        default: () => import('@/components/products/Index.vue')
       },
-      alias: ['/index', '/home']
+      redirect: '/home',
+      children: [
+        {
+          path: 'home',
+          name: 'Home',
+          components: {
+            default: () => import('@/components/products/home/Home.vue')
+          },
+          alias: ['index']
+        },
+        {
+          path: 'product/diamonds',
+          name: 'Diamonds',
+          components: {
+            default: () => import('@/components/products/diamond/diamonds/Diamonds.vue')
+          }
+        },
+        {
+          path: 'product/diamond/:id',
+          name: 'Diamond',
+          components: {
+            default: () => import('@/components/products/diamond/diamond/Diamond.vue')
+          }
+        },
+        {
+          path: 'product/ringfordiamond/:id',
+          name: 'RingForDiamond',
+          components: {
+            default: () => import('@/components/products/diamond/ringfordiamond/RingForDiamond.vue')
+          }
+        },
+        {
+          path: 'product/diamondoftheweek',
+          name: 'DiamondOfTheWeek',
+          components: {
+            default: () => import('@/components/products/diamond/diamondoftheweek/DiamondOfTheWeek.vue')
+          }
+        },
+        {
+          path: 'product/recommenddiamonds',
+          name: 'RecommendDiamonds',
+          components: {
+            default: () => import('@/components/products/diamond/recommenddiamonds/RecommendDiamonds.vue')
+          }
+        },
+        {
+          path: 'product/jewelrys',
+          name: 'Jewelrys',
+          components: {
+            default: () => import('@/components/products/jewelry/jewelrys/Jewelrys.vue')
+          }
+        }
+      ]
     },
     {
-      path: '/login',
-      name: 'Login',
+      path: '/users',
+      name: 'users',
       components: {
-        default: () => import('@/components/users/login/Login.vue')
-      }
-    },
-    {
-      path: '/loginbyemail',
-      name: 'LoginByEmail',
-      components: {
-        default: () => import('@/components/users/loginbyemail/LoginByEmail.vue')
-      }
-    },
-    {
-      path: '/qrsign/:wechatopenID',
-      name: 'QRSign',
-      components: {
-        default: () => import('@/components/users/qrsign/QRSign.vue')
-      }
-    },
-    {
-      path: '/register',
-      name: 'Register',
-      components: {
-        default: () => import('@/components/users/register/Register.vue')
-      }
-    },
-    {
-      path: '/myaccount',
-      name: 'MyAccount',
-      components: {
-        default: () => import('@/components/myaccount/MyAccount.vue')
+        default: () => import('@/components/users/Users.vue')
       },
-      meta: {requiresAuth: true, role: ['CUSTOMER', 'AGENT']},
-      props: (route) => ({
-        _account: route.query._account
-      })
+      redirect: '/users/login',
+      children: [
+        {
+          path: 'login',
+          name: 'Login',
+          components: {
+            default: () => import('@/components/users/login/Login.vue')
+          }
+        },
+        {
+          path: 'loginbyemail',
+          name: 'LoginByEmail',
+          components: {
+            default: () => import('@/components/users/loginbyemail/LoginByEmail.vue')
+          }
+        },
+        {
+          path: 'qrsign/:wechatopenID',
+          name: 'QRSign',
+          components: {
+            default: () => import('@/components/users/qrsign/QRSign.vue')
+          }
+        },
+        {
+          path: 'register',
+          name: 'Register',
+          components: {
+            default: () => import('@/components/users/register/Register.vue')
+          }
+        },
+        {
+          path: 'myaccount',
+          name: 'MyAccount',
+          components: {
+            default: () => import('@/components/users/myaccount/MyAccount.vue')
+          },
+          meta: {requiresAuth: true, role: ['CUSTOMER', 'AGENT']},
+          props: (route) => ({
+            _account: route.query._account
+          })
+        }
+      ]
     },
     {
-      path: '/product/diamonds',
-      name: 'Diamonds',
+      path: '/manage',
+      name: 'Manage',
       components: {
-        default: () => import('@/components/products/diamond/diamonds/Diamonds.vue')
-      }
-    },
-    {
-      path: '/product/diamond/:id',
-      name: 'Diamond',
-      components: {
-        default: () => import('@/components/products/diamond/diamond/Diamond.vue')
-      }
-    },
-    {
-      path: '/product/ringfordiamond/:id',
-      name: 'RingForDiamond',
-      components: {
-        default: () => import('@/components/products/diamond/ringfordiamond/RingForDiamond.vue')
-      }
-    },
-    {
-      path: '/product/diamondoftheweek',
-      name: 'DiamondOfTheWeek',
-      components: {
-        default: () => import('@/components/products/diamond/diamondoftheweek/DiamondOfTheWeek.vue')
-      }
-    },
-    {
-      path: '/product/recommenddiamonds',
-      name: 'RecommendDiamonds',
-      components: {
-        default: () => import('@/components/products/diamond/recommenddiamonds/RecommendDiamonds.vue')
-      }
-    },
-    {
-      path: '/product/jewelrys',
-      name: 'Jewelrys',
-      components: {
-        default: () => import('@/components/products/jewelry/jewelrys/Jewelrys.vue')
-      }
-    },
-    {
-      path: '/admins',
-      name: 'Admins',
-      components: {
-        default: () => import('@/components/admin/admins/Admins.vue')
+        default: () => import('@/components/admin/Admin.vue')
       },
-      meta: {requiresAuth: true, role: ['ADMIN']}
+      // redirect: '/manage/admins',
+      meta: {requiresAuth: true, role: ['ADMIN']},
+      children: [
+        {
+          path: 'admins',
+          name: 'Admins',
+          components: {
+            default: () => import('@/components/admin/admins/Admins.vue')
+          }
+        }
+      ]
     },
     {
       path: '*',
