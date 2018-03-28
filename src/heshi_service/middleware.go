@@ -59,10 +59,10 @@ func AuthenticateMiddleWare() *jwt.GinJWTMiddleware {
 	}
 }
 
-func userLogin1(username string, password1 string, c *gin.Context) (string, bool) {
+func userLogin1(username, password1 string, c *gin.Context) (string, bool) {
 	q := fmt.Sprintf(`SELECT id, password, user_type, status FROM users where username='%s' or cellphone='%s' or email='%s'`,
 		username, username, username)
-
+	usertype := c.PostForm("user_type")
 	var id, password, userType, status string
 	if err := dbQueryRow(q).Scan(&id, &password, &userType, &status); err != nil {
 		if err == sql.ErrNoRows {
@@ -73,6 +73,10 @@ func userLogin1(username string, password1 string, c *gin.Context) (string, bool
 
 	if status != "ACTIVE" {
 		return fmt.Sprintf("%s is not an active user!", username), false
+	}
+
+	if usertype != "" && usertype != userType {
+		return fmt.Sprintf("%s is not %s", username, usertype), false
 	}
 
 	if !util.IsPassOK(password1, password) {

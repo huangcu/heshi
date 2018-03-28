@@ -14,12 +14,14 @@ import (
 type LoginUser struct {
 	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
+	UserType string `json:"user_type"`
 }
 
 func userLogin(c *gin.Context) {
 	loginUser := LoginUser{
 		Username: c.PostForm("username"),
 		Password: c.PostForm("password"),
+		UserType: c.PostForm("user_type"),
 	}
 
 	q := fmt.Sprintf(`SELECT id, password, user_type, status FROM users where username='%s' or cellphone='%s' or email='%s'`,
@@ -39,6 +41,11 @@ func userLogin(c *gin.Context) {
 	if status != "ACTIVE" {
 		vemsgLoginErrorUserName.Message = fmt.Sprintf("%s is not an active user!", loginUser.Username)
 		c.JSON(http.StatusOK, vemsgLoginErrorUserName)
+		return
+	}
+
+	if loginUser.UserType != "" && loginUser.UserType != userType {
+		c.JSON(http.StatusBadRequest, fmt.Sprintf("%s is not %s", loginUser.Username, loginUser.UserType))
 		return
 	}
 
