@@ -149,6 +149,13 @@ const router = new Router({
           components: {
             default: () => import('@/components/admin/admins/Admins.vue')
           }
+        },
+        {
+          path: 'newadmin',
+          name: 'newAdmin',
+          components: {
+            default: () => import('@/components/admin/newadmin/NewAdmin.vue')
+          }
         }
       ]
     },

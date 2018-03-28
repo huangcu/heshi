@@ -59,12 +59,19 @@ export default {
         }
       ).then(response => {
         if (response.status === 200) {
-          // token
-          this.loginResult = JSON.parse(response.body)
-          this.$cookies.set('beyou', this.loginResult.id)
-          this.$cookies.set('token', this.loginResult.token)
+          var loginResult = JSON.parse(response.bodyText)
+          if (loginResult.code !== 200) {
+            this.login_feedback = loginResult.message
+            alert(loginResult.message)
+            return
+          }
+          this.$cookies.set('token', loginResult.token, 60 * 30)
+          var userprofile = JSON.parse(loginResult.userprofile)
+          console.log(userprofile)
+          this.$cookies.set('userprofile', loginResult.userprofile, 60 * 30)
+          this.$emit('updateAccount', userprofile)
+          this.$router.replace('/home')
         }
-        return response.body
       }, err => { console.log(err); alert('error:' + err.body) })
     },
     logout: function () {

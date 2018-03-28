@@ -1,4 +1,4 @@
-let ImagesConstant = require.context('@/_images/constant/', false, /\.(png|jpg)$/);
+let ImagesConstant = require.context('@/_images/constant/', false, /\.(png|jpg)$/)
 
 export default {
   name: 'Admin',
@@ -82,23 +82,23 @@ var t = -20;
 // });
 
 function retrievMessageNum() {
-  //console.log('retrieve now');
+  //console.log('retrieve now')
   $.get("newmessagesnum.php", function (data) {
-    $('#notificationpad').html(data);
-  });
+    $('#notificationpad').html(data)
+  })
 
-  var new_dia_to_check_num = $('#newdiacheck_num').html();
-  var new_message_num = $('#newmessage_num').html();
+  var new_dia_to_check_num = $('#newdiacheck_num').html()
+  var new_message_num = $('#newmessage_num').html()
 
   if (new_dia_to_check_num > crr_dia_to_check_num || new_message_num > crr_message_num) {
-    audioElement.play();
+    audioElement.play()
   }
 
-  crr_dia_to_check_num = new_dia_to_check_num;
-  crr_message_num = new_message_num;
+  crr_dia_to_check_num = new_dia_to_check_num
+  crr_message_num = new_message_num
 
   if (t > 0) {
-    clearTimeout(t);
-    t = setTimeout(retrievMessageNum, 20000);
+    clearTimeout(t)
+    t = setTimeout(retrievMessageNum, 20000)
   }
 }

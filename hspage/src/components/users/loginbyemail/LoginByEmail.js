@@ -55,6 +55,7 @@ export default {
             var loginResult = JSON.parse(response.bodyText)
             if (loginResult.code !== 200 ) {
               this.login_feedback = loginResult.message
+              alert(loginResult.message)
               return
             }
             this.$cookies.set('token', loginResult.token, 60 * 30)

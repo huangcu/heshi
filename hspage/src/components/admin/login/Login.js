@@ -46,8 +46,9 @@ export default {
   created() {
     if (this.$cookies.isKey('adminprofile')) {
       this.adminprofile = JSON.parse(this.$cookies.get('adminprofile'))
-      this.$route.replace('/manage/admins')
+      this.$router.replace('/manage/admins')
     } else {
+      this.$emit('updateProfile','')
       this.adminprofile = ''
     }
   }

@@ -71,13 +71,7 @@ export default {
     },
     logout: function () {
       this.$http.post(
-        this.$customerURL + '/logout',
-        '',
-        {
-          headers: {
-            'Authorization': 'Bearer ' + this.$cookies.get('token')
-          }
-        }
+        this.$customerURL + '/logout'
       ).then(response => {
         console.log('logout')
         this.$cookies.remove('token')

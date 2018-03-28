@@ -3,11 +3,14 @@ export default {
   data: function () {
     return {
       users: [],
-      userprofile: ''
+      adminprofile: ''
     }
   },
   computed: {
     activeAdminUsers: function () {
+      if (this.users === null || this.users === '' || this.users.length === 0) {
+        return ''
+      }
       return this.users
     }
   },
@@ -15,11 +18,6 @@ export default {
     deleteAdmin: function (theID) {
       this.$http.delete(
         this.$adminURL + '/users/' + theID,
-        {
-          headers: {
-            'Authorization': 'Bearer ' + this.$cookies.get('token')
-          }
-        }
       ).then(response => {
         alert(response.body)
         for (var i=0; i<this.users.length; i++) {
@@ -37,11 +35,6 @@ export default {
     getAdmins: function () {
       this.$http.get(
         this.$adminURL + '/users?user_type=ADMIN',
-        {
-          headers: {
-            'Authorization': 'Bearer ' + this.$cookies.get('token')
-          }
-        }
       ).then(response => {
         if (response.status === 200) {
           this.users = response.body
@@ -50,7 +43,14 @@ export default {
     }
   },
   created () {
-    this.getAdmins()
+  },
+  mounted() {
+    if (this.$cookies.isKey('adminprofile')) {
+      this.adminprofile = JSON.parse(this.$cookies.get('adminprofile'))
+      this.getAdmins()
+    } else {
+      this.$router.replace('/manage/login')
+    }
   }
 }
 
