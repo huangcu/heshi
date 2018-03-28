@@ -120,20 +120,18 @@ func composeFilterJewelryQuery(c *gin.Context) (string, error) {
 			maxPrice := price + 300
 			querys = append(querys, fmt.Sprintf("price<=%d AND price>=%d", maxPrice, price))
 		}
-
-		smallDias := "NO"
-		if c.PostForm("sds") == "YES" {
-			smallDias = "YES"
-			querys = append(querys, fmt.Sprintf("small_dias='%s'", smallDias))
-		}
+	}
+	sds := c.PostForm("small_dias")
+	if sds != "" {
+		querys = append(querys, fmt.Sprintf("small_dias='%s'", sds))
 	}
 
 	if c.PostForm("mounting_type") != "" {
 		querys = append(querys, fmt.Sprintf("mounting_type='%s'", strings.ToUpper(c.PostForm("mounting_type"))))
 	}
 
-	if c.PostForm("diashape") != "" {
-		querys = append(querys, fmt.Sprintf("dia_shape LIKE '%s'", strings.ToUpper(c.PostForm("diashape"))))
+	if c.PostForm("dia_shape") != "" {
+		querys = append(querys, fmt.Sprintf("dia_shape LIKE '%s'", strings.ToUpper(c.PostForm("dia_shape"))))
 	}
 
 	if c.PostForm("stock_quantity") != "" {
