@@ -337,11 +337,11 @@ func chdir() error {
 
 func mkDir() error {
 	for _, t := range []string{videoPath, imagePath} {
-		for _, p := range []string{"diamond", "jewelry", "gem"} {
+		for _, p := range []string{"diamond", "jewelry", "gem", "usericon"} {
 			if err := os.MkdirAll(filepath.Join(t, p), 0755); err != nil {
 				return err
 			}
-			if t == imagePath {
+			if t == imagePath && p != "usericon" {
 				if err := os.MkdirAll(filepath.Join(t, p, "thumbs"), 0755); err != nil {
 					return err
 				}

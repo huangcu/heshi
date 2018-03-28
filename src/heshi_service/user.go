@@ -48,7 +48,16 @@ func newAdminAgentUser(c *gin.Context) {
 		c.JSON(http.StatusOK, vemsgUserUsertypeNotValid)
 		return
 	}
-
+	fileHeader, _ := c.FormFile("images")
+	filename, vemsg, err := validateUploadedSingleFile(fileHeader, "usericon", "image", 50000)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	if vemsg != (errors.HSMessage{}) {
+		c.JSON(http.StatusOK, vemsg)
+		return
+	}
 	nu := User{
 		ID:             newV4(),
 		Username:       c.PostForm("username"),
@@ -63,7 +72,7 @@ func newAdminAgentUser(c *gin.Context) {
 		Address:        c.PostForm("address"),
 		AdditionalInfo: c.PostForm("additional_info"),
 		RecommendedBy:  c.PostForm("recommended_by"),
-		Icon:           c.PostForm("icon"),
+		Icon:           filename,
 	}
 
 	if userType == AGENT {
@@ -77,6 +86,10 @@ func newAdminAgentUser(c *gin.Context) {
 			return
 		} else if len(vemsg) != 0 {
 			c.JSON(http.StatusOK, vemsg)
+			return
+		}
+		if err := saveUploadedMultipleFile(c, "usericon", "image", []string{filename}); err != nil {
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 		// q := nu.composeInsertQuery()
@@ -131,6 +144,10 @@ func newAdminAgentUser(c *gin.Context) {
 		// 	c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		// 	return
 		// }
+		if err := saveUploadedMultipleFile(c, "usericon", "image", []string{filename}); err != nil {
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			return
+		}
 		err := dbTransact(db, func(tx *sql.Tx) error {
 			q := nu.composeInsertQuery()
 			traceSQL(q)
@@ -154,6 +171,16 @@ func newAdminAgentUser(c *gin.Context) {
 }
 
 func newUser(c *gin.Context) {
+	fileHeader, _ := c.FormFile("images")
+	filename, vemsg, err := validateUploadedSingleFile(fileHeader, "usericon", "image", 50000)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	if vemsg != (errors.HSMessage{}) {
+		c.JSON(http.StatusOK, vemsg)
+		return
+	}
 	nu := User{
 		ID:             newV4(),
 		Username:       c.PostForm("username"),
@@ -168,7 +195,7 @@ func newUser(c *gin.Context) {
 		Address:        c.PostForm("address"),
 		AdditionalInfo: c.PostForm("additional_info"),
 		RecommendedBy:  c.PostForm("recommended_by"),
-		Icon:           c.PostForm("icon"),
+		Icon:           filename,
 	}
 
 	if vemsg, err := nu.validNewUser(); err != nil {
@@ -176,6 +203,10 @@ func newUser(c *gin.Context) {
 		return
 	} else if len(vemsg) != 0 {
 		c.JSON(http.StatusOK, vemsg)
+		return
+	}
+	if err := saveUploadedMultipleFile(c, "usericon", "image", []string{filename}); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 
@@ -223,6 +254,16 @@ func updateUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, "user doesn't exist")
 		return
 	}
+	fileHeader, _ := c.FormFile("images")
+	filename, vemsg, err := validateUploadedSingleFile(fileHeader, "usericon", "image", 50000)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	if vemsg != (errors.HSMessage{}) {
+		c.JSON(http.StatusOK, vemsg)
+		return
+	}
 	uu := User{
 		ID:        id,
 		Username:  c.PostForm("username"),
@@ -237,9 +278,13 @@ func updateUser(c *gin.Context) {
 		Address:        c.PostForm("address"),
 		AdditionalInfo: c.PostForm("additional_info"),
 		RecommendedBy:  c.PostForm("recommended_by"),
-		Icon:           c.PostForm("icon"),
+		Icon:           filename,
 	}
 
+	if err := saveUploadedMultipleFile(c, "usericon", "image", []string{filename}); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
 	//TODO validate updated user info too!!!
 	//TODO what info can be updated!!
 	q := uu.composeUpdateQuery()

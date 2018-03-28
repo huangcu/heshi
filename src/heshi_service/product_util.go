@@ -109,11 +109,56 @@ func saveUploadedMultipleFile(c *gin.Context, product string, fileType string, f
 	form, _ := c.MultipartForm()
 	files := form.File["images"]
 	for k, file := range files {
-		if err := saveImage(file, filepath.Join("."+fileType, product), fileNames[k]); err != nil {
-			return err
+		if product == "usericon" {
+			if err := saveIcon(file, filepath.Join("."+fileType, product), fileNames[k]); err != nil {
+				return err
+			}
+		} else {
+			if err := saveImage(file, filepath.Join("."+fileType, product), fileNames[k]); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
+}
+func saveIcon(fileHeader *multipart.FileHeader, dstPath, filename string) error {
+	src, err := fileHeader.Open()
+	if err != nil {
+		return err
+	}
+	defer src.Close()
+
+	imgConfig, _, err := image.DecodeConfig(src)
+	if err != nil {
+		return err
+	}
+	// multipart file: somehow(maybe is it decodeconfig) reads to the end of the file.
+	// Must Seek back to the beginning of the file before call image.Decode
+	// otherwize: "image: unknown format"
+	if _, err := src.Seek(0, 0); err != nil {
+		return err
+	}
+
+	img, _, err := image.Decode(src)
+	if err != nil {
+		return err
+	}
+
+	// image : w 960 h 1280 pixels || w 1280 h 960 pixels
+	//limit image w/h to 960x1280|| 1280x960 pixel, resize image
+	if imgConfig.Height > imgConfig.Width {
+		if imgConfig.Height > 320 {
+			img = imaging.Resize(img, 0, 320, imaging.Lanczos)
+		}
+	}
+
+	if imgConfig.Width > imgConfig.Height {
+		if imgConfig.Width > 320 {
+			img = imaging.Resize(img, 320, 0, imaging.Lanczos)
+		}
+	}
+
+	return imaging.Save(img, filepath.Join(dstPath, filename))
 }
 
 func saveImage(fileHeader *multipart.FileHeader, dstPath, filename string) error {
