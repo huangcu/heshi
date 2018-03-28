@@ -61,7 +61,7 @@ export default {
             var userprofile = JSON.parse(loginResult.userprofile)
             console.log(userprofile)
             this.$cookies.set('userprofile', loginResult.userprofile, 60 * 30)
-            this.$emit('updateAccount', userprofile.id)
+            this.$emit('updateAccount', userprofile)
             this.$router.replace('/home')
           }
         }, err => { console.log(err); alert('error:' + err.body) })
@@ -78,7 +78,7 @@ export default {
   },
   created() {
     if (this.$cookies.isKey('userprofile')) {
-      this.userprofile = this.$cookies.get('userprofile')
+      this.userprofile = JSON.parse(this.$cookies.get('userprofile'))
     } else {
       this.userprofile = ''
     }

@@ -54,7 +54,7 @@ export default {
   },
   mounted() {
     if (this.$cookies.isKey('userprofile')) {
-      this.userprofile = this.$cookies.get('userprofile')
+      this.userprofile = JSON.parse(this.$cookies.get('userprofile'))
     } else {
       this.userprofile = ''
     }

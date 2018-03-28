@@ -73,6 +73,14 @@ function submittheform() {
   $('form#addnewadmin').submit();
 }
 
+// require_once('admin_authorizing_part.php');
+// 		$message_db="添加成功";
+// 		//1添加客服
+// 		$kfURL="https://api.weixin.qq.com/customservice/kfaccount/add?access_token=".$theaccesstoken;
+// 		//2 添加头像				
+// 			$iconURL="https://api.weixin.qq.com/customservice/kfaccount/uploadheadimg?access_token=".$theaccesstoken.'&kf_account='.$username.'@admin';
+
+
 // <script type="text/javascript" src="tinymce/tinymce.min.js"></script>
 // <script type="text/javascript" src="formplugin.js"></script>
 // <script type="text/javascript">

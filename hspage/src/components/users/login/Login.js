@@ -82,7 +82,6 @@ export default {
         this.$wechatURL + '/temp_qrcode?sceneID='+sceneID,
       ).then(response => {
         this.sceneID = sceneID
-        window.sessionStorage.setItem("HSSESSIONID", sceneID)
         this.qrCodeSrc = response.body
       }, err => { console.log(err); alert('error:' + err.body) })
     },
@@ -101,7 +100,7 @@ export default {
   },
   mounted() {
     if (this.$cookies.isKey('userprofile')) {
-      this.userprofile = this.$cookies.get('userprofile')
+      this.userprofile = JSON.parse(this.$cookies.get('userprofile'))
     } else {
       this.userprofile = ''
       this.getQRCode()

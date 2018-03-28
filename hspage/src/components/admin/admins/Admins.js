@@ -14,7 +14,12 @@ export default {
   methods: {
     deleteAdmin: function (theID) {
       this.$http.delete(
-        this.$adminURL + '/users/' + theID
+        this.$adminURL + '/users/' + theID,
+        {
+          headers: {
+            'Authorization': 'Bearer ' + this.$cookies.get('token')
+          }
+        }
       ).then(response => {
         alert(response.body)
         for (var i=0; i<this.users.length; i++) {
@@ -27,16 +32,21 @@ export default {
         if (u !== null) {
           this.users = u.filter(filterUsers)
         }
-      }, err => { console.log(err); alert('error:' + err.body) })
+      }, err => { console.log(err); alert('error:' + err.bodyText) })
     },
     getAdmins: function () {
       this.$http.get(
-        this.$adminURL + '/users?user_type=ADMIN'
+        this.$adminURL + '/users?user_type=ADMIN',
+        {
+          headers: {
+            'Authorization': 'Bearer ' + this.$cookies.get('token')
+          }
+        }
       ).then(response => {
         if (response.status === 200) {
           this.users = response.body
         }
-      }, err => { console.log(err); alert('error:' + err.body) })
+      }, err => { console.log(err); alert('error:' + err.bodyText) })
     }
   },
   created () {

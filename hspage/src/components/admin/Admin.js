@@ -4,48 +4,54 @@ export default {
   name: 'Admin',
   data: function () {
     return {
-      userprofile: {
-        additional_info: '',
-        address: '',
-        admin: {
-          admin_level:        1,
-          created_by:'system_dev_admin',
-          wechat_kefu:'',
-        },
-        agent: {
-          agent_discount: 0,
-          agent_level: 0,
-        },
-        created_by: '',
-        cellphone: '15864540221',
-        email: '',
-        icon: 'beyourdiamond.jpg',
-        id: 'dae0b1b5-1f35-4f1a-a10a-01af466bd123',
-        invitation_code: '-L8aeUxPZxsaLgLnYsMW',
-        point: 0,
-        real_name: '',
-        recommended_by: '',
-        status: 'ACTIVE',
-        total_purchase_amount: 0,
-        user_discount: 0.98,
-        user_level: 1,
-        user_type: 'ADMIN',
-        username: 'hsadmin',
-        wechat_id: '',
-        wechat_name: '',
-        wechat_qr: ''
-      },
+      adminprofile:'',
+      // adminprofile: {
+      //   additional_info: '',
+      //   address: '',
+      //   admin: {
+      //     admin_level:        1,
+      //     created_by:'system_dev_admin',
+      //     wechat_kefu:'',
+      //   },
+      //   agent: {
+      //     agent_discount: 0,
+      //     agent_level: 0,
+      //   },
+      //   created_by: '',
+      //   cellphone: '15864540221',
+      //   email: '',
+      //   icon: 'beyourdiamond.jpg',
+      //   id: 'dae0b1b5-1f35-4f1a-a10a-01af466bd123',
+      //   invitation_code: '-L8aeUxPZxsaLgLnYsMW',
+      //   point: 0,
+      //   real_name: '',
+      //   recommended_by: '',
+      //   status: 'ACTIVE',
+      //   total_purchase_amount: 0,
+      //   user_discount: 0.98,
+      //   user_level: 1,
+      //   user_type: 'ADMIN',
+      //   username: 'hsadmin',
+      //   wechat_id: '',
+      //   wechat_name: '',
+      //   wechat_qr: ''
+      // },
       num_newmessage:''
     }
   },
   computed: {
-    imgURL: function () {
-      return ImagesConstant('./logo.png')
-    }
   }, 
+  methods: {
+    updateProfile: function (arg) {
+      this.adminprofile = arg
+    },
+    imgURL: function (theName) {
+      return ImagesConstant('./'+theName)
+    }
+  },
   mounted() {
-    if (this.$cookies.isKey('userprofile')) {
-      this.userprofile = this.$cookies.get('userprofile')
+    if (this.$cookies.isKey('adminprofile')) {
+      this.adminprofile = JSON.parse(this.$cookies.get('adminprofile'))
     }
   }
 }

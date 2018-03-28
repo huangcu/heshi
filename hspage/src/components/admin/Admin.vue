@@ -1,12 +1,12 @@
 <template>
   <div>
-    <div class="pageheader">
-      <img id="logo" :src="imgURL" />
+    <div v-if="adminprofile!==''" class="pageheader">
+      <img id="logo" :src="imgURL('logo.png')" />
       <h3>合适钻石 系统管理</h3>
       <div class="navibox">
         <ul class="navi">
           <!-- admin level 4 and 5 -->
-          <li v-if="userprofile.admin.admin_level >= 4" class="homepagenavi">
+          <li v-if="adminprofile.admin.admin_level >= 4" class="homepagenavi">
             <a href="index.php"><span class="glyphicon glyphicon-file"></span>销售流程</a>
             <ul class="subnavi-containner">
               <li class="homepagenavi subnavi">
@@ -23,7 +23,7 @@
           <!--
           <li><a href="orders.php"><span class="glyphicon glyphicon-list-alt"></span> 订单处理</a></li>
           -->
-          <li v-if="userprofile.admin.admin_level >= 4" class="accountsnavi">
+          <li v-if="adminprofile.admin.admin_level >= 4" class="accountsnavi">
             <a href="userlist.php"><span class="glyphicon glyphicon-user"></span> 用户管理</a>
             <ul class="subnavi-containner">
               <li class="homepagenavi subnavi">
@@ -44,8 +44,8 @@
               <li class="homepagenavi subnavi">
                 <a href="import_excel.php">管理货单</a>
               </li>
-              <li v-if="userprofile.admin.admin_level >=4" class="homepagenavi subnavi">----</li>
-              <li v-if="userprofile.admin.admin_level >=4" class="homepagenavi subnavi">
+              <li v-if="adminprofile.admin.admin_level >=4" class="homepagenavi subnavi">----</li>
+              <li v-if="adminprofile.admin.admin_level >=4" class="homepagenavi subnavi">
                 <a href="pricemanagement.php">钻石价格规则</a>
               </li>
             </ul>
@@ -63,7 +63,7 @@
               </li>
             </ul>
           </li>
-          <li v-if="userprofile.admin.admin_level >=4" class="accountsnavi">
+          <li v-if="adminprofile.admin.admin_level >=4" class="accountsnavi">
             <a href="user-analytics.php">分析报告</a>
           </li>
           <!--
@@ -76,14 +76,14 @@
         </ul>
       </div>
     </div>
-    <router-view></router-view>
-    <div id="notificationpad">
-      <a v-if="userprofile.admin.admin_level >=4" href="/administrator/verify-request.php" id="checkrequestbtn">新预定 <span class="newmessagenum" id="newdiacheck_num">{{ num_verify }}</span></a>
-      <a v-if="userprofile.admin.admin_level >=4" href="/administrator/orders-transaction.php" id="neworderbtn">处理中订单 <span class="newmessagenum" id="newdiacheck_num">{{ new_order_transaction_num }}</span></a>
+    <router-view @updateProfile='updateProfile'></router-view>
+    <div v-if="adminprofile!==''" id="notificationpad">
+      <a v-if="adminprofile.admin.admin_level >=4" href="/administrator/verify-request.php" id="checkrequestbtn">新预定 <span class="newmessagenum" id="newdiacheck_num">{{ num_verify }}</span></a>
+      <a v-if="adminprofile.admin.admin_level >=4" href="/administrator/orders-transaction.php" id="neworderbtn">处理中订单 <span class="newmessagenum" id="newdiacheck_num">{{ new_order_transaction_num }}</span></a>
       <a href="/administrator/message-list.php" id="newmessagebtn">客户消息 <span class="newmessagenum" id="newmessage_num"> {{ num_newmessage }}</span></a>
     </div>
-    <form class="logout" action="" method="post" style="position:absolute; top:5px; right:0px; width:80px;">
-        <input type="submit" name="logout" id="logout" value="logout">
+    <form v-if="adminprofile!==''" class="logout" action="" method="post" style="position:absolute; top:5px; right:0px; width:80px;">
+      <input type="submit" name="logout" id="logout" value="logout">
     </form>
   </div>
 </template>
