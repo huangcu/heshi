@@ -354,3 +354,294 @@ span.newdesign{
 		margin:10px auto;
 	}
 }
+
+div.contentmainwrapper{
+	position:relative;
+	text-align:center;
+	max-width:980px;
+	margin:58px auto;
+}
+.pricebox{
+	margin-bottom:35px;
+}
+video.jew-video{
+	display:block;
+	max-width:588px;
+	max-height:800px;
+	height:auto;
+	margin:12px auto;
+	border-style:solid;
+	border-width:15px;
+	border-color:rgba(255, 228, 227, 1);
+	padding:28px;
+	background-color:#FFF;
+}
+img.jewelry-img{
+	display:block;
+	max-width:502px;
+}
+video.jew-video{
+	width:588px;
+}
+
+
+p.choosebtnbox, div.choosebtnbox{
+	margin:58px 0 25px 0;
+}
+
+a.choosebtn, button.choosebtn{
+	display:inline-block;
+	font-size:20px;
+	padding:8px 18px;
+	background-color:#01934d;
+	border-style:solid;
+	border-width:1px;
+	border-radius:8px;
+	color:#fff;
+	border-color:#01934d;
+}
+a.choosebtn:hover, button.choosebtn:hover{
+	text-decoration:none;
+	color:#FFF;
+	background-color:#01934d;
+}
+
+p.gobackbtnbox{
+	margin:55px 0 88px 0;
+}
+span.gobackindisign{
+	font-size:20px;
+	color:#999;
+	position:relative;
+	left:-10px;
+}
+a.gobackbtn{
+	display:inline-block;
+	padding:12px;
+	font-size:20px;
+}
+
+
+
+div#chosendiabox{
+	padding:12px 0 30px 0;
+	margin:12px auto 50px auto;
+	background-color:#c6e3e1;
+	max-width:680px;
+}
+.needdiatitle{
+	margin-bottom:5px;
+	font-size:20px;
+	color:#999;
+}
+img#chosendiaimg{
+	width:128px;
+}
+
+
+div#diamonds-reco-box{
+	background-color:#c6e3e1;
+	padding:25px 0 15px 0;
+	margin:38px 0 0 0;
+}
+h2.dia-reco-title{
+	margin-top:5px;
+	margin-bottom:20px;
+}
+ul.reco-list{
+	margin:0;
+	padding:0;
+}
+li.reco-dia{
+	display:inline-block;
+	list-style:none;
+	width:287px;
+	background-color:#FFF;
+	margin:12px;
+}
+.reco-dia h3{
+	font-size:22px;
+	padding:8px 0;
+}
+img.reco-dia-img{
+	width:128px;
+}
+p.dia-chara{
+	position:relative;
+	top:-5px;
+	font-size:14px;
+}
+p.dia-chara-0{
+	position:relative;
+	font-size:12px;
+	color:#999;
+	margin-bottom:0;
+	top:-15px;
+}
+p.dia-chara-1{
+	font-size:18px;
+}
+span.price-dropped{
+	display:inline-block;
+	color:#999;
+	text-decoration:line-through;
+}
+span.price-in-currency{
+	font-size:12px;
+}
+
+button.dia-choosebtn{
+	display: inline-block;
+	font-size: 14px;
+	padding: 5px 22px;
+	background-color: #FFF;
+	border-style: solid;
+	border-width: 1px;
+	border-radius: 8px;
+	color: #01934d;
+	border-color: #01934d;
+	margin:12px 0 20px 0;
+}
+button.dia-choosebtn:hover{
+	background-color:#01934d;
+	color:#FFF;
+}
+.reco-dia span.glyphicon{
+	position:relative;
+	left:-5px;
+	display:none;
+}
+.chosen button.dia-choosebtn{
+	background-color: #01934d;
+	color:#fff;
+}
+.chosen span.glyphicon{
+	display:inline-block;
+}
+p#methodexpl{
+	font-size:16px;
+	margin:50px 0 38px 0;
+}
+
+span.price-special{
+	display:block;
+	margin:9px;
+}
+
+/* ------------------------------- */
+div.thechosendia, div.thepairingdia{
+	width:258px;
+	display:inline-block;
+	background-color:#FFF;
+	padding:8px 0;
+	margin:12px;
+}
+.thechosendia h3, .thepairingdia h3{
+	margin:8px 0;
+	font-size:20px;
+}
+p.expl-words{
+	padding:15px;
+	font-size:16px;
+}
+span.sidetxt{
+	color:#666;
+	font-size:12px;
+}
+img.chosendiaimg{
+	width:88px;
+}
+p.plussigncontainer{
+	margin:12px 0;
+	display:block;
+}
+.plussigncontainer span.glyphicon{
+	display:inline-block;
+	left:0;
+}
+div.chooseformbox{
+	margin-top:58px;
+}
+span.pricelinethrough{
+	font-size:12px;
+	color:#999;
+	text-decoration:line-through;
+}
+
+div.jewely-description.size{
+	padding-bottom:20px;
+
+
+}
+
+div.jewely-description{
+	margin-top:20px;
+}
+.jewely-description > p, p.descriptionfiguresbox{
+	margin-bottom:2px;
+}
+div.jewpic-box{
+	display: block;
+	max-width: 588px;
+	height: auto;
+	margin: 12px auto;
+	border-style: solid;
+	border-width: 15px;
+	border-color: rgba(255, 228, 227, 1);
+	padding: 28px;
+	background-color: #FFF;
+}
+
+span.jew-figure{
+	display:inline-block;
+	margin:3px;
+	padding:2px 7px;
+	background-color:#f8fffe;
+	border-style:solid;
+	border-width:1px;
+	border-color:efefef;
+	border-radius:6px;
+	color:#000;
+}
+
+select#sizeofdiachoice{
+	background-color:#e7fff8;
+}
+
+div.scanresult{
+	position:relative;
+	width:100%;
+	height:138px;
+	background-color:#FC0;
+	color:#333;
+	text-align:center;
+	font-size:12px;
+}
+.alerted{
+	background-color:#C00 !important;
+	color:#FFF !important;
+}
+.scanresult p{
+	margin:0;
+	padding:25px 0;
+}
+a.jeweditlinker{
+	display:inline-block;
+	background-color:#CFF;
+	padding:1px 5px;
+}
+button.jewdelbtn{
+	background-color:#C30;
+	color:#FFF;
+	border-width:1px;
+}
+@media (max-width: 620px){
+	div.jewpic-box, video.jew-video{
+		width:100%;
+		padding: 0;
+	}
+	img.jewelry-img{
+		width:100%;
+	}
+	
+}

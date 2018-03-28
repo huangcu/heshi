@@ -248,8 +248,43 @@ $.ajax({
 		return false;
 	}
  });
-
  }
+
+ function getproductsJbyfilter(Jtype) {
+	var auth_token = accessToken;
+	var url_base = baseURI + 'api/products/filter/'+ Jtype;
+	var requestPayload = {
+		// search prosuct by Stok_ID
+		'material':  document.getElementById('materialselection').value,
+		'price': document.getElementById('priceselection').value,
+		'mounting': document.getElementById('mountingtypeselection').value,
+		'diashape': document.getElementById('diashapeselection').value,
+		'smalldiaschoice': document.getElementById('smalldiaschoiceselection').value,
+	};
+	 $.ajax({
+		 'url': url_base,
+		 'type': 'POST',
+		 'content-Type': 'x-www-form-urlencoded',
+		 'dataType': 'json',
+		 'data': requestPayload,
+		 'headers': {
+		   // Use access_token 
+		   'X-Auth-Token': auth_token
+		 },
+		 
+		 'success': function (result) {
+		   //Process success actions
+			 document.getElementById('productsList').innerHTML = renderJresult(result, "没有对应的产品")
+			 return true
+		 },
+		 'error': function (XMLHttpRequest, textStatus, errorThrown) {
+		   //Process error actions
+			 document.getElementById('productsList').innerHTML = XMLHttpRequest.status + ' ' + XMLHttpRequest.statusText;
+		   return false;
+		 }
+	 });
+ }
+
 
  function renderJresult(result, message)
  {
@@ -266,7 +301,7 @@ $.ajax({
 		 var prosuctDataline = '<div class="jewelrybox complete"><a class="seedetailbtn-big demo-box" href="jewelrydetail.html?id='+ result[i]["id"] + '">' +
 		 '<span class="imageholder" style="background-image:url("/pic/jewelry/thumbs/' + result[i]["images"] + '")"></span>'+ 
 		 '<span class="jewelryname">'+ result[i]["name"]+'</span>'+
-		 '<span class="jewelryprice">'+ result[i]["price"]+'</span>'+
+		 '<span class="jewelryprice">'+ result[i]["price"]+' EUR </span>'+
 		 '<span class="stocknum">'+ result[i]["stock_quantity"]+'</span>' +
 		 '</a><p class="actionbox"><a class="seedetailbtn" href="jewelrydetail.php?id=1299"><span class="glyphicon glyphicon-eye-open"></span> 详情</a><a class="choosebtn" href=""><span class="glyphicon glyphicon-gift"></span> 购买</a></p><span class="indi-icons-container"><span class="glyphicon glyphicon-film"></span></span></div>';
 		 Prosuctbox = Prosuctbox+prosuctDataline;

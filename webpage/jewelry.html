@@ -86,9 +86,9 @@
                 <h2 class="pagetitle">合适首饰</h2>
                 
                 <div class="mountingorcompletebox" style="display:none;">
-                <a href="jewelry.php?class=complete" class="jew_class_btn jew_complete crr_class" id="jew-complete-btn">成品首饰</a>
-                <a href="jewelry.php?class=mounting" class="jew_class_btn jew_mounting" id="jew-mounting-btn">空托</a>
-                <a href="jewelry-custom.php" class="jew_class_btn jew_mounting" id="jew-diy-btn">自选定制</a>
+                <a href="jewelry.html?class=complete" class="jew_class_btn jew_complete crr_class" id="jew-complete-btn">成品首饰</a>
+                <a href="jewelry.html?class=mounting" class="jew_class_btn jew_mounting" id="jew-mounting-btn">空托</a>
+                <a href="jewelry-custom.html" class="jew_class_btn jew_mounting" id="jew-diy-btn">自选定制</a>
                 </div>
                 
                 <div class="category-filterbox filter_complete">
@@ -116,9 +116,9 @@
                 <button onclick="getproductsbyCategory('jewelrys', 5)" class="changeJewCateBTN">项链</button>
                 </li>
                 </ul>
-                
+                 <!-- update filter value after comfirm with season -->
                 <p class="jew-filter-box">
-                <select id="materialselection" class="filterselection" name="materialselection">
+                <select id="materialselection" class="filterselection" name="materialselection" onchange="getproductsJbyfilter('jewelrys')">
                   <option value="NONE">材质:</option>
                   <option value="GOLD">黄金</option>
                   <option value="COLORED_GOLD">白金</option>
@@ -126,7 +126,7 @@
                   <option value="ROSE_GOLD">玫瑰金</option>
                 </select>
                 
-                <select id="priceselection" class="filterselection" name="priceselection">
+                <select id="priceselection" class="filterselection" name="priceselection" onchange="getproductsJbyfilter('jewelrys')">
                   <option value="NONE">价位:</option>
                   <option value="300">300欧元以内</option>
                   <option value="500">300-500欧元</option>
@@ -135,7 +135,7 @@
                   <option value="1500">1000欧元以上</option>
                 </select>
                 
-                <select id="mountingtypeselection" class="filterselection" name="mountingtypeselection">
+                <select id="mountingtypeselection" class="filterselection" name="mountingtypeselection" onchange="getproductsJbyfilter('jewelrys')">
                   <option value="NONE">镶嵌款式:</option>
                   <option value="3NODE">三爪</option>
                   <option value="4NODE">四爪</option>
@@ -145,7 +145,7 @@
                 </select>
                 
                 
-                <select id="diashapeselection" class="filterselection" name="diashapeselection">
+                <select id="diashapeselection" class="filterselection" name="diashapeselection" onchange="getproductsJbyfilter('jewelrys')" >
                   <option value="NONE">主钻形状:</option>
                   <option value="BR">圆形</option>
                   <option value="PS">梨形</option>
@@ -160,7 +160,7 @@
                 </select>
                 
                 
-                <select id="smalldiaschoiceselection" class="filterselection" name="smalldiaschoiceselection">
+                <select id="smalldiaschoiceselection" class="filterselection" name="smalldiaschoiceselection" onchange="getproductsJbyfilter('jewelrys')" >
                   <option value="NONE">是否镶碎钻:</option>
                   <option value="YES">镶碎钻</option>
                   <option value="NO">素金不镶碎钻</option>
