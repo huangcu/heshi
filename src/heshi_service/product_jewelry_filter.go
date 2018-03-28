@@ -86,13 +86,19 @@ func filterJewelrys(c *gin.Context) ([]jewelry, error) {
 // diashape:
 // crrpage:
 func composeFilterJewelryQuery(c *gin.Context) (string, error) {
-	class := c.Query("class")
 	var querys []string
-	needDiamond := "NO"
-	if class == "mounting" {
+	class := strings.ToUpper(c.Query("class"))
+	needDiamond := ""
+	if class == "NOMOUNTING" {
+		needDiamond = "NO"
+	}
+	if class == "MOUNTING" {
 		needDiamond = "YES"
 	}
-	querys = append(querys, fmt.Sprintf("need_diamond='%s'", needDiamond))
+	if needDiamond != "" {
+		querys = append(querys, fmt.Sprintf("need_diamond='%s'", needDiamond))
+	}
+
 	if c.PostForm("category") != "" {
 		querys = append(querys, fmt.Sprintf("category='%s'", strings.ToUpper(c.PostForm("category"))))
 	}
