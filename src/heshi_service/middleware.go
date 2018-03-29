@@ -36,7 +36,7 @@ func CORSMiddleware() gin.HandlerFunc {
 	config.AddAllowHeaders(allowHeaders...)
 	if os.Getenv("STAGE") != "dev" {
 		config.AllowAllOrigins = false
-		config.AllowOrigins = []string{"http://localhost:8080"}
+		config.AllowOrigins = []string{"http://localhost:8080", "https://localhost:8443"}
 	}
 	return cors.New(config)
 	// cors.DefaultConfig()
