@@ -46,9 +46,9 @@ func AuthenticateMiddleWare() *jwt.GinJWTMiddleware {
 	return &jwt.GinJWTMiddleware{
 		Realm:            "HESHI",
 		Key:              []byte("secret key"),
-		Timeout:          time.Hour,
-		MaxRefresh:       time.Hour,
-		Authenticator:    userLogin1,
+		Timeout:          30 * time.Minute,
+		MaxRefresh:       30 * time.Minute,
+		Authenticator:    jwtAuthenticator,
 		TokenLookup:      "header:Authorization",
 		TokenHeadName:    "Bearer",
 		PrivKeyFile:      "token.key",
@@ -59,7 +59,7 @@ func AuthenticateMiddleWare() *jwt.GinJWTMiddleware {
 	}
 }
 
-func userLogin1(username, password1 string, c *gin.Context) (string, bool) {
+func jwtAuthenticator(username, password1 string, c *gin.Context) (string, bool) {
 	q := fmt.Sprintf(`SELECT id, password, user_type, status FROM users where username='%s' or cellphone='%s' or email='%s'`,
 		username, username, username)
 	usertype := c.PostForm("user_type")
@@ -89,9 +89,11 @@ func userLogin1(username, password1 string, c *gin.Context) (string, bool) {
 	}
 	s := sessions.Default(c)
 	s.Set(USER_SESSION_KEY, id)
+	c.SetCookie(USER_SESSION_KEY, id, 10, "/", "localhost", true, false)
 
 	if userType == ADMIN {
 		s.Set(ADMIN_KEY, id)
+		c.SetCookie(ADMIN_KEY, id, 10, "/", "localhost", true, false)
 	}
 	s.Save()
 	return userProfile, true

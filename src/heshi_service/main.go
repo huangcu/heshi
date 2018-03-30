@@ -110,8 +110,10 @@ func startWebServer(port string) error {
 	//session
 	store = sessions.NewCookieStore([]byte("secret"))
 	store.Options(sessions.Options{
-		MaxAge: int(30 * time.Minute), //30min
-		Path:   "/",
+		MaxAge:   7 * 24 * 60 * 60, //set max age 1 week // 30 * 60 - 30 min - not int(30 * time.Minute),
+		Path:     "/",
+		Secure:   false,
+		HttpOnly: false,
 	})
 	r.Use(sessions.Sessions("SESSIONID", store))
 	configRoute(r)
@@ -144,21 +146,25 @@ func configRoute(r *gin.Engine) {
 	apiCustomer := api.Group("customer")
 	apiAdmin := api.Group("admin")
 	apiWechat := api.Group("wechat")
-	apiCustomer.Use(UserSessionMiddleWare())
-	apiAdmin.Use(AdminSessionMiddleWare())
-	//TODO wechat - > admin and customer
-	apiWechat.Use(AdminSessionMiddleWare())
+
+	//authentication
+	jwtMiddleware := AuthenticateMiddleWare()
 
 	if os.Getenv("STAGE") == "dev" {
 		api.POST("/login", userLogin)
 	} else {
 		//jwt authentication(user login)
-		jwtMiddleware := AuthenticateMiddleWare()
 		apiCustomer.Use(jwtMiddleware.MiddlewareFunc())
 		apiAdmin.Use(jwtMiddleware.MiddlewareFunc())
 		api.POST("/login", jwtMiddleware.LoginHandler)
-		api.GET("/refresh/token", jwtMiddleware.RefreshHandler)
 	}
+
+	//session check
+	apiCustomer.Use(UserSessionMiddleWare())
+	apiAdmin.Use(AdminSessionMiddleWare())
+	//TODO wechat - > admin and customer
+	apiWechat.Use(AdminSessionMiddleWare())
+	api.GET("/refresh/token", jwtMiddleware.RefreshHandler)
 
 	{
 		{
