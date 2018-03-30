@@ -96,7 +96,7 @@ func getJewelry(c *gin.Context) {
 
 func newJewelry(c *gin.Context) {
 	fileHeader, _ := c.FormFile("video")
-	filename, vemsg, err := validateUploadedSingleFile(fileHeader, "jewelry", "video", 10*1024*1024)
+	filename, vemsg, err := validateUploadedSingleFile(fileHeader, "jewelry", "video", int64(videoSizeLimit))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
@@ -105,7 +105,7 @@ func newJewelry(c *gin.Context) {
 		c.JSON(http.StatusOK, vemsg)
 		return
 	}
-	imageFileNames, vemsg, err := validateUploadedMultipleFile(c, "jewelry", "image", 1*1024*1024)
+	imageFileNames, vemsg, err := validateUploadedMultipleFile(c, "jewelry", "image", int64(imageSizeLimit))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
@@ -177,7 +177,7 @@ func updateJewelry(c *gin.Context) {
 		return
 	}
 	fileHeader, _ := c.FormFile("video")
-	filename, vemsg, err := validateUploadedSingleFile(fileHeader, "jewelry", "video", 99000000)
+	filename, vemsg, err := validateUploadedSingleFile(fileHeader, "jewelry", "video", int64(videoSizeLimit))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
@@ -186,7 +186,7 @@ func updateJewelry(c *gin.Context) {
 		c.JSON(http.StatusOK, vemsg)
 		return
 	}
-	imageFileNames, vemsg, err := validateUploadedMultipleFile(c, "jewelry", "image", 99000000)
+	imageFileNames, vemsg, err := validateUploadedMultipleFile(c, "jewelry", "image", int64(imageSizeLimit))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return

@@ -7,7 +7,7 @@ const (
 	GEM          = "gem"
 )
 
-var VALID_PRODUCTS = []string{DIAMOND, SMALLDIAMOND, JEWELRY}
+var VALID_PRODUCTS = []string{DIAMOND, SMALLDIAMOND, JEWELRY, GEM}
 
 var diamondHeaders = []string{
 	//must have fields

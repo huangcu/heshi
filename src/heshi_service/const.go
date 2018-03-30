@@ -95,6 +95,10 @@ var (
 	UPLOADFILEDIR         = ".uploaded"
 	videoPath             = ".video"
 	imagePath             = ".image"
+	userIconSizeLimit     = 50 * 1024
+	imageSizeLimit        = 5 * 1024 * 1024
+	videoSizeLimit        = 10 * 1024 * 1024
+	uploadedZipFileLimit  = 100 * 1024 * 1024
 )
 
 const (

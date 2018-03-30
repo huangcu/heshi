@@ -255,7 +255,7 @@ func updateUser(c *gin.Context) {
 		return
 	}
 	fileHeader, _ := c.FormFile("images")
-	filename, vemsg, err := validateUploadedSingleFile(fileHeader, "usericon", "image", 50000)
+	filename, vemsg, err := validateUploadedSingleFile(fileHeader, "usericon", "image", int64(userIconSizeLimit))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
