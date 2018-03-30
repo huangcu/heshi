@@ -252,7 +252,7 @@ func configRoute(r *gin.Engine) {
 			apiCustomer.POST("/shoppingList/:action", toShoppingList)
 
 			apiCustomer.POST("/logout", userLogout)
-			apiCustomer.POST("/password/change/:id", changePassword)
+			apiCustomer.POST("/password/change", changePassword)
 		}
 
 		// exchange rate

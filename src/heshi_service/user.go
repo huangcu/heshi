@@ -277,8 +277,8 @@ func updateUser(c *gin.Context) {
 		WechatQR:       c.PostForm("wechat_qr"),
 		Address:        c.PostForm("address"),
 		AdditionalInfo: c.PostForm("additional_info"),
-		RecommendedBy:  c.PostForm("recommended_by"),
-		Icon:           filename,
+		// RecommendedBy:  c.PostForm("recommended_by"), not allow update recommended_by
+		Icon: filename,
 	}
 
 	if err := saveUploadedMultipleFile(c, "usericon", "image", []string{filename}); err != nil {
@@ -376,10 +376,10 @@ func disableUser(c *gin.Context) {
 }
 
 func changePassword(c *gin.Context) {
-	id := c.Param("id")
-	if id == "" {
-		id = c.MustGet("id").(string)
-	}
+	// id := c.Param("id")
+	// if id == "" {
+	id := c.MustGet("id").(string)
+	// }
 	q := fmt.Sprintf(`SELECT password FROM users where id='%s'`, id)
 
 	var password string
@@ -402,11 +402,11 @@ func changePassword(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
-	// TODO should relogin, clean session ??
-	// s := sessions.Default(c)
-	// s.Delete(USER_SESSION_KEY)
-	// s.Delete(ADMIN_KEY)
-	// s.Save()
+	// should relogin, clean session
+	s := sessions.Default(c)
+	s.Delete(USER_SESSION_KEY)
+	s.Delete(ADMIN_KEY)
+	s.Save()
 	c.JSON(http.StatusOK, "PASSWORD changed!")
 }
 
@@ -446,12 +446,9 @@ func composeUser(rows *sql.Rows) ([]User, error) {
 			Status:              status,
 		}
 		if userType == ADMIN {
-			fmt.Println("===============")
 			a, err := getAdmin(id)
 			if err != nil {
-				fmt.Println("===============")
 				if err == sql.ErrNoRows {
-					fmt.Println("===============")
 					return nil, errors.Newf("Fail to find admin info with user id: %s", u.ID)
 				}
 				return nil, err
