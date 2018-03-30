@@ -92,6 +92,8 @@ func (a *User) newAgent() error {
 	return err
 }
 
+// TODO after requirement is clear
+// --> recommended by (invitation code -> user id -> recommended by)
 //find user is recommended by - user_id
 //from invitation code, get which user recommended this
 // if the recommend is agent ???
