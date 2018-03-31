@@ -57,22 +57,40 @@ var smallDiamondHeaders = []string{
 // 	"RA": "雷蒂恩" /_images/constant/ico-stones.png???? - "RAD" - radiant
 // 	"CU": "枕形" /_images/constant/ico-stones.png - cushion
 // 	"AS": "Asscher" /_images/constant/ico-stones.png
+// BR
+// AS
+// HS
+// CU
+// EM
+// MQ
+// OV
+// PR
+// PS
+// RAD
+// RC
+
+// RB
+// MARQUISE
+// RCRB
 var VALID_DIAMOND_SHAPE = []string{
 	"BR",
 	"PS",
 	"PR",
 	"HS",
-	"MQ",
+	"MQ", "MARQUISE",
 	"OV",
 	"EM",
 	"CU",
 	"AS",
 	"RAD",
-	"RBC",
-	"RCRB",
 	"RC",
+
+	"RCRB",
+	"RB",
+
 	"PE",
 	"HT",
+	"RBC",
 	"CMB",
 }
 
@@ -144,12 +162,11 @@ var VALID_FLUORESCENCE_INTENSITY = []string{
 	"FNT",
 	"MED",
 	"STG",
-	"VST",
+	"VST", "VSTG",
 	"SLT",
 	"VSL",
 	// "NIL",
 	// "STR",
-	// "VSTG",
 }
 
 // "EX" - "EXC" - "Excellent"
@@ -157,7 +174,8 @@ var VALID_FLUORESCENCE_INTENSITY = []string{
 var VALID_POLISH = []string{
 	"EX",
 	"VG",
-	"G",
+	"G", "GD",
+	"F",
 }
 
 //  "EXC" - "Excellent"-	"EX",
@@ -167,7 +185,7 @@ var VALID_POLISH = []string{
 var VALID_SYMMETRY = []string{
 	"EX",
 	"VG",
-	"G",
+	"G", "GD",
 	"F",
 }
 
@@ -192,19 +210,46 @@ var VALID_SYMMETRY = []string{
 var VALID_CUT_GRADE = []string{
 	"EX",
 	"VG",
-	"G",
+	"G", "GD",
 	"F",
+	"-",
 	// "3EX",
 	// "NA",
 	// "NN",
 }
 
 var VALID_COLOR = []string{
+	"D",
+	"E",
+	"F",
+	"G",
+	"H",
+	"I",
+	"J",
+	"K",
+	"L",
+	"M",
+	"N",
+	"O-P",
+	"M, Faint Brown",
+	"N, Very Light Brown",
+	"K, Faint Brown",
+	"L, Faint Brown",
+	"FPB",
+	"FP",
+	"W-X, Light Brown",
+	"U-V",
+	"F.O-Y",
+	"O-P,Very Light Brown",
+	"Q-R",
+	"S-T",
+	"Y-Z",
+	"W-X",
 	"FY", "FANCY YELLOW",
 	"FLY",
-	"FANCY BROWNISH YELLOW", "FBY",
-	"FANCY LIGHT BROWNISH YELLOW", "FLBY",
-	"FANCY INTENSE YELLOW", "FIY",
+	"FBY", "FANCY BROWNISH YELLOW",
+	"FLBY", "FANCY LIGHT BROWNISH YELLOW",
+	"FIY", "FANCY INTENSE YELLOW",
 	"FVY", "FANCY VIVID YELLOW",
 	"FLBGY",
 }
