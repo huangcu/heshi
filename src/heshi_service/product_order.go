@@ -20,9 +20,14 @@ type transaction struct {
 type orderItem struct {
 	ID            string  `json:"order_id"`
 	ItemID        string  `json:"item_id"`
-	Category      string  `json:"category"`
-	Quantity      int     `json:"quantity"`
-	Price         float64 `json:"price"`
+	ItemCategory  string  `json:"item_category"`
+	ItemQuantity  int     `json:"item_quantity"`
+	ItemPrice     float64 `json:"item_price"`
+	SoldPriceUSD  float64 `json:"sold_price_usd"`
+	SoldPriceCNY  float64 `json:"sold_price_cny"`
+	SoldPriceEUR  float64 `json:"sold_price_eur"`
+	ReturnPoint   float64 `json:"return_point"`
+	ChosenBy      string  `json:"chosen_by"`
 	ExtraInfo     string  `json:"extra_info"`
 	SpecialNotice string  `json:"special_notice"`
 	DownPayment   float64 `json:"downpayment"`
@@ -36,24 +41,32 @@ func getOrderDetail(c *gin.Context) {
 	oid := c.Param("id")
 	uid := c.MustGet("id").(string)
 	q := fmt.Sprintf(`SELECT item_id, item_price, item_category, item_quantity, transaction_id, downpayment,
+		sold_price_usd, sold_price_cny, sold_price_eur,return_point, chosen_by,
 	 status, extra_info, special_notice FROM orders where id='%s' AND buyer_id='%s'`, oid, uid)
 
 	var itemID, itemCategory, transactionID, status string
-	var extraInfo, specialNotice sql.NullString
+	var chosenBy, extraInfo, specialNotice sql.NullString
 	var itemPrice, downpayment float64
 	var itemQuantity int
+	var soldPriceUSD, soldPriceCNY, soldPriceEUR, returnPoint sql.NullFloat64
 
 	if err := dbQueryRow(q).Scan(&itemID, &itemPrice, &itemCategory, &itemQuantity, &transactionID,
-		&downpayment, &status, &extraInfo, &specialNotice); err != nil {
+		&downpayment, &soldPriceUSD, &soldPriceCNY, &soldPriceEUR, &returnPoint, &chosenBy,
+		&status, &extraInfo, &specialNotice); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	oi := orderItem{
 		ID:            oid,
 		ItemID:        itemID,
-		Category:      itemCategory,
-		Quantity:      itemQuantity,
-		Price:         itemPrice,
+		ItemCategory:  itemCategory,
+		ItemQuantity:  itemQuantity,
+		ItemPrice:     itemPrice,
+		SoldPriceUSD:  soldPriceUSD.Float64,
+		SoldPriceCNY:  soldPriceCNY.Float64,
+		SoldPriceEUR:  soldPriceEUR.Float64,
+		ReturnPoint:   returnPoint.Float64,
+		ChosenBy:      chosenBy.String,
 		ExtraInfo:     extraInfo.String,
 		SpecialNotice: specialNotice.String,
 		DownPayment:   downpayment,
@@ -68,7 +81,8 @@ func getTransactionDetail(c *gin.Context) {
 	tid := c.Param("id")
 	uid := c.MustGet("id").(string)
 	q := fmt.Sprintf(`SELECT id, item_id, item_price, item_category, item_quantity, downpayment,
-	 status, extra_info, special_notice FROM orders where transaction_id='%s' AND buyer_id='%s'`, tid, uid)
+		sold_price_usd, sold_price_cny, sold_price_eur,return_point, chosen_by, 
+		status, extra_info, special_notice FROM orders where transaction_id='%s' AND buyer_id='%s'`, tid, uid)
 
 	rows, err := dbQuery(q)
 	if err != nil {
@@ -77,21 +91,28 @@ func getTransactionDetail(c *gin.Context) {
 	}
 	var ois []orderItem
 	for rows.Next() {
-		var id, itemID, itemCategory, status string
-		var extraInfo, specialNotice sql.NullString
+		var id, itemID, itemCategory, transactionID, status string
+		var chosenBy, extraInfo, specialNotice sql.NullString
 		var itemPrice, downpayment float64
 		var itemQuantity int
-		if err := rows.Scan(&id, &itemID, &itemPrice, &itemCategory, &itemQuantity,
-			&downpayment, &status, &extraInfo, &specialNotice); err != nil {
+		var soldPriceUSD, soldPriceCNY, soldPriceEUR, returnPoint sql.NullFloat64
+		if err := dbQueryRow(q).Scan(&id, &itemID, &itemPrice, &itemCategory, &itemQuantity, &transactionID,
+			&downpayment, &soldPriceUSD, &soldPriceCNY, &soldPriceEUR, &returnPoint, &chosenBy,
+			&status, &extraInfo, &specialNotice); err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 		oi := orderItem{
 			ID:            id,
 			ItemID:        itemID,
-			Category:      itemCategory,
-			Quantity:      itemQuantity,
-			Price:         itemPrice,
+			ItemCategory:  itemCategory,
+			ItemQuantity:  itemQuantity,
+			ItemPrice:     itemPrice,
+			SoldPriceUSD:  soldPriceUSD.Float64,
+			SoldPriceCNY:  soldPriceCNY.Float64,
+			SoldPriceEUR:  soldPriceEUR.Float64,
+			ReturnPoint:   returnPoint.Float64,
+			ChosenBy:      chosenBy.String,
 			ExtraInfo:     extraInfo.String,
 			SpecialNotice: specialNotice.String,
 			DownPayment:   downpayment,
@@ -131,6 +152,7 @@ func getAllTransctionsOfUser(c *gin.Context) {
 	var ts []transaction
 	for _, transactionID := range transactionIDs {
 		q := fmt.Sprintf(`SELECT id, item_id, item_price, item_category, item_quantity, downpayment,
+			sold_price_usd, sold_price_cny, sold_price_eur,return_point, chosen_by,
 			status, extra_info, special_notice FROM orders WHERE buyer_id='%s' AND transcation_id='%s'`, uid, transactionID)
 		rows, err := dbQuery(q)
 		if err != nil {
@@ -140,20 +162,28 @@ func getAllTransctionsOfUser(c *gin.Context) {
 		var ois []orderItem
 		for rows.Next() {
 			var id, itemID, itemCategory, status string
-			var extraInfo, specialNotice sql.NullString
+			var chosenBy, extraInfo, specialNotice sql.NullString
 			var itemPrice, downpayment float64
 			var itemQuantity int
+			var soldPriceUSD, soldPriceCNY, soldPriceEUR, returnPoint sql.NullFloat64
+
 			if err := rows.Scan(&id, &itemID, &itemPrice, &itemCategory, &itemQuantity,
-				&downpayment, &status, &extraInfo, &specialNotice); err != nil {
+				&downpayment, &soldPriceUSD, &soldPriceCNY, &soldPriceEUR, &returnPoint, &chosenBy,
+				&status, &extraInfo, &specialNotice); err != nil {
 				c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 				return
 			}
 			oi := orderItem{
 				ID:            id,
 				ItemID:        itemID,
-				Category:      itemCategory,
-				Quantity:      itemQuantity,
-				Price:         itemPrice,
+				ItemCategory:  itemCategory,
+				ItemQuantity:  itemQuantity,
+				ItemPrice:     itemPrice,
+				SoldPriceUSD:  soldPriceUSD.Float64,
+				SoldPriceCNY:  soldPriceCNY.Float64,
+				SoldPriceEUR:  soldPriceEUR.Float64,
+				ReturnPoint:   returnPoint.Float64,
+				ChosenBy:      chosenBy.String,
 				ExtraInfo:     extraInfo.String,
 				SpecialNotice: specialNotice.String,
 				DownPayment:   downpayment,
@@ -191,6 +221,7 @@ func getAllTransctions(c *gin.Context) {
 	var ts []transaction
 	for _, transactionID := range transactionIDs {
 		q := fmt.Sprintf(`SELECT id, item_id, item_price, item_category, item_quantity, downpayment,
+			sold_price_usd, sold_price_cny, sold_price_eur,return_point, chosen_by,
 			buyer_id, status, extra_info, special_notice FROM orders WHERE transaction_id='%s'`, transactionID)
 		rows, err := dbQuery(q)
 		if err != nil {
@@ -200,20 +231,27 @@ func getAllTransctions(c *gin.Context) {
 		var ois []orderItem
 		for rows.Next() {
 			var id, itemID, itemCategory, buyerID, status string
-			var extraInfo, specialNotice sql.NullString
+			var chosenBy, extraInfo, specialNotice sql.NullString
 			var itemPrice, downpayment float64
 			var itemQuantity int
+			var soldPriceUSD, soldPriceCNY, soldPriceEUR, returnPoint sql.NullFloat64
+
 			if err := rows.Scan(&id, &itemID, &itemPrice, &itemCategory, &itemQuantity,
-				&downpayment, &buyerID, &status, &extraInfo, &specialNotice); err != nil {
+				&downpayment, &soldPriceUSD, &soldPriceCNY, &soldPriceEUR, &returnPoint, &chosenBy,
+				&buyerID, &status, &extraInfo, &specialNotice); err != nil {
 				c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 				return
 			}
 			oi := orderItem{
 				ID:            id,
 				ItemID:        itemID,
-				Category:      itemCategory,
-				Quantity:      itemQuantity,
-				Price:         itemPrice,
+				ItemCategory:  itemCategory,
+				ItemQuantity:  itemQuantity,
+				ItemPrice:     itemPrice,
+				SoldPriceUSD:  soldPriceUSD.Float64,
+				SoldPriceCNY:  soldPriceCNY.Float64,
+				SoldPriceEUR:  soldPriceEUR.Float64,
+				ReturnPoint:   returnPoint.Float64,
 				ExtraInfo:     extraInfo.String,
 				SpecialNotice: specialNotice.String,
 				DownPayment:   downpayment,
@@ -232,8 +270,9 @@ func getAllTransctions(c *gin.Context) {
 	c.JSON(http.StatusOK, ts)
 }
 
-//ALLOW TO EDIT PRICE,SPECIALNOTICE,DOWNPAYMENT,STATUS ONLY
+//AGENT & ADMIN ALLOW TO EDIT SOLD_PRICE_USD/CNY/EUR,SPECIALNOTICE,DOWNPAYMENT,STATUS ONLY
 func updateOrder(c *gin.Context) {
+	uid := c.MustGet("id").(string)
 	oid := c.Param("id")
 	if exist, err := isOrderExistByID(oid); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
@@ -248,9 +287,9 @@ func updateOrder(c *gin.Context) {
 		SpecialNotice: c.PostForm("special_notice"),
 		Status:        strings.ToUpper(c.PostForm("status")),
 	}
-	priceStr := c.PostForm("price")
-	if priceStr != "" {
-		cValue, err := util.StringToFloat(priceStr)
+	priceUSDStr := c.PostForm("sold_price_usd")
+	if priceUSDStr != "" {
+		cValue, err := util.StringToFloat(priceUSDStr)
 		if err != nil {
 			c.JSON(http.StatusOK, vemsgOrderPriceNotValid)
 			return
@@ -258,7 +297,33 @@ func updateOrder(c *gin.Context) {
 			c.JSON(http.StatusOK, vemsgOrderPriceNotValid)
 			return
 		} else {
-			oi.Price = cValue
+			oi.SoldPriceCNY = cValue
+		}
+	}
+	priceCNYStr := c.PostForm("sold_price_cny")
+	if priceCNYStr != "" {
+		cValue, err := util.StringToFloat(priceCNYStr)
+		if err != nil {
+			c.JSON(http.StatusOK, vemsgOrderPriceNotValid)
+			return
+		} else if cValue == 0 {
+			c.JSON(http.StatusOK, vemsgOrderPriceNotValid)
+			return
+		} else {
+			oi.SoldPriceCNY = cValue
+		}
+	}
+	priceEURStr := c.PostForm("sold_price_eur")
+	if priceEURStr != "" {
+		cValue, err := util.StringToFloat(priceEURStr)
+		if err != nil {
+			c.JSON(http.StatusOK, vemsgOrderPriceNotValid)
+			return
+		} else if cValue == 0 {
+			c.JSON(http.StatusOK, vemsgOrderPriceNotValid)
+			return
+		} else {
+			oi.SoldPriceEUR = cValue
 		}
 	}
 	downPaymentStr := c.PostForm("downpayment")
@@ -286,6 +351,7 @@ func updateOrder(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, oi.ID)
+	go newHistoryRecords(uid, "orders", oi.ID, oi.parmsKV())
 }
 
 func createOrder(c *gin.Context) {
@@ -333,7 +399,7 @@ func cartItems(c *gin.Context) {
 
 func checkItems(items []orderItem) error {
 	for _, item := range items {
-		switch item.Category {
+		switch item.ItemCategory {
 		case DIAMOND:
 			if err := item.checkDiamondItem(); err != nil {
 				return err
@@ -376,7 +442,7 @@ func (oi *orderItem) checkJewelryItem() error {
 		oi.Status = "NOT AVAILABLE"
 	}
 	oi.InStock = quantity
-	if quantity > oi.Quantity {
+	if quantity > oi.ItemQuantity {
 		oi.Status = "AVAILABLE"
 	} else {
 		oi.Status = "STOCK_NOT_ENOUGH"
@@ -393,7 +459,7 @@ func (oi *orderItem) checkGemItem() error {
 		oi.Status = "NOT AVAILABLE"
 	}
 	oi.InStock = quantity
-	if quantity > oi.Quantity {
+	if quantity > oi.ItemQuantity {
 		oi.Status = "AVAILABLE"
 	} else {
 		oi.Status = "STOCK_NOT_ENOUGH"
@@ -410,7 +476,7 @@ func (oi *orderItem) checkSmallDiamondItem() error {
 		oi.Status = "NOT AVAILABLE"
 	}
 	oi.InStock = quantity
-	if quantity > oi.Quantity {
+	if quantity > oi.ItemQuantity {
 		oi.Status = "AVAILABLE"
 	} else {
 		oi.Status = "STOCK_NOT_ENOUGH"
@@ -422,18 +488,18 @@ func orderSingleItem(item orderItem) (*transaction, error) {
 	item.ID = newV4()
 	item.TransactionID = item.ID
 	var oq string
-	switch item.Category {
+	switch item.ItemCategory {
 	case DIAMOND:
 		oq = fmt.Sprintf("UPDATE diamonds SET status='ORDERED', updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", item.ItemID)
 	case JEWELRY:
 		oq = fmt.Sprintf(`UPDATE jewelrys SET quantity='%d', updated_at=(CURRENT_TIMESTAMP) 
-		WHERE id='%s' AND online='YES' AND quantity>='%d'`, item.InStock-item.Quantity, item.ItemID, item.Quantity)
+		WHERE id='%s' AND online='YES' AND quantity>='%d'`, item.InStock-item.ItemQuantity, item.ItemID, item.ItemQuantity)
 	case GEM:
 		oq = fmt.Sprintf(`UPDATE gems SET quantity='%d', updated_at=(CURRENT_TIMESTAMP) 
-		WHERE id='%s' AND online='YES' AND quantity>='%d'`, item.InStock-item.Quantity, item.ItemID, item.Quantity)
+		WHERE id='%s' AND online='YES' AND quantity>='%d'`, item.InStock-item.ItemQuantity, item.ItemID, item.ItemQuantity)
 	case SMALLDIAMOND:
 		oq = fmt.Sprintf(`UPDATE small_diamonds SET quantity='%d', updated_at=(CURRENT_TIMESTAMP) 
-		WHERE id='%s' AND online='YES' AND quantity>='%d'`, item.InStock-item.Quantity, item.ItemID, item.Quantity)
+		WHERE id='%s' AND online='YES' AND quantity>='%d'`, item.InStock-item.ItemQuantity, item.ItemID, item.ItemQuantity)
 	}
 	err := dbTransact(db, func(tx *sql.Tx) error {
 		traceSQL(oq)
@@ -470,18 +536,18 @@ func orderMultipleItems(items []orderItem) (*transaction, error) {
 		var oq string
 		item.TransactionID = transactionID
 		item.ID = newV4()
-		switch item.Category {
+		switch item.ItemCategory {
 		case DIAMOND:
 			oq = fmt.Sprintf("UPDATE diamonds SET status='ORDERED', updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", item.ItemID)
 		case JEWELRY:
 			oq = fmt.Sprintf(`UPDATE jewelrys SET quantity='%d', updated_at=(CURRENT_TIMESTAMP) 
-		WHERE id='%s' AND online='YES' AND quantity>='%d'`, item.InStock-item.Quantity, item.ItemID, item.Quantity)
+		WHERE id='%s' AND online='YES' AND quantity>='%d'`, item.InStock-item.ItemQuantity, item.ItemID, item.ItemQuantity)
 		case GEM:
 			oq = fmt.Sprintf(`UPDATE gems SET quantity='%d', updated_at=(CURRENT_TIMESTAMP) 
-		WHERE id='%s' AND online='YES' AND quantity>='%d'`, item.InStock-item.Quantity, item.ItemID, item.Quantity)
+		WHERE id='%s' AND online='YES' AND quantity>='%d'`, item.InStock-item.ItemQuantity, item.ItemID, item.ItemQuantity)
 		case SMALLDIAMOND:
 			oq = fmt.Sprintf(`UPDATE small_diamonds SET quantity='%d', updated_at=(CURRENT_TIMESTAMP) 
-		WHERE id='%s' AND online='YES' AND quantity>='%d'`, item.InStock-item.Quantity, item.ItemID, item.Quantity)
+		WHERE id='%s' AND online='YES' AND quantity>='%d'`, item.InStock-item.ItemQuantity, item.ItemID, item.ItemQuantity)
 		}
 		qs[oq] = item
 	}

@@ -99,6 +99,7 @@ func getSupplier(c *gin.Context) {
 
 //TODO better only allowed to change connected or not, name, prefix not allowed to change
 func updateSupplier(c *gin.Context) {
+	uid := c.MustGet("id").(string)
 	s := supplier{
 		ID:        c.Param("id"),
 		Name:      c.PostForm("name"),
@@ -112,6 +113,7 @@ func updateSupplier(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, s.ID)
+	go newHistoryRecords(uid, "suppliers", s.ID, s.paramsKV())
 }
 
 //TODO check return row number?

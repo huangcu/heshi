@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func (oi *orderItem) composeInsertQuery() string {
 	params := oi.parmsKV()
@@ -47,14 +49,29 @@ func (oi *orderItem) parmsKV() map[string]interface{} {
 	if oi.ItemID != "" {
 		params["item_id"] = oi.ItemID
 	}
-	if oi.Category != "" {
-		params["item_category"] = oi.Category
+	if oi.ItemCategory != "" {
+		params["item_category"] = oi.ItemCategory
 	}
-	if oi.Quantity != 0 {
-		params["item_quantity"] = oi.Quantity
+	if oi.ItemQuantity != 0 {
+		params["item_quantity"] = oi.ItemQuantity
 	}
-	if oi.Price != 0 {
-		params["item_price"] = oi.Price
+	if oi.ItemPrice != 0 {
+		params["item_price"] = oi.ItemPrice
+	}
+	if oi.SoldPriceUSD != 0 {
+		params["sold_price_usd"] = oi.SoldPriceUSD
+	}
+	if oi.SoldPriceCNY != 0 {
+		params["sold_price_cny"] = oi.SoldPriceCNY
+	}
+	if oi.SoldPriceEUR != 0 {
+		params["sold_price_eur"] = oi.SoldPriceEUR
+	}
+	if oi.ReturnPoint != 0 {
+		params["return_point"] = oi.ReturnPoint
+	}
+	if oi.ChosenBy != "" {
+		params["chosen_by"] = oi.ChosenBy
 	}
 	if oi.ExtraInfo != "" {
 		params["extra_info"] = oi.ExtraInfo

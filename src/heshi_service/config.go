@@ -15,6 +15,7 @@ import (
 
 var activeConfig config
 
+// customer, agent 升级标准 以及 level和 discount的map关系
 type config struct {
 	ID          string    `json:"id"`
 	Discount    int       `json:"discount"`
@@ -110,7 +111,6 @@ func updateLevelConfig(c *gin.Context) {
 		AmountStr:   c.PostForm("amount"),
 		PiecesStr:   c.PostForm("pieces"),
 		Type:        c.PostForm("type"),
-		CreatedBy:   createdBy,
 	}
 	if vemsgs, err := conf.validateReq(); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
@@ -125,6 +125,7 @@ func updateLevelConfig(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, conf.ID)
+	go newHistoryRecords(createdBy, "configs", conf.ID, conf.paramsKV())
 }
 
 func getAllLevelConfigs(c *gin.Context) {
