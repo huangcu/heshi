@@ -89,6 +89,7 @@ func newGems(c *gin.Context) {
 
 //TODO what to update; stockid???
 func updateGems(c *gin.Context) {
+	uid := c.MustGet("id").(string)
 	gid := c.Param("id")
 	if exist, err := isGemExistByID(gid); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
@@ -142,6 +143,7 @@ func updateGems(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, g.ID)
+	go newHistoryRecords(uid, "gems", g.ID, g.parmsKV())
 }
 
 func getAllGems(c *gin.Context) {

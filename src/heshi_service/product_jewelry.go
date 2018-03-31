@@ -168,6 +168,7 @@ func newJewelry(c *gin.Context) {
 }
 
 func updateJewelry(c *gin.Context) {
+	uid := c.MustGet("id").(string)
 	jid := c.Param("id")
 	if exist, err := isJewelryExistByID(jid); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
@@ -246,6 +247,7 @@ func updateJewelry(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, j.ID)
+	go newHistoryRecords(uid, "jewelrys", j.ID, j.parmsKV())
 }
 
 func composeJewelry(rows *sql.Rows) ([]jewelry, error) {

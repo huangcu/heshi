@@ -8,7 +8,7 @@ import (
 )
 
 //TODO another field to indicate recommend by heshi
-func recommnadDiamonds(c *gin.Context) {
+func recommendDiamonds(c *gin.Context) {
 	///api/recommend/diamonds?sort='carat'&order='up'
 	sort := "carat"
 	if c.Query("sort") == "price_retail" {

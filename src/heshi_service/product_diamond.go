@@ -141,6 +141,7 @@ func newDiamond(c *gin.Context) {
 }
 
 func updateDiamond(c *gin.Context) {
+	uid := c.MustGet("id").(string)
 	did := c.Param("id")
 	if exist, err := isDiamondExistByID(did); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
@@ -201,6 +202,7 @@ func updateDiamond(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, d.ID)
+	go newHistoryRecords(uid, "diamonds", d.ID, d.parmsKV())
 }
 
 func composeDiamond(rows *sql.Rows) ([]diamond, error) {
