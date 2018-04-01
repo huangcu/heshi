@@ -129,6 +129,7 @@ func (d *diamond) parmsKV() map[string]interface{} {
 	return params
 }
 
+// TODO to be removed
 func importDiamondsCustomizeHeaders(headers map[string]string, records [][]string) ([][]string, error) {
 	oldStockRefList, err := getAllStockRef()
 	if err != nil {
@@ -182,9 +183,19 @@ func importDiamondsCustomizeHeaders(headers map[string]string, records [][]strin
 							}
 							d.Carat = cValue
 						case "color":
-							d.Color = diamondColor(record[i])
+							if c, err := diamondColor(record[i]); err != nil {
+								ignoredRows = append(ignoredRows, record)
+								ignored = true
+							} else {
+								d.Color = c
+							}
 						case "clarity":
-							d.Clarity = diamondClarity(record[i])
+							if c, err := diamondClarity(record[i]); err != nil {
+								ignoredRows = append(ignoredRows, record)
+								ignored = true
+							} else {
+								d.Clarity = c
+							}
 						case "grading_lab":
 							if s, err := diamondGradingLab(record[i]); err != nil {
 								ignoredRows = append(ignoredRows, record)
@@ -195,13 +206,33 @@ func importDiamondsCustomizeHeaders(headers map[string]string, records [][]strin
 						case "certificate_number":
 							d.CertificateNumber = strings.ToUpper(record[i])
 						case "cut_grade":
-							d.CutGrade = diamondCutGradeSymmetryPolish(record[i])
+							if c, err := diamondCutGradeSymmetryPolish(record[i]); err != nil {
+								ignoredRows = append(ignoredRows, record)
+								ignored = true
+							} else {
+								d.CutGrade = c
+							}
 						case "polish":
-							d.Polish = diamondCutGradeSymmetryPolish(record[i])
+							if c, err := diamondCutGradeSymmetryPolish(record[i]); err != nil {
+								ignoredRows = append(ignoredRows, record)
+								ignored = true
+							} else {
+								d.Polish = c
+							}
 						case "symmetry":
-							d.Symmetry = diamondCutGradeSymmetryPolish(record[i])
+							if c, err := diamondCutGradeSymmetryPolish(record[i]); err != nil {
+								ignoredRows = append(ignoredRows, record)
+								ignored = true
+							} else {
+								d.Symmetry = c
+							}
 						case "fluorescence_intensity":
-							d.FluorescenceIntensity = diamondFluo(record[i])
+							if c, err := diamondFluo(record[i]); err != nil {
+								ignoredRows = append(ignoredRows, record)
+								ignored = true
+							} else {
+								d.FluorescenceIntensity = c
+							}
 						case "country":
 							d.Country = strings.ToUpper(record[i])
 						case "supplier":
@@ -320,8 +351,8 @@ func (d *diamond) validateDiamondReq(update bool) ([]errors.HSMessage, error) {
 	}
 
 	if !update && d.StockRef == "" {
-		vemsgNotValid.Message = "diamond stock ref can not be empty"
-		vemsg = append(vemsg, vemsgNotValid)
+		vemsgEmpty.Message = "diamond stock ref can not be empty"
+		vemsg = append(vemsg, vemsgEmpty)
 	}
 	if d.StockRef != "" {
 		if err := d.composeStockRefWithSupplierPrefix(); err != nil {
@@ -344,7 +375,7 @@ func (d *diamond) validateDiamondReq(update bool) ([]errors.HSMessage, error) {
 		}
 	}
 	if !update && d.DiamondID == "" {
-		vemsgNotValid.Message = "diamond id can not be empty"
+		vemsgEmpty.Message = "diamond id can not be empty"
 		vemsg = append(vemsg, vemsgNotValid)
 	}
 	if d.DiamondID != "" {
@@ -366,82 +397,122 @@ func (d *diamond) validateDiamondReq(update bool) ([]errors.HSMessage, error) {
 	}
 
 	if !update && d.Shape == "" {
-		vemsgNotValid.Message = "diamond shape can not be empty"
-		vemsg = append(vemsg, vemsgNotValid)
+		vemsgEmpty.Message = "diamond shape can not be empty"
+		vemsg = append(vemsg, vemsgEmpty)
 	} else if d.Shape != "" {
-		s, err := diamondShape(d.Shape)
-		if err != nil {
-			return nil, err
+		if s, err := diamondShape(d.Shape); err != nil {
+			vemsgNotValid.Message = err.Error()
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.Shape = s
 		}
-		d.Shape = s
 	}
 
 	if !update && d.GradingLab == "" {
-		vemsgNotValid.Message = "diamond grading lab can not be empty"
-		vemsg = append(vemsg, vemsgNotValid)
+		vemsgEmpty.Message = "diamond grading lab can not be empty"
+		vemsg = append(vemsg, vemsgEmpty)
 	} else if d.GradingLab != "" {
-		s, err := diamondGradingLab(d.GradingLab)
-		if err != nil {
-			return nil, err
+		if s, err := diamondGradingLab(d.GradingLab); err != nil {
+			vemsgNotValid.Message = err.Error()
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.GradingLab = s
 		}
-		d.GradingLab = s
 	}
 
 	if !update && d.Color == "" {
-		vemsgNotValid.Message = "diamond color can not be empty"
-		vemsg = append(vemsg, vemsgNotValid)
+		vemsgEmpty.Message = "diamond color can not be empty"
+		vemsg = append(vemsg, vemsgEmpty)
 	} else if d.Color != "" {
-		d.Color = diamondColor(d.Color)
+		if d.Color != "" {
+			if c, err := diamondColor(d.Color); err != nil {
+				vemsgNotValid.Message = err.Error()
+				vemsg = append(vemsg, vemsgNotValid)
+			} else {
+				d.Color = c
+			}
+		}
 	}
 
 	if !update && d.Clarity == "" {
-		vemsgNotValid.Message = "diamond clarity can not be empty"
-		vemsg = append(vemsg, vemsgNotValid)
+		vemsgEmpty.Message = "diamond clarity can not be empty"
+		vemsg = append(vemsg, vemsgEmpty)
 	} else if d.Clarity != "" {
-		d.Clarity = diamondClarity(d.Clarity)
+		if c, err := diamondClarity(d.Clarity); err != nil {
+			vemsgNotValid.Message = err.Error()
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.Clarity = c
+		}
 	}
 
 	if !update && d.CutGrade == "" {
-		vemsgNotValid.Message = "diamond cut grade can not be empty"
-		vemsg = append(vemsg, vemsgNotValid)
+		vemsgEmpty.Message = "diamond cut grade can not be empty"
+		vemsg = append(vemsg, vemsgEmpty)
 	} else if d.CutGrade != "" {
-		d.CutGrade = diamondCutGradeSymmetryPolish(d.CutGrade)
+		if c, err := diamondCutGradeSymmetryPolish(d.CutGrade); err != nil {
+			vemsgNotValid.Message = err.Error()
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.CutGrade = c
+		}
 	}
 
 	if !update && d.Polish == "" {
-		vemsgNotValid.Message = "diamond polish can not be empty"
-		vemsg = append(vemsg, vemsgNotValid)
+		vemsgEmpty.Message = "diamond polish can not be empty"
+		vemsg = append(vemsg, vemsgEmpty)
 	} else if d.Polish != "" {
-		d.Polish = diamondCutGradeSymmetryPolish(d.Polish)
+		if c, err := diamondCutGradeSymmetryPolish(d.Polish); err != nil {
+			vemsgNotValid.Message = err.Error()
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.Polish = c
+		}
 	}
 
 	if !update && d.Symmetry == "" {
-		vemsgNotValid.Message = "diamond symmetry can not be empty"
-		vemsg = append(vemsg, vemsgNotValid)
+		vemsgEmpty.Message = "diamond symmetry can not be empty"
+		vemsg = append(vemsg, vemsgEmpty)
 	} else if d.Symmetry != "" {
-		d.Symmetry = diamondCutGradeSymmetryPolish(d.Symmetry)
+		if c, err := diamondCutGradeSymmetryPolish(d.Symmetry); err != nil {
+			vemsgNotValid.Message = err.Error()
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.Symmetry = c
+		}
 	}
 
 	if !update && d.FluorescenceIntensity == "" {
-		vemsgNotValid.Message = "diamond fluorescence intensity can not be empty"
-		vemsg = append(vemsg, vemsgNotValid)
+		vemsgEmpty.Message = "diamond fluorescence intensity can not be empty"
+		vemsg = append(vemsg, vemsgEmpty)
 	} else if d.FluorescenceIntensity != "" {
-		d.FluorescenceIntensity = diamondFluo(d.FluorescenceIntensity)
+		if c, err := diamondFluo(d.FluorescenceIntensity); err != nil {
+			vemsgNotValid.Message = err.Error()
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.FluorescenceIntensity = c
+		}
 	}
 
-	//TODO format and validate country
 	if !update && d.Country == "" {
-		vemsgNotValid.Message = "diamond country can not be empty"
-		vemsg = append(vemsg, vemsgNotValid)
+		vemsgEmpty.Message = "diamond country can not be empty"
+		vemsg = append(vemsg, vemsgEmpty)
+	} else if d.Country != "" {
+		if c, err := diamondCountry(d.Country); err != nil {
+			vemsgNotValid.Message = err.Error()
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.Country = c
+		}
 	}
 
 	if !update && d.Supplier == "" {
-		vemsgNotValid.Message = "diamond supplier can not be empty"
-		vemsg = append(vemsg, vemsgNotValid)
+		vemsgEmpty.Message = "diamond supplier can not be empty"
+		vemsg = append(vemsg, vemsgEmpty)
 	} else if d.Supplier != "" {
 		if s, err := diamondSupplierPageReq(d.Supplier); err != nil {
-			vemsgNotValid.Message = errors.GetMessage(err)
-			vemsg = append(vemsg, vemsgNotValid)
+			vemsgEmpty.Message = errors.GetMessage(err)
+			vemsg = append(vemsg, vemsgEmpty)
 		} else {
 			d.Supplier = s
 		}
@@ -512,27 +583,57 @@ func (d *diamond) validateDiamondUpdateReq() ([]errors.HSMessage, error) {
 	}
 
 	if d.Color != "" {
-		d.Color = diamondColor(d.Color)
+		if c, err := diamondColor(d.Color); err != nil {
+			vemsgNotValid.Message = "diamond color is not valid"
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.Color = c
+		}
 	}
 
 	if d.Clarity != "" {
-		d.Clarity = diamondClarity(d.Clarity)
+		if c, err := diamondClarity(d.Clarity); err != nil {
+			vemsgNotValid.Message = "diamond clarity is not valid"
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.Clarity = c
+		}
 	}
 
 	if d.CutGrade != "" {
-		d.CutGrade = diamondCutGradeSymmetryPolish(d.CutGrade)
+		if c, err := diamondCutGradeSymmetryPolish(d.CutGrade); err != nil {
+			vemsgNotValid.Message = "diamond cut grade is not valid"
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.CutGrade = c
+		}
 	}
 
 	if d.Polish != "" {
-		d.Polish = diamondCutGradeSymmetryPolish(d.Polish)
+		if c, err := diamondCutGradeSymmetryPolish(d.Polish); err != nil {
+			vemsgNotValid.Message = "diamond polish is not valid"
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.Polish = c
+		}
 	}
 
 	if d.Symmetry != "" {
-		d.Symmetry = diamondCutGradeSymmetryPolish(d.Symmetry)
+		if c, err := diamondCutGradeSymmetryPolish(d.Symmetry); err != nil {
+			vemsgNotValid.Message = "diamond symmetry is not valid"
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.Symmetry = c
+		}
 	}
 
 	if d.FluorescenceIntensity != "" {
-		d.FluorescenceIntensity = diamondFluo(d.FluorescenceIntensity)
+		if c, err := diamondFluo(d.FluorescenceIntensity); err != nil {
+			vemsgNotValid.Message = "diamond fluorescence is not valid"
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.FluorescenceIntensity = c
+		}
 	}
 
 	if d.Supplier != "" {

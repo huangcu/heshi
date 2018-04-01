@@ -36,7 +36,7 @@ func searchJewelrys(c *gin.Context) ([]jewelry, error) {
 	 dia_size_min, dia_size_max, small_dias, small_dia_num, small_dia_carat, mounting_type, main_dia_num, main_dia_size, 
 	 video_link, images, text, online, verified, in_stock, featured, price, stock_quantity, profitable,
 	 totally_scanned, free_acc, last_scan_at,offline_at
-	 FROM jewelrys WHERE stock_id = '%s' AND online = 'YES'`, strings.ToUpper(c.PostForm("ref")))
+	 FROM jewelrys WHERE stock_id = '%s' AND online != 'DELETED'`, strings.ToUpper(c.PostForm("ref")))
 
 	class := strings.ToUpper(c.Query("class"))
 	needDiamond := ""
@@ -142,6 +142,12 @@ func composeFilterJewelryQuery(c *gin.Context) (string, error) {
 
 	if c.PostForm("stock_quantity") != "" {
 		querys = append(querys, fmt.Sprintf("stock_quantity > '%s'", strings.ToUpper(c.PostForm("stock_quantity"))))
+	}
+
+	if c.PostForm("online") != "" {
+		querys = append(querys, fmt.Sprintf("online='%s'", strings.ToUpper(c.PostForm("online"))))
+	} else {
+		querys = append(querys, "online!='DELETED'")
 	}
 
 	var limit string

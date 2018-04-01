@@ -18,7 +18,7 @@ func validateGemHeaders(headers []string) []string {
 	return missingHeaders
 }
 
-func importGemProducts(file string) ([]util.Row, error) {
+func importGemProducts(uid, file string) ([]util.Row, error) {
 	oldStockIDList, err := getAllGemStockID()
 	if err != nil {
 		return nil, err
@@ -91,7 +91,7 @@ func importGemProducts(file string) ([]util.Row, error) {
 
 		//validate row
 		var id string
-		q := fmt.Sprintf("SELECT id FROM jewelrys WHERE stock_id='%s'", g.StockID)
+		q := fmt.Sprintf("SELECT id FROM gems WHERE stock_id='%s'", g.StockID)
 		if err := dbQueryRow(q).Scan(&id); err != nil {
 			//new record
 			if err == sql.ErrNoRows {
@@ -112,10 +112,10 @@ func importGemProducts(file string) ([]util.Row, error) {
 				g.gemImages()
 				q := g.composeInsertQuery()
 				if _, err := dbExec(q); err != nil {
-					util.Printf("fail to add jewelry item. stock id: %s; err: %s", g.StockID, errors.GetMessage(err))
+					util.Printf("fail to add gem item. stock id: %s; err: %s", g.StockID, errors.GetMessage(err))
 					return nil, err
 				}
-				util.Printf("new jewelry item added. stock id: %s", g.StockID)
+				util.Printf("new gem item added. stock id: %s", g.StockID)
 			} else {
 				return nil, err
 			}
@@ -138,10 +138,11 @@ func importGemProducts(file string) ([]util.Row, error) {
 		g.gemImages()
 		q = g.composeUpdateQuery()
 		if _, err := dbExec(q); err != nil {
-			util.Printf("fail to update jewelry item. stock id: %s; err; %s", g.StockID, errors.GetMessage(err))
+			util.Printf("fail to update gem item. stock id: %s; err; %s", g.StockID, errors.GetMessage(err))
 			return nil, err
 		}
 		util.Printf("gem item updated. stock id: %s", g.StockID)
+		go newHistoryRecords(uid, "gems", g.ID, g.parmsKV())
 		//remove updated stockID from old one as this has been scanned and processed
 		delete(oldStockIDList, g.StockID)
 	}

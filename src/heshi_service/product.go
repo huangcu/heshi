@@ -50,7 +50,7 @@ func uploadAndGetFileHeaders(c *gin.Context) {
 }
 
 func uploadAndProcessProducts(c *gin.Context) {
-	id := c.MustGet("id").(string)
+	uid := c.MustGet("id").(string)
 	product := c.PostForm("product")
 	category := c.PostForm("jewelryCategory")
 	if !util.IsInArrayString(product, VALID_PRODUCTS) {
@@ -64,7 +64,7 @@ func uploadAndProcessProducts(c *gin.Context) {
 		return
 	}
 	// Upload the file to specific dst.
-	if err := os.MkdirAll(filepath.Join(UPLOADFILEDIR, id), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Join(UPLOADFILEDIR, uid), 0755); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
@@ -75,7 +75,7 @@ func uploadAndProcessProducts(c *gin.Context) {
 	} else {
 		filename = file.Filename + time.Now().Format("20060102150405")
 	}
-	dst := filepath.Join(UPLOADFILEDIR, id, filename)
+	dst := filepath.Join(UPLOADFILEDIR, uid, filename)
 	err = c.SaveUploadedFile(file, dst)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
@@ -93,19 +93,19 @@ func uploadAndProcessProducts(c *gin.Context) {
 		return
 	}
 
-	importProducts(product, dst, category)
+	importProducts(uid, product, dst, category)
 }
 
-func importProducts(product, file, cate string) ([]util.Row, error) {
+func importProducts(uid, product, file, cate string) ([]util.Row, error) {
 	switch product {
 	case "diamond":
-		return importDiamondProducts(file)
+		return importDiamondProducts(uid, file)
 	case "small_diamond":
 		return importSmallDiamondProducts(file)
 	case "jewelry":
-		return importJewelryProducts(file, cate)
+		return importJewelryProducts(uid, file, cate)
 	case "gem":
-		return importGemProducts(file)
+		return importGemProducts(uid, file)
 	default:
 		return nil, nil
 	}

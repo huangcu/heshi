@@ -19,7 +19,7 @@ func validateDiamondHeaders(headers []string) []string {
 }
 
 //TODO better validate import(new VS update data validation - > compare with jewelrys)
-func importDiamondProducts(file string) ([]util.Row, error) {
+func importDiamondProducts(uid, file string) ([]util.Row, error) {
 	oldStockRefList, err := getAllStockRef()
 	if err != nil {
 		return nil, err
@@ -82,9 +82,19 @@ func importDiamondProducts(file string) ([]util.Row, error) {
 				}
 				d.Carat = cValue
 			case "color":
-				d.Color = diamondColor(record[i])
+				if c, err := diamondColor(record[i]); err != nil {
+					row.Message = append(row.Message, errors.GetMessage(err))
+					row.Ignored = true
+				} else {
+					d.Color = c
+				}
 			case "clarity":
-				d.Clarity = diamondClarity(record[i])
+				if s, err := diamondClarity(record[i]); err != nil {
+					row.Message = append(row.Message, errors.GetMessage(err))
+					row.Ignored = true
+				} else {
+					d.Clarity = s
+				}
 			case "grading_lab":
 				if s, err := diamondGradingLab(record[i]); err != nil {
 					row.Message = append(row.Message, errors.GetMessage(err))
@@ -96,13 +106,33 @@ func importDiamondProducts(file string) ([]util.Row, error) {
 			case "certificate_number":
 				d.CertificateNumber = strings.ToUpper(record[i])
 			case "cut_grade":
-				d.CutGrade = diamondCutGradeSymmetryPolish(record[i])
+				if s, err := diamondCutGradeSymmetryPolish(record[i]); err != nil {
+					row.Message = append(row.Message, errors.GetMessage(err))
+					row.Ignored = true
+				} else {
+					d.CutGrade = s
+				}
 			case "polish":
-				d.Polish = diamondCutGradeSymmetryPolish(record[i])
+				if s, err := diamondCutGradeSymmetryPolish(record[i]); err != nil {
+					row.Message = append(row.Message, errors.GetMessage(err))
+					row.Ignored = true
+				} else {
+					d.Polish = s
+				}
 			case "symmetry":
-				d.Symmetry = diamondCutGradeSymmetryPolish(record[i])
+				if s, err := diamondCutGradeSymmetryPolish(record[i]); err != nil {
+					row.Message = append(row.Message, errors.GetMessage(err))
+					row.Ignored = true
+				} else {
+					d.Symmetry = s
+				}
 			case "fluorescence_intensity":
-				d.FluorescenceIntensity = diamondFluo(record[i])
+				if s, err := diamondFluo(record[i]); err != nil {
+					row.Message = append(row.Message, errors.GetMessage(err))
+					row.Ignored = true
+				} else {
+					d.FluorescenceIntensity = s
+				}
 			case "country":
 				//TODO format country
 				d.Country = strings.ToUpper(record[i])
@@ -203,6 +233,7 @@ func (d *diamond) processDiamondRecord() error {
 				d.StockRef, d.CertificateNumber, d.GradingLab, priceRetail, d.PriceRetail)
 			return err
 		}
+		go newHistoryRecords("uid", "diamonds", d.ID, d.parmsKV())
 		util.Tracef(`retail price changed for diamond: %s; certificate_number: %s; grading_lab: %s; original price: %f; new price %f.\n`,
 			d.StockRef, d.CertificateNumber, d.GradingLab, priceRetail, d.PriceRetail)
 	}
@@ -323,107 +354,98 @@ func offlineDiamondsNoLongerExist(stockRefList map[string]struct{}) error {
 	return nil
 }
 
-func diamondClarity(clarity string) string {
+func diamondClarity(clarity string) (string, error) {
 	if len(clarity) != 0 {
 		if util.IsInArrayString(strings.ToUpper(clarity), VALID_CLARITY) {
-			return strings.ToUpper(clarity)
+			return strings.ToUpper(clarity), nil
 		}
 	}
-	return "-"
+	return "", errors.Newf("%s is not a valid clarity value", clarity)
 }
 
-func diamondFluo(fluo string) string {
+func diamondFluo(fluo string) (string, error) {
 	if len(fluo) != 0 {
 		p := strings.ToUpper(fluo)
-		if p == "VERY STRONG" || p == "VST" {
-			return "VST"
+		if p == "VERY STRONG" || p == "VST" || p == "VSTG" {
+			return "VST", nil
 		}
 		if p == "STRONG" || p == "STG" {
-			return "STG"
+			return "STG", nil
 		}
 		if p == "SLIGHT" || p == "SLT" || p == "SL" {
-			return "SLT"
+			return "SLT", nil
 		}
 		if p == "VERY SLIGHT" || p == "VSL" {
-			return "VSL"
+			return "VSL", nil
 		}
 		if p == "MEDIUM" || p == "MED" || string(p[0]) == "M" {
-			return "MED"
+			return "MED", nil
 		}
 		if p == "FAINT" || p == "FNT" || string(p[0]) == "F" {
-			return "FNT"
+			return "FNT", nil
 		}
 		if p == "NONE" || p == "NON" || string(p[0]) == "N" {
-			return "NONE"
+			return "NONE", nil
 		}
 	}
-	return "UNKOWN-" + strings.ToUpper(fluo)
-
+	return "", errors.Newf("%s is not a valid fluo", fluo)
 }
 
-func diamondCutGradeSymmetryPolish(cutGrade string) string {
+func diamondCutGradeSymmetryPolish(cutGrade string) (string, error) {
 	if len(cutGrade) != 0 {
 		p := strings.ToUpper(cutGrade)
 		if p == "EXC" || p == "EXCELLENT" || string(p[0]) == "E" {
-			return "EX"
+			return "EX", nil
 		}
 		if p == "VERY GOOD" || string(p[0]) == "V" {
-			return "VG"
+			return "VG", nil
 		}
 		if p == "GOOD" || p == "GD" || string(p[0]) == "G" {
-			return "G"
+			return "G", nil
 		}
 		if p == "FAIR" || string(p[0]) == "F" {
-			return "F"
+			return "F", nil
 		}
 	}
-	return "UNKOWN-" + strings.ToUpper(cutGrade)
+	return "", errors.Newf("%s is not a valid grade", cutGrade)
 }
 
 //TODO
-func diamondColor(color string) string {
+func diamondColor(color string) (string, error) {
 	if len(color) != 0 {
 		switch strings.ToUpper(color) {
 		case "FY", "FANCY YELLOW":
-			return "FY"
+			return "FY", nil
 		case "FLY":
-			return "FLY"
+			return "FLY", nil
 		case "FANCY BROWNISH YELLOW", "FBY":
-			return "FBY"
+			return "FBY", nil
 		case "FANCY LIGHT BROWNISH YELLOW", "FLBY":
-			return "FLBY"
+			return "FLBY", nil
 		case "FANCY INTENSE YELLOW", "FIY":
-			return "FIY"
+			return "FIY", nil
 		case "FVY", "FANCY VIVID YELLOW":
-			return "FVY"
+			return "FVY", nil
 		case "FLBGY":
-			return "FLBGY"
+			return "FLBGY", nil
+		case "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N":
+			return strings.ToUpper(color), nil
+		case "M, Faint Brown":
+			return "M", nil
+		case "N, Very Light Brown":
+			return "N", nil
+		case "K, Faint Brown":
+			return "K", nil
+		case "L, Faint Brown":
+			return "L", nil
+		case "O-P", "FPB", "FP", "W-X, Light Brown", "U-V", "F.O-Y", "O-P,Very Light Brown",
+			"Q-R", "S-T", "Y-Z", "W-X":
+			return strings.ToUpper(color), nil
+		default:
+			return "", errors.Newf("%s is not a valid color.", color)
 		}
 	}
-	//  D
-	//  E
-	//  F
-	//  G
-	//  H
-	//  I
-	//  J
-	//  K
-	//  L
-	//  M
-	//  N
-	//  O
-	//  P
-	//  Q
-	//  R
-	//  S
-	//  T
-	//  U
-	//  V
-	//  W
-	//  X
-	//  Y
-	//  Z
-	return "UNKOWN-" + strings.ToUpper(color)
+	return "", errors.New("color cannot be empty")
 }
 
 func diamondShape(shape string) (string, error) {
@@ -455,7 +477,7 @@ func diamondShape(shape string) (string, error) {
 			return "", errors.Newf("%s is not a valid shape", shape)
 		}
 	}
-	return "", errors.Newf("shape cannot be empty")
+	return "", errors.New("shape cannot be empty")
 }
 
 //TODO should return error - > to add new suppliers
@@ -474,6 +496,29 @@ func diamondGradingLab(gradingLab string) (string, error) {
 		return strings.ToUpper(gradingLab), nil
 	}
 	return "", errors.Newf("%s is not a valid grading lab", gradingLab)
+}
+
+func diamondCountry(country string) (string, error) {
+	if len(country) != 0 {
+		switch strings.ToUpper(country) {
+		case "SZ", "SHENZHEN", "SHEN ZHEN":
+			return "SZ", nil
+		case "HK", "HKG", "HONGKONG", "HSTHK", "HONG KONG":
+			return "HK", nil
+		case "BE", "BEL", "BELGIUM", "BELGI", "ANTWERP":
+			return "BE", nil
+		case "IN", "IND", "INDIA":
+			return "IN", nil
+		case "CN", "CHN", "CHINA":
+			return "CN", nil
+		default:
+			if strings.HasPrefix(country, "ANTWERP") {
+				return "BE", nil
+			}
+			return "", errors.Newf("%s is not a valid country", country)
+		}
+	}
+	return "", errors.New("country cannot be empty")
 }
 
 func (d *diamond) diamondImages() {

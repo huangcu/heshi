@@ -31,7 +31,7 @@ func validateJewelryHeaders(headers []string) []string {
 	return missingHeaders
 }
 
-func importJewelryProducts(file, category string) ([]util.Row, error) {
+func importJewelryProducts(uid, file, category string) ([]util.Row, error) {
 	oldStockIDList, err := getAllStockIDBySubCategory(category)
 	if err != nil {
 		return nil, err
@@ -177,6 +177,7 @@ func importJewelryProducts(file, category string) ([]util.Row, error) {
 			return nil, err
 		}
 		util.Printf("jewelry item updated. stock id: %s", j.StockID)
+		go newHistoryRecords(uid, "jewelrys", j.ID, j.parmsKV())
 		//remove updated stockID from old one as this has been scanned and processed
 		delete(oldStockIDList, j.StockID)
 	}
