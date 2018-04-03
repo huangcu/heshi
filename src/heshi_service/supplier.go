@@ -51,6 +51,8 @@ func getAllSuppliers(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
+	defer rows.Close()
+
 	var ss []supplier
 	for rows.Next() {
 		var id, name, prefix, connected, status string

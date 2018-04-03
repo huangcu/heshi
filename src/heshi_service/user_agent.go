@@ -92,11 +92,17 @@ func (a *User) newAgent() error {
 	return err
 }
 
-// TODO after requirement is clear
-// --> recommended by (invitation code -> user id -> recommended by)
-//find user is recommended by - user_id
-//from invitation code, get which user recommended this
-// if the recommend is agent ???
+//TODO what kind of info should pass to agent
+func getUsersRecommendedByAgent(c *gin.Context) {
+	agentID := c.MustGet("id").(string)
+	us, err := getUsersRecommendedBy(agentID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	c.JSON(http.StatusOK, us)
+}
+
 func agentContactInfo(c *gin.Context) {
 	id := c.MustGet("id").(string)
 
@@ -113,15 +119,6 @@ func agentContactInfo(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, *ci)
 }
-
-// func userRecommendedByAgent(uid string) (string, error) {
-// 	q := fmt.Sprintf(`SELECT recommended_by from users where id=%s`, uid)
-// 	var recommendedBy string
-// 	if err := dbQueryRow(q).Scan(&recommendedBy); err != nil {
-// 		return "", err
-// 	}
-
-// }
 
 func getUserContactInfoInvitationCode(userID string) (*ContactInfo, error) {
 	// var userID string

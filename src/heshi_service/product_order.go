@@ -89,6 +89,8 @@ func getTransactionDetail(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
+	defer rows.Close()
+
 	var ois []orderItem
 	for rows.Next() {
 		var id, itemID, itemCategory, transactionID, status string
@@ -128,24 +130,47 @@ func getTransactionDetail(c *gin.Context) {
 	})
 }
 
-func getAllTransctionsOfUser(c *gin.Context) {
+func getAllTransactionsOfUser(c *gin.Context) {
 	//for admin, pass userid in query, for user, from login session
 	uid := c.Param("id")
 	if uid == "" {
 		uid = c.MustGet("id").(string)
 	}
-	q := fmt.Sprintf(`SELECT transaction_id FROM orders WHERE buyer_id='%s'`, uid)
-	rows, err := dbQuery(q)
+	ts, err := getAllTransactionsOfAUser(uid)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
+	c.JSON(http.StatusOK, ts)
+}
+
+func getAllTransactionsRecommendedByAgent(c *gin.Context) {
+	agentID := c.MustGet("id").(string)
+	ids, err := getUsersIDRecommendedBy(agentID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	for _, id := range ids {
+		// TODO instead of one by one,maybe user buyer_id in ("", ""), select all
+		// 1 big query against lots of small query
+		getAllTransactionsOfAUser(id)
+	}
+}
+
+func getAllTransactionsOfAUser(buyerID string) ([]transaction, error) {
+	q := fmt.Sprintf(`SELECT transaction_id FROM orders WHERE buyer_id='%s'`, buyerID)
+	rows, err := dbQuery(q)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
 	var transactionIDs []string
 	for rows.Next() {
 		var transactionID string
 		if err := rows.Scan(&transactionID); err != nil {
-			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
-			return
+			return nil, err
 		}
 		transactionIDs = append(transactionIDs, transactionID)
 	}
@@ -153,12 +178,13 @@ func getAllTransctionsOfUser(c *gin.Context) {
 	for _, transactionID := range transactionIDs {
 		q := fmt.Sprintf(`SELECT id, item_id, item_price, item_category, item_quantity, downpayment,
 			sold_price_usd, sold_price_cny, sold_price_eur,return_point, chosen_by,
-			status, extra_info, special_notice FROM orders WHERE buyer_id='%s' AND transcation_id='%s'`, uid, transactionID)
+			status, extra_info, special_notice FROM orders WHERE buyer_id='%s' AND transcation_id='%s'`, buyerID, transactionID)
 		rows, err := dbQuery(q)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
-			return
+			return nil, err
 		}
+		defer rows.Close()
+
 		var ois []orderItem
 		for rows.Next() {
 			var id, itemID, itemCategory, status string
@@ -170,8 +196,7 @@ func getAllTransctionsOfUser(c *gin.Context) {
 			if err := rows.Scan(&id, &itemID, &itemPrice, &itemCategory, &itemQuantity,
 				&downpayment, &soldPriceUSD, &soldPriceCNY, &soldPriceEUR, &returnPoint, &chosenBy,
 				&status, &extraInfo, &specialNotice); err != nil {
-				c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
-				return
+				return nil, err
 			}
 			oi := orderItem{
 				ID:            id,
@@ -187,7 +212,7 @@ func getAllTransctionsOfUser(c *gin.Context) {
 				ExtraInfo:     extraInfo.String,
 				SpecialNotice: specialNotice.String,
 				DownPayment:   downpayment,
-				BuyerID:       uid,
+				BuyerID:       buyerID,
 				TransactionID: transactionID,
 				Status:        status,
 			}
@@ -199,16 +224,18 @@ func getAllTransctionsOfUser(c *gin.Context) {
 		}
 		ts = append(ts, t)
 	}
-	c.JSON(http.StatusOK, ts)
+	return ts, nil
 }
 
 //ADMIN only
-func getAllTransctions(c *gin.Context) {
+func getAllTransactions(c *gin.Context) {
 	rows, err := dbQuery("SELECT transaction_id FROM orders")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
+	defer rows.Close()
+
 	var transactionIDs []string
 	for rows.Next() {
 		var transactionID string
@@ -228,6 +255,8 @@ func getAllTransctions(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
+		defer rows.Close()
+
 		var ois []orderItem
 		for rows.Next() {
 			var id, itemID, itemCategory, buyerID, status string

@@ -209,7 +209,7 @@ func (d *diamond) processDiamondRecord() error {
 	var id, status string
 	var priceNoAddedValue, priceRetail float64
 	q := fmt.Sprintf("SELECT id, price_no_added_value, price_retail, status FROM diamonds WHERE stock_ref='%s'", d.StockRef)
-	if err := db.QueryRow(q).Scan(&id, &priceNoAddedValue, &priceRetail, &status); err != nil {
+	if err := dbQueryRow(q).Scan(&id, &priceNoAddedValue, &priceRetail, &status); err != nil {
 		//item not exist in db
 		if err == sql.ErrNoRows {
 			d.ID = newV4()
@@ -253,6 +253,8 @@ func (d *diamond) processPrice() error {
 	if err != nil {
 		return err
 	}
+	defer rows.Close()
+
 	for rows.Next() {
 		var color, clarity, cutGrade, polish, symmetry, gradingLab, fluo, shape string
 		var caratFrom, caratTo, theParaValue float64
@@ -310,6 +312,8 @@ func getAllStockRef() (map[string]struct{}, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+
 	stockRefs := make(map[string]struct{})
 	for rows.Next() {
 		var stockRef string
@@ -329,6 +333,8 @@ func getAllValidSupplierName() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+
 	for rows.Next() {
 		var name string
 		if err := rows.Scan(&name); err != nil {

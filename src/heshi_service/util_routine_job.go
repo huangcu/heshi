@@ -16,6 +16,8 @@ func handleAgentLevel() error {
 	if err != nil {
 		return err
 	}
+	defer rows.Close()
+
 	agents := make(map[string]string)
 	for rows.Next() {
 		var ID, level string
@@ -48,6 +50,8 @@ func handleCustomerLevel() error {
 	if err != nil {
 		return err
 	}
+	defer rows.Close()
+
 	customers := make(map[string]string)
 	for rows.Next() {
 		var ID, level string
@@ -80,6 +84,8 @@ func automaticAgentLevel(agentID, level string) error {
 	if err != nil {
 		return err
 	}
+	defer rows.Close()
+
 	var ids []string
 	ids = append(ids, agentID)
 	for rows.Next() {
@@ -102,6 +108,8 @@ func automaticAgentLevel(agentID, level string) error {
 	if err != nil {
 		return err
 	}
+	defer rows.Close()
+
 	var totalAmount float64
 	count := 0
 	for rows.Next() {
@@ -125,6 +133,8 @@ func automaticCustomerLevel(customerID, level string) error {
 	if err != nil {
 		return err
 	}
+	defer rows.Close()
+
 	var ids []string
 	ids = append(ids, customerID)
 	for rows.Next() {
@@ -147,6 +157,8 @@ func automaticCustomerLevel(customerID, level string) error {
 	if err != nil {
 		return err
 	}
+	defer rows.Close()
+
 	var totalAmount float64
 	for rows.Next() {
 		var soldPrice float64

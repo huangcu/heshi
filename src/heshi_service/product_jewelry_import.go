@@ -273,6 +273,8 @@ func getAllStockIDBySubCategory(subCategory string) (map[string]struct{}, error)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+
 	for rows.Next() {
 		var stockID string
 		if err := rows.Scan(&stockID); err != nil {

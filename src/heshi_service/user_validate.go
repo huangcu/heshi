@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"heshi/errors"
 	"regexp"
@@ -12,9 +13,19 @@ import (
 func (u *User) validNewUser() ([]errors.HSMessage, error) {
 	if vmsg := u.preValidateNewUser(); len(vmsg) != 0 {
 		return vmsg, nil
-	} else if vmsg, err := u.validUniqueKey(); err != nil {
+	}
+
+	if vmsg, err := u.validUniqueKey(); err != nil {
 		return nil, err
 	} else if len(vmsg) != 0 {
+		return vmsg, nil
+	}
+
+	if msg, err := u.validRecommendedBy(); err != nil {
+		return nil, err
+	} else if msg != (errors.HSMessage{}) {
+		var vmsg []errors.HSMessage
+		vmsg = append(vmsg, msg)
 		return vmsg, nil
 	}
 	return nil, nil
@@ -42,10 +53,6 @@ func (u *User) preValidateNewUser() []errors.HSMessage {
 
 	if !util.IsInArrayString(u.UserType, VALID_USERTYPE) {
 		vmsgs = append(vmsgs, vemsgUserUsertypeNotValid)
-	}
-
-	if vmsg := u.validRecommnadedBy(); vmsg != (errors.HSMessage{}) {
-		vmsgs = append(vmsgs, vmsg)
 	}
 
 	if len(vmsgs) != 0 {
@@ -89,19 +96,19 @@ func (u *User) validPhone() errors.HSMessage {
 	return errors.HSMessage{}
 }
 
-func (u *User) validRecommnadedBy() errors.HSMessage {
+func (u *User) validRecommendedBy() (errors.HSMessage, error) {
 	if u.RecommendedBy != "" {
-		var count int
-		q := fmt.Sprintf("SELECT COUNT(*) FROM users WHERE invitation_code=%s", u.RecommendedBy)
-		if err := dbQueryRow(q).Scan(&count); err != nil {
-			return vemsgUserErrorRecommendCode
+		var id string
+		q := fmt.Sprintf("SELECT id FROM users WHERE invitation_code=%s", u.RecommendedBy)
+		if err := dbQueryRow(q).Scan(&id); err != nil {
+			if err != sql.ErrNoRows {
+				return errors.HSMessage{}, err
+			}
+			return vemsgUserErrorRecommendCode, nil
 		}
-		if count == 0 {
-			return vemsgUserErrorRecommendCode
-		}
+		u.RecommendedBy = id
 	}
-
-	return errors.HSMessage{}
+	return errors.HSMessage{}, nil
 }
 
 func (u *User) validUniqueKey() ([]errors.HSMessage, error) {

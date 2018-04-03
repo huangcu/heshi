@@ -62,6 +62,8 @@ func getUserShoppingList(uid string) ([]shoppingItem, error) {
 	if err != nil {
 		return nil, nil
 	}
+	defer rows.Close()
+
 	var ss []shoppingItem
 	for rows.Next() {
 		var id, itemType, itemID, confirmedForCheck, available, specialNotice string

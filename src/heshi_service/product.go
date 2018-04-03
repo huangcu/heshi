@@ -93,6 +93,17 @@ func uploadAndProcessProducts(c *gin.Context) {
 		return
 	}
 
+	go func() {
+		//here to track, who uploaded which file, and and filename saved on disk
+		p := productStockHandleRecord{
+			UserID:         uid,
+			Category:       category,
+			Action:         "UPLOAD STOCK",
+			Filename:       file.Filename,
+			FileNameOnDisk: filename,
+		}
+		p.newProductStockHanldeRecords()
+	}()
 	importProducts(uid, product, dst, category)
 }
 

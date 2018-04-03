@@ -1,0 +1,33 @@
+package main
+
+import (
+	"fmt"
+	"net/http"
+
+	"github.com/360EntSecGroup-Skylar/excelize"
+	"github.com/gin-gonic/gin"
+)
+
+func parseExcel(c *gin.Context) {
+	fheader, err := c.FormFile("upload")
+
+	if err != nil {
+		fmt.Println("here")
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+	f, err := fheader.Open()
+	if err != nil {
+		fmt.Println("here1")
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+	xlsx, err := excelize.OpenReader(f)
+	if err != nil {
+		fmt.Println("here2")
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+	rows := xlsx.GetRows("Sheet1")
+	c.JSON(http.StatusOK, rows)
+}

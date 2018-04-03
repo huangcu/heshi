@@ -135,6 +135,8 @@ func getAllLevelConfigs(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
+	defer rows.Close()
+
 	var cs []config
 	for rows.Next() {
 		var discount, amount, pieces int
@@ -191,6 +193,8 @@ func getAllRateConfigs(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
+	defer rows.Close()
+
 	var cs []config
 	for rows.Next() {
 		var rate float64

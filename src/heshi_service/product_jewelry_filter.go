@@ -53,6 +53,8 @@ func searchJewelrys(c *gin.Context) ([]jewelry, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+
 	js, err := composeJewelry(rows)
 	if err != nil {
 		return nil, err

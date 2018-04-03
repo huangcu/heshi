@@ -135,7 +135,7 @@ func getPriceRule(c *gin.Context) {
 
 func getAllPriceRule(c *gin.Context) {
 	q := selectPriceRulesQuery("")
-	rows, err := db.Query(q)
+	rows, err := dbQuery(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return

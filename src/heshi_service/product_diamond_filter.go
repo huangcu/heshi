@@ -95,6 +95,8 @@ func searchDiamonds(c *gin.Context) ([]diamond, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+
 	ds, err := composeDiamond(rows)
 	if err != nil {
 		return nil, err
@@ -111,6 +113,8 @@ func filterDiamonds(c *gin.Context) ([]diamond, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+
 	ds, err := composeDiamond(rows)
 	if err != nil {
 		return nil, err

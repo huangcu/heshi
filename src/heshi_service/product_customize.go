@@ -102,6 +102,8 @@ func customizeJewelryCategory(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
+	defer rows.Close()
+
 	var categorys []string
 	for rows.Next() {
 		var category string
@@ -170,6 +172,7 @@ func customizeJewelryItems(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
+	defer rows.Close()
 	//TODO price - > agent price, customer price base on level
 	// 	require_once('../../_includes/functions/currency_calculator.php');
 	// require_once('../../_includes/functions/accountprice.php');
@@ -268,6 +271,8 @@ func customizeJewelryDiamondsQualityFirst(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
+		defer rows.Close()
+
 		caratSameNumber := make(map[float64]int)
 		for rows.Next() {
 			var caratSize float64
@@ -306,6 +311,8 @@ func customizeJewelryDiamondsQualityFirst(c *gin.Context) {
 				c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 				return
 			}
+			defer rows.Close()
+
 			ds, err := composeDiamond(rows)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
@@ -397,6 +404,8 @@ func customizeJewelryDiamondsMaxCarat(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
+		defer rows.Close()
+
 		caratSameNumber := make(map[float64]int)
 		for rows.Next() {
 			var caratSize float64
@@ -435,6 +444,7 @@ func customizeJewelryDiamondsMaxCarat(c *gin.Context) {
 				c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 				return
 			}
+			defer rows.Close()
 			ds, err := composeDiamond(rows)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, errors.GetMessage(err))

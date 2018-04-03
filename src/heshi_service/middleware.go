@@ -89,11 +89,15 @@ func jwtAuthenticator(username, password1 string, c *gin.Context) (string, bool)
 	}
 	s := sessions.Default(c)
 	s.Set(USER_SESSION_KEY, id)
-	c.SetCookie(USER_SESSION_KEY, id, 10, "/", "localhost", true, false)
+	// c.SetCookie(USER_SESSION_KEY, id, 10, "/", "localhost", true, false)
 
 	if userType == ADMIN {
 		s.Set(ADMIN_KEY, id)
-		c.SetCookie(ADMIN_KEY, id, 10, "/", "localhost", true, false)
+		// c.SetCookie(ADMIN_KEY, id, 10, "/", "localhost", true, false)
+	}
+	if userType == AGENT {
+		s.Set(AGENT_KEY, id)
+		// c.SetCookie(AGENT_KEY, id, 10, "/", "localhost", true, false)
 	}
 	s.Save()
 	return userProfile, true
@@ -150,6 +154,26 @@ func AdminSessionMiddleWare() gin.HandlerFunc {
 	}
 }
 
+func AgentSessionMiddleWare() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if os.Getenv("STAGE") == "dev" {
+			c.Set("id", "system_dev_admin")
+			c.Next()
+			return
+		}
+		s := sessions.Default(c)
+		if s.Get(USER_SESSION_KEY) == nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, "Must login first")
+			return
+		}
+		if s.Get(AGENT_KEY) == nil {
+			c.AbortWithStatusJSON(http.StatusForbidden, "Login User is not a agent")
+			return
+		}
+		c.Set("id", s.Get(USER_SESSION_KEY))
+		c.Next()
+	}
+}
 func RequestLogger() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		buf, _ := ioutil.ReadAll(c.Request.Body)

@@ -93,13 +93,15 @@ var (
 	VALID_CURRENCY_SYMBOL = []string{"USD", "CNY", "EUR", "CAD", "AUD", "CHF", "RUB", "NZD"}
 	USER_SESSION_KEY      = "hs_sessionuserid"
 	ADMIN_KEY             = "hs_sessionadmin"
-	UPLOADFILEDIR         = ".uploaded"
-	videoPath             = ".video"
-	imagePath             = ".image"
-	userIconSizeLimit     = 50 * 1024
-	imageSizeLimit        = 5 * 1024 * 1024
-	videoSizeLimit        = 10 * 1024 * 1024
-	uploadedZipFileLimit  = 100 * 1024 * 1024
+	AGENT_KEY             = "hs_sessionagent"
+
+	UPLOADFILEDIR        = ".uploaded"
+	videoPath            = ".video"
+	imagePath            = ".image"
+	userIconSizeLimit    = 50 * 1024
+	imageSizeLimit       = 5 * 1024 * 1024
+	videoSizeLimit       = 10 * 1024 * 1024
+	uploadedZipFileLimit = 100 * 1024 * 1024
 )
 
 const (

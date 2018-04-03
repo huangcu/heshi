@@ -85,6 +85,8 @@ func getAllHistory() ([]history, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+
 	var hs []history
 	for rows.Next() {
 		var id, userID, itemID, tableName, fieldName, fieldValue string
@@ -112,6 +114,8 @@ func getHistoryOfTable(tableName string) ([]history, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+
 	var hs []history
 	for rows.Next() {
 		var id, userID, itemID, fieldName, fieldValue string
@@ -139,6 +143,8 @@ func getHistoryOfTableField(tableName, fieldName string) ([]history, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+
 	var hs []history
 	for rows.Next() {
 		var id, userID, itemID, fieldValue string
@@ -166,6 +172,8 @@ func getHistoryOfItem(itemID string) ([]history, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+
 	var hs []history
 	for rows.Next() {
 		var id, userID, tableName, fieldName, fieldValue string

@@ -19,6 +19,8 @@ func customerLevelByAmount(amount float64) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	defer rows.Close()
+
 	for rows.Next() {
 		var level string
 		if err := rows.Scan(&level); err != nil {
@@ -45,6 +47,8 @@ func agentLevelByAmountAndPieces(amount float64, pieces int) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	defer rows.Close()
+
 	for rows.Next() {
 		var level string
 		if err := rows.Scan(&level); err != nil {

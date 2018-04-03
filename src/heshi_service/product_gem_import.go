@@ -158,6 +158,8 @@ func getAllGemStockID() (map[string]struct{}, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+
 	stockIDs := make(map[string]struct{})
 	for rows.Next() {
 		var stockID string

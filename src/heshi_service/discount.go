@@ -66,6 +66,8 @@ func getAllDiscounts(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
+	defer rows.Close()
+
 	var ds []discount
 	for rows.Next() {
 		var discountCode, createdBy string

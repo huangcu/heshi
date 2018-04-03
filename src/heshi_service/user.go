@@ -220,8 +220,6 @@ func newUser(c *gin.Context) {
 	s.Set(USER_SESSION_KEY, nu.ID)
 	s.Save()
 
-	//TODO redirect to login
-	// c.Redirect(http.StatusFound, redirectLogin)
 	c.JSON(http.StatusOK, nu)
 }
 
@@ -503,4 +501,43 @@ func getUserByID(id string) (string, error) {
 		return string(bs), nil
 	}
 	return "", errors.Newf("fail to find user with id %s", id)
+}
+
+//recommended_by by invitation_code link to user_id -- user_validate validateRecommendedBy
+func getUsersRecommendedBy(uid string) ([]User, error) {
+	q := fmt.Sprintf(`SELECT id,username,cellphone,email,real_name,user_type,wechat_id,
+	wechat_name,wechat_qr,address,additional_info,recommended_by,invitation_code,
+	level,discount,point,total_purchase_amount,icon,status FROM users 
+	WHERE status='ACTIVE' AND recommended_by=%s`, uid)
+
+	rows, err := dbQuery(q)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	us, err := composeUser(rows)
+	if err != nil {
+		return nil, err
+	}
+	return us, nil
+}
+
+func getUsersIDRecommendedBy(uid string) ([]string, error) {
+	q := fmt.Sprintf(`SELECT id FROM users WHERE status='ACTIVE' AND recommended_by=%s`, uid)
+	rows, err := dbQuery(q)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var ids []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	return ids, nil
 }

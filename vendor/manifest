@@ -2,6 +2,12 @@
 	"version": 0,
 	"dependencies": [
 		{
+			"importpath": "github.com/360EntSecGroup-Skylar/excelize",
+			"repository": "https://github.com/360EntSecGroup-Skylar/excelize",
+			"revision": "dcbde4b8311b5cb48731fbaf23eee58d994dac61",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/BurntSushi/toml",
 			"repository": "https://github.com/BurntSushi/toml",
 			"revision": "a368813c5e648fee92e5f6c30e3944ff9d5e8895",

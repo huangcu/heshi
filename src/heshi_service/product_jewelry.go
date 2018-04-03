@@ -57,7 +57,7 @@ type jewelry struct {
 
 func getAllJewelrys(c *gin.Context) {
 	q := selectJewelryQuery("")
-	rows, err := db.Query(q)
+	rows, err := dbQuery(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return

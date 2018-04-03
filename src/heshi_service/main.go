@@ -145,6 +145,7 @@ func configRoute(r *gin.Engine) {
 
 	apiCustomer := api.Group("customer")
 	apiAdmin := api.Group("admin")
+	apiAgent := api.Group("agent")
 	apiWechat := api.Group("wechat")
 
 	//authentication
@@ -156,12 +157,14 @@ func configRoute(r *gin.Engine) {
 		//jwt authentication(user login)
 		apiCustomer.Use(jwtMiddleware.MiddlewareFunc())
 		apiAdmin.Use(jwtMiddleware.MiddlewareFunc())
+		apiAgent.Use(jwtMiddleware.MiddlewareFunc())
 		api.POST("/login", jwtMiddleware.LoginHandler)
 	}
 
 	//session check
 	apiCustomer.Use(UserSessionMiddleWare())
 	apiAdmin.Use(AdminSessionMiddleWare())
+	apiAgent.Use(AgentSessionMiddleWare())
 	//TODO wechat - > admin and customer
 	apiWechat.Use(AdminSessionMiddleWare())
 	api.GET("/refresh/token", jwtMiddleware.RefreshHandler)
@@ -234,8 +237,8 @@ func configRoute(r *gin.Engine) {
 			apiAdmin.PUT("/orders/:id", updateOrder)
 			apiAdmin.POST("/orders/:id", getOrderDetail)
 			apiAdmin.POST("/transactions/detail/:id", getTransactionDetail)
-			apiAdmin.POST("/transactions/all/:id", getAllTransctionsOfUser)
-			apiAdmin.POST("/transactions/all", getAllTransctions)
+			apiAdmin.POST("/transactions/all/:id", getAllTransactionsOfUser)
+			apiAdmin.POST("/transactions/all", getAllTransactions)
 
 			//view historys
 			apiAdmin.POST("/track/history", getHistory)
@@ -244,18 +247,31 @@ func configRoute(r *gin.Engine) {
 			apiAdmin.POST("/wechat/kf", addKfAccount)
 			apiAdmin.POST("/wechat/menu", createMenu)
 		}
+
+		//agent
+		{
+			//get list of users recommended by the agent
+			apiAgent.GET("/reco/users", getUsersRecommendedByAgent)
+			//get list of transactions/orders of all recommended user
+			// apiAgent.POST("/reco/orders", createOrder)
+			// apiAgent.POST("/reco/orders/:id", getOrderDetail)
+			// apiAgent.POST("/reco/transactions/:id", getTransactionDetail)
+			// apiAgent.GET("/reco/transactions", getAllTransctionsOfUser)
+		}
+
 		//customer
 		api.POST("/users", newUser)
 		{
 			apiCustomer.GET("/users", getUser)
 			apiCustomer.PATCH("/users", updateUser)
-			apiCustomer.GET("/users/:id/contactinfo", agentContactInfo)
+			// users not allowed to see recommended people's info
+			// apiCustomer.GET("/users/:id/contactinfo", agentContactInfo)
 
 			//ORDER
 			apiCustomer.POST("/orders", createOrder)
 			apiCustomer.POST("/orders/:id", getOrderDetail)
 			apiCustomer.POST("/transactions/:id", getTransactionDetail)
-			apiCustomer.POST("/transactions", getAllTransctionsOfUser)
+			apiCustomer.POST("/transactions", getAllTransactionsOfUser)
 
 			//action- > add, delete
 			apiCustomer.POST("/shoppingList/:action", toShoppingList)
@@ -298,6 +314,7 @@ func configRoute(r *gin.Engine) {
 		//token
 		api.GET("/token", GetToken)
 		api.POST("/token", VerifyToken)
+		api.POST("/excel", parseExcel)
 	}
 	r.Static("../webpage", "webpage")
 }
