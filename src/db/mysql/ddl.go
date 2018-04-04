@@ -51,15 +51,15 @@ CREATE TABLE IF NOT EXISTS discounts (
 	) ENGINE=INNODB;`
 
 //TYPE: customer(level), agent(level), rate
-const configDdl = `
-CREATE TABLE IF NOT EXISTS configs (
+const levelRateDdl = `
+CREATE TABLE IF NOT EXISTS level_rate_rules (
 	id VARCHAR(225) PRIMARY KEY NOT NULL,
-	rate float,
-	level VARCHAR(20) UNIQUE,
+	exchange_rate_float float,
+	level VARCHAR(20),
 	discount INT,
 	amount INT,
 	pieces INT,
-	type VARCHAR(20) NOT NULL,
+	rule_type VARCHAR(20) NOT NULL,
 	created_by VARCHAR(225) NOT NULL,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL

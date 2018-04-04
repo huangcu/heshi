@@ -19,6 +19,8 @@ func searchGems(c *gin.Context) ([]gem, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+
 	gs, err := composeGem(rows)
 	if err != nil {
 		return nil, err
@@ -40,6 +42,8 @@ func filterGems(c *gin.Context) ([]gem, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+
 	gs, err := composeGem(rows)
 	if err != nil {
 		return nil, err

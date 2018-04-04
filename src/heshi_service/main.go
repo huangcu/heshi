@@ -252,6 +252,7 @@ func configRoute(r *gin.Engine) {
 			//ORDER
 			apiCustomer.POST("/orders", createOrder)
 			apiCustomer.GET("/orders/:id", getOrderDetail)
+			// TODO only can view transaction of 1 year
 			apiCustomer.GET("/transactions/:id", getTransactionDetail)
 			apiCustomer.GET("/transactions", getAllTransactionsOfAUser)
 			apiCustomer.GET("/transactions/cancel", cancelTransaction)
@@ -319,7 +320,7 @@ func init() {
 		os.Exit(1)
 	}
 
-	activeConfig = config{Rate: 0.01, CreatedBy: "system", CreatedAt: time.Now().Local()}
+	activeConfig = levelRateRule{ExchangeRateFloat: 0.01, CreatedBy: "system", CreatedAt: time.Now().Local()}
 	if strings.ToUpper(runtime.GOOS) != "WINDOWS" {
 		fmt.Println("OS: " + runtime.GOOS)
 		val, err := redisClient.FlushAll().Result()
