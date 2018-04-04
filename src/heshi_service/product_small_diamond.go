@@ -100,7 +100,7 @@ func composeSmallDiamond(rows *sql.Rows) ([]smallDiamond, error) {
 }
 
 func selectSmallDiamondQuery(id string) string {
-	q := `SELECT id, size_from, size_to, price, quantity FROM small_diamonds`
+	q := `SELECT id, size_from, size_to, price, stock_quantity FROM small_diamonds`
 
 	if id != "" {
 		q = fmt.Sprintf("%s WHERE id='%s'", q, id)

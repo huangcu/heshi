@@ -118,6 +118,7 @@ func AuthMiddleWare() gin.HandlerFunc {
 
 func UserSessionMiddleWare() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Set("usertype", CUSTOMER)
 		if os.Getenv("STAGE") == "dev" {
 			c.Set("id", "system_dev_user")
 			c.Next()
@@ -135,6 +136,7 @@ func UserSessionMiddleWare() gin.HandlerFunc {
 
 func AdminSessionMiddleWare() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Set("usertype", ADMIN)
 		if os.Getenv("STAGE") == "dev" {
 			c.Set("id", "system_dev_admin")
 			c.Next()
@@ -156,6 +158,7 @@ func AdminSessionMiddleWare() gin.HandlerFunc {
 
 func AgentSessionMiddleWare() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Set("usertype", AGENT)
 		if os.Getenv("STAGE") == "dev" {
 			c.Set("id", "system_dev_admin")
 			c.Next()

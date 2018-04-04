@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"util"
 )
 
 func (oi *orderItem) composeInsertQuery() string {
@@ -100,4 +101,105 @@ func isOrderExistByID(id string) (bool, error) {
 		return false, err
 	}
 	return count == 1, nil
+}
+func isTransactionExistByID(tid string) (bool, error) {
+	var count int
+	if err := dbQueryRow("SELECT COUNT(*) FROM orders WHERE transaction_id=?", tid).Scan(&count); err != nil {
+		return false, err
+	}
+	return count == 1, nil
+}
+func getOrderStatusByID(id string) (string, error) {
+	var status string
+	if err := dbQueryRow("SELECT status FROM orders WHERE id=?", id).Scan(&status); err != nil {
+		return "", err
+	}
+	return status, nil
+}
+
+func isOrderStatusChangeAllowed(nowStatus, newStatus string) bool {
+	// ADMIN can cancel anytime
+	if newStatus == MCANCELLED {
+		return true
+	}
+	switch nowStatus {
+	case ORDERED:
+		return newStatus == MDOWNPAYMENT
+	case DOWNPAYMENT, MDOWNPAYMENT:
+		return newStatus == MPAID
+	case PAID, MPAID:
+		return newStatus == MDELIVERED
+	case DELIVERED, MDELIVERED:
+		return newStatus == MRECEIVED
+	default:
+		return false
+	}
+}
+
+//TODO check transaction, if no downpayment in 24 hrs of latest update, cancel it.
+func longRunTransactionCheck() error {
+	q := fmt.Sprintf(`SELECT id, item_id, item_category, item_quantity, transaction_id 
+	FROM orders 
+	WHERE updated_at < timestampadd(hour, -24, now()) 
+	AND status='%s'`, ORDERED)
+	rows, err := dbQuery(q)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	var ois []orderItem
+	for rows.Next() {
+		var id, transactionID, itemID, itemCategory string
+		var itemQuantity int
+		if err := rows.Scan(&id, &itemID, &itemCategory, &itemQuantity, &transactionID); err != nil {
+			return err
+		}
+		oi := orderItem{
+			ID:           id,
+			ItemID:       itemID,
+			ItemCategory: itemCategory,
+			ItemQuantity: itemQuantity,
+			Status:       CANCELLED,
+		}
+		ois = append(ois, oi)
+	}
+
+	transationOrderItemmap := make(map[string][]orderItem)
+	for _, oItem := range ois {
+		key := oItem.TransactionID
+		transationOrderItemmap[key] = append(transationOrderItemmap[key], oItem)
+	}
+
+	var ts []transaction
+	for transactionID, orderItems := range transationOrderItemmap {
+		t := transaction{
+			TransactionID: transactionID,
+			OrderItems:    orderItems,
+		}
+		ts = append(ts, t)
+	}
+
+	//continue to cancel
+	for _, t := range ts {
+		go func(oisOfTransaction []orderItem) {
+			if len(ts) == 0 {
+				return
+			}
+			if len(ois) == 1 {
+				_, err := cancelTransactionSingleOrder(ois[0])
+				if err != nil {
+					util.Printf("cancel transaction error: %#v", err)
+					return
+				}
+				return
+			}
+			_, err = cancelTransactionMultipleOrders(ois)
+			if err != nil {
+				util.Printf("cancel transaction error: %#v", err)
+				return
+			}
+		}(t.OrderItems)
+	}
+	return nil
 }

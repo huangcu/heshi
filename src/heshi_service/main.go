@@ -55,30 +55,7 @@ func main() {
 		util.Logger = log.New(io.MultiWriter(os.Stdout, lf), "", log.LstdFlags)
 	}
 	log.SetFlags(log.LstdFlags)
-
-	ticker := time.NewTicker(time.Hour * 8)
-	stop := make(chan bool)
-	go func() {
-		for {
-			select {
-			case <-ticker.C:
-				if err := getLatestRates(); err != nil {
-					util.FailToGetCurrencyExchangeAlert()
-				}
-				var err error
-				activeCurrencyRate, err = getAcitveCurrencyRate()
-				if err != nil {
-					util.Println("fail to get latest active currency rate")
-				}
-			case <-stop:
-				return
-			}
-		}
-	}()
-	defer func() {
-		ticker.Stop()
-		stop <- true
-	}()
+	go longRun()
 
 	port := ":8080"
 	if os.Getenv("STAGE") != "dev" {
@@ -235,10 +212,11 @@ func configRoute(r *gin.Engine) {
 
 			//manage orders
 			apiAdmin.PUT("/orders/:id", updateOrder)
-			apiAdmin.POST("/orders/:id", getOrderDetail)
-			apiAdmin.POST("/transactions/detail/:id", getTransactionDetail)
-			apiAdmin.POST("/transactions/all/:id", getAllTransactionsOfUser)
-			apiAdmin.POST("/transactions/all", getAllTransactions)
+			apiAdmin.GET("/orders/:id", getOrderDetail)
+			apiAdmin.GET("/transactions/detail/:id", getTransactionDetail)
+			apiAdmin.GET("/transactions/all/:id", getAllTransactionsOfAUser)
+			apiAdmin.GET("/transactions/all", getAllTransactions)
+			apiAdmin.GET("/transactions/cancel/:id", cancelTransaction)
 
 			//view historys
 			apiAdmin.POST("/track/history", getHistory)
@@ -252,11 +230,15 @@ func configRoute(r *gin.Engine) {
 		{
 			//get list of users recommended by the agent
 			apiAgent.GET("/reco/users", getUsersRecommendedByAgent)
+
 			//get list of transactions/orders of all recommended user
-			// apiAgent.POST("/reco/orders", createOrder)
-			// apiAgent.POST("/reco/orders/:id", getOrderDetail)
-			// apiAgent.POST("/reco/transactions/:id", getTransactionDetail)
-			// apiAgent.GET("/reco/transactions", getAllTransctionsOfUser)
+			apiAgent.GET("/reco/transactions/all/:id", getAllTransactionsOfAUserRecommendedByAgent)
+			apiAgent.GET("/reco/transactions/all", getAllTransactionsOfUserRecommendedByAgent)
+			apiAgent.GET("/reco/orders/:id", getOrderDetailOfUserRecommendedByAgent)
+			apiAgent.GET("/reco/transactions/detail/:id", getTransactionDetailOfUserRecommendedByAgent)
+
+			//TODO agent is allowed to update customers order, change price only
+			apiAgent.PUT("/order/:id", updateOrder)
 		}
 
 		//customer
@@ -269,9 +251,10 @@ func configRoute(r *gin.Engine) {
 
 			//ORDER
 			apiCustomer.POST("/orders", createOrder)
-			apiCustomer.POST("/orders/:id", getOrderDetail)
-			apiCustomer.POST("/transactions/:id", getTransactionDetail)
-			apiCustomer.POST("/transactions", getAllTransactionsOfUser)
+			apiCustomer.GET("/orders/:id", getOrderDetail)
+			apiCustomer.GET("/transactions/:id", getTransactionDetail)
+			apiCustomer.GET("/transactions", getAllTransactionsOfAUser)
+			apiCustomer.GET("/transactions/cancel", cancelTransaction)
 
 			//action- > add, delete
 			apiCustomer.POST("/shoppingList/:action", toShoppingList)

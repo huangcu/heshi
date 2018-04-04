@@ -79,7 +79,7 @@ func waitCaseNumber() (int, error) {
 	return waitCaseList.TotalCount, nil
 }
 
-func isKfAvaiable(kfAccount string) (bool, error) {
+func isKfAvailable(kfAccount string) (bool, error) {
 	kfList, err := dkf.OnlineKfList(wechatClient)
 	if err != nil {
 		return false, err

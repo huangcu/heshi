@@ -69,7 +69,7 @@ func handleTextMsg(msg core.MixedMsg) (string, error) {
 	}
 
 	//select the latest kf served, and check if kf available
-	available, err := isKfAvaiable(kfAccount)
+	available, err := isKfAvailable(kfAccount)
 	if err != nil {
 		return "", err
 	}

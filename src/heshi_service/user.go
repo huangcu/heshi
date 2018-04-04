@@ -508,7 +508,7 @@ func getUsersRecommendedBy(uid string) ([]User, error) {
 	q := fmt.Sprintf(`SELECT id,username,cellphone,email,real_name,user_type,wechat_id,
 	wechat_name,wechat_qr,address,additional_info,recommended_by,invitation_code,
 	level,discount,point,total_purchase_amount,icon,status FROM users 
-	WHERE status='ACTIVE' AND recommended_by=%s`, uid)
+	WHERE status='ACTIVE' AND recommended_by='%s'`, uid)
 
 	rows, err := dbQuery(q)
 	if err != nil {
@@ -524,7 +524,7 @@ func getUsersRecommendedBy(uid string) ([]User, error) {
 }
 
 func getUsersIDRecommendedBy(uid string) ([]string, error) {
-	q := fmt.Sprintf(`SELECT id FROM users WHERE status='ACTIVE' AND recommended_by=%s`, uid)
+	q := fmt.Sprintf(`SELECT id FROM users WHERE status='ACTIVE' AND recommended_by='%s'`, uid)
 	rows, err := dbQuery(q)
 	if err != nil {
 		return nil, err
