@@ -54,11 +54,12 @@ CREATE TABLE IF NOT EXISTS discounts (
 const levelRateDdl = `
 CREATE TABLE IF NOT EXISTS level_rate_rules (
 	id VARCHAR(225) PRIMARY KEY NOT NULL,
-	exchange_rate_float float,
+	exchange_rate_float FLOAT,
 	level VARCHAR(20),
 	discount INT,
 	amount INT,
 	pieces INT,
+	return_point_percent INT,
 	rule_type VARCHAR(20) NOT NULL,
 	created_by VARCHAR(225) NOT NULL,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,

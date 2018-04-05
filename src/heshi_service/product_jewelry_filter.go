@@ -176,6 +176,6 @@ func composeFilterJewelryQuery(c *gin.Context) (string, error) {
 	 totally_scanned, free_acc, last_scan_at,offline_at
 	 FROM jewelrys WHERE (%s) GROUP BY name ORDER BY online DESC, stock_quantity DESC, created_at DESC %s`,
 		strings.Join(querys, ") AND ("), limit)
-	util.Println(q)
+	util.Traceln(q)
 	return q, nil
 }

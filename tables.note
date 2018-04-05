@@ -1,0 +1,49 @@
+Tables:
+  users                    --user property                     
+  admins                   --user property specified for admin //so far, ignore, no property specified to admin
+  agents                   --user property specified for agent //so far, ignore, no property specified to agent
+  wechat_users             --user property of wechat related //ignore for now
+
+  diamonds                 --product diamonds 
+  gems                     --product gems
+  jewelrys                 --product jewelrys
+  small_diamonds           --product small_diamonds
+
+  orders                   --customer/agent orders 
+
+  currency_exchange_rates  --exchange rate 
+  level_rate_rules         --config customer/agent level, discounts rule; and float rate of system
+  suppliers                --track suppliers: 
+  price_settings_universal --price rule for based diamonds property 
+  historys                 --track admin/agent action regarding change of: orders, level_rate_rules, product(diamonds, jewelrys, gems, small_diamonds)
+  user_active_records      --track user api call visit -- statistic server usage
+  user_using_records       --track product items user visits -- statistic which product most interested to user 
+  action_logs              --track customer/agent level change (routine service run base on level_rate_rules)
+
+  promotions               
+  invitation_codes         
+  interested_items         
+  messages                 
+  discounts                
+
+long run service: 
+  exchange_rate            -- every 8hrs, push latest exchange rate and update activeCurrencyRate upon success change
+  longRunTransactionCheck  -- every 24hr, cancel transactions not downpayment in 24hrs since latest udpated_at
+  agentDailyCheck        -- every 24hrs, auto level change, total_purchase_amount,return point caculation
+  customerDailyCheck     -- every 24hrs, auto level change, total_purchase_amount,return point caculation
+
+
+Q1: account discount 
+--> all comes from level_rate_rules, no exception ?? 
+    or admin can grant other discount to some account??? (agent or customer)
+Q2: customer recommended, return point to customer, how much, rule?? 返点计算？
+Q22: customer level upgrade, has nothing to do with recommended customer buy???
+Q3: agent recommended, return point to agent, how much, rule??? 返点计算？ all product got return point ??
+Q33: same as Q22 
+Q4: （point - 返点）， 积分和返点不同，积分就是消费金额（一年内), 普通客户一年清零，代理？？清零 ？？
+    total_purchase_amount 积分(有效积分 一年内的？？？))
+
+
+NOTE:
+sql to alter column defaut value
+alter table users MODIFY column status VARCHAR(8) NOT NULL DEFAULT 'ACTIVE';

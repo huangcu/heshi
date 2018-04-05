@@ -49,6 +49,7 @@ func importJewelryProducts(uid, file, category string) ([]util.Row, error) {
 	originalHeaders := rows[0]
 
 	//process rows
+	util.Println("start process jewelry")
 	for index := 1; index < len(rows); index++ {
 		j := jewelry{}
 		row := rows[index]
@@ -288,7 +289,7 @@ func getAllStockIDBySubCategory(subCategory string) (map[string]struct{}, error)
 
 //下线不存在的钻石 //TODO return or just trace err ???
 func offlineJewelrysNoLongerExist(stockIDList map[string]struct{}) error {
-	util.Tracef("Start to offline all jewelrys no longer exists.\n")
+	util.Traceln("Start to offline all jewelrys no longer exists.")
 	for k := range stockIDList {
 		q := fmt.Sprintf("UPDATE jewelrys SET offline='YES',updated_at=(CURRENT_TIMESTAMP) WHERE stock_id ='%s'", k)
 		util.Tracef("Offline jewelry stock_id: %s.\n", k)
@@ -297,6 +298,6 @@ func offlineJewelrysNoLongerExist(stockIDList map[string]struct{}) error {
 			return err
 		}
 	}
-	util.Tracef("Finished offline all jewelrys no longer exists\n")
+	util.Traceln("Finished offline all jewelrys no longer exists")
 	return nil
 }

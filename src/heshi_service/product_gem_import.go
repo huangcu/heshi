@@ -36,6 +36,7 @@ func importGemProducts(uid, file string) ([]util.Row, error) {
 	originalHeaders := rows[0]
 
 	//process rows
+	util.Println("start process gem")
 	for index := 1; index < len(rows); index++ {
 		g := gem{}
 		row := rows[index]
@@ -184,7 +185,7 @@ func (g *gem) gemImages() {
 
 //下线不存在的钻石 //TODO return or just trace err ???
 func offlineGemsNoLongerExist(stockIDList map[string]struct{}) error {
-	util.Tracef("Start to offline all gems no longer exists.\n")
+	util.Traceln("Start to offline all gems no longer exists.")
 	for k := range stockIDList {
 		q := fmt.Sprintf("UPDATE gems SET offline='YES',updated_at=(CURRENT_TIMESTAMP) WHERE stock_id ='%s'", k)
 		util.Tracef("Offline gem stock_id: %s.\n", k)
@@ -193,6 +194,6 @@ func offlineGemsNoLongerExist(stockIDList map[string]struct{}) error {
 			return err
 		}
 	}
-	util.Tracef("Finished offline all gems no longer exists\n")
+	util.Traceln("Finished offline all gems no longer exists")
 	return nil
 }

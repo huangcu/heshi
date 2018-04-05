@@ -260,7 +260,7 @@ func composeFilterDiamondsQuery(c *gin.Context) (string, error) {
 		price_no_added_value, price_retail, featured, recommend_words, images, extra_words, status,
 		 ordered_by, picked_up, sold_price, profitable 
 	 FROM diamonds WHERE (%s) %s %s`, strings.Join(querys, ") AND ("), limit, sort)
-	util.Println(q)
+	util.Traceln(q)
 	return q, nil
 }
 

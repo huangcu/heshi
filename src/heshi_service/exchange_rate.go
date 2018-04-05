@@ -263,11 +263,16 @@ func getLatestRates() error {
 
 	q := c.composeInsertQuery()
 	_, err = dbExec(q)
-	return err
+	if err != nil {
+		return err
+	}
+	//upon change, update activeCurrencyRate
+	activeCurrencyRate = &c
+	return nil
 }
 
 func getCurrencyRate(c *gin.Context) {
-	currencyRate, err := getAcitveCurrencyRate()
+	currencyRate, err := getActiveCurrencyRate()
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusOK, vemsgExchangeRateNotExist)
@@ -283,14 +288,15 @@ func newCurrencyRate(c *gin.Context) {
 	currencyRate := c.MustGet("currency").(*currency)
 	q := currencyRate.composeInsertQuery()
 	if _, err := dbExec(q); err != nil {
-		c.String(http.StatusInternalServerError, errors.GetMessage(err))
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
-
-	c.String(http.StatusOK, currencyRate.ID)
+	//upon change, update activeCurrencyRate
+	activeCurrencyRate = currencyRate
+	c.JSON(http.StatusOK, currencyRate)
 }
 
-func getAcitveCurrencyRate() (*currency, error) {
+func getActiveCurrencyRate() (*currency, error) {
 	var base, note string
 	var usd, cny, eur, cad, aud, chf, rub, nzd float64
 	var createdAt time.Time

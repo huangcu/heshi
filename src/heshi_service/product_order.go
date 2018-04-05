@@ -387,9 +387,9 @@ func cancelTransaction(c *gin.Context) {
 		WHERE transaction_id='%s' 
 		AND status NOT IN ('%s','%s','%s','%s','%s','%s')`,
 		tid, CANCELLED, MCANCELLED, DELIVERED, MDELIVERED, RECEIVED, MRECEIVED)
-	status := CANCELLED
 	adminOrUserID := c.MustGet("id").(string)
 	userType := c.MustGet("usertype").(string)
+	status := CANCELLED
 	if userType == ADMIN {
 		status = MCANCELLED
 	} else {

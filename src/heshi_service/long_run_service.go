@@ -15,11 +15,6 @@ func longRun() {
 				if err := getLatestRates(); err != nil {
 					util.FailToGetCurrencyExchangeAlert()
 				}
-				var err error
-				activeCurrencyRate, err = getAcitveCurrencyRate()
-				if err != nil {
-					util.Println("fail to get latest active currency rate")
-				}
 			case <-stop:
 				return
 			}
@@ -30,7 +25,7 @@ func longRun() {
 		stop <- true
 	}()
 
-	ticker1 := time.NewTicker(time.Hour * 1)
+	ticker1 := time.NewTicker(time.Hour * 24)
 	stop1 := make(chan bool)
 	go func() {
 		for {
@@ -47,5 +42,27 @@ func longRun() {
 	defer func() {
 		ticker1.Stop()
 		stop1 <- true
+	}()
+
+	ticker2 := time.NewTicker(time.Hour * 24)
+	stop2 := make(chan bool)
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				if err := agentDailyCheck(); err != nil {
+					util.Printf("long run agent level daily check error:%#v", err)
+				}
+				if err := customerDailyCheck(); err != nil {
+					util.Printf("long run agent level daily check error:%#v", err)
+				}
+			case <-stop2:
+				return
+			}
+		}
+	}()
+	defer func() {
+		ticker2.Stop()
+		stop2 <- true
 	}()
 }

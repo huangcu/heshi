@@ -12,54 +12,8 @@ func downPayment(price float64) float64 {
 	return floatToFixed2(price * 0.3)
 }
 
-func customerLevelByAmount(amount float64) (string, error) {
-	q := fmt.Sprintf("SELECT level FROM configs WHERE type='%s' AND amount < '%f' order by level DESC",
-		CUSTOMER, amount)
-	rows, err := dbQuery(q)
-	if err != nil {
-		return "", err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var level string
-		if err := rows.Scan(&level); err != nil {
-			return level, nil
-		}
-	}
-	return LEVEL1, nil
-	// if amount < 5000 {
-	// 	return LEVEL0
-	// } else if amount >= 5000 && amount < 10000 {
-	// 	return LEVEL1
-	// } else if amount >= 10000 && amount < 20000 {
-	// 	return LEVEL2
-	// }
-	// return LEVEL3
-}
-
-func agentLevelByAmountAndPieces(amount float64, pieces int) (string, error) {
-	q := fmt.Sprintf(`SELECT level FROM configs 
-		WHERE type='%s' 
-		AND (amount < '%f' OR pieces < '%d') order by level DESC`,
-		AGENT, amount, pieces)
-	rows, err := dbQuery(q)
-	if err != nil {
-		return "", err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var level string
-		if err := rows.Scan(&level); err != nil {
-			return level, nil
-		}
-	}
-	return LEVEL1, nil
-}
-
 func priceForCustomer(level string, price float64) (float64, error) {
-	q := fmt.Sprintf("SELECT discount FROM configs WHERE type='%s' AND level = '%s' limit 1",
+	q := fmt.Sprintf("SELECT discount FROM level_rate_rules WHERE rule_type='%s' AND level = '%s' limit 1",
 		CUSTOMER, level)
 	var discount float64
 	if err := dbQueryRow(q).Scan(&discount); err != nil {
@@ -88,7 +42,7 @@ func priceForCustomer(level string, price float64) (float64, error) {
 
 //TODO agentLevelDiscount
 func priceForAgent(level string, price float64) (float64, error) {
-	q := fmt.Sprintf("SELECT discount FROM configs WHERE type='%s' AND level = '%s' limit 1",
+	q := fmt.Sprintf("SELECT discount FROM level_rate_rules WHERE rule_type='%s' AND level = '%s' limit 1",
 		AGENT, level)
 	var discount float64
 	if err := dbQueryRow(q).Scan(&discount); err != nil {

@@ -46,7 +46,6 @@ func validateUploadedSingleFile(fileHeader *multipart.FileHeader, product string
 	if ext == "" {
 		return "", errors.HSMessage{Code: 20020, Message: "Uploaded file has no extension"}, nil
 	}
-	fmt.Println(ext)
 	var filename string
 	if fileType == "video" {
 		if !filetype.IsVideo([]byte(Buf.String())) {
@@ -313,7 +312,7 @@ func handleUploadedZipVideo(tempDir string) map[string]string {
 		j := jewelry{}
 		if info.IsDir() {
 			msg = fmt.Sprintf("SKIP folder %s", info.Name())
-			util.Println(msg)
+			util.Traceln(msg)
 			return nil
 		}
 		var filename string
@@ -324,13 +323,13 @@ func handleUploadedZipVideo(tempDir string) map[string]string {
 		}
 		if !filetype.IsVideo(bs) {
 			msg = fmt.Sprintf("%s  is not video", info.Name())
-			util.Println(msg)
+			util.Traceln(msg)
 			return nil
 		}
 		ext := filepath.Ext(info.Name())
 		if ext == "" {
 			msg = fmt.Sprintf("SKIP file %s as the file has no extension", info.Name())
-			util.Println(msg)
+			util.Traceln(msg)
 			return nil
 		}
 
@@ -338,7 +337,7 @@ func handleUploadedZipVideo(tempDir string) map[string]string {
 			filename = fmt.Sprintf("beyoudiamond-video-%s", info.Name())
 		} else {
 			msg = fmt.Sprintf("Uploaded file %s extension is not supported", info.Name())
-			util.Println(msg)
+			util.Traceln(msg)
 			return nil
 		}
 
@@ -388,14 +387,14 @@ func handleUploadedZipImagesDiamond(tempDir string) map[string]string {
 		d := diamond{}
 		if !info.IsDir() {
 			msg = fmt.Sprintf("SKIP file %s", info.Name())
-			util.Println(msg)
+			util.Traceln(msg)
 			return nil
 		}
 		var filenames []string
 		files, _ := ioutil.ReadDir(info.Name())
 		for _, file := range files {
 			if file.IsDir() {
-				util.Printf("SKIP folder %s/%s", info.Name(), file)
+				util.Tracef("SKIP folder %s/%s", info.Name(), file)
 			} else {
 				bs, err := ioutil.ReadFile(path)
 				if err != nil {
@@ -404,14 +403,14 @@ func handleUploadedZipImagesDiamond(tempDir string) map[string]string {
 				}
 				if !filetype.IsImage(bs) {
 					msg = fmt.Sprintf("%s  is not image", info.Name())
-					util.Println(msg)
+					util.Traceln(msg)
 					return nil
 				}
 
 				ext := filepath.Ext(info.Name())
 				if ext == "" {
 					msg = fmt.Sprintf("SKIP file %s as the file has no extension", info.Name())
-					util.Println(msg)
+					util.Traceln(msg)
 				} else {
 					filename := fmt.Sprintf("beyoudiamond-image-%s", info.Name())
 					if err := handleImage(path, filepath.Join(".image", "diamond"), filename); err != nil {
@@ -453,14 +452,14 @@ func handleUploadedZipImagesJewelry(tempDir string) map[string]string {
 		j := jewelry{}
 		if !info.IsDir() {
 			msg = fmt.Sprintf("SKIP file %s", info.Name())
-			util.Println(msg)
+			util.Traceln(msg)
 			return nil
 		}
 		var filenames []string
 		files, _ := ioutil.ReadDir(info.Name())
 		for _, file := range files {
 			if file.IsDir() {
-				util.Printf("SKIP folder %s/%s", info.Name(), file)
+				util.Tracef("SKIP folder %s/%s", info.Name(), file)
 			} else {
 				bs, err := ioutil.ReadFile(path)
 				if err != nil {
@@ -469,13 +468,13 @@ func handleUploadedZipImagesJewelry(tempDir string) map[string]string {
 				}
 				if !filetype.IsImage(bs) {
 					msg = fmt.Sprintf("%s  is not image", info.Name())
-					util.Println(msg)
+					util.Traceln(msg)
 					return nil
 				}
 				ext := filepath.Ext(info.Name())
 				if ext == "" {
 					msg = fmt.Sprintf("SKIP file %s as the file has no extension", info.Name())
-					util.Println(msg)
+					util.Traceln(msg)
 				} else {
 					filename := fmt.Sprintf("beyoudiamond-image-%d.%s", time.Now().UnixNano(), filepath.Ext(info.Name()))
 					if err := handleImage(path, filepath.Join(".image", "jewelry"), filename); err != nil {
@@ -517,14 +516,14 @@ func handleUploadedZipImagesGem(tempDir string) map[string]string {
 		g := gem{}
 		if !info.IsDir() {
 			msg = fmt.Sprintf("SKIP file %s", info.Name())
-			util.Println(msg)
+			util.Traceln(msg)
 			return nil
 		}
 		var filenames []string
 		files, _ := ioutil.ReadDir(info.Name())
 		for _, file := range files {
 			if file.IsDir() {
-				util.Printf("SKIP folder %s/%s", info.Name(), file)
+				util.Tracef("SKIP folder %s/%s", info.Name(), file)
 			} else {
 				bs, err := ioutil.ReadFile(path)
 				if err != nil {
@@ -533,13 +532,13 @@ func handleUploadedZipImagesGem(tempDir string) map[string]string {
 				}
 				if !filetype.IsImage(bs) {
 					msg = fmt.Sprintf("%s  is not image", info.Name())
-					util.Println(msg)
+					util.Traceln(msg)
 					return nil
 				}
 				ext := filepath.Ext(info.Name())
 				if ext == "" {
 					msg = fmt.Sprintf("SKIP file %s as the file has no extension", info.Name())
-					util.Println(msg)
+					util.Traceln(msg)
 				} else {
 					filename := fmt.Sprintf("beyoudiamond-image-%d.%s", time.Now().UnixNano(), filepath.Ext(info.Name()))
 					if err := handleImage(path, filepath.Join(".image", "gem"), filename); err != nil {

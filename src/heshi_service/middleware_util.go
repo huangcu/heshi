@@ -6,20 +6,32 @@ import (
 )
 
 func userUsingRecord(URLPath, user, platform string) error {
-	//diamonds - rules on route
-	if strings.HasPrefix(URLPath, "/api/products/diamonds/") {
-		did := strings.Trim(URLPath, "/api/products/diamonds/")
-		if err := addUserUsingRecord(user, did, "diamond", platform); err != nil {
-			return err
+	switch URLPath {
+	// no need to track
+	case "/api/exchangerate", "/api/wechat/status", "/refresh/token":
+		return nil
+	default:
+		//track which product viewed by customer
+		if strings.HasPrefix(URLPath, "/api/products/diamonds/") {
+			did := strings.Trim(URLPath, "/api/products/diamonds/")
+			if err := addUserUsingRecord(user, did, "diamond", platform); err != nil {
+				return err
+			}
 		}
-	}
-	if strings.HasPrefix(URLPath, "/api/products/jewelrys/") {
-		jid := strings.Trim(URLPath, "/api/products/diamonds/")
-		if err := addUserUsingRecord(user, jid, "diamond", platform); err != nil {
-			return err
+		if strings.HasPrefix(URLPath, "/api/products/jewelrys/") {
+			jid := strings.Trim(URLPath, "/api/products/jewelrys/")
+			if err := addUserUsingRecord(user, jid, "jewelry", platform); err != nil {
+				return err
+			}
 		}
+		if strings.HasPrefix(URLPath, "/api/products/gems/") {
+			jid := strings.Trim(URLPath, "/api/products/gems/")
+			if err := addUserUsingRecord(user, jid, "gem", platform); err != nil {
+				return err
+			}
+		}
+		return addUserActiveRecord(user, URLPath)
 	}
-	return addUserActiveRecord(user, URLPath)
 }
 
 //TODO better define

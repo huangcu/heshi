@@ -45,6 +45,7 @@ func importDiamondProducts(uid, file string) ([]util.Row, error) {
 	originalHeaders := rows[0]
 
 	//process records
+	util.Println("staart process diamond")
 	for index := 1; index < len(rows); index++ {
 		d := diamond{}
 		row := rows[index]
@@ -347,7 +348,7 @@ func getAllValidSupplierName() ([]string, error) {
 
 //下线不存在的钻石 //TODO return or just trace err ???
 func offlineDiamondsNoLongerExist(stockRefList map[string]struct{}) error {
-	util.Tracef("Start to offline all diamonds no longer exists.\n")
+	util.Traceln("Start to offline all diamonds no longer exists.")
 	for k := range stockRefList {
 		q := fmt.Sprintf("UPDATE diamonds SET status='OFFLINE' WHERE stock_ref ='%s'", k)
 		util.Tracef("Offline diamond stock_ref: %s.\n", k)
@@ -356,7 +357,7 @@ func offlineDiamondsNoLongerExist(stockRefList map[string]struct{}) error {
 			return err
 		}
 	}
-	util.Tracef("Finished offline all diamonds no longer exists.\n")
+	util.Traceln("Finished offline all diamonds no longer exists.")
 	return nil
 }
 

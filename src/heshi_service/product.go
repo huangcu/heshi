@@ -135,6 +135,7 @@ func importSmallDiamondProducts(file string) ([]util.Row, error) {
 	originalHeaders := records[0]
 
 	//process records
+	util.Println("start process small diamond")
 	for index := 1; index < len(records); index++ {
 		sd := smallDiamond{}
 		row := records[index]

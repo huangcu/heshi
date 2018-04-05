@@ -138,7 +138,7 @@ func importDiamondsCustomizeHeaders(headers map[string]string, records [][]strin
 	var suppliers []string
 	suppliers, err = getAllValidSupplierName()
 	if err != nil {
-		util.Traceln("Fail to get all suppliers name from db, use default predefined: %s",
+		util.Printf("Fail to get all suppliers name from db, use default predefined: %s",
 			strings.Join(VALID_SUPPLIER_NAME, ","))
 		suppliers = VALID_SUPPLIER_NAME
 	}
@@ -150,6 +150,7 @@ func importDiamondsCustomizeHeaders(headers map[string]string, records [][]strin
 			originalHeaders = records[0]
 		}
 	}
+	util.Println("start process diamond")
 	for index := 0; index < len(records); index++ {
 		//process records
 		if index != 0 {

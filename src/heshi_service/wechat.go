@@ -69,7 +69,7 @@ func wechatAuth(c *gin.Context) {
 	s.Set(USER_SESSION_KEY, state)
 	s.Save()
 	authURL := mpoauth2.AuthCodeURL(wxAppIDDebug, redirectURI, "snsapi_userinfo", state)
-	util.Println("AuthCodeURL:", authURL)
+	util.Traceln("AuthCodeURL:", authURL)
 	c.Redirect(http.StatusFound, authURL)
 }
 

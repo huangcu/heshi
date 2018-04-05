@@ -13,83 +13,108 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var activeConfig levelRateRule
-
 // customer, agent 升级标准 以及 level和 discount的map关系
 // Rule type: CUSTOMER. AGENT, RATE
 // CUSTOMER: LEVEL, DISCOUNT, AMOUNT
-// AGENT: LEVEL, DISCOUNT, AMOUNT, PIECES
-// RATE: EXCHANGE RATE FLOAT
+// AGENT: LEVEL, DISCOUNT, AMOUNT, PIECES, return_point_percent
 // TODO limit LEVEL values to predefined
-type levelRateRule struct {
+type levelRule struct {
+	ID                    string    `json:"id"`
+	Level                 string    `json:"level"`
+	Discount              int       `json:"discount"`
+	DiscountStr           string    `json:"-"`
+	Pieces                int       `json:"pieces"`
+	PiecesStr             string    `json:"-"`
+	Amount                int       `json:"amount"`
+	AmountStr             string    `json:"-"`
+	ReturnPointPercent    int       `json:"return_point_percent"`
+	ReturnPointPercentStr string    `json:"-"`
+	RuleType              string    `json:"rule_type"`
+	CreatedBy             string    `json:"created_by"`
+	CreatedAt             time.Time `json:"created_at"`
+}
+
+// RATE: EXCHANGE RATE FLOAT
+type exchangeRateFloat struct {
 	ID                string    `json:"id"`
-	Discount          int       `json:"discount"`
-	DiscountStr       string    `json:"-"`
-	Pieces            int       `json:"pieces"`
-	PiecesStr         string    `json:"-"`
-	Level             string    `json:"level"`
-	Amount            int       `json:"amount"`
-	AmountStr         string    `json:"-"`
-	RuleType          string    `json:"rule_type"`
 	ExchangeRateFloat float64   `json:"rate"`
+	RuleType          string    `json:"rule_type"`
 	CreatedBy         string    `json:"created_by"`
 	CreatedAt         time.Time `json:"created_at"`
 }
 
 func getLevelConfig(c *gin.Context) {
-	var discount, amount, pieces int
-	var id, level, levelType, createdBy string
+	var discount, amount, pieces, returnPointPercent sql.NullInt64
+	var level sql.NullString
+	var id, ruleType, createdBy string
 	var createdAt time.Time
-	q := fmt.Sprintf("SELECT id, discount, level, amount, pieces, rule_type, created_by,created_at FROM level_rate_rules WHERE id = '%s'", c.Param("id"))
-	if err := dbQueryRow(q).Scan(&id, &discount, &level, &amount, &pieces, &levelType, &createdBy, &createdAt); err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+	q := fmt.Sprintf(`SELECT id, discount, level, amount, pieces, return_point_percent, 
+		rule_type, created_by,created_at 
+		FROM level_rate_rules 
+		WHERE id = '%s' AND rule_type!='RATE'`, c.Param("id"))
+	if err := dbQueryRow(q).Scan(&id, &discount, &level, &amount, &pieces, &returnPointPercent,
+		&ruleType, &createdBy, &createdAt); err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusBadRequest, "rule not exist")
+			return
+		}
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
-	conf := levelRateRule{
-		ID:        id,
-		Discount:  discount,
-		Level:     level,
-		Amount:    amount,
-		Pieces:    pieces,
-		RuleType:  levelType,
-		CreatedBy: createdBy,
-		CreatedAt: createdAt.Local(),
+	conf := levelRule{
+		ID:                 id,
+		Discount:           int(discount.Int64),
+		Level:              level.String,
+		Amount:             int(amount.Int64),
+		Pieces:             int(pieces.Int64),
+		RuleType:           ruleType,
+		ReturnPointPercent: int(returnPointPercent.Int64),
+		CreatedBy:          createdBy,
+		CreatedAt:          createdAt.Local(),
 	}
 	c.JSON(http.StatusOK, conf)
 }
 
 func newLevelConfig(c *gin.Context) {
 	if c.PostForm("discount") == "" {
-		c.JSON(http.StatusOK, "discount can not be empty")
+		c.JSON(http.StatusBadRequest, "discount can not be empty")
 		return
 	}
 	if c.PostForm("level") == "" {
-		c.JSON(http.StatusOK, "level can not be empty")
+		c.JSON(http.StatusBadRequest, "level can not be empty")
 		return
 	}
-	if c.PostForm("rule_type") == "" {
-		c.JSON(http.StatusOK, "rule type can not be empty")
-		return
-	} else if strings.ToUpper(c.PostForm("rule_type")) == AGENT {
-		if c.PostForm("pieces") == "" {
-			c.JSON(http.StatusOK, "pieces can not be empty")
-			return
-		}
-	}
-	if c.PostForm("amount") == "" {
-		c.JSON(http.StatusOK, "amount can not be empty")
+	ruleType := strings.ToUpper(c.PostForm("rule_type"))
+	if ruleType == "" {
+		c.JSON(http.StatusBadRequest, "rule type can not be empty")
 		return
 	}
-
-	createdBy := c.MustGet("id").(string)
-	id := newV4()
-	conf := levelRateRule{
+	conf := levelRule{
 		DiscountStr: c.PostForm("discount"),
 		Level:       c.PostForm("level"),
-		AmountStr:   c.PostForm("amount"),
-		PiecesStr:   c.PostForm("pieces"),
 		RuleType:    c.PostForm("rule_type"),
 	}
+	switch ruleType {
+	case AGENT:
+		if c.PostForm("pieces") == "" && c.PostForm("amount") == "" {
+			c.JSON(http.StatusBadRequest, "must specifiy pieces or amount")
+			return
+		}
+		conf.AmountStr = c.PostForm("amount")
+		conf.PiecesStr = c.PostForm("pieces")
+		conf.ReturnPointPercentStr = c.PostForm("return_point_percent")
+	case CUSTOMER:
+		if c.PostForm("amount") == "" {
+			c.JSON(http.StatusBadRequest, "amount can not be empty")
+			return
+		}
+		conf.AmountStr = c.PostForm("amount")
+	default:
+		c.JSON(http.StatusBadRequest, ruleType+"is not valid")
+	}
+
+	conf.CreatedBy = c.MustGet("id").(string)
+	conf.ID = newV4()
 	if vemsgs, err := conf.validateReq(); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
@@ -97,25 +122,26 @@ func newLevelConfig(c *gin.Context) {
 		c.JSON(http.StatusOK, vemsgs)
 		return
 	}
-	q := fmt.Sprintf(`INSERT INTO configs (id, discount, level, amount, pieces, rule_type, created_by) 
-	VALUES ('%s','%d','%s', '%d','%d' ,'%s','%s')`,
-		id, conf.Discount, conf.Level, conf.Amount, conf.Pieces, conf.RuleType, createdBy)
+
+	q := conf.composeInsertQuery()
 	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, id)
+	c.JSON(http.StatusOK, conf)
 }
 
+// better, should limit update fields base on ruletype
 func updateLevelConfig(c *gin.Context) {
 	createdBy := c.MustGet("id").(string)
-	conf := levelRateRule{
-		ID:          c.Param("id"),
-		DiscountStr: c.PostForm("discount"),
-		Level:       c.PostForm("level"),
-		AmountStr:   c.PostForm("amount"),
-		PiecesStr:   c.PostForm("pieces"),
-		RuleType:    c.PostForm("rule_type"),
+	conf := levelRule{
+		ID:                    c.Param("id"),
+		DiscountStr:           c.PostForm("discount"),
+		Level:                 c.PostForm("level"),
+		AmountStr:             c.PostForm("amount"),
+		PiecesStr:             c.PostForm("pieces"),
+		ReturnPointPercentStr: c.PostForm("return_point_percent"),
+		// RuleType:              c.PostForm("rule_type"), rule type not allowed to change once created
 	}
 	if vemsgs, err := conf.validateReq(); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
@@ -130,49 +156,43 @@ func updateLevelConfig(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, conf.ID)
-	go newHistoryRecords(createdBy, "configs", conf.ID, conf.paramsKV())
+	go newHistoryRecords(createdBy, "level_rate_rules", conf.ID, conf.paramsKV())
 }
 
 func getAllLevelConfigs(c *gin.Context) {
-	rows, err := dbQuery("SELECT id, discount, level, amount, pieces, rule_type, created_by,created_at FROM level_rate_rules WHERE (type = '?' OR type = '?') ORDER BY created_at",
-		CUSTOMER, AGENT)
+	rows, err := dbQuery(`SELECT id, discount, level, amount, rule_type, pieces, return_point_percent, 
+		created_by,created_at FROM level_rate_rules WHERE rule_type!='RATE' ORDER BY created_at DESC`)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 	defer rows.Close()
 
-	var cs []levelRateRule
+	var cs []levelRule
 	for rows.Next() {
-		var discount, amount, pieces int
-		var id, level, levelType, createdBy string
+		var discount, amount, pieces, returnPointPercent sql.NullInt64
+		var id, ruleType, createdBy string
+		var level sql.NullString
 		var createdAt time.Time
-		rows.Scan(&id, &discount, &level, &levelType, &amount, &pieces, &createdBy, &createdAt)
-		conf := levelRateRule{
+		if err := rows.Scan(&id, &discount, &level, &amount, &ruleType, &pieces, &returnPointPercent,
+			&createdBy, &createdAt); err != nil {
+			c.JSON(http.StatusInternalServerError, err.Error())
+			return
+		}
+		conf := levelRule{
 			ID:        id,
-			Discount:  discount,
-			Level:     level,
-			Amount:    amount,
-			Pieces:    pieces,
-			RuleType:  levelType,
+			Discount:  int(discount.Int64),
+			Level:     level.String,
+			Amount:    int(amount.Int64),
+			Pieces:    int(pieces.Int64),
+			RuleType:  ruleType,
 			CreatedBy: createdBy,
 			CreatedAt: createdAt.Local(),
 		}
+		fmt.Printf("%#v", conf)
 		cs = append(cs, conf)
 	}
 	c.JSON(http.StatusOK, cs)
-}
-
-func getRateConfig(c *gin.Context) {
-	var rate float64
-	var id, createdBy string
-	var createdAt time.Time
-	q := "SELECT id, rate,created_by,created_at FROM level_rate_rules WHERE rule_type = 'RATE' ORDER BY created_at DESC LIMIT 1"
-	if err := dbQueryRow(q).Scan(id, &rate, &createdBy, &createdAt); err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
-		return
-	}
-	c.JSON(http.StatusOK, levelRateRule{ID: id, ExchangeRateFloat: rate, CreatedBy: createdBy, CreatedAt: createdAt.Local()})
 }
 
 func newRateConfig(c *gin.Context) {
@@ -180,45 +200,82 @@ func newRateConfig(c *gin.Context) {
 	id := newV4()
 	rate, err := util.StringToFloat(c.PostForm("rate"))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 		return
 	}
-	q := fmt.Sprintf("INSERT INTO configs (id, exchange_rate_float, rule_type, created_by) VALUES ('%s','%f','%s','%s')",
-		id, rate, "RATE", createdBy)
+	q := fmt.Sprintf(`INSERT INTO level_rate_rules (id, exchange_rate_float, rule_type, created_by) 
+	VALUES ('%s','%f','%s','%s')`, id, rate, "RATE", createdBy)
 	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, id)
+	rc := exchangeRateFloat{
+		ID:                id,
+		ExchangeRateFloat: rate,
+		RuleType:          "RATE",
+		CreatedBy:         createdBy,
+	}
+	c.JSON(http.StatusOK, rc)
+}
+
+func getRateConfig(c *gin.Context) {
+	var rate float64
+	var id, createdBy string
+	var createdAt time.Time
+	q := `SELECT id, exchange_rate_float,created_by,created_at 
+	FROM level_rate_rules WHERE rule_type = 'RATE' ORDER BY created_at DESC LIMIT 1`
+	if err := dbQueryRow(q).Scan(&id, &rate, &createdBy, &createdAt); err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+	rc := exchangeRateFloat{
+		ID:                id,
+		ExchangeRateFloat: rate,
+		RuleType:          "RATE",
+		CreatedBy:         createdBy,
+		CreatedAt:         createdAt.Local(),
+	}
+	c.JSON(http.StatusOK, rc)
 }
 
 func getAllRateConfigs(c *gin.Context) {
-	rows, err := dbQuery("SELECT id, exchange_rate_float, created_by,created_at FROM level_rate_rules WHERE rule_type = 'RATE' ORDER BY created_at")
+	rows, err := dbQuery(`SELECT id, exchange_rate_float, created_by,created_at 
+		FROM level_rate_rules 
+		WHERE rule_type = 'RATE' ORDER BY created_at`)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 	defer rows.Close()
 
-	var cs []levelRateRule
+	var cs []exchangeRateFloat
 	for rows.Next() {
 		var rate float64
 		var id, createdBy string
 		var createdAt time.Time
 		rows.Scan(&id, &rate, &createdBy, &createdAt)
-		cs = append(cs, levelRateRule{ID: id, ExchangeRateFloat: rate, CreatedBy: createdBy, CreatedAt: createdAt.Local()})
+		rc := exchangeRateFloat{
+			ID:                id,
+			ExchangeRateFloat: rate,
+			RuleType:          "RATE",
+			CreatedBy:         createdBy,
+			CreatedAt:         createdAt.Local(),
+		}
+		cs = append(cs, rc)
 	}
 	c.JSON(http.StatusOK, cs)
 }
 
-func (ac *levelRateRule) getActiveRateConfig() {
+func (ac *exchangeRateFloat) getActiveRateConfig() {
 	var rate float64
 	var id, createdBy string
 	var createdAt time.Time
-	q := "SELECT id, exchange_rate_float,created_by,created_at FROM level_rate_rules WHERE rule_type = 'RATE' ORDER BY created_at DESC LIMIT 1"
+	q := `SELECT id, exchange_rate_float,created_by,created_at 
+	FROM level_rate_rules WHERE rule_type = 'RATE' ORDER BY created_at DESC LIMIT 1`
 	if err := dbQueryRow(q).Scan(&id, &rate, &createdBy, &createdAt); err != nil {
 		if err == sql.ErrNoRows {
-			util.Println("fail to get active config, use default config")
+			util.Println("fail to get active level_rate_rules, use default level_rate_rules")
+			return
 		}
 	}
 	ac.ID = id
@@ -227,7 +284,7 @@ func (ac *levelRateRule) getActiveRateConfig() {
 	ac.CreatedAt = createdAt
 }
 
-func (ac *levelRateRule) validateReq() ([]errors.HSMessage, error) {
+func (ac *levelRule) validateReq() ([]errors.HSMessage, error) {
 	var vmsgs []errors.HSMessage
 	if ac.DiscountStr != "" {
 		discount, err := strconv.Atoi(ac.DiscountStr)
@@ -253,14 +310,20 @@ func (ac *levelRateRule) validateReq() ([]errors.HSMessage, error) {
 		}
 		ac.Amount = amount
 	}
-
+	if ac.ReturnPointPercentStr != "" {
+		rpp, err := strconv.Atoi(ac.ReturnPointPercentStr)
+		if err != nil {
+			return nil, err
+		}
+		ac.ReturnPointPercent = rpp
+	}
 	if ac.Level != "" {
 		ac.Level = "LEVEL" + strings.TrimSpace(ac.Level)
 	}
 
 	if ac.RuleType != "" {
 		if !util.IsInArrayString(strings.ToUpper(ac.RuleType), []string{CUSTOMER, AGENT}) {
-			vemsgNotValid.Message = "config type not valid"
+			vemsgNotValid.Message = "level_rate_rules type not valid"
 			vmsgs = append(vmsgs, vemsgNotValid)
 		}
 		ac.RuleType = strings.ToUpper(ac.RuleType)
@@ -268,9 +331,29 @@ func (ac *levelRateRule) validateReq() ([]errors.HSMessage, error) {
 	return vmsgs, nil
 }
 
-func (ac *levelRateRule) composeUpdateQuery() string {
+func (ac *levelRule) composeInsertQuery() string {
 	params := ac.paramsKV()
-	q := `UPDATE configs SET`
+	q := `INSERT INTO level_rate_rules (id`
+	va := fmt.Sprintf(`VALUES ('%s'`, ac.ID)
+	for k, v := range params {
+		q = fmt.Sprintf("%s, %s", q, k)
+		switch v.(type) {
+		case string:
+			va = fmt.Sprintf("%s, '%s'", va, v.(string))
+		case float64:
+			va = fmt.Sprintf("%s, '%f'", va, v.(float64))
+		case int:
+			va = fmt.Sprintf("%s, '%d'", va, v.(int))
+		case int64:
+			va = fmt.Sprintf("%s, '%d'", va, v.(int64))
+		}
+	}
+	q = fmt.Sprintf("%s) %s)", q, va)
+	return q
+}
+func (ac *levelRule) composeUpdateQuery() string {
+	params := ac.paramsKV()
+	q := `UPDATE level_rate_rules SET`
 	for k, v := range params {
 		switch v.(type) {
 		case string:
@@ -288,29 +371,29 @@ func (ac *levelRateRule) composeUpdateQuery() string {
 	return q
 }
 
-func (ac *levelRateRule) paramsKV() map[string]interface{} {
+func (ac *levelRule) paramsKV() map[string]interface{} {
 	params := make(map[string]interface{})
 
-	if ac.Discount != 0 {
-		params["discount"] = ac.Discount
-	}
 	if ac.Level != "" {
 		params["level"] = ac.Level
 	}
-	if ac.RuleType != "" {
-		params["rule_type"] = ac.RuleType
+	if ac.Discount != 0 {
+		params["discount"] = ac.Discount
 	}
 	if ac.Amount != 0 {
 		params["amount"] = ac.Amount
 	}
+	if ac.RuleType != "" {
+		params["rule_type"] = ac.RuleType
+	}
 	if ac.Pieces != 0 {
 		params["pieces"] = ac.Pieces
 	}
+	if ac.ReturnPointPercent != 0 {
+		params["return_point_percent"] = ac.ReturnPointPercent
+	}
 	if ac.CreatedBy != "" {
 		params["created_by"] = ac.CreatedBy
-	}
-	if ac.ExchangeRateFloat != 0 {
-		params["exchange_rate_float"] = ac.ExchangeRateFloat
 	}
 	return params
 }

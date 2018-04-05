@@ -136,3 +136,34 @@ order by filed('en','cn') asc
 
 GOLANG ERRORS: 
 2018/03/16 19:12:36 http2: server: error reading preface from client [::1]:33036: read tcp [::1]:8443->[::1]:33036: read: connection reset by peer
+
+
+history 
+ID USER_ID CATEGORY, FIELD, OLDVALUE, NEWVALUE
+//PRICE - > 
+//FLOAT + 
+
+USER USER_LEVEL, USER_DISCOUNT, (default 0, 98), recommended_by(...), inviationcode 
+user_type: CUSTOMER, AGENT, admin
+agent {agent_level, discount}
+admin (admin_level, discount)
+
+---> inviationcode --- > user --> recommended_by --> used_id;
+
+ADMIN --> update user level/agent, discount; ()
+
+level --- discount 
+
+config: 
+
+level: 0, 98
+1, 95
+2, 92
+
+Transactions: 1200 -- 1000 
+
+order id, itemid price, downpayment, final_price, currency, rate, //returnpoint 
+
+ORDERS
+id1 ItemID, XX, price, findal_price, downpayment(dingji), rate, transaction_id 
+id2 itemid 2 , xx, price , findal_price, downpayment(), usd, rate, transaction_id

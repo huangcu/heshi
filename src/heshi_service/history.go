@@ -35,7 +35,7 @@ func newHistoryRecords(userID, tableName, itemID string, fieldNameValue map[stri
 			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
 		}
 		if _, err := dbExec(q); err != nil {
-			util.Printf("Fail to add to history: %s", q)
+			util.Traceln("Fail to add to history: %s", q)
 		}
 	}
 }

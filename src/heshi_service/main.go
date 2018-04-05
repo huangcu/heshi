@@ -29,6 +29,7 @@ var (
 	serverIsInterrupted bool
 	store               sessions.CookieStore
 	activeCurrencyRate  *currency
+	activeConfig        exchangeRateFloat
 )
 var redisClient = redis.NewClient(&redis.Options{
 	Addr:     "localhost:6379",
@@ -53,6 +54,11 @@ func main() {
 	if util.ShouldTrace() {
 		log.SetOutput(io.MultiWriter(os.Stdout, lf))
 		util.Logger = log.New(io.MultiWriter(os.Stdout, lf), "", log.LstdFlags)
+		gin.DefaultWriter = io.MultiWriter(lf, os.Stdout)
+	} else {
+		log.SetOutput(lf)
+		util.Logger = log.New(lf, "", log.LstdFlags)
+		gin.DefaultWriter = io.MultiWriter(lf)
 	}
 	log.SetFlags(log.LstdFlags)
 	go longRun()
@@ -79,6 +85,7 @@ func startWebServer(port string) error {
 		gin.SetMode(gin.ReleaseMode)
 	} else {
 		gin.SetMode(gin.DebugMode)
+		r.Use(gin.Logger())
 	}
 
 	r.Use(gin.Recovery())
@@ -255,7 +262,7 @@ func configRoute(r *gin.Engine) {
 			// TODO only can view transaction of 1 year
 			apiCustomer.GET("/transactions/:id", getTransactionDetail)
 			apiCustomer.GET("/transactions", getAllTransactionsOfAUser)
-			apiCustomer.GET("/transactions/cancel", cancelTransaction)
+			apiCustomer.GET("/transactions/:id/cancel", cancelTransaction)
 
 			//action- > add, delete
 			apiCustomer.POST("/shoppingList/:action", toShoppingList)
@@ -319,8 +326,6 @@ func init() {
 		util.Println(err.Error())
 		os.Exit(1)
 	}
-
-	activeConfig = levelRateRule{ExchangeRateFloat: 0.01, CreatedBy: "system", CreatedAt: time.Now().Local()}
 	if strings.ToUpper(runtime.GOOS) != "WINDOWS" {
 		fmt.Println("OS: " + runtime.GOOS)
 		val, err := redisClient.FlushAll().Result()
@@ -332,9 +337,15 @@ func init() {
 	if err := mkDir(); err != nil {
 		log.Fatalf("fail to create neccesary path. err: %s", err.Error())
 	}
-	// if err := getLatestRates(); err != nil {
-	// 	log.Fatalf("init fail. err: %s;", err.Error())
-	// }
+	if err := getLatestRates(); err != nil {
+		log.Fatalf("fail to get latest rate from intenet. err: %s;", err.Error())
+	}
+	activeConfig = exchangeRateFloat{ExchangeRateFloat: 0.01, CreatedBy: "system", CreatedAt: time.Now().Local()}
+	activeConfig.getActiveRateConfig()
+	activeCurrencyRate, err = getActiveCurrencyRate()
+	if err != nil {
+		log.Fatalf("fail to get active currency rate. Error: %s", err.Error())
+	}
 }
 
 func chdir() error {
