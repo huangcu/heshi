@@ -275,6 +275,13 @@ func configRoute(r *gin.Engine) {
 			//action- > add, delete
 			apiCustomer.POST("/shoppingList/:action", toShoppingList)
 
+			// shopping cart
+			// only support add one to cart at a time
+			apiCustomer.POST("/cart/add", addToShoppingCart)
+			// only support remove one at a time
+			apiCustomer.POST("/cart/remove/:id", removeFromShoppingCart)
+			apiCustomer.GET("/cart", getShoppingCartList)
+
 			apiCustomer.POST("/logout", userLogout)
 			apiCustomer.POST("/password/change", changePassword)
 		}
