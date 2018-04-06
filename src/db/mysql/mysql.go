@@ -45,14 +45,14 @@ func OpenDB() (*sql.DB, error) {
 	tableName = append(tableName, "invitation_codes", "wechat_users", "discounts", "level_rate_rules")
 	tableName = append(tableName, "interested_items", "user_using_records", "user_active_record")
 	tableName = append(tableName, "suppliers", "price_settings_universal", "action_logs")
-	tableName = append(tableName, "messages", "historys")
+	tableName = append(tableName, "messages", "historys", "product_stock_handle_records")
 	tableDdl := []string{userDdl, agentDdl, adminDdl}
 	tableDdl = append(tableDdl, diamondDdl, jewelryDdl, smallDiamondDdl, gemDdl)
 	tableDdl = append(tableDdl, promotionDdl, orderDdl, currencyExchangeRateDdl)
 	tableDdl = append(tableDdl, invitationCodeDdl, wechatUserDdl, discountDdl, levelRateDdl)
 	tableDdl = append(tableDdl, interestedItemDdl, userUsingRecordDdl, userActiveRecordDdl)
 	tableDdl = append(tableDdl, supplierDdl, priceSettingUniversalDdl, actionLogDdl)
-	tableDdl = append(tableDdl, messageDdl, historyTrackDdl)
+	tableDdl = append(tableDdl, messageDdl, historyTrackDdl, productStockHandleHistoryDdl)
 	if len(tableName) != len(tableDdl) {
 		return nil, errors.New("db DDL number is not a match to table number")
 	}

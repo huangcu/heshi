@@ -61,8 +61,11 @@ func main() {
 		gin.DefaultWriter = io.MultiWriter(lf)
 	}
 	log.SetFlags(log.LstdFlags)
-	go longRun()
-
+	exit := make(chan bool)
+	go longRun(exit)
+	defer func() {
+		exit <- true
+	}()
 	port := ":8080"
 	if os.Getenv("STAGE") != "dev" {
 		port = ":8443"
@@ -207,6 +210,11 @@ func configRoute(r *gin.Engine) {
 
 			//upload products by csv file
 			apiAdmin.POST("/products/upload", uploadAndProcessProducts)
+			apiAdmin.POST("/products/export", exportProduct)
+			apiAdmin.GET("/products/stockhandlerecords", getAllProductStockHanldeRecords)
+			// here id is admin user id
+			apiAdmin.GET("/products/stockhandlerecords/:id", getProductStockHanldeRecordsOfUser)
+			apiAdmin.Static("/download", "./.uploaded")
 
 			//manage products
 			apiAdmin.POST("/products/diamonds", newDiamond)
@@ -369,5 +377,5 @@ func mkDir() error {
 			}
 		}
 	}
-	return nil
+	return os.MkdirAll(UPLOADFILEDIR, 0755)
 }

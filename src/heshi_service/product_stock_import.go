@@ -51,10 +51,10 @@ func uploadAndGetFileHeaders(c *gin.Context) {
 
 func uploadAndProcessProducts(c *gin.Context) {
 	uid := c.MustGet("id").(string)
-	product := c.PostForm("product")
-	category := c.PostForm("jewelryCategory")
-	if !util.IsInArrayString(product, VALID_PRODUCTS) {
-		vemsgUploadProductsCategoryNotValid.Message = fmt.Sprintf("%s is not valid product type", product)
+	category := strings.ToUpper(c.PostForm("category"))
+	jewelrySubCategory := strings.ToUpper(c.PostForm("jewelryCategory"))
+	if !util.IsInArrayString(category, VALID_PRODUCTS) {
+		vemsgUploadProductsCategoryNotValid.Message = fmt.Sprintf("%s is not valid product type", category)
 		c.JSON(http.StatusOK, vemsgUploadProductsCategoryNotValid)
 		return
 	}
@@ -64,10 +64,11 @@ func uploadAndProcessProducts(c *gin.Context) {
 		return
 	}
 	// Upload the file to specific dst.
-	if err := os.MkdirAll(filepath.Join(UPLOADFILEDIR, uid), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Join(UPLOADFILEDIR, category, uid), 0755); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
+	// TODO must be excel
 	var filename string
 	exts := strings.SplitN(file.Filename, ".", 2)
 	if len(exts) == 2 {
@@ -75,7 +76,7 @@ func uploadAndProcessProducts(c *gin.Context) {
 	} else {
 		filename = file.Filename + time.Now().Format("20060102150405")
 	}
-	dst := filepath.Join(UPLOADFILEDIR, uid, filename)
+	dst := filepath.Join(UPLOADFILEDIR, category, uid, filename)
 	err = c.SaveUploadedFile(file, dst)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
@@ -87,7 +88,7 @@ func uploadAndProcessProducts(c *gin.Context) {
 		return
 	}
 
-	missingHeaders := validateHeaders(product, headers)
+	missingHeaders := validateHeaders(category, headers)
 	if len(missingHeaders) != 0 {
 		c.JSON(http.StatusOK, gin.H{"missing-headers": missingHeaders})
 		return
@@ -96,6 +97,7 @@ func uploadAndProcessProducts(c *gin.Context) {
 	go func() {
 		//here to track, who uploaded which file, and and filename saved on disk
 		p := productStockHandleRecord{
+			ID:             newV4(),
 			UserID:         uid,
 			Category:       category,
 			Action:         "UPLOAD STOCK",
@@ -104,18 +106,18 @@ func uploadAndProcessProducts(c *gin.Context) {
 		}
 		p.newProductStockHanldeRecords()
 	}()
-	importProducts(uid, product, dst, category)
+	importProducts(uid, category, dst, jewelrySubCategory)
 }
 
-func importProducts(uid, product, file, cate string) ([]util.Row, error) {
-	switch product {
-	case "diamond":
+func importProducts(uid, category, file, cate string) ([]util.Row, error) {
+	switch category {
+	case DIAMOND:
 		return importDiamondProducts(uid, file)
-	case "small_diamond":
+	case SMALLDIAMOND:
 		return importSmallDiamondProducts(file)
-	case "jewelry":
+	case JEWELRY:
 		return importJewelryProducts(uid, file, cate)
-	case "gem":
+	case GEM:
 		return importGemProducts(uid, file)
 	default:
 		return nil, nil

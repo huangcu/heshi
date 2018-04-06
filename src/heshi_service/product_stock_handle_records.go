@@ -43,10 +43,10 @@ func getProductStockHanldeRecordsOfUser(c *gin.Context) {
 
 	var ps []productStockHandleRecord
 	for rows.Next() {
-		var id, userID, category, action string
+		var id, category, action string
 		var filename, filenameOnDisk sql.NullString
 		var createdAt time.Time
-		if err := rows.Scan(&id, &userID, &category, &action, &filename, &filenameOnDisk, &createdAt); err != nil {
+		if err := rows.Scan(&id, &category, &action, &filename, &filenameOnDisk, &createdAt); err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
@@ -100,7 +100,7 @@ func getAllProductStockHanldeRecords(c *gin.Context) {
 
 func (p *productStockHandleRecord) composeInsertQuery() string {
 	params := p.paramsKV()
-	q := `INSERT INTO product_stock_handle_records (id, `
+	q := `INSERT INTO product_stock_handle_records (id`
 	va := fmt.Sprintf(`VALUES ('%s'`, p.ID)
 	for k, v := range params {
 		q = fmt.Sprintf("%s, %s", q, k)
@@ -123,7 +123,7 @@ func (p *productStockHandleRecord) paramsKV() map[string]interface{} {
 	params := make(map[string]interface{})
 
 	if p.UserID != "" {
-		params["userID"] = p.UserID
+		params["user_id"] = p.UserID
 	}
 	if p.Category != "" {
 		params["category"] = p.Category

@@ -1,10 +1,10 @@
 package main
 
 const (
-	DIAMOND      = "diamond"
-	SMALLDIAMOND = "small_diamond"
-	JEWELRY      = "jewelry"
-	GEM          = "gem"
+	DIAMOND      = "DIAMOND"
+	SMALLDIAMOND = "SMALL_DIAMOND"
+	JEWELRY      = "JEWELRY"
+	GEM          = "GEM"
 )
 
 var VALID_PRODUCTS = []string{DIAMOND, SMALLDIAMOND, JEWELRY, GEM}

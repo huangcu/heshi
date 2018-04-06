@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"time"
 	"util"
 )
 
-func longRun() {
+func longRun(exit chan bool) {
+	fmt.Println("long run service start")
 	ticker := time.NewTicker(time.Hour * 8)
 	stop := make(chan bool)
 	go func() {
@@ -65,4 +67,6 @@ func longRun() {
 		ticker2.Stop()
 		stop2 <- true
 	}()
+	<-exit
+	fmt.Println("long service exit")
 }
