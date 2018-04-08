@@ -332,14 +332,15 @@ func getUser(c *gin.Context) {
 }
 
 func getAllUsers(c *gin.Context) {
-	userType := strings.ToUpper(c.Query("user_type"))
-	if !util.IsInArrayString(userType, VALID_USERTYPE) {
-		c.JSON(http.StatusBadRequest, userType+" not a valid user type")
-	}
 	q := `SELECT id,username,cellphone,email,real_name,user_type,wechat_id,
 	wechat_name,wechat_qr,address,additional_info,recommended_by,invitation_code,
 	level,discount,point,total_purchase_amount,icon,status FROM users WHERE status='ACTIVE'`
+	userType := strings.ToUpper(c.Query("user_type"))
 	if userType != "" {
+		if !util.IsInArrayString(userType, VALID_USERTYPE) {
+			c.JSON(http.StatusBadRequest, userType+" not a valid user type")
+			return
+		}
 		q = fmt.Sprintf("%s AND user_type='%s'", q, userType)
 	}
 	rows, err := dbQuery(q)
