@@ -32,7 +32,7 @@ func longRun(exit chan bool) {
 	go func() {
 		for {
 			select {
-			case <-ticker.C:
+			case <-ticker1.C:
 				if err := longRunTransactionCheck(); err != nil {
 					util.Printf("long run transaction check error:%#v", err)
 				}
@@ -51,7 +51,7 @@ func longRun(exit chan bool) {
 	go func() {
 		for {
 			select {
-			case <-ticker.C:
+			case <-ticker2.C:
 				if err := agentDailyCheck(); err != nil {
 					util.Printf("long run agent level daily check error:%#v", err)
 				}
