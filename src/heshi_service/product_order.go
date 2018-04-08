@@ -671,7 +671,8 @@ func cancelTransactionSingleOrder(item orderItem) (*transaction, error) {
 		if r, err := result.RowsAffected(); err != nil {
 			return err
 		} else if r != 1 {
-			return errors.Newf("Item %s not AVAILABLE any more", item.ItemID)
+			// should ingore, item to be canceled shouldn't be not avaiable, if it is, return cancelled
+			fmt.Printf("Cancel Transaction: Item %s not AVAILABLE any more", item.ItemID)
 		}
 		q := item.composeUpdateQuery()
 		traceSQL(q)
@@ -720,7 +721,8 @@ func cancelTransactionMultipleOrders(items []orderItem) (*transaction, error) {
 			if r, err := result.RowsAffected(); err != nil {
 				return err
 			} else if r != 1 {
-				return errors.Newf("Item %s not AVAILABLE any more", item.ItemID)
+				// should ingore, item to be canceled shouldn't be not avaiable, if it is, return cancelled
+				fmt.Printf("Cancel Transaction: Item %s not AVAILABLE any more", item.ItemID)
 			}
 			tq := item.composeUpdateQuery()
 			traceSQL(tq)

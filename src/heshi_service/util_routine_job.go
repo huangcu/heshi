@@ -86,7 +86,7 @@ func customerDailyCheck() error {
 
 // =====================================
 func automaticAgentLevelAndPurchaseAmount(agentID, level string) error {
-	q := fmt.Sprintf(`SELECT count(*) AS count, sum(sold_price) AS total_amount 
+	q := fmt.Sprintf(`SELECT count(*) AS count, sum(sold_price_usd) AS total_amount 
 		FROM orders 
 		WHERE buyer_id='%s'  
 		AND status IN ('%s','%s','%s','%s','%s','%s')  
@@ -138,7 +138,7 @@ func agentLevelByAmountAndPieces(amount float64, pieces int) (string, error) {
 
 // =========================================
 func automaticCustomerLevelAndPurchaseAmount(customerID, level string) error {
-	q := fmt.Sprintf(`SELECT sum(sold_price) AS total_amount 
+	q := fmt.Sprintf(`SELECT sum(sold_price_usd) AS total_amount 
 		FROM orders 
 		WHERE buyer_id='%s'  
 		AND status IN ('%s','%s','%s','%s','%s','%s')  
@@ -222,13 +222,13 @@ func returnPointForCustomer(customerID string) error {
 	AND created_at > timestampadd(year, -1, now())`,
 		MPAID, PAID, MDELIVERED, DELIVERED, MRECEIVED, RECEIVED, customerID, CUSTOMER)
 
-	var totalAmount float64
+	var totalAmount sql.NullFloat64
 	if err := dbQueryRow(q).Scan(&totalAmount); err != nil {
 		return err
 	}
-	if totalAmount != 0 {
+	if totalAmount.Float64 != 0 {
 		// TODO rule here;
-		returnPoint := totalAmount
+		returnPoint := totalAmount.Float64
 		// update users return point,返点： 整型）
 		q = fmt.Sprintf(`UPDATE users set point=point+%f WHERE id='%s'`, returnPoint, customerID)
 		if _, err := dbExec(q); err != nil {
@@ -247,7 +247,7 @@ func returnPointForAgent(agentID, level string) error {
 	AND created_at > timestampadd(year, -1, now())`,
 		MPAID, PAID, MDELIVERED, DELIVERED, MRECEIVED, RECEIVED, agentID, CUSTOMER)
 
-	var totalAmount float64
+	var totalAmount sql.NullFloat64
 	if err := dbQueryRow(q).Scan(&totalAmount); err != nil {
 		return err
 	}
@@ -263,20 +263,20 @@ func returnPointForAgent(agentID, level string) error {
 	AND created_at > timestampadd(year, -1, now())`,
 		level, AGENT, MPAID, PAID, MDELIVERED, DELIVERED, MRECEIVED, RECEIVED, agentID)
 
-	var totalAmount2 float64
+	var totalAmount2 sql.NullFloat64
 	var returnPointPercent sql.NullInt64
 	if err := dbQueryRow(q).Scan(&totalAmount2, &returnPointPercent); err != nil {
 		return err
 	}
 
 	var returnPoint float64
-	if totalAmount2 != 0 && returnPointPercent.Int64 != 0 {
-		returnPoint = totalAmount2 * float64(returnPointPercent.Int64/100)
+	if totalAmount2.Float64 != 0 && returnPointPercent.Int64 != 0 {
+		returnPoint = totalAmount2.Float64 * float64(returnPointPercent.Int64/100)
 	}
 
-	if totalAmount != 0 {
+	if totalAmount.Float64 != 0 {
 		// TODO rule here;
-		returnPoint = returnPoint + totalAmount
+		returnPoint = returnPoint + totalAmount.Float64
 		// update users return point,返点： 整型）
 	}
 	if returnPoint != 0 {
