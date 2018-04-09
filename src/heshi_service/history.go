@@ -22,20 +22,23 @@ type history struct {
 }
 
 func newHistoryRecords(userID, tableName, itemID string, fieldNameValue map[string]interface{}) {
-	q := fmt.Sprintf(`INSERT INTO historys set user_id='%s', table_name='%s', item_id='%s'`, userID, strings.ToUpper(tableName), itemID)
+	q := fmt.Sprintf(`INSERT INTO historys set user_id='%s', table_name='%s', item_id='%s',`, userID, strings.ToUpper(tableName), itemID)
 	for k, v := range fieldNameValue {
+		hq := fmt.Sprintf("%s id='%s', field_name='%s',", q, newV4(), k)
 		switch v.(type) {
 		case string:
-			q = fmt.Sprintf("%s %s='%s',", q, k, v.(string))
+			hq = fmt.Sprintf("%s field_value='%s'", hq, v.(string))
 		case float64:
-			q = fmt.Sprintf("%s %s='%f',", q, k, v.(float64))
+			hq = fmt.Sprintf("%s field_value='%f'", hq, v.(float64))
 		case int:
-			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int))
+			hq = fmt.Sprintf("%s field_value='%d'", hq, v.(int))
 		case int64:
-			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
+			hq = fmt.Sprintf("%s field_value='%d'", hq, v.(int64))
+		case time.Time:
+			hq = fmt.Sprintf("%s field_value='%s'", hq, v.(time.Time).Format(timeFormat))
 		}
-		if _, err := dbExec(q); err != nil {
-			util.Traceln("Fail to add to history: %s", q)
+		if _, err := dbExec(hq); err != nil {
+			util.Traceln("Fail to add to history: %s", hq)
 		}
 	}
 }

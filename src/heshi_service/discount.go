@@ -54,7 +54,7 @@ func getDiscount(c *gin.Context) {
 		DiscountCode: discountCode,
 		Discount:     discountNumber,
 		CreatedBy:    createdBy,
-		CreatedAt:    createdAt.Local(),
+		CreatedAt:    createdAt,
 	}
 	c.JSON(http.StatusOK, d)
 }
@@ -81,13 +81,9 @@ func getAllDiscounts(c *gin.Context) {
 			DiscountCode: discountCode,
 			Discount:     discountNumber,
 			CreatedBy:    createdBy,
-			CreatedAt:    createdAt.Local(),
+			CreatedAt:    createdAt,
 		}
 		ds = append(ds, d)
-	}
-	if ds == nil {
-		c.JSON(http.StatusOK, vemsgDiscountNotExist)
-		return
 	}
 	c.JSON(http.StatusOK, ds)
 }

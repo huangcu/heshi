@@ -218,7 +218,7 @@ func composeGem(rows *sql.Rows) ([]gem, error) {
 			Profitable:     profitable,
 			TotallyScanned: totallyScanned,
 			FreeAcc:        freeAcc,
-			LastScanAt:     lastScanAt.Local(),
+			LastScanAt:     lastScanAt,
 			OfflineAt:      offlineAt.Time,
 		}
 		if images.String != "" {

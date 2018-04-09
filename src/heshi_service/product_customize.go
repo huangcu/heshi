@@ -41,8 +41,8 @@ func customizeDiamondSize(c *gin.Context) {
 		FROM diamonds 
 		WHERE shape='BR' 
 		AND price_retail <= '%f' 
-		AND status= 'AVAILABLE'
-		 AND ordered_by IS NULL 
+		AND status IN ('AVAILABLE', 'OFFLINE') 
+		AND ordered_by IS NULL 
 		 ORDER BY carat DESC LIMIT 1`, budget-60)
 	var carat float64
 	if err := dbQueryRow(q).Scan(&carat); err != nil {
@@ -74,7 +74,7 @@ func customizeJewelryCategory(c *gin.Context) {
 		FROM diamonds 
 		WHERE shape='BR' 
 		AND carat >= '%f' 
-		AND status= 'AVAILABLE'
+		AND status IN ('AVAILABLE', 'OFFLINE') 
 		 AND ordered_by IS NULL 
 		 ORDER BY price_retail DESC LIMIT 1`, diaSize)
 
@@ -93,6 +93,7 @@ func customizeJewelryCategory(c *gin.Context) {
 	q = fmt.Sprintf(`SELECT DISTINCT category 
 	FROM jewelrys 
 	WHERE need_diamond='YES' 
+	AND status IN ('AVAILABLE', 'OFFLINE') 
 	AND price <= '%f' 
 	AND dia_size_min < '%f' 
 	AND dia_size_max > '%f'`, budgetJewelry, diaSize, diaSize)
@@ -139,7 +140,7 @@ func customizeJewelryItems(c *gin.Context) {
 		FROM diamonds 
 		WHERE shape='BR' 
 		AND carat >= '%f' 
-		AND status= 'AVAILABLE'
+		AND status IN ('AVAILABLE', 'OFFLINE') 
 		 AND ordered_by IS NULL 
 		 ORDER BY price_retail DESC LIMIT 1`, diaSize)
 
@@ -155,13 +156,15 @@ func customizeJewelryItems(c *gin.Context) {
 	}
 	//DollarToEuro
 	budgetJewelry := budget - diamondRetailPrice
-	q = fmt.Sprintf(`SELECT id, stock_id, category, unit_number, dia_shape, material, metal_weight, need_diamond, name, 
-	 dia_size_min, dia_size_max, small_dias, small_dia_num, small_dia_carat, mounting_type, main_dia_num, main_dia_size, 
-	 video_link, text, online, verified, in_stock, featured, price, stock_quantity, profitable,
-	 totally_scanned, free_acc, last_scan_at,offline_at 
+	q = fmt.Sprintf(`SELECT jewelrys.id, stock_id, category, unit_number, dia_shape, material, metal_weight, 
+		need_diamond, name, dia_size_min, dia_size_max, small_dias, small_dia_num, small_dia_carat, 
+	 mounting_type, main_dia_num, main_dia_size, video_link, text, jewelrys.status, verified, 
+	 featured, price, stock_quantity, profitable, totally_scanned, free_acc, last_scan_at,offline_at,
+	 promotions.id, prom_type, prom_discount, prom_price, begin_at, end_at, promotions.status 
 	FROM jewelrys 
-	WHERE need_diamond='YES'
-	AND online = "YES" 
+	LEFT JOIN promotions ON jewelrys.promotion_id=promotions.id 
+	WHERE need_diamond='YES' 
+	AND jewelrys.status IN ('AVAILABLE', 'OFFLINE') 
 	AND category = '%s'
 	AND price <= '%f' 
 	AND dia_size_min < '%f' 
@@ -242,7 +245,7 @@ func customizeJewelryDiamondsQualityFirst(c *gin.Context) {
 		AND fluorescence_intensity = 'NONE' 
 		AND (grading_lab = 'HRD' OR grading_lab = 'IGI' OR grading_lab='GIA') 
 		AND price_retail <= '%f' 
-		AND status = 'AVAILABLE' 
+		AND status IN ('AVAILABLE', 'OFFLINE') 
 		AND ordered_by IS NULL 
 		ORDER BY color ASC, Field(clarity, %s) ASC, price_retail DESC LIMIT 2`,
 			strings.Join(ss, "OR"), diaSizeMin, diaSizeMax, budgetDiamond, clarityFields)
@@ -260,7 +263,7 @@ func customizeJewelryDiamondsQualityFirst(c *gin.Context) {
 		AND fluorescence_intensity = "NONE" 
 		AND (grading_lab = "HRD" OR grading_lab = "IGI" OR grading_lab="GIA") 
 		AND price_retail <= '%f' 
-		AND status = "AVAILABLE" 
+		AND status IN ('AVAILABLE', 'OFFLINE') 
 		AND ordered_by IS NULL 
 		GROUP BY carat 
 		ORDER BY color ASC, Field(clarity, %s) ASC, price_retail DESC LIMIT 200`,
@@ -301,7 +304,7 @@ func customizeJewelryDiamondsQualityFirst(c *gin.Context) {
 				AND fluorescence_intensity = 'NONE' 
 				AND (grading_lab = 'HRD' OR grading_lab = 'IGI' OR grading_lab='GIA') 
 				AND price_retail <= '%f' 
-				AND status = 'AVAILABLE' 
+				AND status IN ('AVAILABLE', 'OFFLINE') 
 				AND ordered_by IS NULL 
 				ORDER BY color ASC, Field(clarity, %s) ASC, price_retail DESC LIMIT 2`,
 				strings.Join(ss, "OR"), caratSize-0.01, caratSize+0.01, budgetDiamond, clarityFields)
@@ -375,7 +378,7 @@ func customizeJewelryDiamondsMaxCarat(c *gin.Context) {
 		AND fluorescence_intensity = 'NONE' 
 		AND (grading_lab = 'HRD' OR grading_lab = 'IGI' OR grading_lab='GIA') 
 		AND price_retail <= '%f' 
-		AND status = 'AVAILABLE' 
+		AND status IN ('AVAILABLE', 'OFFLINE') 
 		AND ordered_by IS NULL 
 		ORDER BY carat DESC LIMIT 2`,
 			strings.Join(ss, "OR"), diaSizeMin, diaSizeMax, budgetDiamond)
@@ -393,7 +396,7 @@ func customizeJewelryDiamondsMaxCarat(c *gin.Context) {
 		AND fluorescence_intensity = "NONE" 
 		AND (grading_lab = "HRD" OR grading_lab = "IGI" OR grading_lab="GIA") 
 		AND price_retail <= '%f' 
-		AND status = "AVAILABLE" 
+		AND status IN ('AVAILABLE', 'OFFLINE') 
 		AND ordered_by IS NULL 
 		GROUP BY carat 
 		ORDER BY carat DESC LIMIT 200`,
@@ -434,7 +437,7 @@ func customizeJewelryDiamondsMaxCarat(c *gin.Context) {
 				AND fluorescence_intensity = 'NONE' 
 				AND (grading_lab = 'HRD' OR grading_lab = 'IGI' OR grading_lab='GIA') 
 				AND price_retail <= '%f' 
-				AND status = 'AVAILABLE' 
+				AND status IN ('AVAILABLE', 'OFFLINE') 
 				AND ordered_by IS NULL 
 				ORDER BY price_retail ASC LIMIT 2`,
 				strings.Join(ss, "OR"), caratSize-0.01, caratSize+0.01, budgetDiamond)

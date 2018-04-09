@@ -32,13 +32,15 @@ func searchJewelrys(c *gin.Context) ([]jewelry, error) {
 	// 	$sql='SELECT * FROM jewelry WHERE need_diamond = "'.$need_diamond.'" '.$query_category.$query_size.$query_material.$query_price.$query_mountingtype.$query_sds.$query_diashape.' GROUP BY name ORDER BY online DESC, stock_quantity DESC, created_at DESC LIMIT '.$startFrom.',32';
 	// 	$stmt=$conn->query($sql);
 	// }
-	q := fmt.Sprintf(`SELECT id, stock_id, category, unit_number, dia_shape, material, metal_weight, need_diamond, name, 
-	 dia_size_min, dia_size_max, small_dias, small_dia_num, small_dia_carat, mounting_type, main_dia_num, main_dia_size, 
-	 video_link, images, text, online, verified, in_stock, featured, price, stock_quantity, profitable,
-	 totally_scanned, free_acc, last_scan_at,offline_at
+	q := fmt.Sprintf(`SELECT jewelrys.id, stock_id, category, unit_number, dia_shape, material, metal_weight, 
+		need_diamond, name, dia_size_min, dia_size_max, small_dias, small_dia_num, small_dia_carat, 
+	 mounting_type, main_dia_num, main_dia_size, video_link, images, text, jewelrys.status, verified, 
+	 featured, price, stock_quantity, profitable, totally_scanned, free_acc, last_scan_at,offline_at,
+	 promotions.id, prom_type, prom_discount, prom_price, begin_at, end_at, promotions.status 
 	 FROM jewelrys 
+	 LEFT JOIN promotions ON jewelrys.promotion_id=promotions.id 
 	 WHERE stock_id = '%s' 
-	 AND online != 'DELETED'
+	 AND jewelrys.status in ('AVAILABLE','OFFLINE') 
 	 AND stock_quantity > 0`, strings.ToUpper(c.PostForm("ref")))
 
 	class := strings.ToUpper(c.Query("class"))
@@ -153,10 +155,10 @@ func composeFilterJewelryQuery(c *gin.Context) (string, error) {
 		querys = append(querys, "stock_quantity > 0")
 	}
 
-	if c.PostForm("online") != "" {
-		querys = append(querys, fmt.Sprintf("online='%s'", strings.ToUpper(c.PostForm("online"))))
+	if c.PostForm("status") != "" {
+		querys = append(querys, fmt.Sprintf("jewelrys.status='%s'", strings.ToUpper(c.PostForm("status"))))
 	} else {
-		querys = append(querys, "online!='DELETED'")
+		querys = append(querys, "jewelrys.status in ('AVAILABLE','OFFLINE')")
 	}
 
 	var limit string
@@ -170,12 +172,16 @@ func composeFilterJewelryQuery(c *gin.Context) (string, error) {
 		//32 records per page
 		limit = fmt.Sprintf("LIMIT 32 OFFSET %d", util.AbsInt(currentPage-1)*32)
 	}
-	q := fmt.Sprintf(`SELECT id, stock_id, category, unit_number, dia_shape, material, metal_weight, need_diamond, name, 
-	 dia_size_min, dia_size_max, small_dias, small_dia_num, small_dia_carat, mounting_type, main_dia_num, main_dia_size, 
-	 video_link, images, text, online, verified, in_stock, featured, price, stock_quantity, profitable,
-	 totally_scanned, free_acc, last_scan_at,offline_at
-	 FROM jewelrys WHERE (%s) GROUP BY name ORDER BY online DESC, stock_quantity DESC, created_at DESC %s`,
+
+	q := fmt.Sprintf(`SELECT jewelrys.id, stock_id, category, unit_number, dia_shape, material, metal_weight, 
+		need_diamond, name, dia_size_min, dia_size_max, small_dias, small_dia_num, small_dia_carat, 
+	 mounting_type, main_dia_num, main_dia_size, video_link, images, text, jewelrys.status, verified, 
+	 featured, price, stock_quantity, profitable, totally_scanned, free_acc, last_scan_at,offline_at,
+	 promotions.id, prom_type, prom_discount, prom_price, begin_at, end_at, promotions.status 
+	 FROM jewelrys 
+	 LEFT JOIN promotions ON jewelrys.promotion_id=promotions.id
+	 WHERE (%s) GROUP BY name 
+	 ORDER BY jewelrys.status DESC, stock_quantity DESC, jewelrys.created_at DESC %s`,
 		strings.Join(querys, ") AND ("), limit)
-	util.Traceln(q)
 	return q, nil
 }

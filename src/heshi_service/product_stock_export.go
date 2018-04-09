@@ -138,8 +138,8 @@ func exportDiamondProducts(uid string) (string, error) {
 		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "X", index), pickedUp.String)
 		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "Y", index), soldPrice.Float64)
 		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "Z", index), profitable)
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "AA", index), updatedAt.Local().String())
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "AB", index), createdAt.Local().String())
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "AA", index), updatedAt.Format(timeFormat))
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "AB", index), createdAt.Format(timeFormat))
 	}
 
 	dst := filepath.Join(UPLOADFILEDIR, DIAMOND, uid, "export"+time.Now().Format("20060102150405")+".xlsx")
@@ -168,7 +168,7 @@ func exportDiamondProducts(uid string) (string, error) {
 func exportJewelryProducts(uid, jewelrySubCategory string) (string, error) {
 	q := `SELECT id, stock_id, category, unit_number, dia_shape, material, metal_weight, need_diamond, name, 
 	 dia_size_min, dia_size_max, small_dias, small_dia_num, small_dia_carat, mounting_type, main_dia_num, 
-	 main_dia_size, video_link, images, text, online, verified, in_stock, featured, price, stock_quantity, 
+	 main_dia_size, video_link, images, text, status, verified, featured, price, stock_quantity, 
 	 profitable, totally_scanned, free_acc, last_scan_at,offline_at, updated_at, created_at
 	 FROM jewelrys`
 	if jewelrySubCategory != "" {
@@ -197,7 +197,7 @@ func exportJewelryProducts(uid, jewelrySubCategory string) (string, error) {
 	for i, column := range columns {
 		xlsx.SetCellValue("Sheet1", column+"1", columnNames[i])
 	}
-	var id, stockID, category, needDiamond, name, online, verified, inStock, featured, profitable, freeAcc string
+	var id, stockID, category, needDiamond, name, status, verified, featured, profitable, freeAcc string
 	var unitNumber, diaShape, material, smallDias, mountingType, videoLink, images, text sql.NullString
 	var metalWeight, mainDiaSize, diaSizeMin, diaSizeMax, smallDiaCarat, price sql.NullFloat64
 	var mainDiaNum, smallDiaNum sql.NullInt64
@@ -209,7 +209,7 @@ func exportJewelryProducts(uid, jewelrySubCategory string) (string, error) {
 	for rows.Next() {
 		if err := rows.Scan(&id, &stockID, &category, &unitNumber, &diaShape, &material, &metalWeight, &needDiamond, &name,
 			&diaSizeMin, &diaSizeMax, &smallDias, &smallDiaNum, &smallDiaCarat, &mountingType, &mainDiaNum,
-			&mainDiaSize, &videoLink, &images, &text, &online, &verified, &inStock, &featured, &price, &stockQuantity,
+			&mainDiaSize, &videoLink, &images, &text, &status, &verified, &featured, &price, &stockQuantity,
 			&profitable, &totallyScanned, &freeAcc, &lastScanAt, &offlineAt, &updatedAt, &createdAt); err != nil {
 			return "", err
 		}
@@ -234,19 +234,18 @@ func exportJewelryProducts(uid, jewelrySubCategory string) (string, error) {
 		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "R", index), videoLink.String)
 		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "S", index), images.String)
 		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "T", index), text.String)
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "U", index), online)
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "U", index), status)
 		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "V", index), verified)
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "W", index), inStock)
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "X", index), featured)
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "Y", index), price.Float64)
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "Z", index), stockQuantity)
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "AA", index), profitable)
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "AB", index), totallyScanned)
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "AC", index), freeAcc)
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "AD", index), lastScanAt.Local().String())
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "AE", index), offlineAt.Time.Local().String())
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "AF", index), updatedAt.Local().String())
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "AG", index), createdAt.Local().String())
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "W", index), featured)
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "X", index), price.Float64)
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "Y", index), stockQuantity)
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "Z", index), profitable)
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "AA", index), totallyScanned)
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "AB", index), freeAcc)
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "AC", index), lastScanAt.Format(timeFormat))
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "AD", index), offlineAt.Time.Format(timeFormat))
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "AE", index), updatedAt.Format(timeFormat))
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "AF", index), createdAt.Format(timeFormat))
 	}
 
 	dst := filepath.Join(UPLOADFILEDIR, JEWELRY, uid, "export"+time.Now().Format("20060102150405")+".xlsx")
@@ -332,10 +331,10 @@ func exportGemProducts(uid string) (string, error) {
 		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "p", index), profitable)
 		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "Q", index), totallyScanned)
 		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "R", index), freeAcc)
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "S", index), lastScanAt.Local().String())
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "T", index), offlineAt.Time.Local().String())
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "U", index), updatedAt.Local().String())
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "V", index), createdAt.Local().String())
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "S", index), lastScanAt.Format(timeFormat))
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "T", index), offlineAt.Time.Format(timeFormat))
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "U", index), updatedAt.Format(timeFormat))
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "V", index), createdAt.Format(timeFormat))
 	}
 
 	dst := filepath.Join(UPLOADFILEDIR, GEM, uid, "export"+time.Now().Format("20060102150405")+".xlsx")

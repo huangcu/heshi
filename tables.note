@@ -10,6 +10,7 @@ Tables:
   small_diamonds           --product small_diamonds
 
   orders                   --customer/agent orders 
+  shopping_cart            --user shopping cart
 
   currency_exchange_rates  --exchange rate 
   level_rate_rules         --config customer/agent level, discounts rule; and float rate of system
@@ -47,3 +48,6 @@ Q4: （point - 返点）， 积分和返点不同，积分就是消费金额（�
 NOTE:
 sql to alter column defaut value
 alter table users MODIFY column status VARCHAR(8) NOT NULL DEFAULT 'ACTIVE';
+alter table jewelrys change online status varchar(18) NOT NULL DEFAULT 'AVAILABLE';
+alter table jewelrys drop in_stock;
+alter table jewelrys add promotion_id varchar(225);

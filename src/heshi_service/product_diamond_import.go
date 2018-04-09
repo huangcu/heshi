@@ -309,7 +309,7 @@ func (d *diamond) composeStockRefWithSupplierPrefix() error {
 }
 
 func getAllStockRef() (map[string]struct{}, error) {
-	rows, err := dbQuery("SELECT stock_ref FROM diamonds WHERE status!='OFFLINE'")
+	rows, err := dbQuery("SELECT stock_ref FROM diamonds WHERE status IN ('AVAILABLE', 'OFFLINE') ")
 	if err != nil {
 		return nil, err
 	}

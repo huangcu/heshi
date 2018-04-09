@@ -5,6 +5,7 @@ import (
 	"heshi/errors"
 	"strconv"
 	"strings"
+	"time"
 	"util"
 )
 
@@ -23,6 +24,8 @@ func (j *jewelry) composeInsertQuery() string {
 			va = fmt.Sprintf("%s, '%d'", va, v.(int))
 		case int64:
 			va = fmt.Sprintf("%s, '%d'", va, v.(int64))
+		case time.Time:
+			va = fmt.Sprintf("%s, '%s'", va, v.(time.Time).Format(timeFormat))
 		}
 	}
 	q = fmt.Sprintf("%s) %s)", q, va)
@@ -42,6 +45,8 @@ func (j *jewelry) composeUpdateQuery() string {
 			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int))
 		case int64:
 			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
+		case time.Time:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(time.Time).Format(timeFormat))
 		}
 	}
 	q = fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, j.ID)
@@ -115,14 +120,11 @@ func (j *jewelry) parmsKV() map[string]interface{} {
 	if j.Text != "" {
 		params["text"] = j.Text
 	}
-	if j.Online != "" {
-		params["online"] = j.Online
+	if j.Status != "" {
+		params["status"] = j.Status
 	}
 	if j.Verified != "" {
 		params["verified"] = j.Verified
-	}
-	if j.InStock != "" {
-		params["in_stock"] = j.InStock
 	}
 	if j.Featured != "" {
 		params["featured"] = j.Featured
@@ -456,7 +458,7 @@ func (j *jewelry) validateJewelryUpdateReq() ([]errors.HSMessage, error) {
 
 func (j *jewelry) isJewelryExistByStockID() error {
 	var id string
-	if err := dbQueryRow("SELECT id FROM jewelrys WHERE stock_id=?", j.StockID).Scan(&id); err != nil {
+	if err := dbQueryRow("SELECT id FROM jewelrys WHERE stock_id='?' AND status IN ('AVAILABLE', 'OFFLINE')", j.StockID).Scan(&id); err != nil {
 		return err
 	}
 	j.ID = id
@@ -465,7 +467,7 @@ func (j *jewelry) isJewelryExistByStockID() error {
 
 func isJewelryExistByID(id string) (bool, error) {
 	var count int
-	if err := dbQueryRow("SELECT COUNT(*) FROM jewelrys WHERE id=?", id).Scan(&count); err != nil {
+	if err := dbQueryRow("SELECT COUNT(*) FROM jewelrys WHERE id='?' AND status IN ('AVAILABLE', 'OFFLINE')", id).Scan(&count); err != nil {
 		return false, err
 	}
 	return count == 1, nil

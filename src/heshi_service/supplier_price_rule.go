@@ -56,7 +56,7 @@ func addPriceRule(c *gin.Context) {
 	ps.ID = newV4()
 	q := ps.composeInsertQuery()
 	if _, err := dbExec(q); err != nil {
-		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 

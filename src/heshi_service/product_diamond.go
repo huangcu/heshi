@@ -7,7 +7,9 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sql_patch"
 	"strings"
+	"time"
 	"util"
 
 	"github.com/gin-gonic/gin"
@@ -45,6 +47,7 @@ type diamond struct {
 	SoldPrice             float64  `json:"sold_price"`
 	SoldPriceStr          string   `json:"-"`
 	Profitable            string   `json:"profitable"`
+	promotion
 }
 
 func getAllDiamonds(c *gin.Context) {
@@ -213,11 +216,16 @@ func composeDiamond(rows *sql.Rows) ([]diamond, error) {
 	var soldPrice sql.NullFloat64
 	var carat, priceNoAddedValue, priceRetail float64
 
+	var pid, promType, pstatus sql.NullString
+	var promPrice sql.NullFloat64
+	var promDiscount sql.NullInt64
+	var beginAt, endAt sql_patch.NullTime
 	var ds []diamond
 	for rows.Next() {
 		if err := rows.Scan(&id, &diamondID, &stockRef, &shape, &carat, &color, &clarity, &gradingLab, &certificateNumber,
 			&cutGrade, &polish, &symmetry, &fluorescenceIntensity, &country, &supplier, &priceNoAddedValue, &priceRetail,
-			&featured, &recommendWords, &extraWords, &images, &status, &orderedBy, &pickedUp, &soldPrice, &profitable); err != nil {
+			&featured, &recommendWords, &extraWords, &images, &status, &orderedBy, &pickedUp, &soldPrice, &profitable,
+			&pid, &promType, &promDiscount, &promPrice, &beginAt, &endAt, &pstatus); err != nil {
 			return nil, err
 		}
 		d := diamond{
@@ -253,19 +261,32 @@ func composeDiamond(rows *sql.Rows) ([]diamond, error) {
 				d.Images = append(d.Images, image)
 			}
 		}
+		if pid.String != "" && pstatus.String == "ACTIVE" && endAt.Time.After(beginAt.Time) && endAt.Time.After(time.Now().UTC()) && beginAt.Time.Before(time.Now()) {
+			b := beginAt.Time
+			e := endAt.Time
+			d.PromType = promType.String
+			d.PromDiscount = int(promDiscount.Int64)
+			d.PromPrice = promPrice.Float64
+			d.BeginAt = &b
+			d.EndAt = &e
+		}
 		ds = append(ds, d)
 	}
 	return ds, nil
 }
 
 func selectDiamondQuery(id string) string {
-	q := `SELECT id, diamond_id, stock_ref, shape, carat, color, clarity, grading_lab, 
+	q := `SELECT diamonds.id, diamond_id, stock_ref, shape, carat, color, clarity, grading_lab, 
 	certificate_number, cut_grade, polish, symmetry, fluorescence_intensity, country, 
 	supplier, price_no_added_value, price_retail, featured, recommend_words, extra_words, images,
-	status, ordered_by, picked_up, sold_price, profitable FROM diamonds`
+	diamonds.status, ordered_by, picked_up, sold_price, profitable, 
+	promotions.id, prom_type, prom_discount, prom_price, begin_at, end_at, promotions.status 
+	FROM diamonds 
+	LEFT JOIN promotions ON diamonds.promotion_id=promotions.id 
+	WHERE diamonds.status IN ('AVAILABLE','OFFLINE')`
 
 	if id != "" {
-		q = fmt.Sprintf("%s WHERE id='%s'", q, id)
+		q = fmt.Sprintf("%s AND id='%s'", q, id)
 	}
 	return q
 }

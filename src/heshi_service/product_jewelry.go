@@ -42,9 +42,8 @@ type jewelry struct {
 	VideoLink        string    `json:"video_link"`
 	Images           []string  `json:"images"`
 	Text             string    `json:"text"`
-	Online           string    `json:"online"`
+	Status           string    `json:"status"`
 	Verified         string    `json:"verified"`
-	InStock          string    `json:"in_stock"`
 	Featured         string    `json:"featured"`
 	StockQuantity    int       `json:"stock_quantity"`
 	StockQuantityStr string    `json:"-"`
@@ -53,6 +52,7 @@ type jewelry struct {
 	FreeAcc          string    `json:"free_acc"`
 	LastScanAt       time.Time `json:"last_scan_at"`
 	OfflineAt        time.Time `json:"offline_at"`
+	promotion
 }
 
 func getAllJewelrys(c *gin.Context) {
@@ -136,9 +136,8 @@ func newJewelry(c *gin.Context) {
 		VideoLink:        filename,
 		Images:           imageFileNames,
 		Text:             c.PostForm("text"),
-		Online:           strings.ToUpper(c.PostForm("online")),
+		Status:           strings.ToUpper(c.PostForm("status")),
 		Verified:         strings.ToUpper(c.PostForm("verified")),
-		InStock:          strings.ToUpper(c.PostForm("in_stock")),
 		Featured:         strings.ToUpper(c.PostForm("featured")),
 		Profitable:       strings.ToUpper(c.PostForm("profitable")),
 		FreeAcc:          strings.ToUpper(c.PostForm("free_acc")),
@@ -218,9 +217,8 @@ func updateJewelry(c *gin.Context) {
 		VideoLink:        filename,
 		Images:           imageFileNames,
 		Text:             c.PostForm("text"),
-		Online:           strings.ToUpper(c.PostForm("online")),
+		Status:           strings.ToUpper(c.PostForm("status")),
 		Verified:         strings.ToUpper(c.PostForm("verified")),
-		InStock:          strings.ToUpper(c.PostForm("in_stock")),
 		Featured:         strings.ToUpper(c.PostForm("featured")),
 		Profitable:       strings.ToUpper(c.PostForm("profitable")),
 		FreeAcc:          strings.ToUpper(c.PostForm("free_acc")),
@@ -251,7 +249,7 @@ func updateJewelry(c *gin.Context) {
 }
 
 func composeJewelry(rows *sql.Rows) ([]jewelry, error) {
-	var id, stockID, category, needDiamond, name, online, verified, inStock, featured, profitable, freeAcc string
+	var id, stockID, category, needDiamond, name, status, verified, featured, profitable, freeAcc string
 	var unitNumber, diaShape, material, smallDias, mountingType, videoLink, images, text sql.NullString
 	var metalWeight, mainDiaSize, diaSizeMin, diaSizeMax, smallDiaCarat, price sql.NullFloat64
 	var mainDiaNum, smallDiaNum sql.NullInt64
@@ -259,12 +257,17 @@ func composeJewelry(rows *sql.Rows) ([]jewelry, error) {
 	var lastScanAt time.Time
 	var offlineAt sql_patch.NullTime
 
+	var pid, promType, pstatus sql.NullString
+	var promPrice sql.NullFloat64
+	var promDiscount sql.NullInt64
+	var beginAt, endAt sql_patch.NullTime
 	var ds []jewelry
 	for rows.Next() {
-		if err := rows.Scan(&id, &stockID, &category, &unitNumber, &diaShape, &material, &metalWeight, &needDiamond, &name,
-			&diaSizeMin, &diaSizeMax, &smallDias, &smallDiaNum, &smallDiaCarat, &mountingType, &mainDiaNum, &mainDiaSize,
-			&videoLink, &images, &text, &online, &verified, &inStock, &featured, &price, &stockQuantity, &profitable,
-			&totallyScanned, &freeAcc, &lastScanAt, &offlineAt); err != nil {
+		if err := rows.Scan(&id, &stockID, &category, &unitNumber, &diaShape, &material, &metalWeight,
+			&needDiamond, &name, &diaSizeMin, &diaSizeMax, &smallDias, &smallDiaNum, &smallDiaCarat,
+			&mountingType, &mainDiaNum, &mainDiaSize, &videoLink, &images, &text, &status, &verified,
+			&featured, &price, &stockQuantity, &profitable, &totallyScanned, &freeAcc, &lastScanAt, &offlineAt,
+			&pid, &promType, &promDiscount, &promPrice, &beginAt, &endAt, &pstatus); err != nil {
 			return nil, err
 		}
 		d := jewelry{
@@ -288,21 +291,29 @@ func composeJewelry(rows *sql.Rows) ([]jewelry, error) {
 			Price:          price.Float64,
 			VideoLink:      videoLink.String,
 			Text:           text.String,
-			Online:         online,
+			Status:         status,
 			Verified:       verified,
-			InStock:        inStock,
 			Featured:       featured,
 			StockQuantity:  stockQuantity,
 			Profitable:     profitable,
 			TotallyScanned: totallyScanned,
 			FreeAcc:        freeAcc,
-			LastScanAt:     lastScanAt.Local(),
-			OfflineAt:      offlineAt.Time.Local(),
+			LastScanAt:     lastScanAt,
+			OfflineAt:      offlineAt.Time,
 		}
 		if images.String != "" {
 			for _, image := range strings.Split(images.String, ";") {
 				d.Images = append(d.Images, image)
 			}
+		}
+		if pid.String != "" && pstatus.String == "ACTIVE" && endAt.Time.After(beginAt.Time) && endAt.Time.After(time.Now().UTC()) && beginAt.Time.Before(time.Now()) {
+			b := beginAt.Time
+			e := endAt.Time
+			d.PromType = promType.String
+			d.PromDiscount = int(promDiscount.Int64)
+			d.PromPrice = promPrice.Float64
+			d.BeginAt = &b
+			d.EndAt = &e
 		}
 		ds = append(ds, d)
 	}
@@ -310,13 +321,21 @@ func composeJewelry(rows *sql.Rows) ([]jewelry, error) {
 }
 
 func selectJewelryQuery(id string) string {
-	q := `SELECT id, stock_id, category, unit_number, dia_shape, material, metal_weight, need_diamond, name, 
-	 dia_size_min, dia_size_max, small_dias, small_dia_num, small_dia_carat, mounting_type, main_dia_num, main_dia_size, 
-	 video_link, images, text, online, verified, in_stock, featured, price, stock_quantity, profitable,
-	 totally_scanned, free_acc, last_scan_at,offline_at FROM jewelrys`
+	q := `SELECT jewelrys.id, stock_id, category, unit_number, dia_shape, material, metal_weight, 
+	need_diamond, name, dia_size_min, dia_size_max, small_dias, small_dia_num, small_dia_carat, 
+	mounting_type, main_dia_num, main_dia_size, video_link, images, text, jewelrys.status, verified, 
+	featured, price, stock_quantity, profitable, totally_scanned, free_acc, last_scan_at,offline_at, 
+	promotions.id, prom_type, prom_discount, prom_price, begin_at, end_at, promotions.status 
+	FROM jewelrys 
+	LEFT JOIN promotions ON jewelrys.promotion_id=promotions.id 
+	WHERE jewelrys.status IN ('AVAILABLE','OFFLINE')`
 
 	if id != "" {
-		q = fmt.Sprintf("%s WHERE id='%s'", q, id)
+		q = fmt.Sprintf("%s AND id='%s'", q, id)
 	}
 	return q
+}
+
+func offlineProducts(c *gin.Context) {
+
 }

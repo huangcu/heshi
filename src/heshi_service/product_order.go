@@ -500,7 +500,7 @@ func (oi *orderItem) checkDiamondItem() error {
 
 func (oi *orderItem) checkJewelryItem() error {
 	var quantity int
-	if err := dbQueryRow(fmt.Sprintf("SELECT quantity FROM jewelrys WHERE id='%s' AND online='YES'", oi.ItemID)).Scan(&quantity); err != nil {
+	if err := dbQueryRow(fmt.Sprintf("SELECT quantity FROM jewelrys WHERE id='%s' AND status='AVAILABLE'", oi.ItemID)).Scan(&quantity); err != nil {
 		if err != sql.ErrNoRows {
 			return err
 		}
@@ -558,7 +558,7 @@ func orderSingleItem(item orderItem) (*transaction, error) {
 		oq = fmt.Sprintf("UPDATE diamonds SET status='ORDERED', updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", item.ItemID)
 	case JEWELRY:
 		oq = fmt.Sprintf(`UPDATE jewelrys SET stock_quantity=stock_quantity-%d, updated_at=(CURRENT_TIMESTAMP) 
-		WHERE id='%s' AND online='YES' AND stock_quantity>='%d'`, item.ItemQuantity, item.ItemID, item.ItemQuantity)
+		WHERE id='%s' AND status='AVAILABLE' AND stock_quantity>='%d'`, item.ItemQuantity, item.ItemID, item.ItemQuantity)
 	case GEM:
 		oq = fmt.Sprintf(`UPDATE gems SET stock_quantity=stock_quantity-%d, updated_at=(CURRENT_TIMESTAMP) 
 		WHERE id='%s' AND online='YES' AND stock_quantity>='%d'`, item.ItemQuantity, item.ItemID, item.ItemQuantity)
@@ -606,7 +606,7 @@ func orderMultipleItems(items []orderItem) (*transaction, error) {
 			oq = fmt.Sprintf("UPDATE diamonds SET status='ORDERED', updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", item.ItemID)
 		case JEWELRY:
 			oq = fmt.Sprintf(`UPDATE jewelrys SET stock_quantity=stock_quantity-%d, updated_at=(CURRENT_TIMESTAMP) 
-		WHERE id='%s' AND online='YES' AND stock_quantity>='%d'`, item.InStock-item.ItemQuantity, item.ItemID, item.ItemQuantity)
+		WHERE id='%s' AND status='AVAILABLE' AND stock_quantity>='%d'`, item.InStock-item.ItemQuantity, item.ItemID, item.ItemQuantity)
 		case GEM:
 			oq = fmt.Sprintf(`UPDATE gems SET stock_quantity=stock_quantity-%d, updated_at=(CURRENT_TIMESTAMP) 
 		WHERE id='%s' AND online='YES' AND stock_quantity>='%d'`, item.InStock-item.ItemQuantity, item.ItemID, item.ItemQuantity)
@@ -671,7 +671,7 @@ func cancelTransactionSingleOrder(item orderItem) (*transaction, error) {
 		if r, err := result.RowsAffected(); err != nil {
 			return err
 		} else if r != 1 {
-			// should ingore, item to be canceled shouldn't be not avaiable, if it is, return cancelled
+			// should ingore, item to be canceled shouldn't be not AVAILABLE, if it is, return cancelled
 			fmt.Printf("Cancel Transaction: Item %s not AVAILABLE any more", item.ItemID)
 		}
 		q := item.composeUpdateQuery()
@@ -721,7 +721,7 @@ func cancelTransactionMultipleOrders(items []orderItem) (*transaction, error) {
 			if r, err := result.RowsAffected(); err != nil {
 				return err
 			} else if r != 1 {
-				// should ingore, item to be canceled shouldn't be not avaiable, if it is, return cancelled
+				// should ingore, item to be canceled shouldn't be not AVAILABLE, if it is, return cancelled
 				fmt.Printf("Cancel Transaction: Item %s not AVAILABLE any more", item.ItemID)
 			}
 			tq := item.composeUpdateQuery()

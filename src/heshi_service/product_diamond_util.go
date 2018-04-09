@@ -5,6 +5,7 @@ import (
 	"heshi/errors"
 	"strconv"
 	"strings"
+	"time"
 	"util"
 )
 
@@ -23,6 +24,8 @@ func (d *diamond) composeInsertQuery() string {
 			va = fmt.Sprintf("%s, '%d'", va, v.(int))
 		case int64:
 			va = fmt.Sprintf("%s, '%d'", va, v.(int64))
+		case time.Time:
+			va = fmt.Sprintf("%s, '%s'", va, v.(time.Time).Format("2006-01-02 15:04:05"))
 		}
 	}
 	q = fmt.Sprintf("%s) %s)", q, va)
@@ -42,6 +45,8 @@ func (d *diamond) composeUpdateQuery() string {
 			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int))
 		case int64:
 			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
+		case time.Time:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(time.Time).Format("2006-01-02 15:04:05"))
 		}
 	}
 	q = fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, d.ID)
@@ -673,7 +678,7 @@ func diamondStockRef(stockRef, supplierPrefix string) string {
 
 func (d *diamond) isDiamondExistByDiamondID() error {
 	var id string
-	if err := dbQueryRow("SELECT id FROM diamonds WHERE diamond_id=?", d.DiamondID).Scan(&id); err != nil {
+	if err := dbQueryRow("SELECT id FROM diamonds WHERE diamond_id=? AND status IN ('AVAILABLE', 'OFFLINE')", d.DiamondID).Scan(&id); err != nil {
 		return err
 	}
 	d.ID = id
@@ -682,7 +687,7 @@ func (d *diamond) isDiamondExistByDiamondID() error {
 
 func isDiamondExistByID(id string) (bool, error) {
 	var count int
-	if err := dbQueryRow("SELECT COUNT(*) FROM diamonds WHERE id=?", id).Scan(&count); err != nil {
+	if err := dbQueryRow("SELECT COUNT(*) FROM diamonds WHERE id=? AND status IN ('AVAILABLE', 'OFFLINE') ", id).Scan(&count); err != nil {
 		return false, err
 	}
 	return count == 1, nil

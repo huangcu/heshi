@@ -100,12 +100,10 @@ func importJewelryProducts(uid, file, category string) ([]util.Row, error) {
 				j.VideoLink = record[i]
 			case "text":
 				j.Text = record[i]
-			case "online":
-				j.Online = strings.ToUpper(record[i])
+			case "status":
+				j.Status = strings.ToUpper(record[i])
 			case "verified":
 				j.Verified = strings.ToUpper(record[i])
-			case "in_stock":
-				j.InStock = strings.ToUpper(record[i])
 			case "featured":
 				j.Featured = strings.ToUpper(record[i])
 			case "stock_quantity":
@@ -269,7 +267,7 @@ func getAllStockIDBySubCategory(subCategory string) (map[string]struct{}, error)
 		return nil, errors.New("missing upload sub category")
 	}
 	stockIds := make(map[string]struct{})
-	q = fmt.Sprintf("SELECT stock_id FROM jewelrys WHERE online='YES' AND %s", q)
+	q = fmt.Sprintf("SELECT stock_id FROM jewelrys WHERE status IN ('AVAILABLE','OFFLINE') AND %s", q)
 	rows, err := dbQuery(q)
 	if err != nil {
 		return nil, err
@@ -291,7 +289,7 @@ func getAllStockIDBySubCategory(subCategory string) (map[string]struct{}, error)
 func offlineJewelrysNoLongerExist(stockIDList map[string]struct{}) error {
 	util.Traceln("Start to offline all jewelrys no longer exists.")
 	for k := range stockIDList {
-		q := fmt.Sprintf("UPDATE jewelrys SET offline='YES',updated_at=(CURRENT_TIMESTAMP) WHERE stock_id ='%s'", k)
+		q := fmt.Sprintf("UPDATE jewelrys SET status='OFFLINE',updated_at=(CURRENT_TIMESTAMP) WHERE stock_id ='%s'", k)
 		util.Tracef("Offline jewelry stock_id: %s.\n", k)
 		if _, err := dbExec(q); err != nil {
 			util.Tracef("error when offline jewelry. stock_id: %s. err: \n", k, errors.GetMessage(err))

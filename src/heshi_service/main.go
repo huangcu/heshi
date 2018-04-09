@@ -96,6 +96,7 @@ func startWebServer(port string) error {
 	r.Use(CORSMiddleware())
 	//session
 	store = sessions.NewCookieStore([]byte("secret"))
+	// store, _ := sessions.NewRedisStore(10, "tcp", "localhost:6379", "", []byte("secret"))
 	store.Options(sessions.Options{
 		MaxAge:   7 * 24 * 60 * 60, //set max age 1 week // 30 * 60 - 30 min - not int(30 * time.Minute),
 		Path:     "/",
@@ -203,6 +204,10 @@ func configRoute(r *gin.Engine) {
 			apiAdmin.PUT("/configs/level/:id", updateLevelConfig)
 			apiAdmin.GET("/configs/level", getAllLevelConfigs)
 			apiAdmin.POST("/configs/level", newLevelConfig)
+			apiAdmin.GET("/promotions", getAllPromotions)
+			apiAdmin.GET("/promotions/:id", getPromotion)
+			apiAdmin.POST("/promotions", newPromotion)
+			apiAdmin.PUT("/promotions/:id", updatePromotion)
 
 			//products with customize header
 			apiAdmin.POST("/upload", uploadAndGetFileHeaders)
@@ -355,7 +360,7 @@ func init() {
 	if err := getLatestRates(); err != nil {
 		log.Fatalf("fail to get latest rate from intenet. err: %s;", err.Error())
 	}
-	activeConfig = exchangeRateFloat{ExchangeRateFloat: 0.01, CreatedBy: "system", CreatedAt: time.Now().Local()}
+	activeConfig = exchangeRateFloat{ExchangeRateFloat: 0.01, CreatedBy: "system", CreatedAt: time.Now()}
 	activeConfig.getActiveRateConfig()
 	activeCurrencyRate, err = getActiveCurrencyRate()
 	if err != nil {

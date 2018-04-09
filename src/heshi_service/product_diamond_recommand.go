@@ -18,7 +18,7 @@ func recommendDiamonds(c *gin.Context) {
 	if c.Query("order") == "down" {
 		order = "DESC"
 	}
-	q := fmt.Sprintf("SELECT * FROM diamonds WHERE recommnaded_by_heshi=='YES' AND statu <> 'SOLD' ORDER BY %s %s",
+	q := fmt.Sprintf("SELECT * FROM diamonds WHERE recommnaded_by_heshi=='YES' AND status IN ('AVAILABLE', 'OFFLINE')  ORDER BY %s %s",
 		sort, order)
 	util.Println(q)
 	// $query_sort=' ORDER BY carat ';

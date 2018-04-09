@@ -70,7 +70,7 @@ func getLevelConfig(c *gin.Context) {
 		RuleType:           ruleType,
 		ReturnPointPercent: int(returnPointPercent.Int64),
 		CreatedBy:          createdBy,
-		CreatedAt:          createdAt.Local(),
+		CreatedAt:          createdAt,
 	}
 	c.JSON(http.StatusOK, conf)
 }
@@ -187,9 +187,8 @@ func getAllLevelConfigs(c *gin.Context) {
 			Pieces:    int(pieces.Int64),
 			RuleType:  ruleType,
 			CreatedBy: createdBy,
-			CreatedAt: createdAt.Local(),
+			CreatedAt: createdAt,
 		}
-		fmt.Printf("%#v", conf)
 		cs = append(cs, conf)
 	}
 	c.JSON(http.StatusOK, cs)
@@ -233,7 +232,7 @@ func getRateConfig(c *gin.Context) {
 		ExchangeRateFloat: rate,
 		RuleType:          "RATE",
 		CreatedBy:         createdBy,
-		CreatedAt:         createdAt.Local(),
+		CreatedAt:         createdAt,
 	}
 	c.JSON(http.StatusOK, rc)
 }
@@ -259,7 +258,7 @@ func getAllRateConfigs(c *gin.Context) {
 			ExchangeRateFloat: rate,
 			RuleType:          "RATE",
 			CreatedBy:         createdBy,
-			CreatedAt:         createdAt.Local(),
+			CreatedAt:         createdAt,
 		}
 		cs = append(cs, rc)
 	}
@@ -346,6 +345,8 @@ func (ac *levelRule) composeInsertQuery() string {
 			va = fmt.Sprintf("%s, '%d'", va, v.(int))
 		case int64:
 			va = fmt.Sprintf("%s, '%d'", va, v.(int64))
+		case time.Time:
+			va = fmt.Sprintf("%s, '%s'", va, v.(time.Time).Format("2006-01-02 15:04:05"))
 		}
 	}
 	q = fmt.Sprintf("%s) %s)", q, va)
@@ -364,6 +365,8 @@ func (ac *levelRule) composeUpdateQuery() string {
 			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int))
 		case int64:
 			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
+		case time.Time:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(time.Time).Format("2006-01-02 15:04:05"))
 		}
 	}
 

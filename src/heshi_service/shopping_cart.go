@@ -185,7 +185,7 @@ func (s *shoppingCartItem) addExistsJewelryItemToShoppingCart(existingItem *shop
 	newItemQunatity := s.ItemQuantity + existingItem.ItemQuantity
 	q := fmt.Sprintf(`SELECT stock_quantity 
 		FROM jewelrys 
-		WHERE id='%s' AND stock_quantity >'%d`, s.ItemID, newItemQunatity)
+		WHERE id='%s' AND stock_quantity >'%d AND status='AVAILABLE'`, s.ItemID, newItemQunatity)
 	var stockQuantity int
 	if err := dbQueryRow(q).Scan(&stockQuantity); err != nil {
 		return err
@@ -246,14 +246,14 @@ func (s *shoppingCartItem) removeItemFromShoppingCartByItemProperties() error {
 func (s *shoppingCartItem) getDiamondPriceQuantityStatus() error {
 	s.StockQuantity = 1
 	var priceRetail float64
-	if err := dbQueryRow(`SELECT price_retail FROM diamonds WHERE id='?'`, s.ItemID).Scan(&priceRetail); err != nil {
+	if err := dbQueryRow(`SELECT price_retail FROM diamonds WHERE id='?' AND status ='AVAILABLE'`, s.ItemID).Scan(&priceRetail); err != nil {
 		if err != sql.ErrNoRows {
 			return err
 		}
-		s.Status = "NOT AVAIABLE"
+		s.Status = "NOT AVAILABLE"
 	}
 	s.ItemPrice = priceRetail
-	s.Status = "AVAIABLE"
+	s.Status = "AVAILABLE"
 	return nil
 }
 
@@ -261,18 +261,18 @@ func (s *shoppingCartItem) getJewelryPriceQuantityStatus() error {
 	s.StockQuantity = 1
 	var price float64
 	var stockQuantity int
-	if err := dbQueryRow(`SELECT price,stock_quantity FROM jewelrys WHERE id='?'`, s.ItemID).Scan(&price, &stockQuantity); err != nil {
+	if err := dbQueryRow(`SELECT price,stock_quantity FROM jewelrys WHERE id='?' AND status='AVAILABLE'`, s.ItemID).Scan(&price, &stockQuantity); err != nil {
 		if err != sql.ErrNoRows {
 			return err
 		}
-		s.Status = "NOT AVAIABLE"
+		s.Status = "NOT AVAILABLE"
 	}
 	s.ItemPrice = price
 	s.StockQuantity = stockQuantity
 	if s.StockQuantity < s.ItemQuantity {
 		s.Status = "STOCK NOT ENOUGH"
 	}
-	s.Status = "AVAIABLE"
+	s.Status = "AVAILABLE"
 	return nil
 }
 
@@ -284,13 +284,13 @@ func (s *shoppingCartItem) getGemPriceQuantityStatus() error {
 		if err != sql.ErrNoRows {
 			return err
 		}
-		s.Status = "NOT AVAIABLE"
+		s.Status = "NOT AVAILABLE"
 	}
 	s.ItemPrice = price
 	s.StockQuantity = stockQuantity
 	if s.StockQuantity < s.ItemQuantity {
 		s.Status = "STOCK NOT ENOUGH"
 	}
-	s.Status = "AVAIABLE"
+	s.Status = "AVAILABLE"
 	return nil
 }
