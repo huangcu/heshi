@@ -122,6 +122,27 @@ func getOrderStatusByID(id string) (string, error) {
 	return status, nil
 }
 
+func getOrderByID(oid string) (*orderItem, error) {
+	q := fmt.Sprintf(`SELECT id, item_id, item_price, item_category, item_quantity, downpayment, 
+		buyer_id, transaction_id,	sold_price_usd, sold_price_cny, sold_price_eur,
+		return_point, chosen_by, status, extra_info, special_notice 
+		FROM orders 
+		WHERE id='%s'`, oid)
+	rows, err := dbQuery(q)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	ois, err := composeOrders(rows)
+	if err != nil {
+		return nil, err
+	}
+	if len(ois) == 1 {
+		return &ois[0], nil
+	}
+	return nil, nil
+}
 func isOrderStatusChangeAllowed(nowStatus, newStatus string) bool {
 	// ADMIN can cancel anytime
 	if newStatus == MCANCELLED {

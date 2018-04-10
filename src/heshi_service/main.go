@@ -234,6 +234,7 @@ func configRoute(r *gin.Engine) {
 			apiAdmin.POST("/products/promotion", promoteProducts)
 
 			//manage orders
+			// update not allowed to cancel, use CANCEL API
 			apiAdmin.PUT("/orders/:id", updateOrder)
 			apiAdmin.GET("/orders/:id", getOrderDetail)
 			apiAdmin.GET("/transactions/detail/:id", getTransactionDetail)

@@ -61,13 +61,12 @@ func getOrderDetail(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
-	var oi orderItem
 	if len(ois) == 1 {
 		c.JSON(http.StatusOK, ois[0])
 		return
 	}
 
-	c.JSON(http.StatusOK, oi)
+	c.JSON(http.StatusOK, ois[0])
 }
 
 func getOrderDetailOfUserRecommendedByAgent(c *gin.Context) {
@@ -247,13 +246,13 @@ func getAllTransactions(c *gin.Context) {
 func updateOrder(c *gin.Context) {
 	uid := c.MustGet("id").(string)
 	oid := c.Param("id")
-	nowStatus, err := getOrderStatusByID(oid)
+	oiInDB, err := getOrderByID(oid)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			c.JSON(http.StatusBadRequest, fmt.Sprintf("Order %s doesn't exist", oid))
-			return
-		}
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	if oiInDB == nil {
+		c.JSON(http.StatusBadRequest, fmt.Sprintf("Order %s doesn't exist", oid))
 		return
 	}
 	oi := orderItem{
@@ -320,16 +319,58 @@ func updateOrder(c *gin.Context) {
 			c.JSON(http.StatusOK, vemsgOrderStatusNotValid)
 			return
 		}
-		if !isOrderStatusChangeAllowed(nowStatus, oi.Status) {
-			vemsgOrderStatusNotValid.Message = fmt.Sprintf("Cannot change status from %s to %s", nowStatus, oi.Status)
+		if oi.Status == CANCELLED || oi.Status != MCANCELLED {
+			vemsgOrderStatusNotValid.Message = "Not allowed to cancel order, please call cancel API"
+			c.JSON(http.StatusOK, vemsgOrderStatusNotValid)
+			return
+		}
+		if !isOrderStatusChangeAllowed(oiInDB.Status, oi.Status) {
+			vemsgOrderStatusNotValid.Message = fmt.Sprintf("Cannot change status from %s to %s", oiInDB.Status, oi.Status)
 			c.JSON(http.StatusOK, vemsgOrderStatusNotValid)
 			return
 		}
 	}
-	q := oi.composeUpdateQuery()
-	if _, err := dbExec(q); err != nil {
-		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
-		return
+	if oi.Status != "" && oiInDB.ItemCategory == DIAMOND {
+		err := dbTransact(db, func(tx *sql.Tx) error {
+			q := oi.composeUpdateQuery()
+			traceSQL(q)
+			result, err := tx.Exec(q)
+			if err != nil {
+				return err
+			}
+			if r, err := result.RowsAffected(); err != nil {
+				return err
+			} else if r != 1 {
+				return nil
+			}
+			tq := fmt.Sprintf(`UPDATE diamonds SET status='%s'`, oi.Status)
+			traceSQL(tq)
+			result, err = tx.Exec(tq)
+			if err != nil {
+				return err
+			}
+			r, err := result.RowsAffected()
+			if err != nil {
+				return err
+			}
+			if r == 1 {
+				oStateMap := make(map[string]interface{})
+				oStateMap["status"] = oi.Status + "Due Order: " + oid + " Status Change"
+				//diamonds status changed
+				go newHistoryRecords(uid, "diamonds", oiInDB.ItemID, oStateMap)
+			}
+			return nil
+		})
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			return
+		}
+	} else {
+		q := oi.composeUpdateQuery()
+		if _, err := dbExec(q); err != nil {
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			return
+		}
 	}
 
 	c.JSON(http.StatusOK, oi.ID)
