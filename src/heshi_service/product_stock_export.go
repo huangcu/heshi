@@ -273,7 +273,7 @@ func exportJewelryProducts(uid, jewelrySubCategory string) (string, error) {
 
 func exportGemProducts(uid string) (string, error) {
 	q := `SELECT id, stock_id, shape, material, size, name, text, images, certificate, 
-	 online, verified, in_stock, featured, price, stock_quantity, profitable,
+	 status, verified, featured, price, stock_quantity, profitable,
 	 totally_scanned, free_acc, last_scan_at,offline_at,updated_at, created_at 
 	 FROM gems ORDER BY updated_at DESC`
 	rows, err := dbQuery(q)
@@ -297,7 +297,7 @@ func exportGemProducts(uid string) (string, error) {
 	for i, column := range columns {
 		xlsx.SetCellValue("Sheet1", column+"1", columnNames[i])
 	}
-	var id, stockID, shape, online, material, name, text, certificate, verified, inStock string
+	var id, stockID, shape, status, material, name, text, certificate, verified, inStock string
 	var featured, profitable, freeAcc string
 	var images sql.NullString
 	var size, price float64
@@ -308,7 +308,7 @@ func exportGemProducts(uid string) (string, error) {
 	index := 1
 	for rows.Next() {
 		if err := rows.Scan(&id, &stockID, &shape, &material, &size, &name, &text, &images, &certificate,
-			&online, &verified, &inStock, &featured, &price, &stockQuantity,
+			&status, &verified, &inStock, &featured, &price, &stockQuantity,
 			&profitable, &totallyScanned, &freeAcc, &lastScanAt, &offlineAt, &updatedAt, &createdAt); err != nil {
 			return "", err
 		}
@@ -322,19 +322,18 @@ func exportGemProducts(uid string) (string, error) {
 		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "G", index), text)
 		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "H", index), images.String)
 		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "I", index), certificate)
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "J", index), online)
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "J", index), status)
 		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "K", index), verified)
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "L", index), inStock)
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "M", index), featured)
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "N", index), price)
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "O", index), stockQuantity)
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "p", index), profitable)
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "Q", index), totallyScanned)
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "R", index), freeAcc)
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "S", index), lastScanAt.Format(timeFormat))
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "T", index), offlineAt.Time.Format(timeFormat))
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "U", index), updatedAt.Format(timeFormat))
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "V", index), createdAt.Format(timeFormat))
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "L", index), featured)
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "M", index), price)
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "N", index), stockQuantity)
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "O", index), profitable)
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "P", index), totallyScanned)
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "Q", index), freeAcc)
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "R", index), lastScanAt.Format(timeFormat))
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "S", index), offlineAt.Time.Format(timeFormat))
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "T", index), updatedAt.Format(timeFormat))
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "U", index), createdAt.Format(timeFormat))
 	}
 
 	dst := filepath.Join(UPLOADFILEDIR, GEM, uid, "export"+time.Now().Format("20060102150405")+".xlsx")

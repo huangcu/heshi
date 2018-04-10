@@ -47,9 +47,8 @@ var gemHeaders = []string{
 
 	"price",
 	"text",
-	"online",
+	"status",
 	"verified",
-	"in_stock",
 	"featured",
 	"stock_quantity",
 	"profitable",

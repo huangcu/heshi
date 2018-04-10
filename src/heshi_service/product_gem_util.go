@@ -87,14 +87,11 @@ func (g *gem) parmsKV() map[string]interface{} {
 	if g.Certificate != "" {
 		params["certificate"] = g.Certificate
 	}
-	if g.Online != "" {
-		params["online"] = g.Online
+	if g.Status != "" {
+		params["status"] = g.Status
 	}
 	if g.Verified != "" {
 		params["verified"] = g.Verified
-	}
-	if g.InStock != "" {
-		params["in_stock"] = g.InStock
 	}
 	if g.Featured != "" {
 		params["featured"] = g.Featured
@@ -287,7 +284,7 @@ func (g *gem) validateGemUpdateReq() ([]errors.HSMessage, error) {
 
 func (g *gem) isGemExistByStockID() error {
 	var id string
-	if err := dbQueryRow("SELECT id FROM gems WHERE diamond_id=?", g.StockID).Scan(&id); err != nil {
+	if err := dbQueryRow("SELECT id FROM gems WHERE diamond_id='?'", g.StockID).Scan(&id); err != nil {
 		return err
 	}
 	g.ID = id
@@ -296,7 +293,7 @@ func (g *gem) isGemExistByStockID() error {
 
 func isGemExistByID(id string) (bool, error) {
 	var count int
-	if err := dbQueryRow("SELECT COUNT(*) FROM gems WHERE id=?", id).Scan(&count); err != nil {
+	if err := dbQueryRow("SELECT COUNT(*) FROM gems WHERE id='?'", id).Scan(&count); err != nil {
 		return false, err
 	}
 	return count == 1, nil

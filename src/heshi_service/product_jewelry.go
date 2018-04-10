@@ -331,7 +331,7 @@ func selectJewelryQuery(id string) string {
 	WHERE jewelrys.status IN ('AVAILABLE','OFFLINE')`
 
 	if id != "" {
-		q = fmt.Sprintf("%s AND id='%s'", q, id)
+		q = fmt.Sprintf("%s AND jewelrys.id='%s'", q, id)
 	}
 	return q
 }

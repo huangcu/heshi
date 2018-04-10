@@ -203,7 +203,7 @@ func (s *shoppingCartItem) addExistsGemItemToShoppingCart(existingItem *shopping
 	newItemQunatity := s.ItemQuantity + existingItem.ItemQuantity
 	q := fmt.Sprintf(`SELECT stock_quantity 
 		FROM gems 
-		WHERE id='%s' AND stock_quantity >'%d`, s.ItemID, newItemQunatity)
+		WHERE id='%s' AND stock_quantity >'%d AND status='AVAILABLE'`, s.ItemID, newItemQunatity)
 	var stockQuantity int
 	if err := dbQueryRow(q).Scan(&stockQuantity); err != nil {
 		return err
@@ -280,7 +280,7 @@ func (s *shoppingCartItem) getGemPriceQuantityStatus() error {
 	s.StockQuantity = 1
 	var price float64
 	var stockQuantity int
-	if err := dbQueryRow(`SELECT price,stock_quantity FROM gems WHERE id='?'`, s.ItemID).Scan(&price, &stockQuantity); err != nil {
+	if err := dbQueryRow(`SELECT price,stock_quantity FROM gems WHERE id='?' AND status='AVAILABLE'`, s.ItemID).Scan(&price, &stockQuantity); err != nil {
 		if err != sql.ErrNoRows {
 			return err
 		}

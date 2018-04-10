@@ -65,12 +65,10 @@ func importGemProducts(uid, file string) ([]util.Row, error) {
 				g.PriceStr = record[i]
 			case "text":
 				g.Text = record[i]
-			case "online":
-				g.Online = strings.ToUpper(record[i])
+			case "status":
+				g.Status = strings.ToUpper(record[i])
 			case "verified":
 				g.Verified = strings.ToUpper(record[i])
-			case "in_stock":
-				g.InStock = strings.ToUpper(record[i])
 			case "featured":
 				g.Featured = strings.ToUpper(record[i])
 			case "stock_quantity":
@@ -155,7 +153,7 @@ func importGemProducts(uid, file string) ([]util.Row, error) {
 }
 
 func getAllGemStockID() (map[string]struct{}, error) {
-	rows, err := dbQuery("SELECT stock_id FROM gems WHERE status!='OFFLINE'")
+	rows, err := dbQuery("SELECT stock_id FROM gems WHERE status IN ('AVAILABLE','OFFLINE') ")
 	if err != nil {
 		return nil, err
 	}

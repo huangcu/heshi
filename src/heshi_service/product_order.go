@@ -517,7 +517,7 @@ func (oi *orderItem) checkJewelryItem() error {
 
 func (oi *orderItem) checkGemItem() error {
 	var quantity int
-	if err := dbQueryRow(fmt.Sprintf("SELECT quantity FROM gems WHERE id='%s' AND online='YES'", oi.ItemID)).Scan(&quantity); err != nil {
+	if err := dbQueryRow(fmt.Sprintf("SELECT quantity FROM gems WHERE id='%s' AND status='AVAILABLE'", oi.ItemID)).Scan(&quantity); err != nil {
 		if err != sql.ErrNoRows {
 			return err
 		}
@@ -534,7 +534,7 @@ func (oi *orderItem) checkGemItem() error {
 
 func (oi *orderItem) checkSmallDiamondItem() error {
 	var quantity int
-	if err := dbQueryRow(fmt.Sprintf("SELECT quantity FROM small_diamonds WHERE id='%s' AND online='YES'", oi.ItemID)).Scan(&quantity); err != nil {
+	if err := dbQueryRow(fmt.Sprintf("SELECT quantity FROM small_diamonds WHERE id='%s' AND status='AVAILABLE'", oi.ItemID)).Scan(&quantity); err != nil {
 		if err != sql.ErrNoRows {
 			return err
 		}
@@ -561,10 +561,10 @@ func orderSingleItem(item orderItem) (*transaction, error) {
 		WHERE id='%s' AND status='AVAILABLE' AND stock_quantity>='%d'`, item.ItemQuantity, item.ItemID, item.ItemQuantity)
 	case GEM:
 		oq = fmt.Sprintf(`UPDATE gems SET stock_quantity=stock_quantity-%d, updated_at=(CURRENT_TIMESTAMP) 
-		WHERE id='%s' AND online='YES' AND stock_quantity>='%d'`, item.ItemQuantity, item.ItemID, item.ItemQuantity)
+		WHERE id='%s' AND status='AVAILABLE' AND stock_quantity>='%d'`, item.ItemQuantity, item.ItemID, item.ItemQuantity)
 	case SMALLDIAMOND:
 		oq = fmt.Sprintf(`UPDATE small_diamonds SET stock_quantity=stock_quantity-%d, updated_at=(CURRENT_TIMESTAMP) 
-		WHERE id='%s' AND online='YES' AND stock_quantity>='%d'`, item.ItemQuantity, item.ItemID, item.ItemQuantity)
+		WHERE id='%s' AND stock_quantity>='%d'`, item.ItemQuantity, item.ItemID, item.ItemQuantity)
 	}
 	err := dbTransact(db, func(tx *sql.Tx) error {
 		traceSQL(oq)
@@ -609,10 +609,10 @@ func orderMultipleItems(items []orderItem) (*transaction, error) {
 		WHERE id='%s' AND status='AVAILABLE' AND stock_quantity>='%d'`, item.InStock-item.ItemQuantity, item.ItemID, item.ItemQuantity)
 		case GEM:
 			oq = fmt.Sprintf(`UPDATE gems SET stock_quantity=stock_quantity-%d, updated_at=(CURRENT_TIMESTAMP) 
-		WHERE id='%s' AND online='YES' AND stock_quantity>='%d'`, item.InStock-item.ItemQuantity, item.ItemID, item.ItemQuantity)
+		WHERE id='%s' AND status='AVAILABLE' AND stock_quantity>='%d'`, item.InStock-item.ItemQuantity, item.ItemID, item.ItemQuantity)
 		case SMALLDIAMOND:
 			oq = fmt.Sprintf(`UPDATE small_diamonds SET stock_quantity=stock_quantity-%d, updated_at=(CURRENT_TIMESTAMP) 
-		WHERE id='%s' AND online='YES' AND stock_quantity>='%d'`, item.InStock-item.ItemQuantity, item.ItemID, item.ItemQuantity)
+		WHERE id='%s' AND stock_quantity>='%d'`, item.InStock-item.ItemQuantity, item.ItemID, item.ItemQuantity)
 		}
 		qs[oq] = item
 	}

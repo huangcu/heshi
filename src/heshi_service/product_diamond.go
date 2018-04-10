@@ -286,7 +286,7 @@ func selectDiamondQuery(id string) string {
 	WHERE diamonds.status IN ('AVAILABLE','OFFLINE')`
 
 	if id != "" {
-		q = fmt.Sprintf("%s AND id='%s'", q, id)
+		q = fmt.Sprintf("%s AND diamonds.id='%s'", q, id)
 	}
 	return q
 }
