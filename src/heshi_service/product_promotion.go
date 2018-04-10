@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"heshi/errors"
 	"net/http"
@@ -32,6 +33,74 @@ type PromotionPrice struct {
 }
 
 var PROM_TYPE = []string{"DISCOUNT", "FREE_ACCESSORY", "SPECIAL_OFFER"}
+
+// promote|depromote - promotion_id = ""
+type promotionProduct struct {
+	ItemID       string `json:"item_id"`
+	ItemCategory string `json:"item_category"`
+	PromotionID  string `json:"promotion_id"`
+}
+
+func promoteProducts(c *gin.Context) {
+	updatedBy := c.MustGet("id").(string)
+	var promProducts []promotionProduct
+	if err := json.Unmarshal([]byte(c.PostForm("proms")), &promProducts); err != nil {
+		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
+		return
+	}
+	for _, promProduct := range promProducts {
+		promtionmap := make(map[string]interface{})
+		promtionmap["promotion_id"] = promProduct.PromotionID
+		switch strings.ToUpper(promProduct.ItemCategory) {
+		case DIAMOND:
+			q := fmt.Sprintf(`UPDATE diamonds SET promotion_id='%s' WHERE id='%s'`, promProduct.PromotionID, promProduct.ItemID)
+			r, err := dbExec(q)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+				return
+			}
+			rc, err := r.RowsAffected()
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+				return
+			}
+			if int(rc) == 1 {
+				go newHistoryRecords(updatedBy, "diamonds", promProduct.ItemID, promtionmap)
+			}
+		case JEWELRY:
+			q := fmt.Sprintf(`UPDATE jewelrys SET promotion_id='%s' WHERE id='%s'`, promProduct.PromotionID, promProduct.ItemID)
+			r, err := dbExec(q)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+				return
+			}
+			rc, err := r.RowsAffected()
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+				return
+			}
+			if int(rc) == 1 {
+				go newHistoryRecords(updatedBy, "jewelrys", promProduct.ItemID, promtionmap)
+			}
+		case GEM:
+			q := fmt.Sprintf(`UPDATE gems SET promotion_id='%s' WHERE id='%s'`, promProduct.PromotionID, promProduct.ItemID)
+			r, err := dbExec(q)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+				return
+			}
+			rc, err := r.RowsAffected()
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+				return
+			}
+			if int(rc) == 1 {
+				go newHistoryRecords(updatedBy, "gems", promProduct.ItemID, promtionmap)
+			}
+		}
+	}
+	c.JSON(http.StatusOK, "SUCCESS")
+}
 
 func newPromotion(c *gin.Context) {
 	createdBy := c.MustGet("id").(string)

@@ -2,7 +2,9 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
+	"heshi/errors"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -15,6 +17,95 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+
+type onlineOfflineProduct struct {
+	ItemID       string `json:"item_id"`
+	ItemCategory string `json:"item_category"`
+}
+
+func onlineOfflineProducts(c *gin.Context) {
+	updatedBy := c.MustGet("id").(string)
+	action := c.Param("action")
+	var products []onlineOfflineProduct
+	if err := json.Unmarshal([]byte(c.PostForm("ids")), &products); err != nil {
+		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
+		return
+	}
+	switch action {
+	case "offline":
+		if err := onlineOffline("OFFLINE", updatedBy, products); err != nil {
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			return
+		}
+	case "online":
+		if err := onlineOffline("AVAILABLE", updatedBy, products); err != nil {
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			return
+		}
+	default:
+		c.JSON(http.StatusNotFound, "page not found")
+		return
+	}
+	c.JSON(http.StatusOK, "SUCCESS")
+}
+
+func onlineOffline(status, updatedBy string, products []onlineOfflineProduct) error {
+	//can re-online, offline and deleted product
+	cstatus := `'OFFLINE','DELETED'`
+	if status == "OFFLINE" {
+		//offline only these online
+		cstatus = `'AVAILABLE'`
+	}
+	smap := make(map[string]interface{})
+	smap["status"] = status
+	for _, product := range products {
+		switch strings.ToUpper(product.ItemCategory) {
+		case DIAMOND:
+			q := fmt.Sprintf(`UPDATE diamonds SET status='%s' WHERE id='%s' AND status IN (%s)`,
+				status, product.ItemID, cstatus)
+			r, err := dbExec(q)
+			if err != nil {
+				return err
+			}
+			c, err := r.RowsAffected()
+			if err != nil {
+				return err
+			}
+			if int(c) == 1 {
+				go newHistoryRecords(updatedBy, "diamonds", product.ItemID, smap)
+			}
+		case JEWELRY:
+			q := fmt.Sprintf(`UPDATE jewelrys SET status='%s' WHERE id='%s' AND status IN (%s)`,
+				status, product.ItemID, cstatus)
+			r, err := dbExec(q)
+			if err != nil {
+				return err
+			}
+			c, err := r.RowsAffected()
+			if err != nil {
+				return err
+			}
+			if int(c) == 1 {
+				go newHistoryRecords(updatedBy, "jewelrys", product.ItemID, smap)
+			}
+		case GEM:
+			q := fmt.Sprintf(`UPDATE gems SET status='%s' WHERE id='%s' AND status IN (%s)`,
+				status, product.ItemID, cstatus)
+			r, err := dbExec(q)
+			if err != nil {
+				return err
+			}
+			c, err := r.RowsAffected()
+			if err != nil {
+				return err
+			}
+			if int(c) == 1 {
+				go newHistoryRecords(updatedBy, "gems", product.ItemID, smap)
+			}
+		}
+	}
+	return nil
+}
 
 func exportProduct(c *gin.Context) {
 	uid := c.MustGet("id").(string)

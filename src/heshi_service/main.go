@@ -229,6 +229,9 @@ func configRoute(r *gin.Engine) {
 			apiAdmin.PUT("/products/jewelrys/:id", updateJewelry)
 			apiAdmin.POST("/products/gems", newGems)
 			apiAdmin.PUT("/products/gems/:id", updateGems)
+			// online/offline products
+			apiAdmin.POST("/products/stock/:action", onlineOfflineProducts)
+			apiAdmin.POST("/products/promotion", promoteProducts)
 
 			//manage orders
 			apiAdmin.PUT("/orders/:id", updateOrder)

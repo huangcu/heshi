@@ -335,7 +335,3 @@ func selectJewelryQuery(id string) string {
 	}
 	return q
 }
-
-func offlineProducts(c *gin.Context) {
-
-}

@@ -34,8 +34,10 @@ type User struct {
 	TotalPurchaseAmount float64 `json:"total_purchase_amount"`
 	Icon                string  `json:"icon"`
 	Status              string  `json:"status"`
-	Admin               Admin   `json:"admin"`
-	Agent               Agent   `json:"agent"`
+	Admin
+	Agent
+	// Admin               Admin   `json:"admin"`
+	// Agent               Agent   `json:"agent"`
 	// CreatedAt      time.Time `json:"created_at"`
 	// UpdatedAt      time.Time `json:"updated_at"`
 }
@@ -212,7 +214,7 @@ func newUser(c *gin.Context) {
 
 	q := nu.composeInsertQuery()
 	if _, err := dbExec(q); err != nil {
-		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 

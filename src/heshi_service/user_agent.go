@@ -12,11 +12,11 @@ import (
 )
 
 type Agent struct {
-	Level       int    `json:"agent_level"`
+	Level       int    `json:"level,omitempty"`
 	LevelStr    string `json:"-"`
-	Discount    int    `json:"agent_discount"`
+	Discount    int    `json:"discount,omitempty"`
 	DiscountStr string `json:"-"`
-	CreatedBy   string `json:"created_by"`
+	CreatedBy   string `json:"created_by,omitempty"`
 }
 
 type ContactInfo struct {
@@ -43,6 +43,7 @@ func getAgent(uid string) (*Agent, error) {
 		Discount:  discount,
 		CreatedBy: createdBy,
 	}
+	fmt.Println(a)
 	return a, nil
 }
 
@@ -121,13 +122,10 @@ func agentContactInfo(c *gin.Context) {
 }
 
 func getUserContactInfoInvitationCode(userID string) (*ContactInfo, error) {
-	// var userID string
-	// if err := dbQueryRow("SELECT user_id from invitation_codes WHERE invitation_code=?", code).Scan(&userID); err != nil {
-	// 	return nil, err
-	// }
 	var cellphone, email, realName sql.NullString
 	var wechatID, wechatName, wechatQR, address, additionalInfo sql.NullString
-	q := `SELECT cellphone, email, realname, wechat_id, wechat_name, wechat_qr, address, additional_info from users where id=?`
+	q := `SELECT cellphone, email, realname, wechat_id, wechat_name, wechat_qr, address, additional_info 
+	FROM users WHERE id=?`
 	if err := dbQueryRow(q, userID).Scan(&cellphone, &email, &realName, &wechatID, &wechatName, &wechatQR, &address, &additionalInfo); err != nil {
 		return nil, err
 	}

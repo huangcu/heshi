@@ -48,6 +48,32 @@ Q4: （point - 返点）， 积分和返点不同，积分就是消费金额（�
 NOTE:
 sql to alter column defaut value
 alter table users MODIFY column status VARCHAR(8) NOT NULL DEFAULT 'ACTIVE';
-alter table jewelrys change online status varchar(18) NOT NULL DEFAULT 'AVAILABLE';
-alter table jewelrys drop in_stock;
-alter table jewelrys add promotion_id varchar(225);
+alter table gems change online status varchar(18) NOT NULL DEFAULT 'AVAILABLE';
+alter table gems drop in_stock;
+alter table gems add promotion_id varchar(225);
+
+proms:
+[
+    {
+        "item_id": "1507cbf7-2f0b-48a2-a546-c546143211c7",
+        "promotion_id": "5d774212-bb11-4e1d-8214-b1719fcff3c4",
+        "item_category": "diamond"
+    },
+    {
+        "item_id": "23d92dfa-4d86-4b25-8f13-d67d5615be53",
+        "item_category": "diamond",
+        "promotion_id": null
+    }
+]
+
+ids:
+[
+    {
+        "item_id": "1507cbf7-2f0b-48a2-a546-c546143211c7",
+        "item_category": "diamond"
+    },
+    {
+        "item_id": "23d92dfa-4d86-4b25-8f13-d67d5615be53",
+        "item_category": "diamond"
+    }
+]
