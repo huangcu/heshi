@@ -61,7 +61,7 @@ func OpenDB() (*sql.DB, error) {
 		table := tableName[i]
 		ddl := tableDdl[i]
 		if _, err := db.Exec(ddl); err != nil {
-			return nil, fmt.Errorf("fail to create table %s with %s; err: %s", table, ddl, err.Error())
+			return nil, fmt.Errorf("fail to create table %s with %s; err: %s", table, ddl, errors.GetMessage(err))
 		}
 	}
 	db.Close()

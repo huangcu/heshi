@@ -278,7 +278,7 @@ func getCurrencyRate(c *gin.Context) {
 			c.JSON(http.StatusOK, vemsgExchangeRateNotExist)
 			return
 		}
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	c.JSON(http.StatusOK, currencyRate)

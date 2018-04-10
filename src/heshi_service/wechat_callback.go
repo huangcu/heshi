@@ -40,14 +40,14 @@ func wechatCallback(c *gin.Context) {
 	// if (c.Request.Method == "POST")
 	bs, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	var msg core.MixedMsg
 	util.Printf("msg body received from wechat server: %s", string(bs))
 	err = xml.Unmarshal(bs, &msg)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	var reply string
@@ -56,20 +56,20 @@ func wechatCallback(c *gin.Context) {
 		reply, err = wechatEventHandler(msg)
 		if err != nil {
 			util.Traceln(errors.GetMessage(err))
-			c.JSON(http.StatusInternalServerError, err.Error())
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 	case "text":
 		reply, err = handleTextMsg(msg)
 		if err != nil {
 			util.Traceln(errors.GetMessage(err))
-			c.JSON(http.StatusInternalServerError, err.Error())
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 	case "image":
 		if err := handleImageMsg(msg); err != nil {
 			util.Traceln(errors.GetMessage(err))
-			c.JSON(http.StatusInternalServerError, err.Error())
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 	case "voice":

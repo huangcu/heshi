@@ -119,15 +119,6 @@ func (d *diamond) parmsKV() map[string]interface{} {
 	if d.Status != "" {
 		params["status"] = d.Status
 	}
-	if d.OrderedBy != "" {
-		params["ordered_by"] = d.OrderedBy
-	}
-	if d.PickedUp != "" {
-		params["picked_up"] = d.PickedUp
-	}
-	if d.SoldPrice != 0 {
-		params["sold_price"] = d.SoldPrice
-	}
 	if d.Profitable != "" {
 		params["profitable"] = d.Profitable
 	}
@@ -407,7 +398,7 @@ func (d *diamond) validateDiamondReq(update bool) ([]errors.HSMessage, error) {
 		vemsg = append(vemsg, vemsgEmpty)
 	} else if d.Shape != "" {
 		if s, err := diamondShape(d.Shape); err != nil {
-			vemsgNotValid.Message = err.Error()
+			vemsgNotValid.Message = errors.GetMessage(err)
 			vemsg = append(vemsg, vemsgNotValid)
 		} else {
 			d.Shape = s
@@ -419,7 +410,7 @@ func (d *diamond) validateDiamondReq(update bool) ([]errors.HSMessage, error) {
 		vemsg = append(vemsg, vemsgEmpty)
 	} else if d.GradingLab != "" {
 		if s, err := diamondGradingLab(d.GradingLab); err != nil {
-			vemsgNotValid.Message = err.Error()
+			vemsgNotValid.Message = errors.GetMessage(err)
 			vemsg = append(vemsg, vemsgNotValid)
 		} else {
 			d.GradingLab = s
@@ -432,7 +423,7 @@ func (d *diamond) validateDiamondReq(update bool) ([]errors.HSMessage, error) {
 	} else if d.Color != "" {
 		if d.Color != "" {
 			if c, err := diamondColor(d.Color); err != nil {
-				vemsgNotValid.Message = err.Error()
+				vemsgNotValid.Message = errors.GetMessage(err)
 				vemsg = append(vemsg, vemsgNotValid)
 			} else {
 				d.Color = c
@@ -445,7 +436,7 @@ func (d *diamond) validateDiamondReq(update bool) ([]errors.HSMessage, error) {
 		vemsg = append(vemsg, vemsgEmpty)
 	} else if d.Clarity != "" {
 		if c, err := diamondClarity(d.Clarity); err != nil {
-			vemsgNotValid.Message = err.Error()
+			vemsgNotValid.Message = errors.GetMessage(err)
 			vemsg = append(vemsg, vemsgNotValid)
 		} else {
 			d.Clarity = c
@@ -457,7 +448,7 @@ func (d *diamond) validateDiamondReq(update bool) ([]errors.HSMessage, error) {
 		vemsg = append(vemsg, vemsgEmpty)
 	} else if d.CutGrade != "" {
 		if c, err := diamondCutGradeSymmetryPolish(d.CutGrade); err != nil {
-			vemsgNotValid.Message = err.Error()
+			vemsgNotValid.Message = errors.GetMessage(err)
 			vemsg = append(vemsg, vemsgNotValid)
 		} else {
 			d.CutGrade = c
@@ -469,7 +460,7 @@ func (d *diamond) validateDiamondReq(update bool) ([]errors.HSMessage, error) {
 		vemsg = append(vemsg, vemsgEmpty)
 	} else if d.Polish != "" {
 		if c, err := diamondCutGradeSymmetryPolish(d.Polish); err != nil {
-			vemsgNotValid.Message = err.Error()
+			vemsgNotValid.Message = errors.GetMessage(err)
 			vemsg = append(vemsg, vemsgNotValid)
 		} else {
 			d.Polish = c
@@ -481,7 +472,7 @@ func (d *diamond) validateDiamondReq(update bool) ([]errors.HSMessage, error) {
 		vemsg = append(vemsg, vemsgEmpty)
 	} else if d.Symmetry != "" {
 		if c, err := diamondCutGradeSymmetryPolish(d.Symmetry); err != nil {
-			vemsgNotValid.Message = err.Error()
+			vemsgNotValid.Message = errors.GetMessage(err)
 			vemsg = append(vemsg, vemsgNotValid)
 		} else {
 			d.Symmetry = c
@@ -493,7 +484,7 @@ func (d *diamond) validateDiamondReq(update bool) ([]errors.HSMessage, error) {
 		vemsg = append(vemsg, vemsgEmpty)
 	} else if d.FluorescenceIntensity != "" {
 		if c, err := diamondFluo(d.FluorescenceIntensity); err != nil {
-			vemsgNotValid.Message = err.Error()
+			vemsgNotValid.Message = errors.GetMessage(err)
 			vemsg = append(vemsg, vemsgNotValid)
 		} else {
 			d.FluorescenceIntensity = c
@@ -505,7 +496,7 @@ func (d *diamond) validateDiamondReq(update bool) ([]errors.HSMessage, error) {
 		vemsg = append(vemsg, vemsgEmpty)
 	} else if d.Country != "" {
 		if c, err := diamondCountry(d.Country); err != nil {
-			vemsgNotValid.Message = err.Error()
+			vemsgNotValid.Message = errors.GetMessage(err)
 			vemsg = append(vemsg, vemsgNotValid)
 		} else {
 			d.Country = c

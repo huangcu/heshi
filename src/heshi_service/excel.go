@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"heshi/errors"
 	"net/http"
 
 	"github.com/360EntSecGroup-Skylar/excelize"
@@ -13,19 +14,19 @@ func parseExcel(c *gin.Context) {
 
 	if err != nil {
 		fmt.Println("here")
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	f, err := fheader.Open()
 	if err != nil {
 		fmt.Println("here1")
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	xlsx, err := excelize.OpenReader(f)
 	if err != nil {
 		fmt.Println("here2")
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	rows := xlsx.GetRows("Sheet1")

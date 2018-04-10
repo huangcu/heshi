@@ -1,6 +1,7 @@
 package main
 
 import (
+	"heshi/errors"
 	"net/http"
 	"util"
 
@@ -10,7 +11,7 @@ import (
 func GetToken(c *gin.Context) {
 	t, err := util.GenerateToken()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"token": t})

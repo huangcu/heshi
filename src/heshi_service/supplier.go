@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"heshi/errors"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -49,7 +50,7 @@ func getAllSuppliers(c *gin.Context) {
 	q := `SELECT id, name, prefix, connected, status FROM suppliers ORDER BY created_at DESC`
 	rows, err := dbQuery(q)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	defer rows.Close()
@@ -58,7 +59,7 @@ func getAllSuppliers(c *gin.Context) {
 	for rows.Next() {
 		var id, name, prefix, connected, status string
 		if err := rows.Scan(&id, &name, &prefix, &connected, &status); err != nil {
-			c.JSON(http.StatusInternalServerError, err.Error())
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 		s := supplier{
@@ -86,7 +87,7 @@ func getSupplier(c *gin.Context) {
 			c.JSON(http.StatusOK, vemsgNotExist)
 			return
 		}
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	s := supplier{
@@ -178,13 +179,13 @@ func (s *supplier) paramsKV() map[string]interface{} {
 	params := make(map[string]interface{})
 
 	if s.Name != "" {
-		params["name"] = s.Name
+		params["name"] = strings.ToUpper(s.Name)
 	}
 	if s.Prefix != "" {
-		params["prefix"] = s.Prefix
+		params["prefix"] = strings.ToUpper(s.Prefix)
 	}
 	if s.Connected != "" {
-		params["connected"] = s.Connected
+		params["connected"] = strings.ToUpper(s.Connected)
 	}
 	return params
 }

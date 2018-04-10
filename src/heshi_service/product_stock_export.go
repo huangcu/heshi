@@ -128,7 +128,7 @@ func exportProduct(c *gin.Context) {
 	}
 	serveFile, err := exportProductFromDB(uid, category, jewelrySubCategory)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	// TODO redirect to download Or need do it from webpage, just return the link
@@ -164,7 +164,7 @@ func exportDiamondProducts(uid string) (string, error) {
 	q := `SELECT id, diamond_id, stock_ref, shape, carat, color, clarity, grading_lab, 
 	certificate_number, cut_grade, polish, symmetry, fluorescence_intensity, country, 
 	supplier, price_no_added_value, price_retail, featured, recommend_words, extra_words, images,
-	status, ordered_by, picked_up, sold_price, profitable, updated_at, created_at 
+	status, profitable, updated_at, created_at 
 	FROM diamonds ORDER BY updated_at DESC`
 	rows, err := dbQuery(q)
 	if err != nil {
@@ -182,7 +182,7 @@ func exportDiamondProducts(uid string) (string, error) {
 	xlsx.SetActiveSheet(xlsx.NewSheet("Sheet1"))
 	xlsx.InsertRow(strings.Join(columnNames, ","), 0)
 	fmt.Println(strings.Join(columnNames, ","))
-	columns := []string{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AB"}
+	columns := []string{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y"}
 	for i, column := range columns {
 		xlsx.SetCellValue("Sheet1", column+"1", columnNames[i])
 	}
@@ -190,15 +190,14 @@ func exportDiamondProducts(uid string) (string, error) {
 	var id, diamondID, stockRef, shape, color, country, supplier, gradingLab string
 	var clarity, certificateNumber, cutGrade, polish, symmetry, fluorescenceIntensity string
 	var featured, status, profitable string
-	var images, recommendWords, extraWords, orderedBy, pickedUp sql.NullString
-	var soldPrice sql.NullFloat64
+	var images, recommendWords, extraWords sql.NullString
 	var carat, priceNoAddedValue, priceRetail float64
 	var updatedAt, createdAt time.Time
 	index := 1
 	for rows.Next() {
 		if err := rows.Scan(&id, &diamondID, &stockRef, &shape, &carat, &color, &clarity, &gradingLab, &certificateNumber,
 			&cutGrade, &polish, &symmetry, &fluorescenceIntensity, &country, &supplier, &priceNoAddedValue, &priceRetail,
-			&featured, &recommendWords, &extraWords, &images, &status, &orderedBy, &pickedUp, &soldPrice, &profitable,
+			&featured, &recommendWords, &extraWords, &images, &status, &profitable,
 			&updatedAt, &createdAt); err != nil {
 			return "", err
 		}
@@ -225,12 +224,9 @@ func exportDiamondProducts(uid string) (string, error) {
 		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "T", index), extraWords.String)
 		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "U", index), images.String)
 		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "V", index), status)
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "W", index), orderedBy.String)
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "X", index), pickedUp.String)
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "Y", index), soldPrice.Float64)
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "Z", index), profitable)
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "AA", index), updatedAt.Format(timeFormat))
-		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "AB", index), createdAt.Format(timeFormat))
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "W", index), profitable)
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "X", index), updatedAt.Format(timeFormat))
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "Y", index), createdAt.Format(timeFormat))
 	}
 
 	dst := filepath.Join(UPLOADFILEDIR, DIAMOND, uid, "export"+time.Now().Format("20060102150405")+".xlsx")
@@ -284,7 +280,7 @@ func exportJewelryProducts(uid, jewelrySubCategory string) (string, error) {
 	xlsx.InsertRow(strings.Join(columnNames, ","), 0)
 	fmt.Println(strings.Join(columnNames, ","))
 	columns := []string{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
-		"O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG"}
+		"O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE", "AF"}
 	for i, column := range columns {
 		xlsx.SetCellValue("Sheet1", column+"1", columnNames[i])
 	}
@@ -384,7 +380,7 @@ func exportGemProducts(uid string) (string, error) {
 	xlsx.InsertRow(strings.Join(columnNames, ","), 0)
 	fmt.Println(strings.Join(columnNames, ","))
 	columns := []string{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
-		"O", "P", "Q", "R", "S", "T", "U", "V"}
+		"O", "P", "Q", "R", "S", "T", "U"}
 	for i, column := range columns {
 		xlsx.SetCellValue("Sheet1", column+"1", columnNames[i])
 	}

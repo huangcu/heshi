@@ -1,6 +1,6 @@
 package mysql
 
-// status, AVAILABLE, OFFLINE, DELETED, SOLD
+// status, AVAILABLE, OFFLINE, DELETED, ORDERED, DELIVERED, RECEIVED (FROM ORDER STATUS)
 const diamondDdl = `
 CREATE TABLE IF NOT EXISTS diamonds
 (
@@ -26,9 +26,6 @@ CREATE TABLE IF NOT EXISTS diamonds
 	extra_words VARCHAR(255),
 	images VARCHAR(225),
 	status VARCHAR(20) NOT NULL DEFAULT 'AVAILABLE',
-	ordered_by VARCHAR(225),
-	picked_up VARCHAR(8),
-	sold_price FLOAT,
 	profitable varchar(5) NOT NULL DEFAULT 'YES',
 	promotion_id VARCHAR(225),
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,

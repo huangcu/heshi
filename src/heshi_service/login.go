@@ -34,7 +34,7 @@ func userLogin(c *gin.Context) {
 			c.JSON(http.StatusOK, vemsgLoginErrorUserName)
 			return
 		}
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 

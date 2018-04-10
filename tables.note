@@ -52,6 +52,10 @@ alter table gems change online status varchar(18) NOT NULL DEFAULT 'AVAILABLE';
 alter table gems drop in_stock;
 alter table gems add promotion_id varchar(225);
 
+alter table diamonds drop picked_up;
+alter table diamonds drop ordered_by;
+alter table diamonds drop sold_price;
+
 proms:
 [
     {

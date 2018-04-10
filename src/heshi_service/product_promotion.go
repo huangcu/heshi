@@ -277,7 +277,7 @@ func getAllPromotions(c *gin.Context) {
 		 FROM promotions ORDER BY created_at DESC`
 	rows, err := dbQuery(q)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	defer rows.Close()
@@ -290,7 +290,7 @@ func getAllPromotions(c *gin.Context) {
 		var beginAt, endAt time.Time
 
 		if err := rows.Scan(&id, &promType, &promDiscount, &promPrice, &status, &beginAt, &endAt, &createdBy); err != nil {
-			c.JSON(http.StatusInternalServerError, err.Error())
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 		b := beginAt

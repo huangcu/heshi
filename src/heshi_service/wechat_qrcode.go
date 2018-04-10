@@ -62,7 +62,7 @@ func wechatTempQrCode(c *gin.Context) {
 
 	tempQRCode, err := qrcode.CreateTempQrcode(wechatClient, sceneID, 120)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 

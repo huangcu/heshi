@@ -47,7 +47,7 @@ func getDiscount(c *gin.Context) {
 			c.JSON(http.StatusOK, vemsgDiscountNotExist)
 			return
 		}
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	d := discount{
@@ -63,7 +63,7 @@ func getAllDiscounts(c *gin.Context) {
 	q := `SELECT discount_code, discount,created_at FROM discounts ORDER BY created_at DESC`
 	rows, err := dbQuery(q)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	defer rows.Close()
@@ -74,7 +74,7 @@ func getAllDiscounts(c *gin.Context) {
 		var discountNumber int
 		var createdAt time.Time
 		if err := rows.Scan(&discountCode, &discountNumber, &createdAt, &createdBy); err != nil {
-			c.JSON(http.StatusInternalServerError, err.Error())
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 		d := discount{

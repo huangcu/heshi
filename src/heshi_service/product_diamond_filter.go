@@ -88,7 +88,7 @@ func searchDiamonds(c *gin.Context) ([]diamond, error) {
 	q := fmt.Sprintf(`SELECT diamonds.id, diamond_id, stock_ref, shape, carat, color, clarity, grading_lab, 
 		certificate_number, cut_grade, polish, symmetry, fluorescence_intensity, country, 
 		supplier, price_no_added_value, price_retail, featured, recommend_words, extra_words, images,
-		diamonds.status, ordered_by, picked_up, sold_price, profitable, 
+		diamonds.status, profitable, 
 		promotions.id, prom_type, prom_discount, prom_price, begin_at, end_at, promotions.status 
 	 FROM diamonds 
 	 LEFT JOIN promotions ON diamonds.promotion_id=promotions.id 
@@ -265,7 +265,7 @@ func composeFilterDiamondsQuery(c *gin.Context) (string, error) {
 	q := fmt.Sprintf(`SELECT diamonds.id, diamond_id, stock_ref, shape, carat, color, clarity, grading_lab, 
 		certificate_number, cut_grade, polish, symmetry, fluorescence_intensity, country, 
 		supplier, price_no_added_value, price_retail, featured, recommend_words, extra_words, images, 
-		diamonds.status, ordered_by, picked_up, sold_price, profitable,
+		diamonds.status, profitable,
 		promotions.id, prom_type, prom_discount, prom_price, begin_at, end_at, promotions.status 
 	 FROM diamonds 
 	 LEFT JOIN promotions ON diamonds.promotion_id=promotions.id 

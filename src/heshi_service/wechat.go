@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"heshi/errors"
 	"net/http"
 	"util"
 
@@ -108,26 +109,26 @@ func wechatToken(c *gin.Context) {
 
 	if err != nil {
 		util.Println("error to get access token", err)
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	util.Printf("token: %+v\r\n", token)
 	exist, err := isWechatUserExist(token.OpenId)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	if !exist {
 		// https://api.weixin.qq.com/sns/userinfo?access_token=ACCESS_TOKEN&openid=OPENID
 		userinfo, err := mpoauth2.GetUserInfo(token.AccessToken, token.OpenId, "", nil)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, err.Error())
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 
 		wu := WechatUserInfo{userinfo}
 		if err := wu.newWechatUser(); err != nil {
-			c.JSON(http.StatusInternalServerError, err.Error())
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 		util.Printf("userinfo: %+v\r\n", userinfo)

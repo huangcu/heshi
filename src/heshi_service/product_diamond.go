@@ -42,10 +42,6 @@ type diamond struct {
 	ExtraWords            string   `json:"extra_words"`
 	Images                []string `json:"images"`
 	Status                string   `json:"status"`
-	OrderedBy             string   `json:"ordered_by"`
-	PickedUp              string   `json:"picked_up"`
-	SoldPrice             float64  `json:"sold_price"`
-	SoldPriceStr          string   `json:"-"`
 	Profitable            string   `json:"profitable"`
 	promotion
 }
@@ -185,7 +181,6 @@ func updateDiamond(c *gin.Context) {
 		ExtraWords:            c.PostForm("extra_words"),
 		Status:                strings.ToUpper(c.PostForm("status")),
 		Images:                imageFileNames,
-		PickedUp:              strings.ToUpper(c.PostForm("picked_up")),
 		Profitable:            strings.ToUpper(c.PostForm("profitable")),
 	}
 	if vemsg, err := d.validateDiamondReq(true); err != nil {
@@ -212,8 +207,7 @@ func composeDiamond(rows *sql.Rows) ([]diamond, error) {
 	var id, diamondID, stockRef, shape, color, country, supplier, gradingLab string
 	var clarity, certificateNumber, cutGrade, polish, symmetry, fluorescenceIntensity string
 	var featured, status, profitable string
-	var images, recommendWords, extraWords, orderedBy, pickedUp sql.NullString
-	var soldPrice sql.NullFloat64
+	var images, recommendWords, extraWords sql.NullString
 	var carat, priceNoAddedValue, priceRetail float64
 
 	var pid, promType, pstatus sql.NullString
@@ -224,7 +218,7 @@ func composeDiamond(rows *sql.Rows) ([]diamond, error) {
 	for rows.Next() {
 		if err := rows.Scan(&id, &diamondID, &stockRef, &shape, &carat, &color, &clarity, &gradingLab, &certificateNumber,
 			&cutGrade, &polish, &symmetry, &fluorescenceIntensity, &country, &supplier, &priceNoAddedValue, &priceRetail,
-			&featured, &recommendWords, &extraWords, &images, &status, &orderedBy, &pickedUp, &soldPrice, &profitable,
+			&featured, &recommendWords, &extraWords, &images, &status, &profitable,
 			&pid, &promType, &promDiscount, &promPrice, &beginAt, &endAt, &pstatus); err != nil {
 			return nil, err
 		}
@@ -251,9 +245,6 @@ func composeDiamond(rows *sql.Rows) ([]diamond, error) {
 			RecommendWords:        recommendWords.String,
 			ExtraWords:            extraWords.String,
 			Status:                status,
-			OrderedBy:             orderedBy.String,
-			PickedUp:              pickedUp.String,
-			SoldPrice:             soldPrice.Float64,
 			Profitable:            profitable,
 		}
 		if images.String != "" {
@@ -279,7 +270,7 @@ func selectDiamondQuery(id string) string {
 	q := `SELECT diamonds.id, diamond_id, stock_ref, shape, carat, color, clarity, grading_lab, 
 	certificate_number, cut_grade, polish, symmetry, fluorescence_intensity, country, 
 	supplier, price_no_added_value, price_retail, featured, recommend_words, extra_words, images,
-	diamonds.status, ordered_by, picked_up, sold_price, profitable, 
+	diamonds.status, profitable, 
 	promotions.id, prom_type, prom_discount, prom_price, begin_at, end_at, promotions.status 
 	FROM diamonds 
 	LEFT JOIN promotions ON diamonds.promotion_id=promotions.id 

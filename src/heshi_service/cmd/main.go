@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"heshi/errors"
 	"log"
 	"util"
 
@@ -24,7 +25,7 @@ var config = struct {
 func main() {
 	db, err := openDB()
 	if err != nil {
-		log.Fatalf("fail to open db. err: %s", err.Error())
+		log.Fatalf("fail to open db. err: %s", errors.GetMessage(err))
 	}
 
 	v4, _ := uuid.NewV4()
@@ -33,11 +34,11 @@ func main() {
 	q := `INSERT INTO users (id, username, password, email, user_type, invitation_code) 
 	VALUES (?, 'admin',?,'admin@admin.com', 'admin', 'ignore')`
 	if _, err := db.Exec(q, id, password); err != nil {
-		log.Fatalf("fail to create supre admin. err: %s", err.Error())
+		log.Fatalf("fail to create supre admin. err: %s", errors.GetMessage(err))
 	}
 	q = `INSERT INTO admins (user_id, level) VALUES (?,10)`
 	if _, err := db.Exec(q, id); err != nil {
-		log.Fatalf("fail to create supre admin. err: %s", err.Error())
+		log.Fatalf("fail to create supre admin. err: %s", errors.GetMessage(err))
 	}
 }
 

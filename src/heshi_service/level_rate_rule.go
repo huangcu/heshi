@@ -125,7 +125,7 @@ func newLevelConfig(c *gin.Context) {
 
 	q := conf.composeInsertQuery()
 	if _, err := dbExec(q); err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	c.JSON(http.StatusOK, conf)
@@ -152,7 +152,7 @@ func updateLevelConfig(c *gin.Context) {
 	}
 	q := conf.composeUpdateQuery()
 	if _, err := dbExec(q); err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	c.JSON(http.StatusOK, conf.ID)
@@ -163,7 +163,7 @@ func getAllLevelConfigs(c *gin.Context) {
 	rows, err := dbQuery(`SELECT id, discount, level, amount, rule_type, pieces, return_point_percent, 
 		created_by,created_at FROM level_rate_rules WHERE rule_type!='RATE' ORDER BY created_at DESC`)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	defer rows.Close()
@@ -176,7 +176,7 @@ func getAllLevelConfigs(c *gin.Context) {
 		var createdAt time.Time
 		if err := rows.Scan(&id, &discount, &level, &amount, &ruleType, &pieces, &returnPointPercent,
 			&createdBy, &createdAt); err != nil {
-			c.JSON(http.StatusInternalServerError, err.Error())
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 		conf := levelRule{
@@ -205,7 +205,7 @@ func newRateConfig(c *gin.Context) {
 	q := fmt.Sprintf(`INSERT INTO level_rate_rules (id, exchange_rate_float, rule_type, created_by) 
 	VALUES ('%s','%f','%s','%s')`, id, rate, "RATE", createdBy)
 	if _, err := dbExec(q); err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	rc := exchangeRateFloat{
@@ -224,7 +224,7 @@ func getRateConfig(c *gin.Context) {
 	q := `SELECT id, exchange_rate_float,created_by,created_at 
 	FROM level_rate_rules WHERE rule_type = 'RATE' ORDER BY created_at DESC LIMIT 1`
 	if err := dbQueryRow(q).Scan(&id, &rate, &createdBy, &createdAt); err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	rc := exchangeRateFloat{
@@ -242,7 +242,7 @@ func getAllRateConfigs(c *gin.Context) {
 		FROM level_rate_rules 
 		WHERE rule_type = 'RATE' ORDER BY created_at`)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	defer rows.Close()
