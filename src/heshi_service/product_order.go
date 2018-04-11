@@ -245,6 +245,20 @@ func getAllTransactions(c *gin.Context) {
 	c.JSON(http.StatusOK, ts)
 }
 
+// TODO
+// 1. what can be updated
+// 2. input data format
+// 3. sperate api??? status, price etc (extra info, return_point)
+func updateTransaction(c *gin.Context) {
+	// updatedBy := c.MustGet("id").(string)
+	orderItems := make([]*orderItem, 0)
+	if err := json.Unmarshal([]byte(c.PostForm("items")), &orderItems); err != nil {
+		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
+		return
+	}
+
+}
+
 //TODO agent discount 9.9/9 --- base on current sold_price????, only allowed to change sold_price???
 //ADMIN ALLOW TO EDIT SOLD_PRICE_USD/CNY/EUR,SPECIALNOTICE,DOWNPAYMENT,STATUS ONLY
 // TODO order status change?? one by one if downpayment ---
@@ -735,17 +749,17 @@ func cancelTransactionSingleOrder(uid string, item *orderItem) (*transaction, er
 		oq = fmt.Sprintf(`UPDATE jewelrys SET stock_quantity= stock_quantity + %d, updated_at=(CURRENT_TIMESTAMP) 
 		WHERE id='%s'`, item.ItemQuantity, item.ItemID)
 		table = "jewelrys"
-		changeMap["stock_quantity"] = fmt.Sprintf("+%d", item.ItemQuantity)
+		changeMap["stock_quantity"] = fmt.Sprintf("+%d, Due to Order: '%s' cancel", item.ItemQuantity, item.ID)
 	case GEM:
 		oq = fmt.Sprintf(`UPDATE gems SET stock_quantity= stock_quantity+ %d, updated_at=(CURRENT_TIMESTAMP) 
 		WHERE id='%s'`, item.ItemQuantity, item.ItemID)
 		table = "gems"
-		changeMap["stock_quantity"] = fmt.Sprintf("+%d", item.ItemQuantity)
+		changeMap["stock_quantity"] = fmt.Sprintf("+%d, Due to Order: '%s' cancel", item.ItemQuantity, item.ID)
 	case SMALLDIAMOND:
 		oq = fmt.Sprintf(`UPDATE small_diamonds SET stock_quantity=stock_quantity+ %d, updated_at=(CURRENT_TIMESTAMP) 
 		WHERE id='%s'`, item.ItemQuantity, item.ItemID)
 		table = "small_diamonds"
-		changeMap["stock_quantity"] = fmt.Sprintf("+%d", item.ItemQuantity)
+		changeMap["stock_quantity"] = fmt.Sprintf("+%d, Due to Order: '%s' cancel", item.ItemQuantity, item.ID)
 	}
 	err := dbTransact(db, func(tx *sql.Tx) error {
 		traceSQL(oq)
@@ -811,13 +825,13 @@ func cancelTransactionMultipleOrders(uid string, items []*orderItem) (*transacti
 				changeMap["status"] = CANCELLED
 			case JEWELRY:
 				table = "jewelrys"
-				changeMap["stock_quantity"] = fmt.Sprintf("+%d", item.ItemQuantity)
+				changeMap["stock_quantity"] = fmt.Sprintf("+%d, Due to Order: '%s' cancel", item.ItemQuantity, item.ID)
 			case GEM:
 				table = "gems"
-				changeMap["stock_quantity"] = fmt.Sprintf("+%d", item.ItemQuantity)
+				changeMap["stock_quantity"] = fmt.Sprintf("+%d, Due to Order: '%s' cancel", item.ItemQuantity, item.ID)
 			case SMALLDIAMOND:
 				table = "small_diamonds"
-				changeMap["stock_quantity"] = fmt.Sprintf("+%d", item.ItemQuantity)
+				changeMap["stock_quantity"] = fmt.Sprintf("+%d, Due to Order: '%s' cancel", item.ItemQuantity, item.ID)
 			}
 			traceSQL(oq)
 			result, err := tx.Exec(oq)
