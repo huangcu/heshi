@@ -114,7 +114,7 @@ func isTransactionExistByID(tid string) (bool, error) {
 	if err := dbQueryRow(q).Scan(&count); err != nil {
 		return false, err
 	}
-	return count > 1, nil
+	return count >= 1, nil
 }
 func getOrderStatusByID(id string) (string, error) {
 	var status string

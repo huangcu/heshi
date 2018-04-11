@@ -12,6 +12,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type item struct {
+	ItemID       string  `json:"item_id"`
+	ItemCategory string  `json:"item_category"`
+	ItemQuantity int     `json:"item_quantity, omitempty"`
+	ItemPrice    float64 `json:"item_price"`
+}
+
 type transaction struct {
 	TransactionID string       `json:"transaction_id"`
 	OrderItems    []*orderItem `json:"order_items"`
@@ -249,6 +256,7 @@ func getAllTransactions(c *gin.Context) {
 // 1. what can be updated
 // 2. input data format
 // 3. sperate api??? status, price etc (extra info, return_point)
+// 4. rules: after DOWNPAYMEN, PAID, NOT allowed to change price again etc.....
 func updateTransaction(c *gin.Context) {
 	// updatedBy := c.MustGet("id").(string)
 	orderItems := make([]*orderItem, 0)
@@ -290,7 +298,7 @@ func updateOrder(c *gin.Context) {
 			c.JSON(http.StatusOK, vemsgOrderPriceNotValid)
 			return
 		} else {
-			oi.SoldPriceCNY = cValue
+			oi.SoldPriceUSD = cValue
 		}
 	}
 	priceCNYStr := c.PostForm("sold_price_cny")
@@ -515,7 +523,7 @@ func cancelTransaction(c *gin.Context) {
 		go func(uid string) {
 			for _, oi := range ois {
 				kv := make(map[string]interface{})
-				kv["status"] = CANCELLED
+				kv["status"] = MCANCELLED
 				go newHistoryRecords(uid, "orders", oi.ID, kv)
 			}
 		}(adminOrUserID)
