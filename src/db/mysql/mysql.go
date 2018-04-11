@@ -2,8 +2,8 @@ package mysql
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
+	"heshi/errors"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/configor"
