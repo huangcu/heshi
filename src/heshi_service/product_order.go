@@ -13,8 +13,8 @@ import (
 )
 
 type transaction struct {
-	TransactionID string      `json:"transaction_id"`
-	OrderItems    []orderItem `json:"order_items"`
+	TransactionID string       `json:"transaction_id"`
+	OrderItems    []*orderItem `json:"order_items"`
 }
 
 type orderItem struct {
@@ -35,6 +35,11 @@ type orderItem struct {
 	TransactionID string  `json:"transaction_id"`
 	Status        string  `json:"status"`
 	InStock       int     `json:"in_stock"`
+}
+
+type orderResult struct {
+	ItemID  string `json:"item_id"`
+	Message string `json:"message"`
 }
 
 func getOrderDetail(c *gin.Context) {
@@ -259,7 +264,7 @@ func updateOrder(c *gin.Context) {
 		ID:            oid,
 		ExtraInfo:     c.PostForm("extra_info"),
 		SpecialNotice: c.PostForm("special_notice"),
-		Status:        strings.ToUpper(c.PostForm("status")),
+		Status:        orderStatusAToOrderStatusM(strings.ToUpper(c.PostForm("status"))),
 	}
 	priceUSDStr := c.PostForm("sold_price_usd")
 	if priceUSDStr != "" {
@@ -319,7 +324,8 @@ func updateOrder(c *gin.Context) {
 			c.JSON(http.StatusOK, vemsgOrderStatusNotValid)
 			return
 		}
-		if oi.Status == CANCELLED || oi.Status != MCANCELLED {
+
+		if oi.Status == CANCELLED || oi.Status == MCANCELLED {
 			vemsgOrderStatusNotValid.Message = "Not allowed to cancel order, please call cancel API"
 			c.JSON(http.StatusOK, vemsgOrderStatusNotValid)
 			return
@@ -330,7 +336,7 @@ func updateOrder(c *gin.Context) {
 			return
 		}
 	}
-	if oi.Status != "" && oiInDB.ItemCategory == DIAMOND {
+	if oi.Status != "" && strings.ToUpper(oiInDB.ItemCategory) == DIAMOND {
 		err := dbTransact(db, func(tx *sql.Tx) error {
 			q := oi.composeUpdateQuery()
 			traceSQL(q)
@@ -343,7 +349,7 @@ func updateOrder(c *gin.Context) {
 			} else if r != 1 {
 				return nil
 			}
-			tq := fmt.Sprintf(`UPDATE diamonds SET status='%s'`, oi.Status)
+			tq := fmt.Sprintf(`UPDATE diamonds SET status='%s' WHERE id='%s'`, oi.Status, oiInDB.ItemID)
 			traceSQL(tq)
 			result, err = tx.Exec(tq)
 			if err != nil {
@@ -355,7 +361,7 @@ func updateOrder(c *gin.Context) {
 			}
 			if r == 1 {
 				oStateMap := make(map[string]interface{})
-				oStateMap["status"] = oi.Status + "Due Order: " + oid + " Status Change"
+				oStateMap["status"] = oi.Status + ",Due to Order: " + oid + " Status Change"
 				//diamonds status changed
 				go newHistoryRecords(uid, "diamonds", oiInDB.ItemID, oStateMap)
 			}
@@ -373,26 +379,35 @@ func updateOrder(c *gin.Context) {
 		}
 	}
 
-	c.JSON(http.StatusOK, oi.ID)
+	c.JSON(http.StatusOK, "SUCCESS")
 	go newHistoryRecords(uid, "orders", oi.ID, oi.parmsKV())
 }
 
 func createOrder(c *gin.Context) {
 	//check if all items still available
-	orderItems := make([]orderItem, 0)
-	json.Unmarshal([]byte(c.PostForm("items")), &orderItems)
+	buyerID := c.MustGet("id").(string)
+	orderItems := make([]*orderItem, 0)
+	if err := json.Unmarshal([]byte(c.PostForm("items")), &orderItems); err != nil {
+		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
+		return
+	}
+
 	if err := checkItems(orderItems); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	for _, item := range orderItems {
-		if item.Status != "AVAILABLE" {
-			c.JSON(http.StatusBadRequest, orderItems)
+		fmt.Println(item.Status)
+		if item.Status != AVAILABLE {
+			c.JSON(http.StatusBadRequest, orderResult{item.ItemID, item.Status})
 			return
 		}
 	}
 
 	//continue to order
+	for _, item := range orderItems {
+		item.BuyerID = buyerID
+	}
 	if len(orderItems) == 1 {
 		t, err := orderSingleItem(orderItems[0])
 		if err != nil {
@@ -423,7 +438,7 @@ func cancelTransaction(c *gin.Context) {
 		return
 	}
 
-	q := fmt.Sprintf(`SELECT id, item_id, item_category 
+	q := fmt.Sprintf(`SELECT id, item_id, item_category, item_quantity  
 		FROM orders 
 		WHERE transaction_id='%s' 
 		AND status NOT IN ('%s','%s','%s','%s','%s','%s')`,
@@ -443,7 +458,7 @@ func cancelTransaction(c *gin.Context) {
 	}
 	defer rows.Close()
 
-	var ois []orderItem
+	var ois []*orderItem
 	for rows.Next() {
 		var id, itemID, itemCategory string
 		var itemQuantity int
@@ -451,7 +466,7 @@ func cancelTransaction(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
-		oi := orderItem{
+		oi := &orderItem{
 			ID:           id,
 			ItemID:       itemID,
 			ItemCategory: itemCategory,
@@ -467,14 +482,14 @@ func cancelTransaction(c *gin.Context) {
 
 	//continue to cancel
 	if len(ois) == 1 {
-		t, err := cancelTransactionSingleOrder(ois[0])
+		t, err := cancelTransactionSingleOrder(adminOrUserID, ois[0])
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 		c.JSON(http.StatusOK, t)
 	} else {
-		t, err := cancelTransactionMultipleOrders(ois)
+		t, err := cancelTransactionMultipleOrders(adminOrUserID, ois)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
@@ -494,8 +509,11 @@ func cancelTransaction(c *gin.Context) {
 }
 
 func cartItems(c *gin.Context) {
-	items := make([]orderItem, 0)
-	json.Unmarshal([]byte(c.PostForm("items")), &items)
+	items := make([]*orderItem, 0)
+	if err := json.Unmarshal([]byte(c.PostForm("items")), &items); err != nil {
+		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
+		return
+	}
 	if err := checkItems(items); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
@@ -503,9 +521,9 @@ func cartItems(c *gin.Context) {
 	c.JSON(http.StatusOK, items)
 }
 
-func checkItems(items []orderItem) error {
+func checkItems(items []*orderItem) error {
 	for _, item := range items {
-		switch item.ItemCategory {
+		switch strings.ToUpper(item.ItemCategory) {
 		case DIAMOND:
 			if err := item.checkDiamondItem(); err != nil {
 				return err
@@ -529,72 +547,86 @@ func checkItems(items []orderItem) error {
 
 func (oi *orderItem) checkDiamondItem() error {
 	var status string
-	if err := dbQueryRow(fmt.Sprintf("SELECT status FROM diamonds WHERE id='%s' AND status='AVAILABLE'", oi.ItemID)).Scan(&status); err != nil {
+	var priceRetail float64
+	q := fmt.Sprintf("SELECT status,price_retail FROM diamonds WHERE id='%s' AND status='AVAILABLE'", oi.ItemID)
+	if err := dbQueryRow(q).Scan(&status, &priceRetail); err != nil {
 		if err != sql.ErrNoRows {
 			return err
 		}
 		oi.Status = "NOT AVAILABLE"
+		return nil
 	}
-	oi.Status = "AVAILABLE"
+	oi.ItemPrice = priceRetail
+	oi.Status = AVAILABLE
 	return nil
 }
 
 func (oi *orderItem) checkJewelryItem() error {
 	var quantity int
-	if err := dbQueryRow(fmt.Sprintf("SELECT quantity FROM jewelrys WHERE id='%s' AND status='AVAILABLE'", oi.ItemID)).Scan(&quantity); err != nil {
+	var price float64
+	q := fmt.Sprintf("SELECT stock_quantity,price FROM jewelrys WHERE id='%s' AND status='AVAILABLE'", oi.ItemID)
+	if err := dbQueryRow(q).Scan(&quantity, &price); err != nil {
 		if err != sql.ErrNoRows {
 			return err
 		}
 		oi.Status = "NOT AVAILABLE"
+		return nil
 	}
 	oi.InStock = quantity
 	if quantity > oi.ItemQuantity {
-		oi.Status = "AVAILABLE"
+		oi.Status = AVAILABLE
 	} else {
 		oi.Status = "STOCK_NOT_ENOUGH"
 	}
+	oi.ItemPrice = price
 	return nil
 }
 
 func (oi *orderItem) checkGemItem() error {
 	var quantity int
-	if err := dbQueryRow(fmt.Sprintf("SELECT quantity FROM gems WHERE id='%s' AND status='AVAILABLE'", oi.ItemID)).Scan(&quantity); err != nil {
+	var price float64
+
+	q := fmt.Sprintf("SELECT stock_quantity,price FROM gems WHERE id='%s' AND status='AVAILABLE'", oi.ItemID)
+	if err := dbQueryRow(q).Scan(&quantity, &price); err != nil {
 		if err != sql.ErrNoRows {
 			return err
 		}
 		oi.Status = "NOT AVAILABLE"
+		return nil
 	}
 	oi.InStock = quantity
 	if quantity > oi.ItemQuantity {
-		oi.Status = "AVAILABLE"
+		oi.Status = AVAILABLE
 	} else {
 		oi.Status = "STOCK_NOT_ENOUGH"
 	}
+	oi.ItemPrice = price
 	return nil
 }
 
 func (oi *orderItem) checkSmallDiamondItem() error {
 	var quantity int
-	if err := dbQueryRow(fmt.Sprintf("SELECT quantity FROM small_diamonds WHERE id='%s' AND status='AVAILABLE'", oi.ItemID)).Scan(&quantity); err != nil {
+	if err := dbQueryRow(fmt.Sprintf("SELECT stock_quantity FROM small_diamonds WHERE id='%s' AND status='AVAILABLE'", oi.ItemID)).Scan(&quantity); err != nil {
 		if err != sql.ErrNoRows {
 			return err
 		}
 		oi.Status = "NOT AVAILABLE"
+		return nil
 	}
 	oi.InStock = quantity
 	if quantity > oi.ItemQuantity {
-		oi.Status = "AVAILABLE"
+		oi.Status = AVAILABLE
 	} else {
 		oi.Status = "STOCK_NOT_ENOUGH"
 	}
 	return nil
 }
 
-func orderSingleItem(item orderItem) (*transaction, error) {
+func orderSingleItem(item *orderItem) (*transaction, error) {
 	item.ID = newV4()
 	item.TransactionID = item.ID
 	var oq string
-	switch item.ItemCategory {
+	switch strings.ToUpper(item.ItemCategory) {
 	case DIAMOND:
 		oq = fmt.Sprintf("UPDATE diamonds SET status='ORDERED', updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", item.ItemID)
 	case JEWELRY:
@@ -618,6 +650,7 @@ func orderSingleItem(item orderItem) (*transaction, error) {
 		} else if r != 1 {
 			return errors.Newf("Item %s not AVAILABLE any more", item.ItemID)
 		}
+		item.Status = ORDERED
 		q := item.composeInsertQuery()
 		traceSQL(q)
 		if _, err := tx.Exec(q); err != nil {
@@ -630,30 +663,30 @@ func orderSingleItem(item orderItem) (*transaction, error) {
 	}
 	t := &transaction{
 		TransactionID: item.TransactionID,
-		OrderItems:    []orderItem{item},
+		OrderItems:    []*orderItem{item},
 	}
 	return t, nil
 }
 
-func orderMultipleItems(items []orderItem) (*transaction, error) {
-	qs := make(map[string]orderItem)
+func orderMultipleItems(items []*orderItem) (*transaction, error) {
+	qs := make(map[string]*orderItem)
 	transactionID := newV4()
 	for _, item := range items {
 		var oq string
 		item.TransactionID = transactionID
 		item.ID = newV4()
-		switch item.ItemCategory {
+		switch strings.ToUpper(item.ItemCategory) {
 		case DIAMOND:
 			oq = fmt.Sprintf("UPDATE diamonds SET status='ORDERED', updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", item.ItemID)
 		case JEWELRY:
 			oq = fmt.Sprintf(`UPDATE jewelrys SET stock_quantity=stock_quantity-%d, updated_at=(CURRENT_TIMESTAMP) 
-		WHERE id='%s' AND status='AVAILABLE' AND stock_quantity>='%d'`, item.InStock-item.ItemQuantity, item.ItemID, item.ItemQuantity)
+		WHERE id='%s' AND status='AVAILABLE' AND stock_quantity>='%d'`, item.ItemQuantity, item.ItemID, item.ItemQuantity)
 		case GEM:
 			oq = fmt.Sprintf(`UPDATE gems SET stock_quantity=stock_quantity-%d, updated_at=(CURRENT_TIMESTAMP) 
-		WHERE id='%s' AND status='AVAILABLE' AND stock_quantity>='%d'`, item.InStock-item.ItemQuantity, item.ItemID, item.ItemQuantity)
+		WHERE id='%s' AND status='AVAILABLE' AND stock_quantity>='%d'`, item.ItemQuantity, item.ItemID, item.ItemQuantity)
 		case SMALLDIAMOND:
 			oq = fmt.Sprintf(`UPDATE small_diamonds SET stock_quantity=stock_quantity-%d, updated_at=(CURRENT_TIMESTAMP) 
-		WHERE id='%s' AND stock_quantity>='%d'`, item.InStock-item.ItemQuantity, item.ItemID, item.ItemQuantity)
+		WHERE id='%s' AND stock_quantity>='%d'`, item.ItemQuantity, item.ItemID, item.ItemQuantity)
 		}
 		qs[oq] = item
 	}
@@ -670,6 +703,7 @@ func orderMultipleItems(items []orderItem) (*transaction, error) {
 			} else if r != 1 {
 				return errors.Newf("Item %s not AVAILABLE any more", item.ItemID)
 			}
+			item.Status = ORDERED
 			tq := item.composeInsertQuery()
 			traceSQL(tq)
 			if _, err := tx.Exec(tq); err != nil {
@@ -688,20 +722,30 @@ func orderMultipleItems(items []orderItem) (*transaction, error) {
 	return t, nil
 }
 
-func cancelTransactionSingleOrder(item orderItem) (*transaction, error) {
+func cancelTransactionSingleOrder(uid string, item *orderItem) (*transaction, error) {
 	var oq string
-	switch item.ItemCategory {
+	var table string
+	changeMap := make(map[string]interface{})
+	switch strings.ToUpper(item.ItemCategory) {
 	case DIAMOND:
 		oq = fmt.Sprintf("UPDATE diamonds SET status='AVAILABLE', updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", item.ItemID)
+		table = "diamonds"
+		changeMap["status"] = CANCELLED
 	case JEWELRY:
 		oq = fmt.Sprintf(`UPDATE jewelrys SET stock_quantity= stock_quantity + %d, updated_at=(CURRENT_TIMESTAMP) 
 		WHERE id='%s'`, item.ItemQuantity, item.ItemID)
+		table = "jewelrys"
+		changeMap["stock_quantity"] = fmt.Sprintf("+%d", item.ItemQuantity)
 	case GEM:
 		oq = fmt.Sprintf(`UPDATE gems SET stock_quantity= stock_quantity+ %d, updated_at=(CURRENT_TIMESTAMP) 
 		WHERE id='%s'`, item.ItemQuantity, item.ItemID)
+		table = "gems"
+		changeMap["stock_quantity"] = fmt.Sprintf("+%d", item.ItemQuantity)
 	case SMALLDIAMOND:
 		oq = fmt.Sprintf(`UPDATE small_diamonds SET stock_quantity=stock_quantity+ %d, updated_at=(CURRENT_TIMESTAMP) 
 		WHERE id='%s'`, item.ItemQuantity, item.ItemID)
+		table = "small_diamonds"
+		changeMap["stock_quantity"] = fmt.Sprintf("+%d", item.ItemQuantity)
 	}
 	err := dbTransact(db, func(tx *sql.Tx) error {
 		traceSQL(oq)
@@ -709,12 +753,18 @@ func cancelTransactionSingleOrder(item orderItem) (*transaction, error) {
 		if err != nil {
 			return err
 		}
-		if r, err := result.RowsAffected(); err != nil {
+		r, err := result.RowsAffected()
+		if err != nil {
 			return err
-		} else if r != 1 {
+		}
+		if r != 1 {
 			// should ingore, item to be canceled shouldn't be not AVAILABLE, if it is, return cancelled
 			fmt.Printf("Cancel Transaction: Item %s not AVAILABLE any more", item.ItemID)
+		} else {
+			// TODO should track product change due to order cancel???
+			go newHistoryRecords(uid, table, item.ItemID, changeMap)
 		}
+
 		q := item.composeUpdateQuery()
 		traceSQL(q)
 		if _, err := tx.Exec(q); err != nil {
@@ -727,16 +777,16 @@ func cancelTransactionSingleOrder(item orderItem) (*transaction, error) {
 	}
 	t := &transaction{
 		TransactionID: item.TransactionID,
-		OrderItems:    []orderItem{item},
+		OrderItems:    []*orderItem{item},
 	}
 	return t, nil
 }
 
-func cancelTransactionMultipleOrders(items []orderItem) (*transaction, error) {
-	qs := make(map[string]orderItem)
+func cancelTransactionMultipleOrders(uid string, items []*orderItem) (*transaction, error) {
+	qs := make(map[string]*orderItem)
 	for _, item := range items {
 		var oq string
-		switch item.ItemCategory {
+		switch strings.ToUpper(item.ItemCategory) {
 		case DIAMOND:
 			oq = fmt.Sprintf("UPDATE diamonds SET status='AVAILABLE', updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", item.ItemID)
 		case JEWELRY:
@@ -751,19 +801,39 @@ func cancelTransactionMultipleOrders(items []orderItem) (*transaction, error) {
 		}
 		qs[oq] = item
 	}
-
 	err := dbTransact(db, func(tx *sql.Tx) error {
 		for oq, item := range qs {
+			var table string
+			changeMap := make(map[string]interface{})
+			switch strings.ToUpper(item.ItemCategory) {
+			case DIAMOND:
+				table = "diamonds"
+				changeMap["status"] = CANCELLED
+			case JEWELRY:
+				table = "jewelrys"
+				changeMap["stock_quantity"] = fmt.Sprintf("+%d", item.ItemQuantity)
+			case GEM:
+				table = "gems"
+				changeMap["stock_quantity"] = fmt.Sprintf("+%d", item.ItemQuantity)
+			case SMALLDIAMOND:
+				table = "small_diamonds"
+				changeMap["stock_quantity"] = fmt.Sprintf("+%d", item.ItemQuantity)
+			}
 			traceSQL(oq)
 			result, err := tx.Exec(oq)
 			if err != nil {
 				return err
 			}
-			if r, err := result.RowsAffected(); err != nil {
+			r, err := result.RowsAffected()
+			if err != nil {
 				return err
-			} else if r != 1 {
+			}
+			if r != 1 {
 				// should ingore, item to be canceled shouldn't be not AVAILABLE, if it is, return cancelled
 				fmt.Printf("Cancel Transaction: Item %s not AVAILABLE any more", item.ItemID)
+			} else {
+				// TODO should track product change due to order cancel???
+				go newHistoryRecords(uid, table, item.ItemID, changeMap)
 			}
 			tq := item.composeUpdateQuery()
 			traceSQL(tq)
@@ -776,6 +846,7 @@ func cancelTransactionMultipleOrders(items []orderItem) (*transaction, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	t := &transaction{
 		TransactionID: items[0].TransactionID,
 		OrderItems:    items,
@@ -783,8 +854,8 @@ func cancelTransactionMultipleOrders(items []orderItem) (*transaction, error) {
 	return t, nil
 }
 
-func composeOrders(rows *sql.Rows) ([]orderItem, error) {
-	var ois []orderItem
+func composeOrders(rows *sql.Rows) ([]*orderItem, error) {
+	var ois []*orderItem
 	for rows.Next() {
 		var id, itemID, itemCategory, status, transactionID, buyerID string
 		var chosenBy, extraInfo, specialNotice sql.NullString
@@ -797,7 +868,7 @@ func composeOrders(rows *sql.Rows) ([]orderItem, error) {
 			&returnPoint, &chosenBy, &status, &extraInfo, &specialNotice); err != nil {
 			return nil, err
 		}
-		oi := orderItem{
+		oi := &orderItem{
 			ID:            id,
 			ItemID:        itemID,
 			ItemCategory:  itemCategory,
@@ -821,7 +892,7 @@ func composeOrders(rows *sql.Rows) ([]orderItem, error) {
 }
 
 func composeTransactions(rows *sql.Rows) ([]transaction, error) {
-	var ois []orderItem
+	var ois []*orderItem
 	for rows.Next() {
 		var id, itemID, itemCategory, status, transactionID, buyerID string
 		var chosenBy, extraInfo, specialNotice sql.NullString
@@ -834,7 +905,7 @@ func composeTransactions(rows *sql.Rows) ([]transaction, error) {
 			&returnPoint, &chosenBy, &status, &extraInfo, &specialNotice); err != nil {
 			return nil, err
 		}
-		oi := orderItem{
+		oi := &orderItem{
 			ID:            id,
 			ItemID:        itemID,
 			ItemCategory:  itemCategory,
@@ -855,7 +926,7 @@ func composeTransactions(rows *sql.Rows) ([]transaction, error) {
 		ois = append(ois, oi)
 	}
 
-	transationOrderItemmap := make(map[string][]orderItem)
+	transationOrderItemmap := make(map[string][]*orderItem)
 	for _, oItem := range ois {
 		key := oItem.TransactionID
 		transationOrderItemmap[key] = append(transationOrderItemmap[key], oItem)

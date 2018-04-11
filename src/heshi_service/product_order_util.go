@@ -102,21 +102,24 @@ func (oi *orderItem) parmsKV() map[string]interface{} {
 
 func isOrderExistByID(id string) (bool, error) {
 	var count int
-	if err := dbQueryRow("SELECT COUNT(*) FROM orders WHERE id=?", id).Scan(&count); err != nil {
+	q := fmt.Sprintf("SELECT COUNT(*) FROM orders WHERE id='%s'", id)
+	if err := dbQueryRow(q).Scan(&count); err != nil {
 		return false, err
 	}
 	return count == 1, nil
 }
 func isTransactionExistByID(tid string) (bool, error) {
 	var count int
-	if err := dbQueryRow("SELECT COUNT(*) FROM orders WHERE transaction_id=?", tid).Scan(&count); err != nil {
+	q := fmt.Sprintf("SELECT COUNT(*) FROM orders WHERE transaction_id='%s'", tid)
+	if err := dbQueryRow(q).Scan(&count); err != nil {
 		return false, err
 	}
-	return count == 1, nil
+	return count > 1, nil
 }
 func getOrderStatusByID(id string) (string, error) {
 	var status string
-	if err := dbQueryRow("SELECT status FROM orders WHERE id=?", id).Scan(&status); err != nil {
+	q := fmt.Sprintf("SELECT status FROM orders WHERE id='%s'", id)
+	if err := dbQueryRow(q).Scan(&status); err != nil {
 		return "", err
 	}
 	return status, nil
@@ -139,10 +142,29 @@ func getOrderByID(oid string) (*orderItem, error) {
 		return nil, err
 	}
 	if len(ois) == 1 {
-		return &ois[0], nil
+		return ois[0], nil
 	}
 	return nil, nil
 }
+
+// atomatice valid order status to valid manual order status
+func orderStatusAToOrderStatusM(status string) string {
+	switch status {
+	case CANCELLED:
+		return MCANCELLED
+	case DOWNPAYMENT:
+		return MDOWNPAYMENT
+	case PAID:
+		return MPAID
+	case DELIVERED:
+		return MDELIVERED
+	case RECEIVED:
+		return MRECEIVED
+	default:
+		return status
+	}
+}
+
 func isOrderStatusChangeAllowed(nowStatus, newStatus string) bool {
 	// ADMIN can cancel anytime
 	if newStatus == MCANCELLED {
@@ -174,14 +196,14 @@ func longRunTransactionCheck() error {
 	}
 	defer rows.Close()
 
-	var ois []orderItem
+	var ois []*orderItem
 	for rows.Next() {
 		var id, transactionID, itemID, itemCategory string
 		var itemQuantity int
 		if err := rows.Scan(&id, &itemID, &itemCategory, &itemQuantity, &transactionID); err != nil {
 			return err
 		}
-		oi := orderItem{
+		oi := &orderItem{
 			ID:           id,
 			ItemID:       itemID,
 			ItemCategory: itemCategory,
@@ -191,7 +213,7 @@ func longRunTransactionCheck() error {
 		ois = append(ois, oi)
 	}
 
-	transationOrderItemmap := make(map[string][]orderItem)
+	transationOrderItemmap := make(map[string][]*orderItem)
 	for _, oItem := range ois {
 		key := oItem.TransactionID
 		transationOrderItemmap[key] = append(transationOrderItemmap[key], oItem)
@@ -208,19 +230,19 @@ func longRunTransactionCheck() error {
 
 	//continue to cancel
 	for _, t := range ts {
-		go func(oisOfTransaction []orderItem) {
+		go func(oisOfTransaction []*orderItem) {
 			if len(ts) == 0 {
 				return
 			}
 			if len(ois) == 1 {
-				_, err := cancelTransactionSingleOrder(ois[0])
+				_, err := cancelTransactionSingleOrder("SYSTEM", ois[0])
 				if err != nil {
 					util.Printf("cancel transaction error: %#v", err)
 					return
 				}
 				return
 			}
-			_, err = cancelTransactionMultipleOrders(ois)
+			_, err = cancelTransactionMultipleOrders("SYSTEM", ois)
 			if err != nil {
 				util.Printf("cancel transaction error: %#v", err)
 				return

@@ -55,6 +55,7 @@ alter table gems add promotion_id varchar(225);
 alter table diamonds drop picked_up;
 alter table diamonds drop ordered_by;
 alter table diamonds drop sold_price;
+drop table orders;
 
 proms:
 [
@@ -79,5 +80,21 @@ ids:
     {
         "item_id": "23d92dfa-4d86-4b25-8f13-d67d5615be53",
         "item_category": "diamond"
+    }
+]
+
+orders: 
+[
+    {
+        "item_id":"a4acb846-2668-44ce-ada4-cc9680227776",
+        "item_category":"diamond",
+        "sold_price_usd":78.69,
+        "chosen_by":"huangcu"
+    },
+    {
+        "item_quantity":4,
+        "item_id":"5f456042-04ff-43ac-a7fa-534caaccfae9",
+        "item_category":"jewelrys",
+        "sold_price_usd":78.69
     }
 ]

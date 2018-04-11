@@ -279,6 +279,7 @@ func configRoute(r *gin.Engine) {
 			// TODO only can view transaction of 1 year
 			apiCustomer.GET("/transactions/:id", getTransactionDetail)
 			apiCustomer.GET("/transactions", getAllTransactionsOfAUser)
+			// due to path confict(with transactions detail), has to :id/cancel instead of cancel/:id
 			apiCustomer.GET("/transactions/:id/cancel", cancelTransaction)
 
 			//action- > add, delete

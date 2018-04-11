@@ -8,7 +8,7 @@ const orderDdl = `
 CREATE TABLE IF NOT EXISTS orders
 (
 	id VARCHAR(225) PRIMARY KEY NOT NULL,
-	item_id INT NOT NULL,
+	item_id VARCHAR(225) NOT NULL,
 	item_price FLOAT NOT NULL,
 	item_category VARCHAR(20) NOT NULL,
 	item_quantity INT NOT NULL DEFAULT 1,
@@ -33,7 +33,7 @@ const shoppingCart = `
 CREATE TABLE IF NOT EXISTS shopping_cart
 (
 	id VARCHAR(225) PRIMARY KEY NOT NULL,
-	item_id INT NOT NULL,
+	item_id VARCHAR(225) NOT NULL,
 	item_price FLOAT NOT NULL,
 	item_category VARCHAR(20) NOT NULL,
 	item_quantity INT NOT NULL DEFAULT 1,
@@ -50,8 +50,8 @@ CREATE TABLE IF NOT EXISTS interested_items
 (
 	id VARCHAR(225) PRIMARY KEY NOT NULL,
 	user_id VARCHAR(225) NOT NULL,
+	item_id VARCHAR(225) NOT NULL,
 	item_type VARCHAR(28) NOT NULL,
-	item_id VARCHAR(58) NOT NULL,
 	item_accessory int(11),
 	confirmed_for_check VARCHAR(8) NOT NULL DEFAULT 'No',
 	available VARCHAR(25) NOT NULL DEFAULT 'TOBECHECKED',
