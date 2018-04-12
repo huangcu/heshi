@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 	"time"
 	"util"
 )
@@ -47,6 +48,33 @@ func (oi *orderItem) composeUpdateQuery() string {
 		}
 	}
 	q = fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, oi.ID)
+	return q
+}
+
+// track order everything except item_id/category/quantity
+func (oi *orderItem) composeUpdateQueryTrack(updatedBy string) string {
+	trackMap := make(map[string]interface{})
+	params := oi.parmsKV()
+	q := `UPDATE orders SET`
+	for k, v := range params {
+		if !strings.Contains(k, "item_") {
+			trackMap[k] = v
+		}
+		switch v.(type) {
+		case string:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(string))
+		case float64:
+			q = fmt.Sprintf("%s %s='%f',", q, k, v.(float64))
+		case int:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int))
+		case int64:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
+		case time.Time:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(time.Time).Format(timeFormat))
+		}
+	}
+	q = fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, oi.ID)
+	newHistoryRecords(updatedBy, "orders", oi.ID, trackMap)
 	return q
 }
 

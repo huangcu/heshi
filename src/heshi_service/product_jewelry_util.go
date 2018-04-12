@@ -53,6 +53,35 @@ func (j *jewelry) composeUpdateQuery() string {
 	return q
 }
 
+//only track price/promotion_id(track in promotion section) change
+func (j *jewelry) composeUpdateQueryTrack(updatedBy string) string {
+	trackMap := make(map[string]interface{})
+	params := j.parmsKV()
+	q := `UPDATE jewelrys SET`
+	for k, v := range params {
+		if k == "price" {
+			trackMap["price"] = v
+		}
+		switch v.(type) {
+		case string:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(string))
+		case float64:
+			q = fmt.Sprintf("%s %s='%f',", q, k, v.(float64))
+		case int:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int))
+		case int64:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
+		case time.Time:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(time.Time).Format(timeFormat))
+		}
+	}
+	if len(trackMap) != 0 {
+		newHistoryRecords(updatedBy, "jewelrys", j.ID, trackMap)
+	}
+	q = fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, j.ID)
+	return q
+}
+
 // 	params := make(map[string]interface{})
 //TODO validate input
 func (j *jewelry) parmsKV() map[string]interface{} {

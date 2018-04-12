@@ -34,7 +34,7 @@ func uploadAndGetFileHeaders(c *gin.Context) {
 		return
 	}
 	// Upload the file to specific dst.
-	filename := file.Filename + time.Now().Format("20060102150405123")
+	filename := file.Filename + time.Now().Format(timeFormat)
 	dst := filepath.Join(os.TempDir(), id, filename)
 	err = c.SaveUploadedFile(file, dst)
 	if err != nil {
@@ -72,9 +72,9 @@ func uploadAndProcessProducts(c *gin.Context) {
 	var filename string
 	exts := strings.SplitN(file.Filename, ".", 2)
 	if len(exts) == 2 {
-		filename = exts[0] + time.Now().Format("20060102150405") + exts[1]
+		filename = exts[0] + time.Now().Format(timeFormat) + exts[1]
 	} else {
-		filename = file.Filename + time.Now().Format("20060102150405")
+		filename = file.Filename + time.Now().Format(timeFormat)
 	}
 	dst := filepath.Join(UPLOADFILEDIR, category, uid, filename)
 	err = c.SaveUploadedFile(file, dst)
@@ -110,7 +110,7 @@ func uploadAndProcessProducts(c *gin.Context) {
 }
 
 func importProducts(uid, category, file, cate string) ([]util.Row, error) {
-	switch category {
+	switch strings.ToUpper(category) {
 	case DIAMOND:
 		return importDiamondProducts(uid, file)
 	case SMALLDIAMOND:
@@ -120,7 +120,7 @@ func importProducts(uid, category, file, cate string) ([]util.Row, error) {
 	case GEM:
 		return importGemProducts(uid, file)
 	default:
-		return nil, nil
+		return nil, errors.Newf("product category:%s not right", category)
 	}
 }
 
@@ -210,11 +210,11 @@ func importSmallDiamondProducts(file string) ([]util.Row, error) {
 
 func validateHeaders(product string, headers []string) []string {
 	switch product {
-	case "diamond":
+	case DIAMOND:
 		return validateDiamondHeaders(headers)
-	case "small_diamond":
+	case SMALLDIAMOND:
 		return validateSmallDiamondHeaders(headers)
-	case "jewelry":
+	case JEWELRY:
 		return validateJewelryHeaders(headers)
 	default:
 		return nil

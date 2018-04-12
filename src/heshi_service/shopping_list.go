@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strings"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -9,7 +11,7 @@ import (
 type shoppingItem struct {
 	ID                string `json:"id"`
 	UserID            string `json:"user_id"`
-	ItemType          string `json:"item_type"`
+	ItemCategory      string `json:"item_category"`
 	ItemID            string `json:"item_id"`
 	ItemAccessory     int    `json:"item_accessory"`
 	ConfirmedForCheck string `json:"confirmed_for_check"`
@@ -18,11 +20,11 @@ type shoppingItem struct {
 }
 
 func toShoppingList(c *gin.Context) {
-	action := c.Param("action")
+	action := strings.ToLower(c.Param("action"))
 	s := shoppingItem{
-		UserID:   c.MustGet("id").(string),
-		ItemID:   c.PostForm("item_id"),
-		ItemType: c.PostForm("item_type"),
+		UserID:       c.MustGet("id").(string),
+		ItemID:       c.PostForm("item_id"),
+		ItemCategory: strings.ToUpper(c.PostForm("item_category")),
 	}
 	handleShoppingList(action, s)
 }
@@ -33,7 +35,7 @@ func handleShoppingList(action string, item shoppingItem) error {
 		return err
 	}
 	//TODO diamond accessory
-	if item.ItemType != "ACCESSORY" {
+	if item.ItemCategory != "ACCESSORY" {
 		switch action {
 		case "add":
 		case "delete":
@@ -56,7 +58,7 @@ func handleShoppingList(action string, item shoppingItem) error {
 }
 
 func getUserShoppingList(uid string) ([]shoppingItem, error) {
-	q := `SELECT id, item_type, item_id, item_accessory, confirmed_for_check,
+	q := `SELECT id, item_category, item_id, item_accessory, confirmed_for_check,
 	available, special_notice FROM interested_items`
 	rows, err := dbQuery(q)
 	if err != nil {
@@ -74,7 +76,7 @@ func getUserShoppingList(uid string) ([]shoppingItem, error) {
 		}
 		s := shoppingItem{
 			ID:                id,
-			ItemType:          itemType,
+			ItemCategory:      itemType,
 			ItemID:            itemID,
 			ItemAccessory:     itemAccessory,
 			ConfirmedForCheck: confirmedForCheck,
@@ -89,7 +91,7 @@ func getUserShoppingList(uid string) ([]shoppingItem, error) {
 
 func (s *shoppingItem) isItemInShoppingItemList(itemList []shoppingItem) bool {
 	for _, item := range itemList {
-		if s.ItemType == item.ItemType && s.ItemID == item.ID {
+		if s.ItemCategory == item.ItemCategory && s.ItemID == item.ID {
 			return true
 		}
 	}
@@ -113,8 +115,8 @@ func (s *shoppingItem) removeItemFromInterestedItemsByID() error {
 }
 
 func (s *shoppingItem) removeItemFromInterestedItemsByItemProperties() error {
-	q := `DELETE FROM interested_items WHERE user_id=? AND item_id=? AND item_type=?`
-	if _, err := dbExec(q, s.UserID, s.ItemID, s.ItemType); err != nil {
+	q := `DELETE FROM interested_items WHERE user_id=? AND item_id=? AND item_category=?`
+	if _, err := dbExec(q, s.UserID, s.ItemID, s.ItemCategory); err != nil {
 		return err
 	}
 	return nil

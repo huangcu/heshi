@@ -98,3 +98,17 @@ orders:
         "sold_price_usd":78.69
     }
 ]
+
+shopping_cart: 
+
+[
+    {
+        "item_id":"a4acb846-2668-44ce-ada4-cc9680227776",
+        "item_category":"diamond",
+    },
+    {
+        "item_quantity":4,
+        "item_id":"5f456042-04ff-43ac-a7fa-534caaccfae9",
+        "item_category":"jewelrys",
+    }
+]

@@ -12,30 +12,55 @@ import (
 )
 
 type history struct {
-	ID         string    `json:"id"`
-	UserID     string    `json:"user_id"`
-	ItemID     string    `json:"item_id"`
-	TableName  string    `json:"table_name"`
-	FieldName  string    `json:"field_name"`
-	FieldValue string    `json:"field_value"`
-	CreatedAt  time.Time `json:"created_at"`
+	ID        string    `json:"id"`
+	UserID    string    `json:"user_id"`
+	ItemID    string    `json:"item_id"`
+	TableName string    `json:"table_name"`
+	FieldName string    `json:"field_name"`
+	NewValue  string    `json:"new_value"`
+	OldValue  string    `json:"old_value"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 func newHistoryRecords(userID, tableName, itemID string, fieldNameValue map[string]interface{}) {
-	q := fmt.Sprintf(`INSERT INTO historys set user_id='%s', table_name='%s', item_id='%s',`, userID, strings.ToUpper(tableName), itemID)
-	for k, v := range fieldNameValue {
-		hq := fmt.Sprintf("%s id='%s', field_name='%s',", q, newV4(), k)
+	for fieldName, v := range fieldNameValue {
+		hq := fmt.Sprintf(`INSERT INTO historys (user_id,table_name,item_id,field_name, old_value, new_value)
+		VALUES ('%s','%s','%s','%s', (SELECT %s FROM %s WHERE id='%s')`,
+			userID, strings.ToUpper(tableName), itemID, fieldName, fieldName, tableName, itemID)
 		switch v.(type) {
 		case string:
-			hq = fmt.Sprintf("%s field_value='%s'", hq, v.(string))
+			hq = fmt.Sprintf("%s, '%s')", hq, v.(string))
 		case float64:
-			hq = fmt.Sprintf("%s field_value='%f'", hq, v.(float64))
+			hq = fmt.Sprintf("%s, '%f')", hq, v.(float64))
 		case int:
-			hq = fmt.Sprintf("%s field_value='%d'", hq, v.(int))
+			hq = fmt.Sprintf("%s, '%d')", hq, v.(int))
 		case int64:
-			hq = fmt.Sprintf("%s field_value='%d'", hq, v.(int64))
+			hq = fmt.Sprintf("%s, '%d')", hq, v.(int64))
 		case time.Time:
-			hq = fmt.Sprintf("%s field_value='%s'", hq, v.(time.Time).Format(timeFormat))
+			hq = fmt.Sprintf("%s, '%s')", hq, v.(time.Time).Format(timeFormat))
+		}
+		if _, err := dbExec(hq); err != nil {
+			util.Tracef("Fail to add to history: %s", hq)
+		}
+	}
+}
+
+func deleteHistoryRecords(userID, tableName, itemID string, fieldNameValue map[string]interface{}) {
+	for fieldName, v := range fieldNameValue {
+		hq := fmt.Sprintf(`DELETE FROM historys 
+			WHERE userID='%s' AND table_name='%s' AND item_id='%s' AND field_name='%s' AND new_value=`,
+			userID, tableName, itemID, fieldName)
+		switch v.(type) {
+		case string:
+			hq = fmt.Sprintf("%s'%s' ORDER BY created_at DESC LIMIT 1", hq, v.(string))
+		case float64:
+			hq = fmt.Sprintf("%s'%f' ORDER BY created_at DESC LIMIT 1", hq, v.(float64))
+		case int:
+			hq = fmt.Sprintf("%s'%d' ORDER BY created_at DESC LIMIT 1", hq, v.(int))
+		case int64:
+			hq = fmt.Sprintf("%s'%d' ORDER BY created_at DESC LIMIT 1", hq, v.(int64))
+		case time.Time:
+			hq = fmt.Sprintf("%s'%s' ORDER BY created_at DESC LIMIT 1", hq, v.(time.Time).Format(timeFormat))
 		}
 		if _, err := dbExec(hq); err != nil {
 			util.Tracef("Fail to add to history: %s", hq)
@@ -83,7 +108,8 @@ func getHistory(c *gin.Context) {
 }
 
 func getAllHistory() ([]history, error) {
-	q := `SELECT id, user_id, item_id, table_name, field_name, field_value created_at FROM historys ORDER BY created_at DESC`
+	q := `SELECT id, user_id, item_id, table_name, field_name, new_value, old_value, created_at 
+	FROM historys ORDER BY created_at DESC`
 	rows, err := dbQuery(q)
 	if err != nil {
 		return nil, err
@@ -92,19 +118,20 @@ func getAllHistory() ([]history, error) {
 
 	var hs []history
 	for rows.Next() {
-		var id, userID, itemID, tableName, fieldName, fieldValue string
+		var id, userID, itemID, tableName, fieldName, newValue, oldValue string
 		var createdAt time.Time
-		if err := rows.Scan(&id, &userID, &itemID, &tableName, &fieldName, &fieldValue, &createdAt); err != nil {
+		if err := rows.Scan(&id, &userID, &itemID, &tableName, &fieldName, &newValue, &oldValue, &createdAt); err != nil {
 			return nil, err
 		}
 		h := history{
-			ID:         id,
-			UserID:     userID,
-			ItemID:     itemID,
-			TableName:  tableName,
-			FieldName:  fieldName,
-			FieldValue: fieldValue,
-			CreatedAt:  createdAt,
+			ID:        id,
+			UserID:    userID,
+			ItemID:    itemID,
+			TableName: tableName,
+			FieldName: fieldName,
+			NewValue:  newValue,
+			OldValue:  oldValue,
+			CreatedAt: createdAt,
 		}
 		hs = append(hs, h)
 	}
@@ -112,7 +139,8 @@ func getAllHistory() ([]history, error) {
 }
 
 func getHistoryOfTable(tableName string) ([]history, error) {
-	q := fmt.Sprintf(`SELECT id, user_id, item_id, field_name, field_value created_at FROM historys WHERE tableName='%s' ORDER BY created_at DESC`, tableName)
+	q := fmt.Sprintf(`SELECT id, user_id, item_id, field_name, new_value, old_value, created_at 
+		FROM historys WHERE table_name='%s' ORDER BY created_at DESC`, tableName)
 	rows, err := dbQuery(q)
 	if err != nil {
 		return nil, err
@@ -121,19 +149,20 @@ func getHistoryOfTable(tableName string) ([]history, error) {
 
 	var hs []history
 	for rows.Next() {
-		var id, userID, itemID, fieldName, fieldValue string
+		var id, userID, itemID, fieldName, newValue, oldValue string
 		var createdAt time.Time
-		if err := rows.Scan(&id, &userID, &itemID, &fieldName, &fieldValue, &createdAt); err != nil {
+		if err := rows.Scan(&id, &userID, &itemID, &fieldName, &newValue, &oldValue, &createdAt); err != nil {
 			return nil, err
 		}
 		h := history{
-			ID:         id,
-			UserID:     userID,
-			ItemID:     itemID,
-			TableName:  tableName,
-			FieldName:  fieldName,
-			FieldValue: fieldValue,
-			CreatedAt:  createdAt,
+			ID:        id,
+			UserID:    userID,
+			ItemID:    itemID,
+			TableName: tableName,
+			FieldName: fieldName,
+			NewValue:  newValue,
+			OldValue:  oldValue,
+			CreatedAt: createdAt,
 		}
 		hs = append(hs, h)
 	}
@@ -141,7 +170,8 @@ func getHistoryOfTable(tableName string) ([]history, error) {
 }
 
 func getHistoryOfTableField(tableName, fieldName string) ([]history, error) {
-	q := fmt.Sprintf(`SELECT id, user_id, item_id, field_value created_at FROM historys WHERE table_name='%s' and field_name='%s' ORDER BY created_at DESC`, tableName, fieldName)
+	q := fmt.Sprintf(`SELECT id, user_id, item_id, new_value, old_value, created_at 
+		FROM historys WHERE table_name='%s' and field_name='%s' ORDER BY created_at DESC`, tableName, fieldName)
 	rows, err := dbQuery(q)
 	if err != nil {
 		return nil, err
@@ -150,19 +180,20 @@ func getHistoryOfTableField(tableName, fieldName string) ([]history, error) {
 
 	var hs []history
 	for rows.Next() {
-		var id, userID, itemID, fieldValue string
+		var id, userID, itemID, newValue, oldValue string
 		var createdAt time.Time
-		if err := rows.Scan(&id, &userID, &itemID, &fieldValue, &createdAt); err != nil {
+		if err := rows.Scan(&id, &userID, &itemID, &newValue, &oldValue, &createdAt); err != nil {
 			return nil, err
 		}
 		h := history{
-			ID:         id,
-			UserID:     userID,
-			ItemID:     itemID,
-			TableName:  tableName,
-			FieldName:  fieldName,
-			FieldValue: fieldValue,
-			CreatedAt:  createdAt,
+			ID:        id,
+			UserID:    userID,
+			ItemID:    itemID,
+			TableName: tableName,
+			FieldName: fieldName,
+			NewValue:  newValue,
+			OldValue:  oldValue,
+			CreatedAt: createdAt,
 		}
 		hs = append(hs, h)
 	}
@@ -170,7 +201,8 @@ func getHistoryOfTableField(tableName, fieldName string) ([]history, error) {
 }
 
 func getHistoryOfItem(itemID string) ([]history, error) {
-	q := fmt.Sprintf(`SELECT id, user_id, table_name, field_name, field_value, created_at FROM historys WHERE item_id='%s' ORDER BY created_at DESC`, itemID)
+	q := fmt.Sprintf(`SELECT id, user_id, table_name, field_name, new_value, old_value, created_at 
+		FROM historys WHERE item_id='%s' ORDER BY created_at DESC`, itemID)
 	rows, err := dbQuery(q)
 	if err != nil {
 		return nil, err
@@ -179,19 +211,20 @@ func getHistoryOfItem(itemID string) ([]history, error) {
 
 	var hs []history
 	for rows.Next() {
-		var id, userID, tableName, fieldName, fieldValue string
+		var id, userID, tableName, fieldName, newValue, oldValue string
 		var createdAt time.Time
-		if err := rows.Scan(&id, &userID, &tableName, &fieldName, &fieldValue, &createdAt); err != nil {
+		if err := rows.Scan(&id, &userID, &tableName, &fieldName, &newValue, &oldValue, &createdAt); err != nil {
 			return nil, err
 		}
 		h := history{
-			ID:         id,
-			UserID:     userID,
-			ItemID:     itemID,
-			TableName:  tableName,
-			FieldName:  fieldName,
-			FieldValue: fieldValue,
-			CreatedAt:  createdAt,
+			ID:        id,
+			UserID:    userID,
+			ItemID:    itemID,
+			TableName: tableName,
+			FieldName: fieldName,
+			NewValue:  newValue,
+			OldValue:  oldValue,
+			CreatedAt: createdAt,
 		}
 		hs = append(hs, h)
 	}

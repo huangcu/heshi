@@ -261,19 +261,23 @@ func handleImage(srcPath, dstPath, filename string) error {
 }
 
 func bulkUpload(c *gin.Context) {
+	if util.IsInArrayString(c.PostForm("product"), VALID_PRODUCTS) {
+		c.JSON(http.StatusBadRequest, fmt.Sprintf("product category: %s not right", c.PostForm("product")))
+		return
+	}
 	fileHeader, _ := c.FormFile("upload")
 	if fileHeader == nil {
-		c.JSON(http.StatusOK, "NO FILE UPLOADED")
+		c.JSON(http.StatusBadRequest, "NO FILE UPLOADED")
 		return
 	}
 
 	if !strings.HasSuffix(fileHeader.Filename, ".zip") {
-		c.JSON(http.StatusOK, "File name must end with .zip")
+		c.JSON(http.StatusBadRequest, "File name must end with .zip")
 		return
 	}
 	//limit to 100MB
 	if fileHeader.Size > 100*1024*1024 {
-		c.JSON(http.StatusOK, "File size mustn't exceed 100MB")
+		c.JSON(http.StatusBadRequest, "File size mustn't exceed 100MB")
 		return
 	}
 	filename := filepath.Join(os.TempDir(), fileHeader.Filename)
@@ -368,12 +372,12 @@ func handleUploadedZipVideo(tempDir string) map[string]string {
 }
 
 func handleUploadedZipImages(tempDir, product string) map[string]string {
-	switch product {
-	case "diamond":
+	switch strings.ToUpper(product) {
+	case DIAMOND:
 		return handleUploadedZipImagesDiamond(tempDir)
-	case "jewelry":
+	case JEWELRY:
 		return handleUploadedZipImagesJewelry(tempDir)
-	case "gem":
+	case GEM:
 		return handleUploadedZipImagesGem(tempDir)
 	}
 	return nil

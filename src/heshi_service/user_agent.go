@@ -12,11 +12,11 @@ import (
 )
 
 type Agent struct {
-	Level       int    `json:"level"`
+	Level       int    `json:"level,omitempty"`
 	LevelStr    string `json:"-"`
-	Discount    int    `json:"discount"`
+	Discount    int    `json:"discount,omitempty"`
 	DiscountStr string `json:"-"`
-	CreatedBy   string `json:"created_by"`
+	CreatedBy   string `json:"created_by,omitempty"`
 }
 
 type ContactInfo struct {

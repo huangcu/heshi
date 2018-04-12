@@ -135,13 +135,13 @@ func updateGems(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
-	q := g.composeUpdateQuery()
+	q := g.composeUpdateQueryTrack(uid)
 	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	c.JSON(http.StatusOK, g.ID)
-	go newHistoryRecords(uid, "gems", g.ID, g.parmsKV())
+	// go newHistoryRecords(uid, "gems", g.ID, g.parmsKV())
 }
 
 func getAllGems(c *gin.Context) {

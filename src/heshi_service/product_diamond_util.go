@@ -25,7 +25,7 @@ func (d *diamond) composeInsertQuery() string {
 		case int64:
 			va = fmt.Sprintf("%s, '%d'", va, v.(int64))
 		case time.Time:
-			va = fmt.Sprintf("%s, '%s'", va, v.(time.Time).Format("2006-01-02 15:04:05"))
+			va = fmt.Sprintf("%s, '%s'", va, v.(time.Time).Format(timeFormat))
 		}
 	}
 	q = fmt.Sprintf("%s) %s)", q, va)
@@ -46,8 +46,37 @@ func (d *diamond) composeUpdateQuery() string {
 		case int64:
 			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
 		case time.Time:
-			q = fmt.Sprintf("%s %s='%s',", q, k, v.(time.Time).Format("2006-01-02 15:04:05"))
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(time.Time).Format(timeFormat))
 		}
+	}
+	q = fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, d.ID)
+	return q
+}
+
+//only track price/promotion_id(track in promotion section) change
+func (d *diamond) composeUpdateQueryTrack(updatedBy string) string {
+	trackMap := make(map[string]interface{})
+	params := d.parmsKV()
+	q := `UPDATE diamonds SET`
+	for k, v := range params {
+		if k == "price_retail" {
+			trackMap["price_retail"] = v
+		}
+		switch v.(type) {
+		case string:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(string))
+		case float64:
+			q = fmt.Sprintf("%s %s='%f',", q, k, v.(float64))
+		case int:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int))
+		case int64:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
+		case time.Time:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(time.Time).Format(timeFormat))
+		}
+	}
+	if len(trackMap) != 0 {
+		newHistoryRecords(updatedBy, "diamonds", d.ID, trackMap)
 	}
 	q = fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, d.ID)
 	return q
@@ -294,7 +323,7 @@ func importDiamondsCustomizeHeaders(headers map[string]string, records [][]strin
 
 //TODO double check url GIA
 func composeCertifcateLink(gradingLab, certificate string) string {
-	switch gradingLab {
+	switch strings.ToUpper(gradingLab) {
 	case "HRD":
 		return fmt.Sprintf("https://my.hrdantwerp.com/?L=&record_number=%s&certificatetype=MC", certificate)
 	case "GIA":

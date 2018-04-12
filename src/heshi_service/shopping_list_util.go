@@ -54,8 +54,8 @@ func (s *shoppingItem) paramsKV() map[string]interface{} {
 		params["user_id"] = s.UserID
 	}
 
-	if s.ItemType != "" {
-		params["item_type"] = s.ItemType
+	if s.ItemCategory != "" {
+		params["item_category"] = s.ItemCategory
 	}
 	if s.ItemID != "" {
 		params["item_id"] = s.ItemID

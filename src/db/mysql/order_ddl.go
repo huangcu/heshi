@@ -29,12 +29,12 @@ CREATE TABLE IF NOT EXISTS orders
 `
 
 // 购物车
+// item_price FLOAT NOT NULL,
 const shoppingCart = `
 CREATE TABLE IF NOT EXISTS shopping_cart
 (
 	id VARCHAR(225) PRIMARY KEY NOT NULL,
 	item_id VARCHAR(225) NOT NULL,
-	item_price FLOAT NOT NULL,
 	item_category VARCHAR(20) NOT NULL,
 	item_quantity INT NOT NULL DEFAULT 1,
 	user_id VARCHAR(225) NOT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS interested_items
 	id VARCHAR(225) PRIMARY KEY NOT NULL,
 	user_id VARCHAR(225) NOT NULL,
 	item_id VARCHAR(225) NOT NULL,
-	item_type VARCHAR(28) NOT NULL,
+	item_category VARCHAR(28) NOT NULL,
 	item_accessory int(11),
 	confirmed_for_check VARCHAR(8) NOT NULL DEFAULT 'No',
 	available VARCHAR(25) NOT NULL DEFAULT 'TOBECHECKED',

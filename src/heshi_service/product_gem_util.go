@@ -53,6 +53,35 @@ func (g *gem) composeUpdateQuery() string {
 	return q
 }
 
+//only track price/promotion_id(track in promotion section) change
+func (g *gem) composeUpdateQueryTrack(updatedBy string) string {
+	trackMap := make(map[string]interface{})
+	params := g.parmsKV()
+	q := `UPDATE gems SET`
+	for k, v := range params {
+		if k == "price" {
+			trackMap["price"] = v
+		}
+		switch v.(type) {
+		case string:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(string))
+		case float64:
+			q = fmt.Sprintf("%s %s='%f',", q, k, v.(float64))
+		case int:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int))
+		case int64:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
+		case time.Time:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(time.Time).Format(timeFormat))
+		}
+	}
+	if len(trackMap) != 0 {
+		newHistoryRecords(updatedBy, "gems", g.ID, trackMap)
+	}
+	q = fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, g.ID)
+	return q
+}
+
 // 	params := make(map[string]interface{})
 //TODO validate input
 func (g *gem) parmsKV() map[string]interface{} {

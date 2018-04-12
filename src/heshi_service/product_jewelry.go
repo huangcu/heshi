@@ -239,13 +239,13 @@ func updateJewelry(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
-	q := j.composeUpdateQuery()
+	q := j.composeUpdateQueryTrack(uid)
 	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	c.JSON(http.StatusOK, j.ID)
-	go newHistoryRecords(uid, "jewelrys", j.ID, j.parmsKV())
+	// go newHistoryRecords(uid, "jewelrys", j.ID, j.parmsKV())
 }
 
 func composeJewelry(rows *sql.Rows) ([]jewelry, error) {

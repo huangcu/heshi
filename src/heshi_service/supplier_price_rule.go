@@ -64,6 +64,7 @@ func addPriceRule(c *gin.Context) {
 }
 
 func updatePriceRule(c *gin.Context) {
+	updatedBy := c.MustGet("id").(string)
 	pid := c.Param("id")
 	if exist, err := isSupplierPriceRuleExistByID(pid); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
@@ -94,7 +95,7 @@ func updatePriceRule(c *gin.Context) {
 		c.JSON(http.StatusOK, vemsg)
 		return
 	}
-	q := s.composeUpdateQuery()
+	q := s.composeUpdateQueryTrack(updatedBy)
 	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 		return

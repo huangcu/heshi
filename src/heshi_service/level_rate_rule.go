@@ -111,6 +111,7 @@ func newLevelConfig(c *gin.Context) {
 		conf.AmountStr = c.PostForm("amount")
 	default:
 		c.JSON(http.StatusBadRequest, ruleType+"is not valid")
+		return
 	}
 
 	conf.CreatedBy = c.MustGet("id").(string)
@@ -150,13 +151,12 @@ func updateLevelConfig(c *gin.Context) {
 		c.JSON(http.StatusOK, vemsgs)
 		return
 	}
-	q := conf.composeUpdateQuery()
+	q := conf.composeUpdateQueryTrack(createdBy)
 	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	c.JSON(http.StatusOK, conf.ID)
-	go newHistoryRecords(createdBy, "level_rate_rules", conf.ID, conf.paramsKV())
 }
 
 func getAllLevelConfigs(c *gin.Context) {
@@ -346,12 +346,13 @@ func (ac *levelRule) composeInsertQuery() string {
 		case int64:
 			va = fmt.Sprintf("%s, '%d'", va, v.(int64))
 		case time.Time:
-			va = fmt.Sprintf("%s, '%s'", va, v.(time.Time).Format("2006-01-02 15:04:05"))
+			va = fmt.Sprintf("%s, '%s'", va, v.(time.Time).Format(timeFormat))
 		}
 	}
 	q = fmt.Sprintf("%s) %s)", q, va)
 	return q
 }
+
 func (ac *levelRule) composeUpdateQuery() string {
 	params := ac.paramsKV()
 	q := `UPDATE level_rate_rules SET`
@@ -366,10 +367,31 @@ func (ac *levelRule) composeUpdateQuery() string {
 		case int64:
 			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
 		case time.Time:
-			q = fmt.Sprintf("%s %s='%s',", q, k, v.(time.Time).Format("2006-01-02 15:04:05"))
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(time.Time).Format(timeFormat))
 		}
 	}
+	q = fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, ac.ID)
+	return q
+}
 
+func (ac *levelRule) composeUpdateQueryTrack(updatedBy string) string {
+	params := ac.paramsKV()
+	q := `UPDATE level_rate_rules SET`
+	for k, v := range params {
+		switch v.(type) {
+		case string:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(string))
+		case float64:
+			q = fmt.Sprintf("%s %s='%f',", q, k, v.(float64))
+		case int:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int))
+		case int64:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
+		case time.Time:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(time.Time).Format(timeFormat))
+		}
+	}
+	newHistoryRecords(updatedBy, "level_rate_rules", ac.ID, params)
 	q = fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, ac.ID)
 	return q
 }

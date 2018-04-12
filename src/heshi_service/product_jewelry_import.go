@@ -170,13 +170,13 @@ func importJewelryProducts(uid, file, category string) ([]util.Row, error) {
 		//pass validation, update db
 		j.ID = id
 		j.jewelryImages()
-		q = j.composeUpdateQuery()
+		q = j.composeUpdateQueryTrack(uid)
 		if _, err := dbExec(q); err != nil {
 			util.Printf("fail to update jewelry item. stock id: %s; err; %s", j.StockID, errors.GetMessage(err))
 			return nil, err
 		}
 		util.Printf("jewelry item updated. stock id: %s", j.StockID)
-		go newHistoryRecords(uid, "jewelrys", j.ID, j.parmsKV())
+		// go newHistoryRecords(uid, "jewelrys", j.ID, j.parmsKV())
 		//remove updated stockID from old one as this has been scanned and processed
 		delete(oldStockIDList, j.StockID)
 	}
@@ -244,7 +244,7 @@ func (j *jewelry) jewelryImages() {
 // <option value="CE">成品耳环／耳钉</option> 3/NO
 func getAllStockIDBySubCategory(subCategory string) (map[string]struct{}, error) {
 	q := ""
-	switch subCategory {
+	switch strings.ToUpper(subCategory) {
 	case "JR":
 		q = "small_dias='NO' AND need_diamond='YES' AND category='RING' ORDER BY id ASC"
 	case "JE":

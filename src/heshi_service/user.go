@@ -34,8 +34,10 @@ type User struct {
 	TotalPurchaseAmount float64 `json:"total_purchase_amount"`
 	Icon                string  `json:"icon"`
 	Status              string  `json:"status"`
-	Admin               Admin   `json:"admin"`
-	Agent               Agent   `json:"agent"`
+	Admin
+	Agent
+	// Admin               Admin   `json:"admin"`
+	// Agent               Agent   `json:"agent"`
 	// CreatedAt      time.Time `json:"created_at"`
 	// UpdatedAt      time.Time `json:"updated_at"`
 }

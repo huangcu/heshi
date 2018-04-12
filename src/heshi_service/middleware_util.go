@@ -6,7 +6,7 @@ import (
 )
 
 func userUsingRecord(URLPath, user, platform string) error {
-	switch URLPath {
+	switch strings.ToLower(URLPath) {
 	// no need to track
 	case "/api/exchangerate", "/api/wechat/status", "/refresh/token":
 		return nil

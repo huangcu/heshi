@@ -51,6 +51,26 @@ func (p *PriceSetting) composeUpdateQuery() string {
 
 	return fmt.Sprintf("%s WHERE id='%s'", strings.TrimSuffix(q, ","), p.ID)
 }
+func (p *PriceSetting) composeUpdateQueryTrack(updatedBy string) string {
+	params := p.paramsKV()
+	q := `UPDATE price_settings_universal SET`
+	for k, v := range params {
+		switch v.(type) {
+		case string:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(string))
+		case float64:
+			q = fmt.Sprintf("%s %s='%f',", q, k, v.(float64))
+		case int:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int))
+		case int64:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
+		case time.Time:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(time.Time).Format(timeFormat))
+		}
+	}
+	newHistoryRecords(updatedBy, "price_settings_universal", p.ID, params)
+	return fmt.Sprintf("%s WHERE id='%s'", strings.TrimSuffix(q, ","), p.ID)
+}
 
 func (p *PriceSetting) paramsKV() map[string]interface{} {
 	params := make(map[string]interface{})

@@ -271,7 +271,7 @@ func updateTransaction(c *gin.Context) {
 //ADMIN ALLOW TO EDIT SOLD_PRICE_USD/CNY/EUR,SPECIALNOTICE,DOWNPAYMENT,STATUS ONLY
 // TODO order status change?? one by one if downpayment ---
 func updateOrder(c *gin.Context) {
-	uid := c.MustGet("id").(string)
+	updatedBy := c.MustGet("id").(string)
 	oid := c.Param("id")
 	oiInDB, err := getOrderByID(oid)
 	if err != nil {
@@ -360,7 +360,7 @@ func updateOrder(c *gin.Context) {
 	}
 	if oi.Status != "" && strings.ToUpper(oiInDB.ItemCategory) == DIAMOND {
 		err := dbTransact(db, func(tx *sql.Tx) error {
-			q := oi.composeUpdateQuery()
+			q := oi.composeUpdateQueryTrack(updatedBy)
 			traceSQL(q)
 			result, err := tx.Exec(q)
 			if err != nil {
@@ -373,20 +373,20 @@ func updateOrder(c *gin.Context) {
 			}
 			tq := fmt.Sprintf(`UPDATE diamonds SET status='%s' WHERE id='%s'`, oi.Status, oiInDB.ItemID)
 			traceSQL(tq)
-			result, err = tx.Exec(tq)
+			_, err = tx.Exec(tq)
 			if err != nil {
 				return err
 			}
-			r, err := result.RowsAffected()
-			if err != nil {
-				return err
-			}
-			if r == 1 {
-				oStateMap := make(map[string]interface{})
-				oStateMap["status"] = oi.Status + ",Due to Order: " + oid + " Status Change"
-				//diamonds status changed
-				go newHistoryRecords(uid, "diamonds", oiInDB.ItemID, oStateMap)
-			}
+			// r, err := result.RowsAffected()
+			// if err != nil {
+			// 	return err
+			// }
+			// if r == 1 {
+			// 	oStateMap := make(map[string]interface{})
+			// 	oStateMap["status"] = oi.Status + ",Due to Order: " + oid + " Status Change"
+			// 	//diamonds status changed
+			// 	go newHistoryRecords(updatedBy, "diamonds", oiInDB.ItemID, oStateMap)
+			// }
 			return nil
 		})
 		if err != nil {
@@ -394,7 +394,7 @@ func updateOrder(c *gin.Context) {
 			return
 		}
 	} else {
-		q := oi.composeUpdateQuery()
+		q := oi.composeUpdateQueryTrack(updatedBy)
 		if _, err := dbExec(q); err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
@@ -402,7 +402,7 @@ func updateOrder(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, "SUCCESS")
-	go newHistoryRecords(uid, "orders", oi.ID, oi.parmsKV())
+	// go newHistoryRecords(updatedBy, "orders", oi.ID, oi.parmsKV())
 }
 
 func createOrder(c *gin.Context) {
@@ -519,15 +519,15 @@ func cancelTransaction(c *gin.Context) {
 		c.JSON(http.StatusOK, t)
 	}
 
-	if userType == ADMIN {
-		go func(uid string) {
-			for _, oi := range ois {
-				kv := make(map[string]interface{})
-				kv["status"] = MCANCELLED
-				go newHistoryRecords(uid, "orders", oi.ID, kv)
-			}
-		}(adminOrUserID)
-	}
+	// if userType == ADMIN {
+	// 	go func(uid string) {
+	// 		for _, oi := range ois {
+	// 			kv := make(map[string]interface{})
+	// 			kv["status"] = MCANCELLED
+	// 			go newHistoryRecords(uid, "orders", oi.ID, kv)
+	// 		}
+	// 	}(adminOrUserID)
+	// }
 }
 
 func cartItems(c *gin.Context) {
@@ -562,6 +562,8 @@ func checkItems(items []*orderItem) error {
 			if err := item.checkSmallDiamondItem(); err != nil {
 				return err
 			}
+		default:
+			return errors.Newf("Item category: not right", item.ItemCategory)
 		}
 	}
 	return nil
@@ -752,26 +754,30 @@ func cancelTransactionSingleOrder(uid string, item *orderItem) (*transaction, er
 	case DIAMOND:
 		oq = fmt.Sprintf("UPDATE diamonds SET status='AVAILABLE', updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", item.ItemID)
 		table = "diamonds"
-		changeMap["status"] = CANCELLED
+		changeMap["status"] = fmt.Sprintf("%s, Due to Order: %s cancel", AVAILABLE, item.ID)
 	case JEWELRY:
 		oq = fmt.Sprintf(`UPDATE jewelrys SET stock_quantity= stock_quantity + %d, updated_at=(CURRENT_TIMESTAMP) 
 		WHERE id='%s'`, item.ItemQuantity, item.ItemID)
 		table = "jewelrys"
-		changeMap["stock_quantity"] = fmt.Sprintf("+%d, Due to Order: '%s' cancel", item.ItemQuantity, item.ID)
+		changeMap["stock_quantity"] = fmt.Sprintf("+%d, Due to Order: %s cancel", item.ItemQuantity, item.ID)
 	case GEM:
 		oq = fmt.Sprintf(`UPDATE gems SET stock_quantity= stock_quantity+ %d, updated_at=(CURRENT_TIMESTAMP) 
 		WHERE id='%s'`, item.ItemQuantity, item.ItemID)
 		table = "gems"
-		changeMap["stock_quantity"] = fmt.Sprintf("+%d, Due to Order: '%s' cancel", item.ItemQuantity, item.ID)
+		changeMap["stock_quantity"] = fmt.Sprintf("+%d, Due to Order: %s cancel", item.ItemQuantity, item.ID)
 	case SMALLDIAMOND:
 		oq = fmt.Sprintf(`UPDATE small_diamonds SET stock_quantity=stock_quantity+ %d, updated_at=(CURRENT_TIMESTAMP) 
 		WHERE id='%s'`, item.ItemQuantity, item.ItemID)
 		table = "small_diamonds"
-		changeMap["stock_quantity"] = fmt.Sprintf("+%d, Due to Order: '%s' cancel", item.ItemQuantity, item.ID)
+		changeMap["stock_quantity"] = fmt.Sprintf("+%d, Due to Order: %s cancel", item.ItemQuantity, item.ID)
+	default:
+		return nil, errors.Newf("Item category: not right", item.ItemCategory)
 	}
 	err := dbTransact(db, func(tx *sql.Tx) error {
-		traceSQL(oq)
-		result, err := tx.Exec(oq)
+		// cancel transaction first
+		q := item.composeUpdateQueryTrack(uid)
+		traceSQL(q)
+		result, err := tx.Exec(q)
 		if err != nil {
 			return err
 		}
@@ -780,17 +786,23 @@ func cancelTransactionSingleOrder(uid string, item *orderItem) (*transaction, er
 			return err
 		}
 		if r != 1 {
-			// should ingore, item to be canceled shouldn't be not AVAILABLE, if it is, return cancelled
-			fmt.Printf("Cancel Transaction: Item %s not AVAILABLE any more", item.ItemID)
-		} else {
-			// TODO should track product change due to order cancel???
-			go newHistoryRecords(uid, table, item.ItemID, changeMap)
+			return nil
 		}
 
-		q := item.composeUpdateQuery()
-		traceSQL(q)
-		if _, err := tx.Exec(q); err != nil {
+		//update product status and quantity
+		traceSQL(oq)
+		newHistoryRecords(uid, table, item.ItemID, changeMap)
+		result, err = tx.Exec(oq)
+		if err != nil {
 			return err
+		}
+		r, err = result.RowsAffected()
+		if err != nil {
+			return err
+		}
+		if r != 1 {
+			// SHOULDN'T HAPPEN should ingore, item to be canceled shouldn't be not AVAILABLE, if it is, return cancelled
+			fmt.Printf("Cancel Transaction: Item %s not AVAILABLE any more", item.ItemID)
 		}
 		return nil
 	})
@@ -820,6 +832,8 @@ func cancelTransactionMultipleOrders(uid string, items []*orderItem) (*transacti
 		case SMALLDIAMOND:
 			oq = fmt.Sprintf(`UPDATE small_diamonds SET stock_quantity=stock_quantity + %d, updated_at=(CURRENT_TIMESTAMP) 
 		WHERE id='%s'`, item.ItemQuantity, item.ItemID)
+		default:
+			return nil, errors.Newf("Item category: not right", item.ItemCategory)
 		}
 		qs[oq] = item
 	}
@@ -830,18 +844,27 @@ func cancelTransactionMultipleOrders(uid string, items []*orderItem) (*transacti
 			switch strings.ToUpper(item.ItemCategory) {
 			case DIAMOND:
 				table = "diamonds"
-				changeMap["status"] = CANCELLED
+				changeMap["status"] = fmt.Sprintf("%s, Due to Order: %s cancel", AVAILABLE, item.ID)
 			case JEWELRY:
 				table = "jewelrys"
-				changeMap["stock_quantity"] = fmt.Sprintf("+%d, Due to Order: '%s' cancel", item.ItemQuantity, item.ID)
+				changeMap["stock_quantity"] = fmt.Sprintf("+%d, Due to Order: %s cancel", item.ItemQuantity, item.ID)
 			case GEM:
 				table = "gems"
-				changeMap["stock_quantity"] = fmt.Sprintf("+%d, Due to Order: '%s' cancel", item.ItemQuantity, item.ID)
+				changeMap["stock_quantity"] = fmt.Sprintf("+%d, Due to Order: %s cancel", item.ItemQuantity, item.ID)
 			case SMALLDIAMOND:
 				table = "small_diamonds"
-				changeMap["stock_quantity"] = fmt.Sprintf("+%d, Due to Order: '%s' cancel", item.ItemQuantity, item.ID)
+				changeMap["stock_quantity"] = fmt.Sprintf("+%d, Due to Order: %s cancel", item.ItemQuantity, item.ID)
 			}
+			// cancel order
+			tq := item.composeUpdateQueryTrack(uid)
+			traceSQL(tq)
+			if _, err := tx.Exec(tq); err != nil {
+				return err
+			}
+
+			//update product status/quantity
 			traceSQL(oq)
+			newHistoryRecords(uid, table, item.ItemID, changeMap)
 			result, err := tx.Exec(oq)
 			if err != nil {
 				return err
@@ -853,14 +876,6 @@ func cancelTransactionMultipleOrders(uid string, items []*orderItem) (*transacti
 			if r != 1 {
 				// should ingore, item to be canceled shouldn't be not AVAILABLE, if it is, return cancelled
 				fmt.Printf("Cancel Transaction: Item %s not AVAILABLE any more", item.ItemID)
-			} else {
-				// TODO should track product change due to order cancel???
-				go newHistoryRecords(uid, table, item.ItemID, changeMap)
-			}
-			tq := item.composeUpdateQuery()
-			traceSQL(tq)
-			if _, err := tx.Exec(tq); err != nil {
-				return err
 			}
 		}
 		return nil

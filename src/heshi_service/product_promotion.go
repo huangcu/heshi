@@ -53,50 +53,56 @@ func promoteProducts(c *gin.Context) {
 		promtionmap["promotion_id"] = promProduct.PromotionID
 		switch strings.ToUpper(promProduct.ItemCategory) {
 		case DIAMOND:
+			newHistoryRecords(updatedBy, "diamonds", promProduct.ItemID, promtionmap)
 			q := fmt.Sprintf(`UPDATE diamonds SET promotion_id='%s' WHERE id='%s'`, promProduct.PromotionID, promProduct.ItemID)
-			r, err := dbExec(q)
+			_, err := dbExec(q)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 				return
 			}
-			rc, err := r.RowsAffected()
-			if err != nil {
-				c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
-				return
-			}
-			if int(rc) == 1 {
-				go newHistoryRecords(updatedBy, "diamonds", promProduct.ItemID, promtionmap)
-			}
+			// rc, err := r.RowsAffected()
+			// if err != nil {
+			// 	c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			// 	return
+			// }
+			// if int(rc) == 1 {
+			// 	go newHistoryRecords(updatedBy, "diamonds", promProduct.ItemID, promtionmap)
+			// }
 		case JEWELRY:
+			newHistoryRecords(updatedBy, "jewelrys", promProduct.ItemID, promtionmap)
 			q := fmt.Sprintf(`UPDATE jewelrys SET promotion_id='%s' WHERE id='%s'`, promProduct.PromotionID, promProduct.ItemID)
-			r, err := dbExec(q)
+			_, err := dbExec(q)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 				return
 			}
-			rc, err := r.RowsAffected()
-			if err != nil {
-				c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
-				return
-			}
-			if int(rc) == 1 {
-				go newHistoryRecords(updatedBy, "jewelrys", promProduct.ItemID, promtionmap)
-			}
+			// rc, err := r.RowsAffected()
+			// if err != nil {
+			// 	c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			// 	return
+			// }
+			// if int(rc) == 1 {
+			// 	go newHistoryRecords(updatedBy, "jewelrys", promProduct.ItemID, promtionmap)
+			// }
 		case GEM:
+			newHistoryRecords(updatedBy, "gems", promProduct.ItemID, promtionmap)
 			q := fmt.Sprintf(`UPDATE gems SET promotion_id='%s' WHERE id='%s'`, promProduct.PromotionID, promProduct.ItemID)
-			r, err := dbExec(q)
+			_, err := dbExec(q)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 				return
 			}
-			rc, err := r.RowsAffected()
-			if err != nil {
-				c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
-				return
-			}
-			if int(rc) == 1 {
-				go newHistoryRecords(updatedBy, "gems", promProduct.ItemID, promtionmap)
-			}
+			// rc, err := r.RowsAffected()
+			// if err != nil {
+			// 	c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			// 	return
+			// }
+			// if int(rc) == 1 {
+			// 	go newHistoryRecords(updatedBy, "gems", promProduct.ItemID, promtionmap)
+			// }
+		default:
+			c.JSON(http.StatusBadRequest, errors.Newf("Item category: not right", promProduct.ItemCategory))
+			return
 		}
 	}
 	c.JSON(http.StatusOK, "SUCCESS")
@@ -161,6 +167,9 @@ func newPromotion(c *gin.Context) {
 			return
 		}
 		p.PromPrice = pp
+	default:
+		c.JSON(http.StatusBadRequest, fmt.Sprintf("promotion type: %s not right", promType))
+		return
 	}
 
 	q := p.composeInsertQuery()
@@ -209,6 +218,9 @@ func updatePromotion(c *gin.Context) {
 			}
 			p.PromPrice = pp
 		}
+	default:
+		c.JSON(http.StatusBadRequest, fmt.Sprintf("promotion type: %s not right", p.PromType))
+		return
 	}
 	if promType == "" {
 		p.PromType = ""
@@ -248,14 +260,14 @@ func updatePromotion(c *gin.Context) {
 	} else {
 		p.Status = ""
 	}
-	q := p.composeUpdateQuery()
+	q := p.composeUpdateQueryTrack(updatedBy)
 	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 
 	c.JSON(http.StatusOK, p)
-	go newHistoryRecords(updatedBy, "promotions", pid, p.paramsKV())
+	// go newHistoryRecords(updatedBy, "promotions", pid, p.paramsKV())
 }
 
 func getPromotion(c *gin.Context) {
@@ -386,6 +398,28 @@ func (p *promotion) composeUpdateQuery() string {
 		}
 	}
 
+	q = fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, p.ID)
+	return q
+}
+
+func (p *promotion) composeUpdateQueryTrack(updatedBy string) string {
+	params := p.paramsKV()
+	q := `UPDATE promotions SET`
+	for k, v := range params {
+		switch v.(type) {
+		case string:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(string))
+		case float64:
+			q = fmt.Sprintf("%s %s='%f',", q, k, v.(float64))
+		case int:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int))
+		case int64:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
+		case time.Time:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(time.Time).Format(timeFormat))
+		}
+	}
+	newHistoryRecords(updatedBy, "suppliers", p.ID, params)
 	q = fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, p.ID)
 	return q
 }

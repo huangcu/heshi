@@ -135,13 +135,13 @@ func importGemProducts(uid, file string) ([]util.Row, error) {
 		//pass validation, update db
 		g.ID = id
 		g.gemImages()
-		q = g.composeUpdateQuery()
+		q = g.composeUpdateQueryTrack(uid)
 		if _, err := dbExec(q); err != nil {
 			util.Printf("fail to update gem item. stock id: %s; err; %s", g.StockID, errors.GetMessage(err))
 			return nil, err
 		}
 		util.Printf("gem item updated. stock id: %s", g.StockID)
-		go newHistoryRecords(uid, "gems", g.ID, g.parmsKV())
+		// go newHistoryRecords(uid, "gems", g.ID, g.parmsKV())
 		//remove updated stockID from old one as this has been scanned and processed
 		delete(oldStockIDList, g.StockID)
 	}

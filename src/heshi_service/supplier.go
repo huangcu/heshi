@@ -110,14 +110,14 @@ func updateSupplier(c *gin.Context) {
 		Prefix:    c.PostForm("prefix"),
 		Connected: c.PostForm("connected"),
 	}
-	q := s.composeUpdateQuery()
+	q := s.composeUpdateQueryTrack(uid)
 	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 		return
 	}
 
 	c.JSON(http.StatusOK, s.ID)
-	go newHistoryRecords(uid, "suppliers", s.ID, s.paramsKV())
+	// go newHistoryRecords(uid, "suppliers", s.ID, s.paramsKV())
 }
 
 //TODO check return row number?
@@ -171,6 +171,28 @@ func (s *supplier) composeUpdateQuery() string {
 		}
 	}
 
+	q = fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, s.ID)
+	return q
+}
+
+func (s *supplier) composeUpdateQueryTrack(updatedBy string) string {
+	params := s.paramsKV()
+	q := `UPDATE suppliers SET`
+	for k, v := range params {
+		switch v.(type) {
+		case string:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(string))
+		case float64:
+			q = fmt.Sprintf("%s %s='%f',", q, k, v.(float64))
+		case int:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int))
+		case int64:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
+		case time.Time:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(time.Time).Format(timeFormat))
+		}
+	}
+	newHistoryRecords(updatedBy, "suppliers", s.ID, params)
 	q = fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, s.ID)
 	return q
 }

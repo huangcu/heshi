@@ -11,10 +11,10 @@ import (
 )
 
 type Admin struct {
-	Level      int    `json:"admin_level"`
+	Level      int    `json:"admin_level,omitempty"`
 	LevelStr   string `json:"-"`
-	WechatKefu string `json:"wechat_kefu"`
-	CreatedBy  string `json:"created_by"`
+	WechatKefu string `json:"wechat_kefu,omitempty"`
+	CreatedBy  string `json:"created_by,omitempty"`
 }
 
 func getAdmin(uid string) (*Admin, error) {

@@ -31,7 +31,7 @@ func onlineOfflineProducts(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 		return
 	}
-	switch action {
+	switch strings.ToLower(action) {
 	case "offline":
 		if err := onlineOffline("OFFLINE", updatedBy, products); err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
@@ -63,45 +63,50 @@ func onlineOffline(status, updatedBy string, products []onlineOfflineProduct) er
 		case DIAMOND:
 			q := fmt.Sprintf(`UPDATE diamonds SET status='%s' WHERE id='%s' AND status IN (%s)`,
 				status, product.ItemID, cstatus)
-			r, err := dbExec(q)
+			_, err := dbExec(q)
 			if err != nil {
 				return err
 			}
-			c, err := r.RowsAffected()
-			if err != nil {
-				return err
-			}
-			if int(c) == 1 {
-				go newHistoryRecords(updatedBy, "diamonds", product.ItemID, smap)
-			}
+			// NOT Track product status change
+			// c, err := r.RowsAffected()
+			// if err != nil {
+			// 	return err
+			// }
+			// if int(c) == 1 {
+			// 	go newHistoryRecords(updatedBy, "diamonds", product.ItemID, smap)
+			// }
 		case JEWELRY:
 			q := fmt.Sprintf(`UPDATE jewelrys SET status='%s' WHERE id='%s' AND status IN (%s)`,
 				status, product.ItemID, cstatus)
-			r, err := dbExec(q)
+			_, err := dbExec(q)
 			if err != nil {
 				return err
 			}
-			c, err := r.RowsAffected()
-			if err != nil {
-				return err
-			}
-			if int(c) == 1 {
-				go newHistoryRecords(updatedBy, "jewelrys", product.ItemID, smap)
-			}
+			// NOT Track product status change
+			// c, err := r.RowsAffected()
+			// if err != nil {
+			// 	return err
+			// }
+			// if int(c) == 1 {
+			// 	go newHistoryRecords(updatedBy, "jewelrys", product.ItemID, smap)
+			// }
 		case GEM:
 			q := fmt.Sprintf(`UPDATE gems SET status='%s' WHERE id='%s' AND status IN (%s)`,
 				status, product.ItemID, cstatus)
-			r, err := dbExec(q)
+			_, err := dbExec(q)
 			if err != nil {
 				return err
 			}
-			c, err := r.RowsAffected()
-			if err != nil {
-				return err
-			}
-			if int(c) == 1 {
-				go newHistoryRecords(updatedBy, "gems", product.ItemID, smap)
-			}
+			// NOT Track product status change
+			// c, err := r.RowsAffected()
+			// if err != nil {
+			// 	return err
+			// }
+			// if int(c) == 1 {
+			// 	go newHistoryRecords(updatedBy, "gems", product.ItemID, smap)
+			// }
+		default:
+			return errors.Newf("Item category: not right", product.ItemCategory)
 		}
 	}
 	return nil
@@ -137,7 +142,7 @@ func exportProduct(c *gin.Context) {
 }
 
 func exportProductFromDB(uid, category, jewelrySubCategory string) (string, error) {
-	switch category {
+	switch strings.ToUpper(category) {
 	case DIAMOND:
 		servePath, err := exportDiamondProducts(uid)
 		if err != nil {
@@ -153,9 +158,11 @@ func exportProductFromDB(uid, category, jewelrySubCategory string) (string, erro
 		}
 		return servePath, nil
 	case GEM:
-
-	default:
-		return "", nil
+		servePath, err := exportGemProducts(uid)
+		if err != nil {
+			return "", err
+		}
+		return servePath, nil
 	}
 	return "", nil
 }
@@ -229,7 +236,7 @@ func exportDiamondProducts(uid string) (string, error) {
 		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "Y", index), createdAt.Format(timeFormat))
 	}
 
-	dst := filepath.Join(UPLOADFILEDIR, DIAMOND, uid, "export"+time.Now().Format("20060102150405")+".xlsx")
+	dst := filepath.Join(UPLOADFILEDIR, DIAMOND, uid, "export"+time.Now().Format(timeFormat)+".xlsx")
 	if err := os.MkdirAll(filepath.Join(UPLOADFILEDIR, DIAMOND, uid), 0755); err != nil {
 		return "", err
 	}
@@ -335,7 +342,7 @@ func exportJewelryProducts(uid, jewelrySubCategory string) (string, error) {
 		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "AF", index), createdAt.Format(timeFormat))
 	}
 
-	dst := filepath.Join(UPLOADFILEDIR, JEWELRY, uid, "export"+time.Now().Format("20060102150405")+".xlsx")
+	dst := filepath.Join(UPLOADFILEDIR, JEWELRY, uid, "export"+time.Now().Format(timeFormat)+".xlsx")
 	if err := os.MkdirAll(filepath.Join(UPLOADFILEDIR, JEWELRY, uid), 0755); err != nil {
 		return "", err
 	}
@@ -423,7 +430,7 @@ func exportGemProducts(uid string) (string, error) {
 		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "U", index), createdAt.Format(timeFormat))
 	}
 
-	dst := filepath.Join(UPLOADFILEDIR, GEM, uid, "export"+time.Now().Format("20060102150405")+".xlsx")
+	dst := filepath.Join(UPLOADFILEDIR, GEM, uid, "export"+time.Now().Format(timeFormat)+".xlsx")
 	if err := os.MkdirAll(filepath.Join(UPLOADFILEDIR, GEM, uid), 0755); err != nil {
 		return "", err
 	}

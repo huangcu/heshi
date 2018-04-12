@@ -5,10 +5,10 @@ import (
 	"time"
 )
 
-func (s *shoppingCartItem) composeInsertQuery() string {
-	params := s.paramsKV()
+func (c *cartItemBase) composeInsertQuery() string {
+	params := c.paramsKV()
 	q := `INSERT INTO shopping_cart (id`
-	va := fmt.Sprintf(`VALUES ('%s'`, s.ID)
+	va := fmt.Sprintf(`VALUES ('%s'`, c.ID)
 	for k, v := range params {
 		q = fmt.Sprintf("%s, %s", q, k)
 		switch v.(type) {
@@ -27,8 +27,8 @@ func (s *shoppingCartItem) composeInsertQuery() string {
 	return fmt.Sprintf("%s) %s)", q, va)
 }
 
-func (s *shoppingCartItem) composeUpdateQuery() string {
-	params := s.paramsKV()
+func (c *cartItemBase) composeUpdateQuery() string {
+	params := c.paramsKV()
 	q := `UPDATE shopping_cart SET`
 	for k, v := range params {
 		switch v.(type) {
@@ -45,30 +45,30 @@ func (s *shoppingCartItem) composeUpdateQuery() string {
 		}
 	}
 
-	return fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, s.ID)
+	return fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, c.ID)
 }
 
-func (s *shoppingCartItem) paramsKV() map[string]interface{} {
+func (c *cartItemBase) paramsKV() map[string]interface{} {
 	params := make(map[string]interface{})
-	if s.UserID != "" {
-		params["user_id"] = s.UserID
+	if c.UserID != "" {
+		params["user_id"] = c.UserID
 	}
 
-	if s.ItemType != "" {
-		params["item_type"] = s.ItemType
+	if c.ItemCategory != "" {
+		params["item_category"] = c.ItemCategory
 	}
-	if s.ItemID != "" {
-		params["item_id"] = s.ItemID
+	if c.ItemID != "" {
+		params["item_id"] = c.ItemID
 	}
 
-	if s.ItemPrice != 0 {
-		params["item_price"] = s.ItemPrice
+	// if c.ItemPrice != 0 {
+	// 	params["item_price"] = c.ItemPrice
+	// }
+	if c.ItemQuantity != 0 {
+		params["item_quantity"] = c.ItemQuantity
 	}
-	if s.ItemQuantity != 0 {
-		params["item_quantity"] = s.ItemQuantity
-	}
-	if s.ExtraInfo != "" {
-		params["extra_info"] = s.ExtraInfo
+	if c.ExtraInfo != "" {
+		params["extra_info"] = c.ExtraInfo
 	}
 	return params
 }

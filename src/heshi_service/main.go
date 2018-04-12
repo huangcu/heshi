@@ -286,6 +286,8 @@ func configRoute(r *gin.Engine) {
 			apiCustomer.POST("/shoppingList/:action", toShoppingList)
 
 			// shopping cart
+			// json, multiple items, remove, add, update base on json pass (items)
+			apiCustomer.POST("/cart/update", addToShoppingCart)
 			// only support add one to cart at a time
 			apiCustomer.POST("/cart/add", addToShoppingCart)
 			// only support remove one at a time

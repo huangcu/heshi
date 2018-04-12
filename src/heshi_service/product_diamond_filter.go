@@ -275,7 +275,7 @@ func composeFilterDiamondsQuery(c *gin.Context) (string, error) {
 }
 
 func sortDiamondsByQuery(sortBy, direction string) string {
-	switch sortBy {
+	switch strings.ToLower(sortBy) {
 	case "weight":
 		return fmt.Sprintf("ORDER BY carat %s, supplier ASC, price_retail ASC", direction)
 

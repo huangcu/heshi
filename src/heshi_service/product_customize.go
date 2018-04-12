@@ -13,7 +13,7 @@ import (
 
 func customizeProduct(c *gin.Context) {
 	action := c.Param("action")
-	switch action {
+	switch strings.ToLower(action) {
 	case "diasize":
 		customizeDiamondSize(c)
 	case "jewelrycategory":

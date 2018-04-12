@@ -194,13 +194,13 @@ func updateDiamond(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
-	q := d.composeUpdateQuery()
+	q := d.composeUpdateQueryTrack(uid)
 	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	c.JSON(http.StatusOK, d.ID)
-	go newHistoryRecords(uid, "diamonds", d.ID, d.parmsKV())
+	// go newHistoryRecords(uid, "diamonds", d.ID, d.parmsKV())
 }
 
 func composeDiamond(rows *sql.Rows) ([]diamond, error) {

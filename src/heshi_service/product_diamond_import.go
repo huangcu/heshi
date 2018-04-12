@@ -227,6 +227,7 @@ func (d *diamond) processDiamondRecord() error {
 		return err
 	}
 	//item alread exist in db
+	// TODO track newHistoryRecords
 	if status != "SOLD" && status != "RESERVED" && (d.PriceRetail-priceRetail) > 5 {
 		q := d.composeUpdateQuery()
 		if _, err := dbExec(q); err != nil {
@@ -234,7 +235,7 @@ func (d *diamond) processDiamondRecord() error {
 				d.StockRef, d.CertificateNumber, d.GradingLab, priceRetail, d.PriceRetail)
 			return err
 		}
-		go newHistoryRecords("uid", "diamonds", d.ID, d.parmsKV())
+		// go newHistoryRecords("uid", "diamonds", d.ID, d.parmsKV())
 		util.Tracef(`retail price changed for diamond: %s; certificate_number: %s; grading_lab: %s; original price: %f; new price %f.\n`,
 			d.StockRef, d.CertificateNumber, d.GradingLab, priceRetail, d.PriceRetail)
 	}
