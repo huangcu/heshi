@@ -124,9 +124,9 @@ func agentContactInfo(c *gin.Context) {
 func getUserContactInfoInvitationCode(userID string) (*ContactInfo, error) {
 	var cellphone, email, realName sql.NullString
 	var wechatID, wechatName, wechatQR, address, additionalInfo sql.NullString
-	q := `SELECT cellphone, email, realname, wechat_id, wechat_name, wechat_qr, address, additional_info 
-	FROM users WHERE id=?`
-	if err := dbQueryRow(q, userID).Scan(&cellphone, &email, &realName, &wechatID, &wechatName, &wechatQR, &address, &additionalInfo); err != nil {
+	q := fmt.Sprintf(`SELECT cellphone, email, realname, wechat_id, wechat_name, wechat_qr, address, additional_info 
+	FROM users WHERE id='%s'`, userID)
+	if err := dbQueryRow(q).Scan(&cellphone, &email, &realName, &wechatID, &wechatName, &wechatQR, &address, &additionalInfo); err != nil {
 		return nil, err
 	}
 	return &ContactInfo{

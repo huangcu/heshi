@@ -293,7 +293,7 @@ func configRoute(r *gin.Engine) {
 			apiCustomer.GET("/cart/remove/:id", removeFromShoppingCart)
 			apiCustomer.GET("/cart", getShoppingCartList)
 
-			apiCustomer.POST("/logout", userLogout)
+			apiCustomer.GET("/logout", userLogout)
 			apiCustomer.POST("/password/change", changePassword)
 		}
 

@@ -123,8 +123,8 @@ func updateSupplier(c *gin.Context) {
 //TODO check return row number?
 func disableSupplier(c *gin.Context) {
 	id := c.Param("id")
-	q := "UPDATE suppliers SET status='disabled' WHERE id=?"
-	if _, err := dbExec(q, id); err != nil {
+	q := fmt.Sprintf("UPDATE suppliers SET status='disabled' WHERE id='%s'", id)
+	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}

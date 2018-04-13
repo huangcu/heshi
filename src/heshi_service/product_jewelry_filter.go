@@ -12,26 +12,6 @@ import (
 
 // ref - search by name and ID
 func searchJewelrys(c *gin.Context) ([]jewelry, error) {
-	// 	if(isset($_GET['ref'])){
-	// 	$searchkey_raw=strtoupper($_GET['ref']);
-	// 	$toreplace=array('JR','JE','JP','ZR','ZE','ZP','CR','CE','CP');
-	// 	$searchkey_p1=str_replace($toreplace, '', $searchkey_raw);
-	// 	$searchkey=trim(str_replace('-', '', $searchkey_p1));
-	//   $sql_num='SELECT COUNT(*) AS num FROM jewelry WHERE need_diamond = "'.$need_diamond.'" AND id = ? AND online = "YES"';
-	// 	$stmt_num=$conn->prepare($sql_num);
-	// 	$stmt_num->execute(array($searchkey));
-	// }else{
-	// 	$sql_num='SELECT COUNT(DISTINCT name) AS num FROM jewelry WHERE need_diamond = "'.$need_diamond.'" '.$query_category.$query_size.$query_material.$query_price.$query_mountingtype.$query_sds.$query_diashape.'';
-	// 	$stmt_num=$conn->query($sql_num);
-	// }
-	// if(isset($_GET['ref'])){
-	//   $sql='SELECT * FROM jewelry WHERE need_diamond = "'.$need_diamond.'" AND id = ? AND online = "YES"';
-	// 	$stmt=$conn->prepare($sql);
-	// 	$stmt->execute(array($searchkey));
-	// }else{
-	// 	$sql='SELECT * FROM jewelry WHERE need_diamond = "'.$need_diamond.'" '.$query_category.$query_size.$query_material.$query_price.$query_mountingtype.$query_sds.$query_diashape.' GROUP BY name ORDER BY online DESC, stock_quantity DESC, created_at DESC LIMIT '.$startFrom.',32';
-	// 	$stmt=$conn->query($sql);
-	// }
 	q := fmt.Sprintf(`SELECT jewelrys.id, stock_id, category, unit_number, dia_shape, material, metal_weight, 
 		need_diamond, name, dia_size_min, dia_size_max, small_dias, small_dia_num, small_dia_carat, 
 	 mounting_type, main_dia_num, main_dia_size, video_link, images, text, jewelrys.status, verified, 

@@ -31,13 +31,13 @@ func main() {
 	v4, _ := uuid.NewV4()
 	id := v4.String()
 	password := util.Encrypt("admin")
-	q := `INSERT INTO users (id, username, password, email, user_type, invitation_code) 
-	VALUES (?, 'admin',?,'admin@admin.com', 'admin', 'ignore')`
-	if _, err := db.Exec(q, id, password); err != nil {
+	q := fmt.Sprintf(`INSERT INTO users (id, username, password, email, user_type, invitation_code) 
+	VALUES ('%s', 'admin','%s','admin@admin.com', 'admin', 'ignore')`, id, password)
+	if _, err := db.Exec(q); err != nil {
 		log.Fatalf("fail to create supre admin. err: %s", errors.GetMessage(err))
 	}
-	q = `INSERT INTO admins (user_id, level) VALUES (?,10)`
-	if _, err := db.Exec(q, id); err != nil {
+	q = fmt.Sprintf(`INSERT INTO admins (user_id, level) VALUES ('%s',10)`, id)
+	if _, err := db.Exec(q); err != nil {
 		log.Fatalf("fail to create supre admin. err: %s", errors.GetMessage(err))
 	}
 }

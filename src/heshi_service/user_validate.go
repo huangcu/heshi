@@ -85,7 +85,7 @@ func (u *User) validUserName() []errors.HSMessage {
 	return vmsg
 }
 
-// TODO refine phone number valdiation
+//refine phone number valdiation
 func (u *User) validPhone() errors.HSMessage {
 	// str1 := "1(234)5678901x1234"
 	// str2 := "(+351) 282 43 50 50"

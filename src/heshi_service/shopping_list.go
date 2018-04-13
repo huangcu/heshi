@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -107,17 +108,15 @@ func (s *shoppingItem) addItemToInterestedItems() error {
 }
 
 func (s *shoppingItem) removeItemFromInterestedItemsByID() error {
-	q := `DELETE FROM interested_items WHERE id=?`
-	if _, err := dbExec(q, s.ID); err != nil {
+	if _, err := dbExec(fmt.Sprintf(`DELETE FROM interested_items WHERE id='%s'`, s.ID)); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (s *shoppingItem) removeItemFromInterestedItemsByItemProperties() error {
-	q := `DELETE FROM interested_items WHERE user_id=? AND item_id=? AND item_category=?`
-	if _, err := dbExec(q, s.UserID, s.ItemID, s.ItemCategory); err != nil {
-		return err
-	}
-	return nil
+	q := fmt.Sprintf(`DELETE FROM interested_items WHERE user_id='%s' AND item_id='%s' AND item_category='%s'`,
+		s.UserID, s.ItemID, s.ItemCategory)
+	_, err := dbExec(q)
+	return err
 }

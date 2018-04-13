@@ -102,7 +102,7 @@ func (u *User) paramsKV() map[string]interface{} {
 
 func isUserExistByID(id string) (bool, error) {
 	var count int
-	if err := dbQueryRow("SELECT COUNT(*) FROM users WHERE id=?", id).Scan(&count); err != nil {
+	if err := dbQueryRow(fmt.Sprintf("SELECT COUNT(*) FROM users WHERE id='%s'", id)).Scan(&count); err != nil {
 		return false, err
 	}
 	return count == 1, nil
@@ -110,7 +110,7 @@ func isUserExistByID(id string) (bool, error) {
 
 func isUserExistByWechatOpenID(wecahtOpenID string) (bool, error) {
 	var count int
-	if err := dbQueryRow("SELECT COUNT(*) FROM users WHERE wechat_id=?", wecahtOpenID).Scan(&count); err != nil {
+	if err := dbQueryRow(fmt.Sprintf("SELECT COUNT(*) FROM users WHERE wechat_id='%s'", wecahtOpenID)).Scan(&count); err != nil {
 		return false, err
 	}
 	return count == 1, nil

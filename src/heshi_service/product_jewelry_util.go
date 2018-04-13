@@ -488,7 +488,8 @@ func (j *jewelry) validateJewelryUpdateReq() ([]errors.HSMessage, error) {
 
 func (j *jewelry) isJewelryExistByStockID() error {
 	var id string
-	if err := dbQueryRow("SELECT id FROM jewelrys WHERE stock_id='?' AND status IN ('AVAILABLE', 'OFFLINE')", j.StockID).Scan(&id); err != nil {
+	q := fmt.Sprintf("SELECT id FROM jewelrys WHERE stock_id='%s' AND status IN ('AVAILABLE', 'OFFLINE')", j.StockID)
+	if err := dbQueryRow(q).Scan(&id); err != nil {
 		return err
 	}
 	j.ID = id
@@ -497,7 +498,8 @@ func (j *jewelry) isJewelryExistByStockID() error {
 
 func isJewelryExistByID(id string) (bool, error) {
 	var count int
-	if err := dbQueryRow("SELECT COUNT(*) FROM jewelrys WHERE id='?' AND status IN ('AVAILABLE', 'OFFLINE')", id).Scan(&count); err != nil {
+	q := fmt.Sprintf("SELECT COUNT(*) FROM jewelrys WHERE id='%s' AND status IN ('AVAILABLE', 'OFFLINE')", id)
+	if err := dbQueryRow(q).Scan(&count); err != nil {
 		return false, err
 	}
 	return count == 1, nil

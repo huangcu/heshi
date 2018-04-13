@@ -698,7 +698,8 @@ func diamondStockRef(stockRef, supplierPrefix string) string {
 
 func (d *diamond) isDiamondExistByDiamondID() error {
 	var id string
-	if err := dbQueryRow("SELECT id FROM diamonds WHERE diamond_id=? AND status IN ('AVAILABLE', 'OFFLINE')", d.DiamondID).Scan(&id); err != nil {
+	q := fmt.Sprintf("SELECT id FROM diamonds WHERE diamond_id='%s' AND status IN ('AVAILABLE', 'OFFLINE')", d.DiamondID)
+	if err := dbQueryRow(q).Scan(&id); err != nil {
 		return err
 	}
 	d.ID = id
@@ -707,7 +708,8 @@ func (d *diamond) isDiamondExistByDiamondID() error {
 
 func isDiamondExistByID(id string) (bool, error) {
 	var count int
-	if err := dbQueryRow("SELECT COUNT(*) FROM diamonds WHERE id=? AND status IN ('AVAILABLE', 'OFFLINE') ", id).Scan(&count); err != nil {
+	q := fmt.Sprintf("SELECT COUNT(*) FROM diamonds WHERE id='%s' AND status IN ('AVAILABLE', 'OFFLINE') ", id)
+	if err := dbQueryRow(q).Scan(&count); err != nil {
 		return false, err
 	}
 	return count == 1, nil

@@ -209,7 +209,8 @@ func (p *PriceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
 
 func isSupplierPriceRuleExistByID(id string) (bool, error) {
 	var count int
-	if err := dbQueryRow("SELECT COUNT(*) FROM price_settings_universal WHERE id=?", id).Scan(&count); err != nil {
+	q := fmt.Sprintf("SELECT COUNT(*) FROM price_settings_universal WHERE id='%s'", id)
+	if err := dbQueryRow(q).Scan(&count); err != nil {
 		return false, err
 	}
 	return count == 1, nil

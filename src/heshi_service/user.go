@@ -34,10 +34,10 @@ type User struct {
 	TotalPurchaseAmount float64 `json:"total_purchase_amount"`
 	Icon                string  `json:"icon"`
 	Status              string  `json:"status"`
-	Admin
-	Agent
-	// Admin               Admin   `json:"admin"`
-	// Agent               Agent   `json:"agent"`
+	Admin               Admin   `json:"admin"`
+	Agent               Agent   `json:"agent"`
+	// Admin
+	// Agent
 	// CreatedAt      time.Time `json:"created_at"`
 	// UpdatedAt      time.Time `json:"updated_at"`
 }
@@ -368,8 +368,8 @@ func getAllUsers(c *gin.Context) {
 //TODO check return row number
 func disableUser(c *gin.Context) {
 	uid := c.Param("id")
-	q := "UPDATE users SET status='disabled' WHERE id=?"
-	if _, err := dbExec(q, uid); err != nil {
+	q := fmt.Sprintf("UPDATE users SET status='disabled' WHERE id='%s'", uid)
+	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}

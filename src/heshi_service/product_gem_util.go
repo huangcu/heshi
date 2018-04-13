@@ -313,7 +313,7 @@ func (g *gem) validateGemUpdateReq() ([]errors.HSMessage, error) {
 
 func (g *gem) isGemExistByStockID() error {
 	var id string
-	if err := dbQueryRow("SELECT id FROM gems WHERE diamond_id='?'", g.StockID).Scan(&id); err != nil {
+	if err := dbQueryRow(fmt.Sprintf("SELECT id FROM gems WHERE diamond_id='%s'", g.StockID)).Scan(&id); err != nil {
 		return err
 	}
 	g.ID = id
@@ -322,7 +322,7 @@ func (g *gem) isGemExistByStockID() error {
 
 func isGemExistByID(id string) (bool, error) {
 	var count int
-	if err := dbQueryRow("SELECT COUNT(*) FROM gems WHERE id='?'", id).Scan(&count); err != nil {
+	if err := dbQueryRow(fmt.Sprintf("SELECT COUNT(*) FROM gems WHERE id='%s'", id)).Scan(&count); err != nil {
 		return false, err
 	}
 	return count == 1, nil

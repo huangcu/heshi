@@ -19,9 +19,9 @@ func (wu *WechatUserInfo) newWechatUser() error {
 }
 
 func isWechatUserExist(openid string) (bool, error) {
-	q := `SELECT COUNT(*) FROM wechat_users WHERE openid=?`
+	q := fmt.Sprintf(`SELECT COUNT(*) FROM wechat_users WHERE openid='%s'`, openid)
 	var count int
-	if err := dbQueryRow(q, openid).Scan(&count); err != nil {
+	if err := dbQueryRow(q).Scan(&count); err != nil {
 		return false, err
 	}
 	return count == 1, nil
