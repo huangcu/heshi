@@ -87,9 +87,26 @@ func (u *User) validUserName() []errors.HSMessage {
 
 // TODO refine phone number valdiation
 func (u *User) validPhone() errors.HSMessage {
+	// str1 := "1(234)5678901x1234"
+	// str2 := "(+351) 282 43 50 50"
+	// str3 := "90191919908"
+	// str4 := "555-8909"
+	// str5 := "001 6867684"
+	// str6 := "001 6867684x1"
+	// str7 := "1 (234) 567-8901"
+	// str8 := "1-234-567-8901 ext1234"
+	regex := regexp.MustCompile(`^(?:(?:\(?(?:00|\+)([1-4]\d\d|[1-9]\d?)\)?)?[\-\.\ \\\/]?)?((?:\(?\d{1,}\)?[\-\.\ \\\/]?){0,})(?:[\-\.\ \\\/]?(?:#|ext\.?|extension|x)[\-\.\ \\\/]?(\d+))?$`)
+	// fmt.Printf("Pattern: %v\n", regex.String()) // print pattern
+	// fmt.Printf("\nPhone: %v\t:%v\n", str1, regex.MatchString(str1))
+	// fmt.Printf("Phone: %v\t:%v\n", str2, regex.MatchString(str2))
+	// fmt.Printf("Phone: %v\t\t:%v\n", str3, regex.MatchString(str3))
+	// fmt.Printf("Phone: %v\t\t\t:%v\n", str4, regex.MatchString(str4))
+	// fmt.Printf("Phone: %v\t\t:%v\n", str5, regex.MatchString(str5))
+	// fmt.Printf("Phone: %v\t\t:%v\n", str6, regex.MatchString(str6))
+	// fmt.Printf("Phone: %v\t\t:%v\n", str7, regex.MatchString(str7))
+	// fmt.Printf("Phone: %v\t:%v\n", str8, regex.MatchString(str8))
 	// regex := regexp.MustCompile("^(\\+\\d{1,3}[- ]?)?\\d{14}$")
 	// regex := regexp.MustCompile("^\\+{0,1}0{0,1}62[0-9]+$")
-	regex := regexp.MustCompile("^[0-9]*$")
 	if !regex.MatchString(u.Cellphone) {
 		return vemsgUserCellphoneNotValid
 	}
