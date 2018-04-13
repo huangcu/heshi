@@ -240,7 +240,7 @@ func configRoute(r *gin.Engine) {
 			apiAdmin.GET("/transactions/detail/:id", getTransactionDetail)
 			apiAdmin.GET("/transactions/all/:id", getAllTransactionsOfAUser)
 			apiAdmin.GET("/transactions/all", getAllTransactions)
-			apiAdmin.GET("/transactions/cancel/:id", cancelTransaction)
+			apiAdmin.GET("/transactions/cancel", cancelTransaction)
 
 			//view historys
 			apiAdmin.POST("/track/history", getHistory)
@@ -277,10 +277,9 @@ func configRoute(r *gin.Engine) {
 			apiCustomer.POST("/orders", createOrder)
 			apiCustomer.GET("/orders/:id", getOrderDetail)
 			// TODO only can view transaction of 1 year
-			apiCustomer.GET("/transactions/:id", getTransactionDetail)
-			apiCustomer.GET("/transactions", getAllTransactionsOfAUser)
-			// due to path confict(with transactions detail), has to :id/cancel instead of cancel/:id
-			apiCustomer.GET("/transactions/:id/cancel", cancelTransaction)
+			apiCustomer.GET("/transactions/detail/:id", getTransactionDetail)
+			apiCustomer.GET("/transactions/all", getAllTransactionsOfAUser)
+			apiCustomer.GET("/transactions/cancel", cancelTransaction)
 
 			//action- > add, delete
 			apiCustomer.POST("/shoppingList/:action", toShoppingList)
@@ -291,7 +290,7 @@ func configRoute(r *gin.Engine) {
 			// only support add one to cart at a time
 			apiCustomer.POST("/cart/add", addToShoppingCart)
 			// only support remove one at a time
-			apiCustomer.POST("/cart/remove/:id", removeFromShoppingCart)
+			apiCustomer.GET("/cart/remove/:id", removeFromShoppingCart)
 			apiCustomer.GET("/cart", getShoppingCartList)
 
 			apiCustomer.POST("/logout", userLogout)

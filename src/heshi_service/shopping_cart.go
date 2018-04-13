@@ -178,7 +178,7 @@ func removeFromShoppingCart(c *gin.Context) {
 		UserID: c.MustGet("id").(string),
 		ID:     c.Param("id"),
 	}
-	iq := c.PostForm("item_quantity")
+	iq := c.DefaultQuery("quantity", "1")
 	if iq != "" {
 		decreasedQuantity, err := strconv.Atoi(iq)
 		if err != nil {
@@ -214,8 +214,8 @@ func removeFromShoppingCart(c *gin.Context) {
 				}
 			}
 		} else {
-			fmt.Println(cib)
-			fmt.Println(dcib)
+			c.JSON(http.StatusBadRequest, fmt.Sprintf("Item: %s not in cart", dcib.ID))
+			return
 		}
 	}
 

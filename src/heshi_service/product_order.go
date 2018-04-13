@@ -451,7 +451,7 @@ func createOrder(c *gin.Context) {
 // WHO is allowed to cancel order? agent???
 // WHAT ORDERS ARE ALLOWED TO CANCEL --
 func cancelTransaction(c *gin.Context) {
-	tid := c.Param("id")
+	tid := c.Query("id")
 	if exist, err := isTransactionExistByID(tid); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
