@@ -69,9 +69,9 @@ func deleteHistoryRecords(userID, tableName, itemID string, fieldNameValue map[s
 }
 
 func getHistory(c *gin.Context) {
-	fieldName := strings.ToUpper(c.PostForm("field_name"))
-	tableName := strings.ToUpper(c.PostForm("table_name"))
-	itemID := c.PostForm("item_id")
+	fieldName := strings.ToUpper(c.Query("field_name"))
+	tableName := strings.ToUpper(c.Query("table_name"))
+	itemID := c.Query("item_id")
 	if itemID != "" {
 		hs, err := getHistoryOfItem(itemID)
 		if err != nil {

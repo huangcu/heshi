@@ -243,7 +243,7 @@ func configRoute(r *gin.Engine) {
 			apiAdmin.GET("/transactions/cancel", cancelTransaction)
 
 			//view historys
-			apiAdmin.POST("/track/history", getHistory)
+			apiAdmin.GET("/track/history", getHistory)
 
 			//wechat kf manage
 			apiAdmin.POST("/wechat/kf", addKfAccount)
