@@ -81,7 +81,7 @@ func addToShoppingCart(c *gin.Context) {
 			return
 		}
 	case JEWELRY:
-		if err := cib.addJewelryItemToShoppingCart(existingItem); err != nil {
+		if err := cib.addJewelryItemToShoppingCart(existingItem, false); err != nil {
 			if err == sql.ErrNoRows {
 				c.JSON(http.StatusOK, "Not enought stock")
 				return
@@ -90,7 +90,7 @@ func addToShoppingCart(c *gin.Context) {
 			return
 		}
 	case GEM:
-		if err := cib.addJewelryItemToShoppingCart(existingItem); err != nil {
+		if err := cib.addJewelryItemToShoppingCart(existingItem, false); err != nil {
 			if err == sql.ErrNoRows {
 				c.JSON(http.StatusOK, "Not enought stock")
 				return
@@ -120,6 +120,7 @@ func updateShoppingCart(c *gin.Context) {
 		return
 	}
 	for _, cib := range cibs {
+		cib.UserID = uid
 		i, existingItem := cib.getItemInShoppingCartWithIndex(items)
 		if existingItem != nil {
 			// remove from existing array in, later will delete all left items as it is no long in users shopping cart
@@ -138,7 +139,7 @@ func updateShoppingCart(c *gin.Context) {
 				}
 			}
 		case JEWELRY:
-			if err := cib.addJewelryItemToShoppingCart(existingItem); err != nil {
+			if err := cib.addJewelryItemToShoppingCart(existingItem, true); err != nil {
 				if err != sql.ErrNoRows {
 					// for update, if not enought stock - do nothing, keep cart unchanaged
 					c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
@@ -146,7 +147,7 @@ func updateShoppingCart(c *gin.Context) {
 				}
 			}
 		case GEM:
-			if err := cib.addJewelryItemToShoppingCart(existingItem); err != nil {
+			if err := cib.addJewelryItemToShoppingCart(existingItem, true); err != nil {
 				if err != sql.ErrNoRows {
 					c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 					return
@@ -300,8 +301,8 @@ func (c *cartItemBase) isItemInShoppingCart(itemList []cartItemBase) *cartItemBa
 	return nil
 }
 
-func (c *cartItemBase) addJewelryItemToShoppingCart(existingItem *cartItemBase) error {
-	if existingItem != nil {
+func (c *cartItemBase) addJewelryItemToShoppingCart(existingItem *cartItemBase, update bool) error {
+	if !update && existingItem != nil {
 		c.ItemQuantity = c.ItemQuantity + existingItem.ItemQuantity
 	}
 	q := fmt.Sprintf(`SELECT stock_quantity 
@@ -324,8 +325,8 @@ func (c *cartItemBase) addJewelryItemToShoppingCart(existingItem *cartItemBase) 
 	return nil
 }
 
-func (c *cartItemBase) addExistsGemItemToShoppingCart(existingItem *cartItemBase) error {
-	if existingItem != nil {
+func (c *cartItemBase) addExistsGemItemToShoppingCart(existingItem *cartItemBase, update bool) error {
+	if !update && existingItem != nil {
 		c.ItemQuantity = c.ItemQuantity + existingItem.ItemQuantity
 	}
 	q := fmt.Sprintf(`SELECT stock_quantity 

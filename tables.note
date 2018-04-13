@@ -99,16 +99,21 @@ orders:
     }
 ]
 
-shopping_cart: 
+shopping_cart: /update
 
 [
     {
         "item_id":"a4acb846-2668-44ce-ada4-cc9680227776",
-        "item_category":"diamond",
+        "item_category":"diamond"
     },
     {
-        "item_quantity":4,
-        "item_id":"5f456042-04ff-43ac-a7fa-534caaccfae9",
-        "item_category":"jewelrys",
+        "item_quantity":3,
+        "item_id":"90845ff1-62e6-4efa-b37f-965c7831e5da",
+        "item_category":"jewelry"
+    },
+        {
+        "item_id":"0317be5c-8d4b-4f06-bf5c-7caff4648d8a",
+        "item_category":"jewelry",
+        "item_quantity":1
     }
 ]
