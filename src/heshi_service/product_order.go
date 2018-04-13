@@ -13,10 +13,9 @@ import (
 )
 
 type item struct {
-	ItemID       string  `json:"item_id"`
-	ItemCategory string  `json:"item_category"`
-	ItemQuantity int     `json:"item_quantity, omitempty"`
-	ItemPrice    float64 `json:"item_price"`
+	ItemID       string `json:"item_id"`
+	ItemCategory string `json:"item_category"`
+	ItemQuantity int    `json:"item_quantity, omitempty"`
 }
 
 type transaction struct {
@@ -29,7 +28,6 @@ type orderItem struct {
 	ItemID        string  `json:"item_id"`
 	ItemCategory  string  `json:"item_category"`
 	ItemQuantity  int     `json:"item_quantity"`
-	ItemPrice     float64 `json:"item_price"`
 	SoldPriceUSD  float64 `json:"sold_price_usd"`
 	SoldPriceCNY  float64 `json:"sold_price_cny"`
 	SoldPriceEUR  float64 `json:"sold_price_eur"`
@@ -51,7 +49,7 @@ type orderResult struct {
 
 func getOrderDetail(c *gin.Context) {
 	oid := c.Param("id")
-	q := fmt.Sprintf(`SELECT id, item_id, item_price, item_category, item_quantity, downpayment, 
+	q := fmt.Sprintf(`SELECT id, item_id, item_category, item_quantity, downpayment, 
 		buyer_id, transaction_id,	sold_price_usd, sold_price_cny, sold_price_eur,
 		return_point, chosen_by, status, extra_info, special_notice 
 		FROM orders 
@@ -78,13 +76,13 @@ func getOrderDetail(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, ois[0])
+	c.JSON(http.StatusOK, ois)
 }
 
 func getOrderDetailOfUserRecommendedByAgent(c *gin.Context) {
 	oid := c.Param("id")
 	agentID := c.MustGet("id").(string)
-	q := fmt.Sprintf(`SELECT id, item_id, item_price, item_category, item_quantity, downpayment, 
+	q := fmt.Sprintf(`SELECT id, item_id, item_category, item_quantity, downpayment, 
 		buyer_id, transaction_id,	sold_price_usd, sold_price_cny, sold_price_eur,
 		return_point, chosen_by, status, extra_info, special_notice 
 	  FROM orders 
@@ -109,7 +107,7 @@ func getOrderDetailOfUserRecommendedByAgent(c *gin.Context) {
 
 func getTransactionDetail(c *gin.Context) {
 	tid := c.Param("id")
-	q := fmt.Sprintf(`SELECT id, item_id, item_price, item_category, item_quantity, downpayment, 
+	q := fmt.Sprintf(`SELECT id, item_id, item_category, item_quantity, downpayment, 
 		buyer_id, transaction_id,	sold_price_usd, sold_price_cny, sold_price_eur,
 		return_point, chosen_by, status, extra_info, special_notice 
 		FROM orders 
@@ -135,7 +133,7 @@ func getTransactionDetail(c *gin.Context) {
 func getTransactionDetailOfUserRecommendedByAgent(c *gin.Context) {
 	tid := c.Param("id")
 	agentID := c.MustGet("id").(string)
-	q := fmt.Sprintf(`SELECT id, item_id, item_price, item_category, item_quantity, downpayment, 
+	q := fmt.Sprintf(`SELECT id, item_id, item_category, item_quantity, downpayment, 
 		buyer_id, transaction_id,	sold_price_usd, sold_price_cny, sold_price_eur,
 		return_point, chosen_by, status, extra_info, special_notice 
 		FROM orders 
@@ -165,7 +163,7 @@ func getAllTransactionsOfAUser(c *gin.Context) {
 	if buyerID == "" {
 		buyerID = c.MustGet("id").(string)
 	}
-	q := fmt.Sprintf(`SELECT id, item_id, item_price, item_category, item_quantity, downpayment,
+	q := fmt.Sprintf(`SELECT id, item_id, item_category, item_quantity, downpayment,
 			buyer_id, transaction_id, sold_price_usd, sold_price_cny, sold_price_eur,return_point, 
 			chosen_by, status, extra_info, special_notice 
 			FROM orders 
@@ -188,7 +186,7 @@ func getAllTransactionsOfAUser(c *gin.Context) {
 func getAllTransactionsOfAUserRecommendedByAgent(c *gin.Context) {
 	userID := c.Param("id")
 	agentID := c.MustGet("id").(string)
-	q := fmt.Sprintf(`SELECT id, item_id, item_price, item_category, item_quantity, downpayment,
+	q := fmt.Sprintf(`SELECT id, item_id, item_category, item_quantity, downpayment,
 			buyer_id, transaction_id, sold_price_usd, sold_price_cny, sold_price_eur,return_point, 
 			chosen_by, status, extra_info, special_notice 
 			FROM orders 
@@ -211,7 +209,7 @@ func getAllTransactionsOfAUserRecommendedByAgent(c *gin.Context) {
 
 func getAllTransactionsOfUserRecommendedByAgent(c *gin.Context) {
 	agentID := c.MustGet("id").(string)
-	q := fmt.Sprintf(`SELECT id, item_id, item_price, item_category, item_quantity, downpayment,
+	q := fmt.Sprintf(`SELECT id, item_id, item_category, item_quantity, downpayment,
 			buyer_id, transaction_id, sold_price_usd, sold_price_cny, sold_price_eur,return_point, 
 			chosen_by, status, extra_info, special_notice 
 			FROM orders 
@@ -233,7 +231,7 @@ func getAllTransactionsOfUserRecommendedByAgent(c *gin.Context) {
 
 //ADMIN only
 func getAllTransactions(c *gin.Context) {
-	q := `SELECT id, item_id, item_price, item_category, item_quantity, downpayment,
+	q := `SELECT id, item_id, item_category, item_quantity, downpayment,
 			buyer_id, transaction_id, sold_price_usd, sold_price_cny, sold_price_eur, return_point, 
 			chosen_by, status, extra_info, special_notice 
 			FROM orders`
@@ -580,7 +578,7 @@ func (oi *orderItem) checkDiamondItem() error {
 		oi.Status = "NOT AVAILABLE"
 		return nil
 	}
-	oi.ItemPrice = priceRetail
+	// oi.ItemPrice = priceRetail
 	oi.Status = AVAILABLE
 	return nil
 }
@@ -602,7 +600,7 @@ func (oi *orderItem) checkJewelryItem() error {
 	} else {
 		oi.Status = "STOCK_NOT_ENOUGH"
 	}
-	oi.ItemPrice = price
+	// oi.ItemPrice = price
 	return nil
 }
 
@@ -624,7 +622,7 @@ func (oi *orderItem) checkGemItem() error {
 	} else {
 		oi.Status = "STOCK_NOT_ENOUGH"
 	}
-	oi.ItemPrice = price
+	// oi.ItemPrice = price
 	return nil
 }
 
@@ -896,11 +894,10 @@ func composeOrders(rows *sql.Rows) ([]*orderItem, error) {
 	for rows.Next() {
 		var id, itemID, itemCategory, status, transactionID, buyerID string
 		var chosenBy, extraInfo, specialNotice sql.NullString
-		var itemPrice float64
 		var itemQuantity int
 		var downpayment, soldPriceUSD, soldPriceCNY, soldPriceEUR, returnPoint sql.NullFloat64
 
-		if err := rows.Scan(&id, &itemID, &itemPrice, &itemCategory, &itemQuantity,
+		if err := rows.Scan(&id, &itemID, &itemCategory, &itemQuantity,
 			&downpayment, &buyerID, &transactionID, &soldPriceUSD, &soldPriceCNY, &soldPriceEUR,
 			&returnPoint, &chosenBy, &status, &extraInfo, &specialNotice); err != nil {
 			return nil, err
@@ -910,7 +907,6 @@ func composeOrders(rows *sql.Rows) ([]*orderItem, error) {
 			ItemID:        itemID,
 			ItemCategory:  itemCategory,
 			ItemQuantity:  itemQuantity,
-			ItemPrice:     itemPrice,
 			SoldPriceUSD:  soldPriceUSD.Float64,
 			SoldPriceCNY:  soldPriceCNY.Float64,
 			SoldPriceEUR:  soldPriceEUR.Float64,
@@ -933,11 +929,10 @@ func composeTransactions(rows *sql.Rows) ([]transaction, error) {
 	for rows.Next() {
 		var id, itemID, itemCategory, status, transactionID, buyerID string
 		var chosenBy, extraInfo, specialNotice sql.NullString
-		var itemPrice float64
 		var itemQuantity int
 		var downpayment, soldPriceUSD, soldPriceCNY, soldPriceEUR, returnPoint sql.NullFloat64
 
-		if err := rows.Scan(&id, &itemID, &itemPrice, &itemCategory, &itemQuantity,
+		if err := rows.Scan(&id, &itemID, &itemCategory, &itemQuantity,
 			&downpayment, &buyerID, &transactionID, &soldPriceUSD, &soldPriceCNY, &soldPriceEUR,
 			&returnPoint, &chosenBy, &status, &extraInfo, &specialNotice); err != nil {
 			return nil, err
@@ -947,7 +942,6 @@ func composeTransactions(rows *sql.Rows) ([]transaction, error) {
 			ItemID:        itemID,
 			ItemCategory:  itemCategory,
 			ItemQuantity:  itemQuantity,
-			ItemPrice:     itemPrice,
 			SoldPriceUSD:  soldPriceUSD.Float64,
 			SoldPriceCNY:  soldPriceCNY.Float64,
 			SoldPriceEUR:  soldPriceEUR.Float64,

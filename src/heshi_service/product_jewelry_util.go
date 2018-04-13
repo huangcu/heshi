@@ -53,7 +53,8 @@ func (j *jewelry) composeUpdateQuery() string {
 	return q
 }
 
-//only track price/promotion_id(track in promotion section) change
+//TODO only track price/promotion_id(track in promotion section) change
+// do we need check stock and status change?? in product_order ??
 func (j *jewelry) composeUpdateQueryTrack(updatedBy string) string {
 	trackMap := make(map[string]interface{})
 	params := j.parmsKV()

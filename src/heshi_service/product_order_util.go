@@ -89,9 +89,6 @@ func (oi *orderItem) parmsKV() map[string]interface{} {
 	if oi.ItemQuantity != 0 {
 		params["item_quantity"] = oi.ItemQuantity
 	}
-	if oi.ItemPrice != 0 {
-		params["item_price"] = oi.ItemPrice
-	}
 	if oi.SoldPriceUSD != 0 {
 		params["sold_price_usd"] = oi.SoldPriceUSD
 	}
@@ -154,7 +151,7 @@ func getOrderStatusByID(id string) (string, error) {
 }
 
 func getOrderByID(oid string) (*orderItem, error) {
-	q := fmt.Sprintf(`SELECT id, item_id, item_price, item_category, item_quantity, downpayment, 
+	q := fmt.Sprintf(`SELECT id, item_id, item_category, item_quantity, downpayment, 
 		buyer_id, transaction_id,	sold_price_usd, sold_price_cny, sold_price_eur,
 		return_point, chosen_by, status, extra_info, special_notice 
 		FROM orders 
