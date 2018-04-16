@@ -291,7 +291,6 @@ func bulkUpload(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, filemsgMap)
-	return
 }
 
 func handleUploadedZip(file, product, fileType string) (map[string]string, error) {

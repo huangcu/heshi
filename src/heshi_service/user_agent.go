@@ -53,6 +53,7 @@ func updateAgent(c *gin.Context) {
 	discountStr := c.PostForm("discount")
 	if levelStr == "" && discountStr == "" {
 		c.JSON(http.StatusOK, vemsgNotValid)
+		return
 	}
 	agentID := c.Param("id")
 	q := fmt.Sprintf(`UPDATE agents SET created_by='%s'`, agentID)

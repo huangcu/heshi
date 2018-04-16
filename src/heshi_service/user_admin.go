@@ -38,6 +38,7 @@ func updateAdmin(c *gin.Context) {
 	kefu := c.PostForm("wechat_kefu")
 	if levelStr == "" && kefu == "" {
 		c.JSON(http.StatusOK, vemsgNotValid)
+		return
 	}
 	agentID := c.Param("id")
 	q := fmt.Sprintf(`UPDATE admins SET created_by='%s'`, agentID)

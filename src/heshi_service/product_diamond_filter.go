@@ -14,72 +14,64 @@ import (
 
 //TODO search
 func searchProducts(c *gin.Context) {
-	category := c.Param("category")
-	if !util.IsInArrayString(category, []string{"diamonds", "jewelrys", "gems"}) {
+	category := strings.ToUpper(c.Param("category"))
+	if !util.IsInArrayString(category, VALID_PRODUCTS) {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
-	if category == "diamonds" {
+	switch category {
+	case DIAMOND:
 		ds, err := searchDiamonds(c)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 		c.JSON(http.StatusOK, ds)
-		return
-	}
-	if category == "jewelrys" {
+	case JEWELRY:
 		js, err := searchJewelrys(c)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 		c.JSON(http.StatusOK, js)
-		return
-	}
-	if category == "gems" {
+	case GEM:
 		gs, err := searchGems(c)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 		c.JSON(http.StatusOK, gs)
-		return
 	}
 }
 
 func filterProducts(c *gin.Context) {
-	category := c.Param("category")
-	if !util.IsInArrayString(category, []string{"diamonds", "jewelrys", "gems"}) {
+	category := strings.ToUpper(c.Param("category"))
+	if !util.IsInArrayString(category, VALID_PRODUCTS) {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
-	if category == "diamonds" {
+	switch category {
+	case DIAMOND:
 		ds, err := filterDiamonds(c)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 		c.JSON(http.StatusOK, ds)
-		return
-	}
-	if category == "jewelrys" {
+	case JEWELRY:
 		js, err := filterJewelrys(c)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 		c.JSON(http.StatusOK, js)
-		return
-	}
-	if category == "gems" {
+	case GEM:
 		gs, err := filterGems(c)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 		c.JSON(http.StatusOK, gs)
-		return
 	}
 }
 
