@@ -22,6 +22,7 @@ type history struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+// delete from historys where historys.new_value=historys.old_value;
 func newHistoryRecords(userID, tableName, itemID string, fieldNameValue map[string]interface{}) {
 	for fieldName, v := range fieldNameValue {
 		hq := fmt.Sprintf(`INSERT INTO historys (user_id,table_name,item_id,field_name, old_value, new_value)

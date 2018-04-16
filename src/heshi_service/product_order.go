@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"heshi/errors"
 	"net/http"
@@ -257,8 +256,8 @@ func getAllTransactions(c *gin.Context) {
 // 4. rules: after DOWNPAYMEN, PAID, NOT allowed to change price again etc.....
 func updateTransaction(c *gin.Context) {
 	// updatedBy := c.MustGet("id").(string)
-	orderItems := make([]*orderItem, 0)
-	if err := json.Unmarshal([]byte(c.PostForm("items")), &orderItems); err != nil {
+	var t transaction
+	if err := c.BindJSON(&t); err != nil {
 		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 		return
 	}
@@ -407,7 +406,7 @@ func createOrder(c *gin.Context) {
 	//check if all items still available
 	buyerID := c.MustGet("id").(string)
 	orderItems := make([]*orderItem, 0)
-	if err := json.Unmarshal([]byte(c.PostForm("items")), &orderItems); err != nil {
+	if err := c.BindJSON(&orderItems); err != nil {
 		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 		return
 	}
@@ -530,7 +529,7 @@ func cancelTransaction(c *gin.Context) {
 
 func cartItems(c *gin.Context) {
 	items := make([]*orderItem, 0)
-	if err := json.Unmarshal([]byte(c.PostForm("items")), &items); err != nil {
+	if err := c.BindJSON(&items); err != nil {
 		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 		return
 	}

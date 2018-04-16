@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"heshi/errors"
 	"net/http"
@@ -109,7 +108,7 @@ func addToShoppingCart(c *gin.Context) {
 func updateShoppingCart(c *gin.Context) {
 	uid := c.MustGet("id").(string)
 	var cibs []cartItemBase
-	if err := json.Unmarshal([]byte(c.PostForm("items")), &cibs); err != nil {
+	if err := c.BindJSON(&cibs); err != nil {
 		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 		return
 	}

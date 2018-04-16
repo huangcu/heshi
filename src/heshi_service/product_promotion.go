@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"heshi/errors"
 	"net/http"
@@ -44,7 +43,7 @@ type promotionProduct struct {
 func promoteProducts(c *gin.Context) {
 	updatedBy := c.MustGet("id").(string)
 	var promProducts []promotionProduct
-	if err := json.Unmarshal([]byte(c.PostForm("proms")), &promProducts); err != nil {
+	if err := c.BindJSON(&promProducts); err != nil {
 		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 		return
 	}

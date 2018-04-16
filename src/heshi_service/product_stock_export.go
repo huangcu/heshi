@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"heshi/errors"
 	"net/http"
@@ -27,7 +26,7 @@ func onlineOfflineProducts(c *gin.Context) {
 	updatedBy := c.MustGet("id").(string)
 	action := c.Param("action")
 	var products []onlineOfflineProduct
-	if err := json.Unmarshal([]byte(c.PostForm("ids")), &products); err != nil {
+	if err := c.BindJSON(&products); err != nil {
 		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 		return
 	}

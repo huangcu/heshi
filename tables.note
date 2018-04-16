@@ -57,6 +57,7 @@ alter table diamonds drop ordered_by;
 alter table diamonds drop sold_price;
 drop table orders;
 
+Content-Type:[application/json]
 proms:
 [
     {
@@ -71,7 +72,7 @@ proms:
     }
 ]
 
-ids:
+onlineOfflineProducts:
 [
     {
         "item_id": "1507cbf7-2f0b-48a2-a546-c546143211c7",
