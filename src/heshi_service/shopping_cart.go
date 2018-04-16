@@ -387,7 +387,7 @@ func (s *shoppingCartItem) getDiamondPriceQuantityStatus() error {
 		s.Status = "NOT AVAILABLE"
 	}
 	s.ItemPrice = priceRetail
-	s.Status = "AVAILABLE"
+	s.Status = AVAILABLE
 	return nil
 }
 
@@ -410,7 +410,7 @@ func (s *shoppingCartItem) getJewelryPriceQuantityStatus() error {
 		return nil
 
 	}
-	s.Status = "AVAILABLE"
+	s.Status = AVAILABLE
 	return nil
 }
 
@@ -432,6 +432,6 @@ func (s *shoppingCartItem) getGemPriceQuantityStatus() error {
 		s.Status = "STOCK NOT ENOUGH"
 		return nil
 	}
-	s.Status = "AVAILABLE"
+	s.Status = AVAILABLE
 	return nil
 }

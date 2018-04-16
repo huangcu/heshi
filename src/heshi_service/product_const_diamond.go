@@ -317,10 +317,3 @@ var VALID_COLOR = []string{
 //   return '<span class="fancycolortxt">艳黄色</span>'
 // case 'FLBGY':
 //   return '<span class="fancycolortxt">浅棕灰</span>'
-
-var VALID_DIAMOND_STATUS = []string{
-	"SOLD",
-	"AVAILABLE",
-	"RESERVED",
-	"OFFLINE",
-}

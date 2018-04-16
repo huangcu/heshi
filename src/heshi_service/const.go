@@ -108,10 +108,16 @@ var (
 )
 
 const (
-	CUSTOMER     = "CUSTOMER"
-	AGENT        = "AGENT"
-	ADMIN        = "ADMIN"
-	AVAILABLE    = "AVAILABLE"
+	CUSTOMER = "CUSTOMER"
+	AGENT    = "AGENT"
+	ADMIN    = "ADMIN"
+
+	// diamonds, jewelry, gem
+	AVAILABLE = "AVAILABLE"
+	OFFLINE   = "OFFLINE"
+	DELETED   = "DELETED"
+
+	// orders
 	ORDERED      = "ORDERED"
 	CANCELLED    = "CANCELLED"
 	DOWNPAYMENT  = "DOWNPAYMENT"
