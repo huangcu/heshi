@@ -74,11 +74,11 @@ export default {
         this.$customerURL + '/logout'
       ).then(response => {
         console.log('logout')
-        this.$cookies.remove('token')
-        this.$cookies.remove('userprofile')
-        this.$cookies.remove('SESSIONID')
-        this.$emit('updateAccount','')
-        this.$router.replace('/')
+        // this.$cookies.remove('token')
+        // this.$cookies.remove('userprofile')
+        // this.$cookies.remove('SESSIONID')
+        // this.$emit('updateAccount','')
+        // this.$router.replace('/')
       }, err => { console.log(err); alert('error:' + err.bodyText) })
     }
   },

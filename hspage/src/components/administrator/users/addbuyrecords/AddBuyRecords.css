@@ -1,0 +1,432 @@
+body {
+    font-family: 'Microsoft Yahei', 微软雅黑, STHeiti, simsun, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 100;
+}
+
+div.contentwrapper {
+    padding: 0 20px;
+}
+
+div#filter_box {
+    padding: 12px;
+    background-color: #efefef;
+    max-width: 780px;
+}
+
+div.filter_line,
+p.stockidbox {
+    padding: 0 20px;
+}
+
+.filter_line ul {
+    padding-left: 65px;
+}
+
+div#filter_line_weight,
+div#filter_line_price {
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+li.filter_shape,
+li.filter_color,
+li.filter_clarity,
+li.filter_cut,
+li.filter_polish,
+li.filter_sym,
+li.filter_certi,
+li.filter_fluo,
+li.sortingbtn {
+    display: inline-block;
+    height: 32px;
+    line-height: 28px;
+    background-color: #EFF3F3;
+    padding: 2px 12px;
+    text-align: center;
+    font-size: 12px;
+    cursor: pointer;
+    margin-bottom: 2px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #9CC;
+}
+
+li.fancycolor,
+li.defined {
+    background-color: transparent;
+    border: none;
+    margin-left: 0;
+    padding-left: 0;
+}
+
+.defined input {
+    padding-left: 12px;
+}
+
+span.shapeiconcontainer {
+    display: inline-block;
+    position: relative;
+    width: 22px;
+    height: 20px;
+    overflow: hidden;
+    background-repeat: no-repeat;
+    top: 3px;
+}
+
+#filter_box ul {
+    padding-left: 0;
+}
+
+li.btn-active {
+    background-color: #CFF6F8;
+    border-color: #099;
+    border-width: 1px;
+}
+
+span.filter_title,
+label {
+    font-size: 16px;
+    display: inline-block;
+    padding: 3px 0;
+    font-weight: bold;
+    margin: 0;
+    color: #060;
+}
+
+span.filter_title {
+    position: absolute;
+}
+
+span#theshapetxt {
+    color: #000;
+    font-size: 12px;
+}
+
+div.otherpara {
+    padding-left: 20px;
+}
+
+.otherpara p {
+    margin: 0;
+    padding: 12px 0;
+}
+
+#extr_field {
+    width: 288px;
+    height: 98px;
+}
+
+img.uploadedpreviewpic {
+    position: relative;
+    height: 68px;
+    width: auto;
+    margin: 5px;
+}
+
+p.dia-page-link-box {
+    position: relative;
+    margin-bottom: 25px;
+    padding: 12px;
+    background-color: #9FF;
+    width: 780px;
+}
+
+.dia-page-link-box input {
+    padding: 5px;
+    border-style: solid;
+    border-color: #390;
+    border-width: 1px;
+    width: 728px;
+}
+
+textarea#theweichatmessage {
+    position: relative;
+    width: 528px;
+    height: 88px;
+    resize: none;
+}
+
+div#promo-detail-box {
+    padding: 12px;
+    border-style: dotted;
+    border-color: #C00;
+    border-width: 2px;
+    margin-left: 20px;
+    background-color: #FFF;
+    display: none;
+}
+
+#promo-detail-box p {
+    margin: 3px;
+    padding: 2px;
+    border-bottom-style: dotted;
+    border-width: 1px;
+    border-color: #C00;
+}
+
+#promo-detail-box p label {
+    color: #C00;
+}
+
+p.promo-detail.promo-detail-price {}
+
+h1 {
+    position: relative;
+    left: 40px;
+    font-family: Verdana, Geneva, sans-serif;
+    font-weight: bold;
+    font-size: 20px;
+    color: #000;
+    margin-top: 0px;
+}
+
+div#maincontent {
+    padding-left: 120px;
+    text-align: left;
+}
+
+a.thebigbtn {
+    display: inline-block;
+    padding: 58px 128px;
+    background-color: #333;
+    color: #FFF;
+    font-size: 18px;
+    margin-right: 20px;
+    text-decoration: none;
+}
+
+a.thebigbtn:hover {
+    background-color: #000;
+}
+
+.feedback {
+    font-size: 18px;
+    font-weight: bold;
+    color: #F00;
+}
+
+.emph {
+    font-size: 18px;
+}
+
+input.emph {
+    font-size: 18px;
+    padding: 5px;
+    background-color: #FFC;
+}
+
+.buttontoclick {
+    background-color: #F00;
+    color: #FFF;
+    font-size: 16px;
+    border-width: 1px;
+}
+
+div#conditionbox {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top-style: dashed;
+    border-width: 1px;
+    border-color: #333;
+}
+
+.weightfromvalue,
+.weighttovalue {
+    width: 50px;
+}
+
+p.weightchoice-box,
+div.theouterbox-color,
+div.theouterbox-clarity,
+div.colorchoicebox,
+div.claritychoicebox,
+div.theouterbox-shape,
+div.shapechoicebox,
+div.theouterbox-cut,
+div.cutchoicebox,
+div.theouterbox-polish,
+div.polishchoicebox,
+div.theouterbox-symmetry,
+div.symmetrychoicebox,
+div.theouterbox-certificate,
+div.certificatechoicebox,
+div.theouterbox-fluo,
+div.fluochoicebox {
+    display: inline-block;
+}
+
+p.weightchoice-box,
+div.theouterbox-color,
+div.theouterbox-clarity,
+div.theouterbox-shape,
+div.theouterbox-cut,
+div.theouterbox-polish,
+div.theouterbox-symmetry,
+div.theouterbox-certificate,
+div.theouterbox-fluo {
+    margin: 0 15px 8px 0;
+    padding: 0 18px 8px 0;
+}
+
+span.color-switch-btn,
+span.clarity-switch-btn,
+span.cut-switch-btn,
+span.polish-switch-btn,
+span.symmetry-switch-btn,
+span.certificate-switch-btn,
+span.fluo-switch-btn {
+    display: inline-block;
+    padding: 2px 5px;
+    background-color: #cfcfcf;
+    color: #999;
+    cursor: pointer;
+}
+
+.chosen {
+    background-color: #F99 !important;
+    color: #000 !important;
+}
+
+#existingrules {
+    padding: 10px;
+    background-color: #CFF;
+    width: 1030px;
+}
+
+div.newrulecontainer {
+    border-color: #CCF;
+    border-style: solid;
+    border-width: 12px;
+    background-color: #FFF;
+    width: 1000px;
+    padding: 0 10px;
+}
+
+li.therule {
+    padding: 0 20px 10px 10px;
+    width: 980px;
+    border-style: solid;
+    border-width: 5px;
+    border-color: #CCC;
+    list-style: none;
+    margin-top: 8px;
+    background-color: #FFF;
+}
+
+.title {
+    font-size: 18px;
+}
+
+div.conditionsbox {
+    padding: 15px;
+    background-color: #EEE;
+}
+
+input.price-para {
+    font-size: 18px;
+    padding: 5px 8px;
+    width: 58px;
+    background-color: #CFF;
+    margin-left: 12px;
+}
+
+p.the-price-para-box {
+    display: inline-block;
+    margin-right: 25px;
+    padding: 5px;
+}
+
+button {
+    cursor: pointer;
+}
+
+button.modifyrulesbtn {
+    font-size: 18px;
+    background-color: #6CF;
+    color: #000;
+    padding: 12px 26px;
+    border-width: 1px;
+}
+
+button.deleterulesbtn {
+    font-size: 16px;
+    padding: 6px 12px;
+    background-color: #F00;
+    color: #000;
+    border-width: 1px;
+}
+
+#update_data_btn {
+    display: inline-block;
+    padding: 15px 50px;
+    font-size: 18px;
+    background-color: #C00;
+    color: #FFF;
+    text-decoration: none;
+}
+
+span.shape-switch-btn {
+    display: inline-block;
+    padding: 2px;
+    position: relative;
+    top: 5px;
+    background-color: #cfcfcf;
+    cursor: pointer;
+}
+
+img.shapeicon {
+    width: 26px;
+}
+
+p.errormessage {
+    color: #C00;
+    font-size: 16px;
+}
+
+p.successmessage {
+    color: #090;
+    font-size: 16px;
+}
+
+span.shapeiconcontainer {
+    display: inline-block;
+    position: relative;
+    width: 22px;
+    height: 20px;
+    overflow: hidden;
+    background-repeat: no-repeat;
+}
+
+#thecontentbox {
+    padding: 15px;
+    border-style: dotted;
+    border-color: #090;
+    border-width: 1px;
+    width: 720px;
+    margin-top: 35px;
+}
+
+input.inputfield {
+    position: relative;
+    width: 158px;
+    font-size: 14px;
+    padding: 2px 5px;
+    background-color: #EFFCEF;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #CCC;
+}
+
+#submitbtn {
+    background-color: #01934d;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #01934d;
+    border-radius: 6px;
+    padding: 5px 22px;
+    color: #fff;
+    margin-top: 12px;
+    font-size: 16px;
+    margin-left: 35px;
+}

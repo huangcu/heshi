@@ -3,7 +3,7 @@ import Router from 'vue-router'
 import Header from '@/components/header/Header.vue'
 import titleComponent from '@/components/title.component.vue'
 import pageNotFound from '@/components/page.not.found.vue'
-// import RoutingGuard from './routerguard.js'
+import RoutingGuard from './routerguard.js'
 Vue.use(Router)
 
 // TODO global mixin - post to server to log user activity
@@ -120,7 +120,7 @@ const router = new Router({
           components: {
             default: () => import('@/components/users/myaccount/MyAccount.vue')
           },
-          meta: {requiresAuth: true, role: ['CUSTOMER', 'AGENT']},
+          meta: {role: ['CUSTOMER', 'AGENT']},
           props: (route) => ({
             _account: route.query._account
           })
@@ -131,31 +131,32 @@ const router = new Router({
       path: '/manage',
       name: 'Manage',
       components: {
-        default: () => import('@/components/admin/Admin.vue')
+        default: () => import('@/components/administrator/Navi.vue')
       },
       redirect: '/manage/login',
-      meta: {requiresAuth: true, role: ['ADMIN']},
       children: [
         {
           path: 'login',
           name: 'adminLogin',
           components: {
-            default: () => import('@/components/admin/login/Login.vue')
+            default: () => import('@/components/administrator/login/Login.vue')
           }
         },
         {
           path: 'admins',
           name: 'Admins',
           components: {
-            default: () => import('@/components/admin/admins/Admins.vue')
-          }
+            default: () => import('@/components/administrator/admins/Admins.vue')
+          },
+          meta: { role: ['ADMIN'] },
         },
         {
           path: 'newadmin',
           name: 'newAdmin',
           components: {
-            default: () => import('@/components/admin/newadmin/NewAdmin.vue')
-          }
+            default: () => import('@/components/administrator/admins/newadmin/NewAdmin.vue')
+          },
+          meta: { role: ['ADMIN'] },
         }
       ]
     },
@@ -166,6 +167,6 @@ const router = new Router({
   ]
 })
 
-// router.beforeResolve(RoutingGuard)
+router.beforeResolve(RoutingGuard)
 
 export default router

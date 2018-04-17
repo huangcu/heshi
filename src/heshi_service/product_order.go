@@ -649,7 +649,7 @@ func orderSingleItem(item *orderItem) (*transaction, error) {
 	var oq string
 	switch strings.ToUpper(item.ItemCategory) {
 	case DIAMOND:
-		oq = fmt.Sprintf("UPDATE diamonds SET status='ORDERED', updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", item.ItemID)
+		oq = fmt.Sprintf("UPDATE diamonds SET status='ORDERED', updated_at=(CURRENT_TIMESTAMP) WHERE id='%s' AND status='AVAILABLE'", item.ItemID)
 	case JEWELRY:
 		oq = fmt.Sprintf(`UPDATE jewelrys SET stock_quantity=stock_quantity-%d, updated_at=(CURRENT_TIMESTAMP) 
 		WHERE id='%s' AND status='AVAILABLE' AND stock_quantity>='%d'`, item.ItemQuantity, item.ItemID, item.ItemQuantity)
@@ -698,7 +698,7 @@ func orderMultipleItems(items []*orderItem) (*transaction, error) {
 		item.ID = newV4()
 		switch strings.ToUpper(item.ItemCategory) {
 		case DIAMOND:
-			oq = fmt.Sprintf("UPDATE diamonds SET status='ORDERED', updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", item.ItemID)
+			oq = fmt.Sprintf("UPDATE diamonds SET status='ORDERED', updated_at=(CURRENT_TIMESTAMP) WHERE id='%s' AND status='AVAILABLE'", item.ItemID)
 		case JEWELRY:
 			oq = fmt.Sprintf(`UPDATE jewelrys SET stock_quantity=stock_quantity-%d, updated_at=(CURRENT_TIMESTAMP) 
 		WHERE id='%s' AND status='AVAILABLE' AND stock_quantity>='%d'`, item.ItemQuantity, item.ItemID, item.ItemQuantity)

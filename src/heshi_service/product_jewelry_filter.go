@@ -153,6 +153,9 @@ func composeFilterJewelryQuery(c *gin.Context) (string, error) {
 		limit = fmt.Sprintf("LIMIT 32 OFFSET %d", util.AbsInt(currentPage-1)*32)
 	}
 
+	// TODO name, shouldn't group by name, name can be same???
+	// WHERE (%s) GROUP BY name
+	//  ORDER BY jewelrys.status DESC, stock_quantity DESC, jewelrys.created_at DESC %s`,
 	q := fmt.Sprintf(`SELECT jewelrys.id, stock_id, category, unit_number, dia_shape, material, metal_weight, 
 		need_diamond, name, dia_size_min, dia_size_max, small_dias, small_dia_num, small_dia_carat, 
 	 mounting_type, main_dia_num, main_dia_size, video_link, images, text, jewelrys.status, verified, 
@@ -160,7 +163,7 @@ func composeFilterJewelryQuery(c *gin.Context) (string, error) {
 	 promotions.id, prom_type, prom_discount, prom_price, begin_at, end_at, promotions.status 
 	 FROM jewelrys 
 	 LEFT JOIN promotions ON jewelrys.promotion_id=promotions.id
-	 WHERE (%s) GROUP BY name 
+	 WHERE (%s) 
 	 ORDER BY jewelrys.status DESC, stock_quantity DESC, jewelrys.created_at DESC %s`,
 		strings.Join(querys, ") AND ("), limit)
 	return q, nil

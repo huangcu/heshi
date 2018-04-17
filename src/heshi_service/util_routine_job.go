@@ -18,9 +18,10 @@ func agentDailyCheck() error {
 	}
 	defer rows.Close()
 
-	agents := make(map[string]string)
+	agents := make(map[string]int)
 	for rows.Next() {
-		var ID, level string
+		var ID string
+		var level int
 		if err := rows.Scan(&ID, &level); err != nil {
 			return err
 		}
@@ -31,7 +32,7 @@ func agentDailyCheck() error {
 	for ID, level := range agents {
 		wg.Add(1)
 		conChan <- true
-		go func(id, level string) {
+		go func(id string, level int) {
 			defer wg.Done()
 			if err := automaticAgentLevelAndPurchaseAmount(id, level); err != nil {
 				util.Printf("Error: automaticAgentLevelAndPurchaseAmount - %s", errors.GetMessage(err))
@@ -55,9 +56,10 @@ func customerDailyCheck() error {
 	}
 	defer rows.Close()
 
-	customers := make(map[string]string)
+	customers := make(map[string]int)
 	for rows.Next() {
-		var ID, level string
+		var ID string
+		var level int
 		if err := rows.Scan(&ID, &level); err != nil {
 			return err
 		}
@@ -69,7 +71,7 @@ func customerDailyCheck() error {
 	for ID, level := range customers {
 		wg.Add(1)
 		conChan <- true
-		go func(id, level string) {
+		go func(id string, level int) {
 			defer wg.Done()
 			if err := automaticCustomerLevelAndPurchaseAmount(id, level); err != nil {
 				util.Printf("Error: automaticCustomerLevelAndPurchaseAmount - %s", errors.GetMessage(err))
@@ -85,7 +87,7 @@ func customerDailyCheck() error {
 }
 
 // =====================================
-func automaticAgentLevelAndPurchaseAmount(agentID, level string) error {
+func automaticAgentLevelAndPurchaseAmount(agentID string, level int) error {
 	q := fmt.Sprintf(`SELECT count(*) AS count, sum(sold_price_usd) AS total_amount 
 		FROM orders 
 		WHERE buyer_id='%s'  
@@ -116,28 +118,28 @@ func automaticAgentLevelAndPurchaseAmount(agentID, level string) error {
 	return updateUserLevelAndPurchaseAmount(agentID, level, newLevel, totalAmount)
 }
 
-func agentLevelByAmountAndPieces(amount float64, pieces int) (string, error) {
+func agentLevelByAmountAndPieces(amount float64, pieces int) (int, error) {
 	q := fmt.Sprintf(`SELECT level FROM level_rate_rules 
 		WHERE rule_type='%s' 
 		AND (amount < '%f' OR pieces < '%d') order by level DESC`,
 		AGENT, amount, pieces)
 	rows, err := dbQuery(q)
 	if err != nil {
-		return "", err
+		return -1, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var level string
+		var level int
 		if err := rows.Scan(&level); err != nil {
 			return level, nil
 		}
 	}
-	return LEVEL1, nil
+	return 1, nil
 }
 
 // =========================================
-func automaticCustomerLevelAndPurchaseAmount(customerID, level string) error {
+func automaticCustomerLevelAndPurchaseAmount(customerID string, level int) error {
 	q := fmt.Sprintf(`SELECT sum(sold_price_usd) AS total_amount 
 		FROM orders 
 		WHERE buyer_id='%s'  
@@ -157,23 +159,23 @@ func automaticCustomerLevelAndPurchaseAmount(customerID, level string) error {
 	return updateUserLevelAndPurchaseAmount(customerID, level, newLevel, totalAmount)
 }
 
-func customerLevelByAmount(amount float64) (string, error) {
+func customerLevelByAmount(amount float64) (int, error) {
 	q := fmt.Sprintf("SELECT level FROM level_rate_rules WHERE rule_type='%s' AND amount < '%f' order by level DESC",
 		CUSTOMER, amount)
 	rows, err := dbQuery(q)
 	if err != nil {
-		return "", err
+		return -1, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var level string
+		var level int
 		if err := rows.Scan(&level); err != nil {
 			return level, nil
 		}
 	}
 	// default return the lowest level
-	return LEVEL1, nil
+	return 1, nil
 	// if amount < 5000 {
 	// 	return LEVEL0
 	// } else if amount >= 5000 && amount < 10000 {
@@ -184,19 +186,19 @@ func customerLevelByAmount(amount float64) (string, error) {
 	// return LEVEL3
 }
 
-func updateUserLevelAndPurchaseAmount(userID, oldLevel, newLevel string, totalAmount float64) error {
+func updateUserLevelAndPurchaseAmount(userID string, oldLevel, newLevel int, totalAmount float64) error {
 	if oldLevel == newLevel {
 		return nil
 	}
-	q := fmt.Sprintf("UPDATE users set level='%s', total_purchase_amount=%f WHERE id='%s'", newLevel, totalAmount, userID)
+	q := fmt.Sprintf("UPDATE users set level='%d', total_purchase_amount=%f WHERE id='%s'", newLevel, totalAmount, userID)
 	if _, err := dbExec(q); err != nil {
 		return nil
 	}
 	action := "UPGRADE"
-	if strings.Compare(newLevel, oldLevel) < 0 {
+	if newLevel < oldLevel {
 		action = "DOWNGRADE"
 	}
-	info := fmt.Sprintf("user: %s %s level from %s to %s", userID, strings.ToLower(action), oldLevel, newLevel)
+	info := fmt.Sprintf("user: %s %s level from %d to %d", userID, strings.ToLower(action), oldLevel, newLevel)
 	return addActionLog(userID, action, info)
 }
 
@@ -238,7 +240,7 @@ func returnPointForCustomer(customerID string) error {
 	return nil
 }
 
-func returnPointForAgent(agentID, level string) error {
+func returnPointForAgent(agentID string, level int) error {
 	// return point from recommended customer
 	q := fmt.Sprintf(`SELECT SUM(sold_price_usd) AS total_amount 
 	FROM orders
@@ -255,7 +257,7 @@ func returnPointForAgent(agentID, level string) error {
 	// return point based on agent's own level accordingt to system rule
 	// subquery must limit to 1, possible will be null
 	q = fmt.Sprintf(`SELECT SUM(orders.sold_price_usd) AS total_amount, 
-	(SELECT return_point_percent FROM level_rate_rules WHERE level='%s' 
+	(SELECT return_point_percent FROM level_rate_rules WHERE level='%d' 
 		AND rule_type='%s' ORDER BY created_at DESC LIMIT 1) AS return_point_percent 
 	FROM orders JOIN level_rate_rules ON orders.buyer_id == 
 	WHERE status IN ('%s','%s','%s','%s','%s','%s') 

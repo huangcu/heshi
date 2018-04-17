@@ -87,5 +87,5 @@
     </form>
   </div>
 </template>
-<script src="./Admin.js"></script>
-<style src="./Admin.css" scoped></style>
+<script src="./Navi.js"></script>
+<style src="./Navi.css" scoped></style>

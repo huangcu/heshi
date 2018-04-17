@@ -20,7 +20,8 @@ import (
 // TODO limit LEVEL values to predefined
 type levelRule struct {
 	ID                    string    `json:"id"`
-	Level                 string    `json:"level"`
+	Level                 int       `json:"level"`
+	LevelStr              string    `json:"-"`
 	Discount              int       `json:"discount"`
 	DiscountStr           string    `json:"-"`
 	Pieces                int       `json:"pieces"`
@@ -45,7 +46,7 @@ type exchangeRateFloat struct {
 
 func getLevelConfig(c *gin.Context) {
 	var discount, amount, pieces, returnPointPercent sql.NullInt64
-	var level sql.NullString
+	var level sql.NullInt64
 	var id, ruleType, createdBy string
 	var createdAt time.Time
 	q := fmt.Sprintf(`SELECT id, discount, level, amount, pieces, return_point_percent, 
@@ -64,7 +65,7 @@ func getLevelConfig(c *gin.Context) {
 	conf := levelRule{
 		ID:                 id,
 		Discount:           int(discount.Int64),
-		Level:              level.String,
+		Level:              int(level.Int64),
 		Amount:             int(amount.Int64),
 		Pieces:             int(pieces.Int64),
 		RuleType:           ruleType,
@@ -91,7 +92,7 @@ func newLevelConfig(c *gin.Context) {
 	}
 	conf := levelRule{
 		DiscountStr: c.PostForm("discount"),
-		Level:       c.PostForm("level"),
+		LevelStr:    c.PostForm("level"),
 		RuleType:    c.PostForm("rule_type"),
 	}
 	switch ruleType {
@@ -138,7 +139,7 @@ func updateLevelConfig(c *gin.Context) {
 	conf := levelRule{
 		ID:                    c.Param("id"),
 		DiscountStr:           c.PostForm("discount"),
-		Level:                 c.PostForm("level"),
+		LevelStr:              c.PostForm("level"),
 		AmountStr:             c.PostForm("amount"),
 		PiecesStr:             c.PostForm("pieces"),
 		ReturnPointPercentStr: c.PostForm("return_point_percent"),
@@ -172,7 +173,7 @@ func getAllLevelConfigs(c *gin.Context) {
 	for rows.Next() {
 		var discount, amount, pieces, returnPointPercent sql.NullInt64
 		var id, ruleType, createdBy string
-		var level sql.NullString
+		var level sql.NullInt64
 		var createdAt time.Time
 		if err := rows.Scan(&id, &discount, &level, &amount, &ruleType, &pieces, &returnPointPercent,
 			&createdBy, &createdAt); err != nil {
@@ -182,7 +183,7 @@ func getAllLevelConfigs(c *gin.Context) {
 		conf := levelRule{
 			ID:        id,
 			Discount:  int(discount.Int64),
-			Level:     level.String,
+			Level:     int(level.Int64),
 			Amount:    int(amount.Int64),
 			Pieces:    int(pieces.Int64),
 			RuleType:  ruleType,
@@ -295,6 +296,18 @@ func (ac *levelRule) validateReq() ([]errors.HSMessage, error) {
 		}
 		ac.Discount = discount
 	}
+	if ac.LevelStr != "" {
+		level, err := strconv.Atoi(ac.LevelStr)
+		if err != nil {
+			return nil, err
+		}
+		// LIMIT level to no more than 10
+		if level > 10 {
+			vemsgAgentDiscountNotValid.Message = "level can not be more that 10"
+			vmsgs = append(vmsgs, vemsgAgentDiscountNotValid)
+		}
+		ac.Level = level
+	}
 	if ac.PiecesStr != "" {
 		p, err := strconv.Atoi(ac.PiecesStr)
 		if err != nil {
@@ -315,9 +328,6 @@ func (ac *levelRule) validateReq() ([]errors.HSMessage, error) {
 			return nil, err
 		}
 		ac.ReturnPointPercent = rpp
-	}
-	if ac.Level != "" {
-		ac.Level = "LEVEL" + strings.TrimSpace(ac.Level)
 	}
 
 	if ac.RuleType != "" {
@@ -399,7 +409,7 @@ func (ac *levelRule) composeUpdateQueryTrack(updatedBy string) string {
 func (ac *levelRule) paramsKV() map[string]interface{} {
 	params := make(map[string]interface{})
 
-	if ac.Level != "" {
+	if ac.Level != 0 {
 		params["level"] = ac.Level
 	}
 	if ac.Discount != 0 {

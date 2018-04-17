@@ -1,6 +1,6 @@
 <template>
   <div>
-    <vue-title title="管理界面"></vue-title>
+    <vue-title title="合适钻石 管理界面"></vue-title>
     <h3 style="text-align:center;">管理首页</h3>
     <h4 style="text-align:center;">管理员 {{userprofile.real_name}}
       <img v-if="userprofile.icon!==''" :src="userproifle.icon" class="adminiconpic" />

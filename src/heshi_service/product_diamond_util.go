@@ -706,6 +706,7 @@ func (d *diamond) isDiamondExistByDiamondID() error {
 	return nil
 }
 
+// ONLY can update diamonds AVAIABLE, OFFLINE, if it has been ordered, can not update
 func isDiamondExistByID(id string) (bool, error) {
 	var count int
 	q := fmt.Sprintf("SELECT COUNT(*) FROM diamonds WHERE id='%s' AND status IN ('AVAILABLE', 'OFFLINE') ", id)

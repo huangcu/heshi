@@ -1,10 +1,8 @@
 
 import VueCookies from 'vue-cookies'
+// import TypeChecker from '../util/type-checker.js'
 
 function routingGuard (to, from, next) {
-  // console.log(to)
-  // console.log('=====================')
-  // console.log(from)
   if (to.matched.length === 0) {
     // if route not found for 'to', back to 'from'
     if (from.matched.length === 0) {
@@ -19,33 +17,48 @@ function routingGuard (to, from, next) {
     return
   }
 
-  // if route found for 'to'; if it is myaccount, check role
-  if (to.path.indexOf('/myaccount') !== -1) {
-    // if login,
-    if (VueCookies.isKey('userprofile')) {
-      let userprofile = JSON.parse(VueCookies.get('userprofile'))
-      // if login, and user type correct, next()
-      console.log(to.meta.role)
-      if (to.meta.role.indexOf(userprofile.user_type) !== -1) {
-        next()
-      } else {
-        // else back to 'from'
-        if (from.matched.length === 0) {
-          // if route for 'from' not found, back to HOME page
-          next({ path: '/' })
-        } else {
-          // else back to 'from'
-          next({ path: from.path })
-        }
-      }
+  let aRolesRequired = (to.meta.role)
+  let isValid = validateAccessByRoles(to, aRolesRequired)
+  if (!isValid) {
+    if (to.path.indexOf('users') !== -1) {
+      next({ path: '/users/login' })
     } else {
-      // if not login, cookie has no 'userprofile', back to 'login'
-      next({path: '/login'})
+      next({path: '/manage/login'})
     }
-  } else {
-    // if it not myaccount, no need to check role, next()
-    next()
+    return
   }
+  next()
+}
+
+function validateAccessByRoles (route, aRolesRequired) {
+  let valid = true
+
+  let userRoleType = null
+  if (VueCookies.isKey('userprofile')) {
+    let userprofile = JSON.parse(VueCookies.get('userprofile'))
+    userRoleType = userprofile.user_type
+  }
+  // if (TypeChecker.isObject(store.getters.userProfile) &&
+  // TypeChecker.isObject(store.getters.userProfile.userFe) &&
+  // TypeChecker.isString(store.getters.userProfile.userFe.roleType)) {
+  //   userRoleType = store.getters.userProfile.userFe.roleType.toLowerCase()
+  // }
+  // that will be valid if any one role is in the user's role list
+  // Emily make the change 2018.JAN.30th
+  let foundRoleInRequiredRoles = false
+  if (aRolesRequired === undefined) {
+    return valid
+  }
+
+  aRolesRequired.every(function (role) {
+    if (userRoleType === role) {
+      foundRoleInRequiredRoles = true
+      return false
+    }
+    return true
+  })
+
+  return valid && foundRoleInRequiredRoles
 }
 
 export default routingGuard
