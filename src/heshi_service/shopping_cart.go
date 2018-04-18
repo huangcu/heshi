@@ -74,6 +74,7 @@ func addToShoppingCart(c *gin.Context) {
 			c.JSON(http.StatusOK, "it's already in your shopping cart")
 			return
 		}
+		cib.ItemQuantity = 1
 		cib.ID = newV4()
 		q := cib.composeInsertQuery()
 		if _, err := dbExec(q); err != nil {
