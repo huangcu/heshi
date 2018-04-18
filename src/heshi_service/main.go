@@ -215,7 +215,7 @@ func configRoute(r *gin.Engine) {
 
 			//upload products by csv file
 			apiAdmin.POST("/products/upload", uploadAndProcessProducts)
-			apiAdmin.POST("/products/export", exportProduct)
+			apiAdmin.GET("/products/export", exportProduct)
 			apiAdmin.GET("/products/stockhandlerecords", getAllProductStockHanldeRecords)
 			// here id is admin user id
 			apiAdmin.GET("/products/stockhandlerecords/:id", getProductStockHanldeRecordsOfUser)

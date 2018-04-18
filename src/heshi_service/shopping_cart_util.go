@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -55,7 +56,7 @@ func (c *cartItemBase) paramsKV() map[string]interface{} {
 	}
 
 	if c.ItemCategory != "" {
-		params["item_category"] = c.ItemCategory
+		params["item_category"] = strings.ToUpper(c.ItemCategory)
 	}
 	if c.ItemID != "" {
 		params["item_id"] = c.ItemID

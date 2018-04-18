@@ -88,7 +88,7 @@ func updateAgent(c *gin.Context) {
 }
 
 func (a *User) newAgent() error {
-	q := fmt.Sprintf(`INSERT INTO agents (user_id, level, discount, created_by) VALUES (%s', '%d', '%d', '%s')`,
+	q := fmt.Sprintf(`INSERT INTO agents (user_id, level, discount, created_by) VALUES ('%s', '%d', '%d', '%s')`,
 		a.ID, a.Agent.Level, a.Agent.Discount, a.Agent.CreatedBy)
 	_, err := dbExec(q)
 	return err

@@ -113,8 +113,8 @@ func onlineOffline(status, updatedBy string, products []onlineOfflineProduct) er
 
 func exportProduct(c *gin.Context) {
 	uid := c.MustGet("id").(string)
-	category := strings.ToUpper(c.PostForm("category"))
-	jewelrySubCategory := strings.ToUpper(c.PostForm("jewelryCategory"))
+	category := strings.ToUpper(c.Query("category"))
+	jewelrySubCategory := strings.ToUpper(c.Query("jewelryCategory"))
 	if category == "" {
 		c.JSON(http.StatusBadRequest, "must specify a product category")
 		return
@@ -235,7 +235,7 @@ func exportDiamondProducts(uid string) (string, error) {
 		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "Y", index), createdAt.Format(timeFormat))
 	}
 
-	dst := filepath.Join(UPLOADFILEDIR, DIAMOND, uid, "export"+time.Now().Format(timeFormat)+".xlsx")
+	dst := filepath.Join(UPLOADFILEDIR, DIAMOND, uid, "export"+time.Now().Format(timeFormatFileName)+".xlsx")
 	if err := os.MkdirAll(filepath.Join(UPLOADFILEDIR, DIAMOND, uid), 0755); err != nil {
 		return "", err
 	}
@@ -341,7 +341,7 @@ func exportJewelryProducts(uid, jewelrySubCategory string) (string, error) {
 		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "AF", index), createdAt.Format(timeFormat))
 	}
 
-	dst := filepath.Join(UPLOADFILEDIR, JEWELRY, uid, "export"+time.Now().Format(timeFormat)+".xlsx")
+	dst := filepath.Join(UPLOADFILEDIR, JEWELRY, uid, "export"+time.Now().Format(timeFormatFileName)+".xlsx")
 	if err := os.MkdirAll(filepath.Join(UPLOADFILEDIR, JEWELRY, uid), 0755); err != nil {
 		return "", err
 	}
@@ -429,7 +429,7 @@ func exportGemProducts(uid string) (string, error) {
 		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "U", index), createdAt.Format(timeFormat))
 	}
 
-	dst := filepath.Join(UPLOADFILEDIR, GEM, uid, "export"+time.Now().Format(timeFormat)+".xlsx")
+	dst := filepath.Join(UPLOADFILEDIR, GEM, uid, "export"+time.Now().Format(timeFormatFileName)+".xlsx")
 	if err := os.MkdirAll(filepath.Join(UPLOADFILEDIR, GEM, uid), 0755); err != nil {
 		return "", err
 	}

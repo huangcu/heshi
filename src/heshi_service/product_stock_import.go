@@ -34,7 +34,7 @@ func uploadAndGetFileHeaders(c *gin.Context) {
 		return
 	}
 	// Upload the file to specific dst.
-	filename := file.Filename + time.Now().Format(timeFormat)
+	filename := file.Filename + time.Now().Format(timeFormatFileName)
 	dst := filepath.Join(os.TempDir(), id, filename)
 	err = c.SaveUploadedFile(file, dst)
 	if err != nil {
@@ -72,9 +72,9 @@ func uploadAndProcessProducts(c *gin.Context) {
 	var filename string
 	exts := strings.SplitN(file.Filename, ".", 2)
 	if len(exts) == 2 {
-		filename = exts[0] + time.Now().Format(timeFormat) + exts[1]
+		filename = exts[0] + time.Now().Format(timeFormatFileName) + exts[1]
 	} else {
-		filename = file.Filename + time.Now().Format(timeFormat)
+		filename = file.Filename + time.Now().Format(timeFormatFileName)
 	}
 	dst := filepath.Join(UPLOADFILEDIR, category, uid, filename)
 	err = c.SaveUploadedFile(file, dst)

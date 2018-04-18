@@ -52,6 +52,8 @@ func addToShoppingCart(c *gin.Context) {
 			return
 		}
 		cib.ItemQuantity = quantity
+	} else {
+		cib.ItemQuantity = 1
 	}
 
 	if !util.IsInArrayString(cib.ItemCategory, VALID_PRODUCTS) {
@@ -72,7 +74,6 @@ func addToShoppingCart(c *gin.Context) {
 			c.JSON(http.StatusOK, "it's already in your shopping cart")
 			return
 		}
-		cib.ItemQuantity = 1
 		cib.ID = newV4()
 		q := cib.composeInsertQuery()
 		if _, err := dbExec(q); err != nil {
@@ -191,33 +192,36 @@ func removeFromShoppingCart(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
+	found := false
 	for _, cib := range cibs {
 		if cib.ID == dcib.ID && cib.UserID == dcib.UserID {
+			found = true
 			switch cib.ItemCategory {
 			case DIAMOND:
-				if err := cib.removeItemFromShoppingCartByID(); err != nil {
+				if err := dcib.removeItemFromShoppingCartByID(); err != nil {
 					c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 					return
 				}
 			case JEWELRY, GEM:
 				if cib.ItemQuantity <= dcib.ItemQuantity {
-					if err := cib.removeItemFromShoppingCartByID(); err != nil {
+					if err := dcib.removeItemFromShoppingCartByID(); err != nil {
 						c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 						return
 					}
 				} else {
-					if err := cib.decreaseItemQuantityFromShoppingCartByID(); err != nil {
+					if err := dcib.decreaseItemQuantityFromShoppingCartByID(); err != nil {
 						c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 						return
 					}
 				}
 			}
-		} else {
-			c.JSON(http.StatusBadRequest, fmt.Sprintf("Item: %s not in cart", dcib.ID))
-			return
+			break
 		}
 	}
-
+	if !found {
+		c.JSON(http.StatusBadRequest, fmt.Sprintf("Item: %s not in cart", dcib.ID))
+		return
+	}
 	c.JSON(http.StatusOK, "SUCCESS")
 }
 

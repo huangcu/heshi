@@ -84,7 +84,7 @@ func (oi *orderItem) parmsKV() map[string]interface{} {
 		params["item_id"] = oi.ItemID
 	}
 	if oi.ItemCategory != "" {
-		params["item_category"] = oi.ItemCategory
+		params["item_category"] = strings.ToUpper(oi.ItemCategory)
 	}
 	if oi.ItemQuantity != 0 {
 		params["item_quantity"] = oi.ItemQuantity

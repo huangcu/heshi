@@ -152,6 +152,11 @@ func newPromotion(c *gin.Context) {
 
 	switch promType {
 	case "DISCOUNT":
+		discount := c.PostForm("prom_discount")
+		if discount == "" {
+			c.JSON(http.StatusBadRequest, "Must special promotion discount")
+			return
+		}
 		dis, err := strconv.Atoi(c.PostForm("prom_discount"))
 		if err != nil {
 			c.JSON(http.StatusBadRequest, errors.GetMessage(err))
@@ -160,12 +165,18 @@ func newPromotion(c *gin.Context) {
 		p.PromDiscount = dis
 	case "FREE_ACCESSORY":
 	case "SPECIAL_OFFER":
-		pp, err := util.StringToFloat(c.PostForm("prom_price"))
+		price := c.PostForm("prom_price")
+		if price == "" {
+			c.JSON(http.StatusBadRequest, "Must special promotion price")
+			return
+		}
+		pp, err := util.StringToFloat(price)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 			return
 		}
 		p.PromPrice = pp
+
 	default:
 		c.JSON(http.StatusBadRequest, fmt.Sprintf("promotion type: %s not right", promType))
 		return
