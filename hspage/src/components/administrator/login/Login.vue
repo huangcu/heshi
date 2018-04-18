@@ -1,5 +1,6 @@
 <template>
   <div>
+    <vue-title title="合适钻石 管理界面 登录"></vue-title>
     <p style='text-align:center;'><img :src="ImgURL('logo.png')" style="width:128px;" /></p>
     <h1 style="margin-top:20px; text-align:center; color:#FFF;">合适钻石 管理界面</h1>
     <p v-if="wrongmessage" class='warning'>{{ wrongmessage }}</p>

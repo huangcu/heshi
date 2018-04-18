@@ -137,7 +137,8 @@ func getTransactionDetailOfUserRecommendedByAgent(c *gin.Context) {
 		return_point, chosen_by, status, extra_info, special_notice 
 		FROM orders 
 		WHERE transaction_id='%s' 
-		AND buyer_id IN (SELECT id FROM users WHERE status='ACTIVE' AND recommended_by='%s')`, tid, agentID)
+		AND buyer_id IN (SELECT id FROM users WHERE status='ACTIVE' AND recommended_by='%s') 
+		ORDER BY created_at DESC`, tid, agentID)
 
 	rows, err := dbQuery(q)
 	if err != nil {
@@ -166,7 +167,8 @@ func getAllTransactionsOfAUser(c *gin.Context) {
 			buyer_id, transaction_id, sold_price_usd, sold_price_cny, sold_price_eur,return_point, 
 			chosen_by, status, extra_info, special_notice 
 			FROM orders 
-			WHERE buyer_id='%s'`, buyerID)
+			WHERE buyer_id='%s' 
+			ORDER BY created_at DESC`, buyerID)
 	rows, err := dbQuery(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
@@ -190,7 +192,8 @@ func getAllTransactionsOfAUserRecommendedByAgent(c *gin.Context) {
 			chosen_by, status, extra_info, special_notice 
 			FROM orders 
 			WHERE buyer_id='%s'
-			AND buyer_id IN (SELECT id FROM users WHERE status='ACTIVE' AND recommended_by='%s')`, userID, agentID)
+			AND buyer_id IN (SELECT id FROM users WHERE status='ACTIVE' AND recommended_by='%s') 
+			ORDER BY created_at DESC`, userID, agentID)
 	rows, err := dbQuery(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
@@ -212,7 +215,8 @@ func getAllTransactionsOfUserRecommendedByAgent(c *gin.Context) {
 			buyer_id, transaction_id, sold_price_usd, sold_price_cny, sold_price_eur,return_point, 
 			chosen_by, status, extra_info, special_notice 
 			FROM orders 
-			WHERE buyer_id IN (SELECT id FROM users WHERE status='ACTIVE' AND recommended_by='%s')`, agentID)
+			WHERE buyer_id IN (SELECT id FROM users WHERE status='ACTIVE' AND recommended_by='%s') 
+			ORDER BY created_at DESC`, agentID)
 	rows, err := dbQuery(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
@@ -233,7 +237,8 @@ func getAllTransactions(c *gin.Context) {
 	q := `SELECT id, item_id, item_category, item_quantity, downpayment,
 			buyer_id, transaction_id, sold_price_usd, sold_price_cny, sold_price_eur, return_point, 
 			chosen_by, status, extra_info, special_notice 
-			FROM orders`
+			FROM orders 
+			ORDER BY created_at DESC`
 	rows, err := dbQuery(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
