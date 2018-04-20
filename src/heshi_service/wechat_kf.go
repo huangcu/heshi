@@ -97,7 +97,7 @@ func isKfAvailable(kfAccount string) (bool, error) {
 }
 
 func logTextMsgToDB(user, kfAccout, content, direction string) error {
-	q := fmt.Sprintf(`INSERT into messages (id, user, content, kf_account, direction) 
+	q := fmt.Sprintf(`INSERT into wechat_messages (id, user, content, kf_account, direction) 
 	VALUES('%s','%s','%s','%s','%s')`,
 		newV4(), user, kfAccout, content, direction)
 	_, err := dbExec(q)
@@ -105,7 +105,7 @@ func logTextMsgToDB(user, kfAccout, content, direction string) error {
 }
 
 func logImageMsgToDB(user, kfAccout, picURL, direction string) error {
-	q := fmt.Sprintf(`INSERT into messages (id, user, pic_url, kf_account, direction) 
+	q := fmt.Sprintf(`INSERT into wechat_messages (id, user, pic_url, kf_account, direction) 
 	VALUES('%s','%s','%s','%s','%s')`,
 		newV4(), user, kfAccout, picURL, direction)
 	_, err := dbExec(q)

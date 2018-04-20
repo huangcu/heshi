@@ -116,6 +116,18 @@ func AuthMiddleWare() gin.HandlerFunc {
 	}
 }
 
+func SessionMiddleWare() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		s := sessions.Default(c)
+		if s.Get(USER_SESSION_KEY) != nil {
+			c.Set("id", s.Get(USER_SESSION_KEY))
+		} else {
+			c.Set("id", "guest:"+c.Request.RemoteAddr)
+		}
+		c.Next()
+	}
+}
+
 func UserSessionMiddleWare() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set("usertype", CUSTOMER)
@@ -191,7 +203,7 @@ func RequestLogger() gin.HandlerFunc {
 		if user == nil {
 			user = "guest"
 		}
-		if err := userUsingRecord(c.Request.URL.Path, user.(string), platform); err != nil {
+		if err := userUsingRecord(c.Request.URL.Path, user.(string), platform, c.Request.RemoteAddr); err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}

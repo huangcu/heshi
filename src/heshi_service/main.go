@@ -130,6 +130,7 @@ func configRoute(r *gin.Engine) {
 	}
 	//access api log
 	api.Use(RequestLogger())
+	api.Use(SessionMiddleWare())
 
 	apiCustomer := api.Group("customer")
 	apiAdmin := api.Group("admin")
@@ -296,6 +297,9 @@ func configRoute(r *gin.Engine) {
 			apiCustomer.GET("/logout", userLogout)
 			apiCustomer.POST("/password/change", changePassword)
 		}
+		//websocket
+		api.GET("/ws/customer", SessionMiddleWare(), customerWSService)
+		api.GET("/ws/serve", UserSessionMiddleWare(), serveWSService)
 
 		// exchange rate
 		api.GET("/exchangerate", getCurrencyRate)

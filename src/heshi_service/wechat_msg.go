@@ -52,7 +52,7 @@ func handleTextMsg(msg core.MixedMsg) (string, error) {
 	}
 
 	//transfer to kf
-	q = fmt.Sprintf("SELECT kf_account FROM messages WHERE user='%s' ORDER BY created_at DESC", msg.FromUserName)
+	q = fmt.Sprintf("SELECT kf_account FROM wechat_messages WHERE user='%s' ORDER BY created_at DESC", msg.FromUserName)
 	var kfAccount string
 	if err := dbQueryRow(q).Scan(&kfAccount); err != nil {
 		//send to 多客服
