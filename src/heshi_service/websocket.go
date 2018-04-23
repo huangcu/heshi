@@ -6,6 +6,7 @@ import (
 	"heshi/errors"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -15,7 +16,8 @@ import (
 var (
 	clientList   = make(chan *client, 100)
 	serveWSConns = make(map[string]*client)
-	serveMapList = make(map[*client]*client)
+	// serveMapList = make(map[*client]*client)
+	sm sync.Map
 )
 
 type client struct {
@@ -36,7 +38,6 @@ var dFlag = false
 
 func customerWSService(c *gin.Context) {
 	uid := c.MustGet("id").(string)
-	fmt.Println("customer id" + uid)
 	uid = "guest"
 	var upgrader = websocket.Upgrader{
 		ReadBufferSize:  1024,
@@ -61,12 +62,13 @@ func customerWSService(c *gin.Context) {
 	}()
 
 	clientList <- cc
-	fmt.Println(cc)
 	cc.conn.WriteMessage(1, []byte("connecting to service..."))
 	if len(clientList) > 10 {
 		cc.conn.WriteMessage(1, []byte("two many people waiting, we suggest you  try later"))
-	} else {
+	} else if len(clientList) > 1 {
 		cc.conn.WriteMessage(1, []byte(fmt.Sprintf("you have %d customer waiting ahead of you", len(clientList)-1)))
+	} else {
+		cc.conn.WriteMessage(1, []byte("connecting to serve..."))
 	}
 
 	messages := make(chan chatMessage, 100)
@@ -75,21 +77,20 @@ func customerWSService(c *gin.Context) {
 		fmt.Println("got message here")
 		for {
 			select {
-			case <-serveConn:
-				return
 			default:
-				for serve, client := range serveMapList {
-					if client == cc {
-						serveConn <- serve.conn
-						return
+				sm.Range(func(serve, cli interface{}) bool {
+					if cli == cc {
+						serveConn <- serve.(*client).conn
+						return false
 					}
-				}
+					return true
+				})
 			}
 		}
 	}()
 
 	go func() {
-		s := <-serveConn
+		serv := <-serveConn
 		for {
 			select {
 			case cm := <-messages:
@@ -98,7 +99,7 @@ func customerWSService(c *gin.Context) {
 					cc.errChan <- err
 					return
 				}
-				if err := s.WriteMessage(cm.MessageType, m); err != nil {
+				if err := serv.WriteMessage(cm.MessageType, m); err != nil {
 					log.Println("write error:", errors.Mark(err))
 					cc.errChan <- errors.Mark(err)
 					return
@@ -131,7 +132,6 @@ func customerWSService(c *gin.Context) {
 
 func serveWSService(c *gin.Context) {
 	uid := c.MustGet("id").(string)
-	fmt.Println("serve id" + uid)
 
 	var upgrader = websocket.Upgrader{
 		ReadBufferSize:  1024,
@@ -150,17 +150,18 @@ func serveWSService(c *gin.Context) {
 		id:     uid,
 		status: "service",
 	}
-	serveMapList[cc] = nil
+	sm.Store(cc, nil)
 	go distribute()
 	defer func() {
-		delete(serveMapList, cc)
+		sm.Delete(cc)
 	}()
 
 	for {
 		select {
 		case <-cc.errChan:
-			if serveMapList[cc] != nil {
-				serveMapList[cc].conn.WriteMessage(1, []byte("service down or error, please try connected again"))
+			cliConn, ok := sm.Load(cc)
+			if ok && cliConn != nil {
+				cliConn.(*client).conn.WriteMessage(1, []byte("service down or error, please try connected again"))
 			}
 			return
 		default:
@@ -174,16 +175,17 @@ func serveWSService(c *gin.Context) {
 				Username:    uid,
 				Message:     string(message),
 			}
-			if serveMapList[cc] != nil {
+			cliConn, ok := sm.Load(cc)
+			if ok && cliConn != nil {
 				m, err := json.Marshal(cm)
 				if err != nil {
 					cc.errChan <- errors.Mark(err)
 					return
 				}
-				if err := serveMapList[cc].conn.WriteMessage(mt, m); err != nil {
+				if err := cliConn.(*client).conn.WriteMessage(mt, m); err != nil {
 					log.Println("write error:", errors.Mark(err))
 					cc.conn.WriteMessage(mt, []byte("Customer may has ended service!"))
-					serveMapList[cc].conn = nil
+					sm.Store(cc, nil)
 				}
 			}
 			// igonre message if no client
@@ -206,25 +208,27 @@ func distribute() {
 		case clientConn := <-clientList:
 			done := make(chan bool)
 			ticker := time.NewTicker(time.Second)
-
-			for {
-				select {
-				case <-done:
-					fmt.Println("Done!")
-					break
-				case <-ticker.C:
-					for serve, client := range serveMapList {
-						if client == nil {
-							serveMapList[serve] = clientConn
-							clientConn.conn.WriteMessage(1, []byte("what I can do for you?"))
-							go func() {
-								done <- true
-							}()
-							break
-						}
+			go func() {
+				for {
+					select {
+					case <-ticker.C:
+						sm.Range(func(serve, cli interface{}) bool {
+							if cli == nil {
+								sm.Store(serve, clientConn)
+								go func() {
+									done <- true
+								}()
+								return false
+							}
+							return true
+						})
 					}
 				}
-			}
+			}()
+
+			d := <-done
+			fmt.Println("Done!", d)
+
 		default:
 		}
 	}
@@ -238,14 +242,11 @@ func isServiceAvaiable(c *gin.Context) {
 
 func inServiceNumber() int {
 	var count int
-	if len(serveMapList) == 0 {
-		count = 0
-	} else {
-		for serve := range serveMapList {
-			if serve.status == "service" {
-				count++
-			}
+	sm.Range(func(serve, _ interface{}) bool {
+		if serve.(*client).status == "service" {
+			count++
 		}
-	}
+		return true
+	})
 	return count
 }
