@@ -193,6 +193,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/gorilla/websocket",
+			"repository": "https://github.com/gorilla/websocket",
+			"revision": "cd94665a654c1ec903896f2902573b46dd21baa7",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/jinzhu/configor",
 			"repository": "https://github.com/jinzhu/configor",
 			"revision": "ec34f328956f53dfbd06e9f5306e37e6943443c3",
