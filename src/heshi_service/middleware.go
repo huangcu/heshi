@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"heshi/errors"
 	"io"
@@ -10,6 +11,7 @@ import (
 	"jwt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 	"util"
 
@@ -49,6 +51,7 @@ func AuthenticateMiddleWare() *jwt.GinJWTMiddleware {
 		Timeout:          30 * time.Minute,
 		MaxRefresh:       30 * time.Minute,
 		Authenticator:    jwtAuthenticator,
+		Authorizator:     jwtAuthorizator,
 		TokenLookup:      "header:Authorization",
 		TokenHeadName:    "Bearer",
 		PrivKeyFile:      "token.key",
@@ -101,6 +104,23 @@ func jwtAuthenticator(username, password1 string, c *gin.Context) (string, bool)
 	}
 	s.Save()
 	return userProfile, true
+}
+
+func jwtAuthorizator(userID string, c *gin.Context) bool {
+	userprofile := c.MustGet("userID").(string)
+	var user User
+	if err := json.Unmarshal([]byte(userprofile), &user); err != nil {
+		return false
+	}
+	c.Set("id", user.ID)
+	c.Set("user", user)
+	if strings.HasPrefix(c.Request.RequestURI, "/api/admin") && user.UserType == ADMIN {
+		return true
+	}
+	if strings.HasPrefix(c.Request.RequestURI, "/api/agent") && user.UserType == AGENT {
+		return true
+	}
+	return false
 }
 
 func AuthMiddleWare() gin.HandlerFunc {
