@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 	"util"
@@ -114,4 +115,15 @@ func isUserExistByWechatOpenID(wecahtOpenID string) (bool, error) {
 		return false, err
 	}
 	return count == 1, nil
+}
+
+func getUserNameByID(id string) (string, error) {
+	var username string
+	if err := dbQueryRow(fmt.Sprintf("SELECT username FROM users WHERE id='%s'", id)).Scan(&username); err != nil {
+		if err == sql.ErrNoRows {
+			return "", nil
+		}
+		return "", err
+	}
+	return username, nil
 }
