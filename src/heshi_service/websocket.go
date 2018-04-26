@@ -29,12 +29,6 @@ type socketConn struct {
 	conn    *websocket.Conn
 }
 
-// type chatMessage struct {
-// 	MessageType int
-// 	Username    string `json:"username"`
-// 	Message     string `json:"message"`
-// }
-
 var dFlag = false
 
 func customerWSService(c *gin.Context) {
