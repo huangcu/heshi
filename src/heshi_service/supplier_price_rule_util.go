@@ -9,7 +9,7 @@ import (
 	"util"
 )
 
-func (p *PriceSetting) composeInsertQuery() string {
+func (p *priceSetting) composeInsertQuery() string {
 	params := p.paramsKV()
 	q := `INSERT INTO price_settings_universal (id `
 	va := fmt.Sprintf(`VALUES ('%s'`, p.ID)
@@ -31,7 +31,7 @@ func (p *PriceSetting) composeInsertQuery() string {
 	return fmt.Sprintf("%s) %s)", q, va)
 }
 
-func (p *PriceSetting) composeUpdateQuery() string {
+func (p *priceSetting) composeUpdateQuery() string {
 	params := p.paramsKV()
 	q := `UPDATE price_settings_universal SET`
 	for k, v := range params {
@@ -51,7 +51,7 @@ func (p *PriceSetting) composeUpdateQuery() string {
 
 	return fmt.Sprintf("%s WHERE id='%s'", strings.TrimSuffix(q, ","), p.ID)
 }
-func (p *PriceSetting) composeUpdateQueryTrack(updatedBy string) string {
+func (p *priceSetting) composeUpdateQueryTrack(updatedBy string) string {
 	params := p.paramsKV()
 	q := `UPDATE price_settings_universal SET`
 	for k, v := range params {
@@ -72,7 +72,7 @@ func (p *PriceSetting) composeUpdateQueryTrack(updatedBy string) string {
 	return fmt.Sprintf("%s WHERE id='%s'", strings.TrimSuffix(q, ","), p.ID)
 }
 
-func (p *PriceSetting) paramsKV() map[string]interface{} {
+func (p *priceSetting) paramsKV() map[string]interface{} {
 	params := make(map[string]interface{})
 	if p.SupplierID != "" {
 		params["supplier_id"] = p.SupplierID
@@ -116,7 +116,7 @@ func (p *PriceSetting) paramsKV() map[string]interface{} {
 	return params
 }
 
-func (p *PriceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
+func (p *priceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
 	var vemsg []errors.HSMessage
 
 	sValue, err := util.StringToFloat(p.CaratFromStr)
@@ -147,25 +147,25 @@ func (p *PriceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
 	}
 	p.Priority = pValue
 
-	invalid := ItemsNotInArray(p.GradingLabs, VALID_GRADING_LAB)
+	invalid := itemsNotInArray(p.GradingLabs, VALID_GRADING_LAB)
 	if len(invalid) != 0 {
 		vemsgNotValid.Message = fmt.Sprintf("grading lab input has invalid value: %s", strings.Join(invalid, ","))
 		vemsg = append(vemsg, vemsgNotValid)
 	}
 
-	invalid = ItemsNotInArray(p.Clarities, VALID_CLARITY)
+	invalid = itemsNotInArray(p.Clarities, VALID_CLARITY)
 	if len(invalid) != 0 {
 		vemsgNotValid.Message = fmt.Sprintf("clarity input has invalid value: %s", strings.Join(invalid, ","))
 		vemsg = append(vemsg, vemsgNotValid)
 	}
 
-	invalid = ItemsNotInArray(p.Colors, VALID_COLOR)
+	invalid = itemsNotInArray(p.Colors, VALID_COLOR)
 	if len(invalid) != 0 {
 		vemsgNotValid.Message = fmt.Sprintf("color input has invalid value: %s", strings.Join(invalid, ","))
 		vemsg = append(vemsg, vemsgNotValid)
 	}
 
-	invalid = ItemsNotInArray(p.CutGrades, VALID_CUT_GRADE)
+	invalid = itemsNotInArray(p.CutGrades, VALID_CUT_GRADE)
 	// p.CutGrades = strings.Join(cutGrades, ",")
 	if len(invalid) != 0 {
 		vemsgNotValid.Message = fmt.Sprintf("cut grade input has invalid value: %s", strings.Join(invalid, ","))

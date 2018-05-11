@@ -51,7 +51,7 @@ func newGems(c *gin.Context) {
 	g := gem{
 		ID:               newV4(),
 		StockID:          strings.ToUpper(c.PostForm("stock_id")),
-		Shape:            FormatInputString(c.PostForm("shape")),
+		Shape:            formatInputString(c.PostForm("shape")),
 		Material:         strings.ToUpper(c.PostForm("material")),
 		Name:             strings.ToUpper(c.PostForm("name")),
 		SizeStr:          c.PostForm("size"),
@@ -109,7 +109,7 @@ func updateGems(c *gin.Context) {
 	g := gem{
 		ID:               gid,
 		StockID:          strings.ToUpper(c.PostForm("stock_id")),
-		Shape:            FormatInputString(c.PostForm("shape")),
+		Shape:            formatInputString(c.PostForm("shape")),
 		Material:         strings.ToUpper(c.PostForm("material")),
 		Name:             strings.ToUpper(c.PostForm("name")),
 		SizeStr:          c.PostForm("size"),

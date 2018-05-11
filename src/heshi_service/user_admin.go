@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Admin ...
 type Admin struct {
 	Level      int    `json:"admin_level,omitempty"`
 	LevelStr   string `json:"-"`

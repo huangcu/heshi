@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Agent ...
 type Agent struct {
 	Level       int    `json:"level,omitempty"`
 	LevelStr    string `json:"-"`
@@ -19,7 +20,7 @@ type Agent struct {
 	CreatedBy   string `json:"created_by,omitempty"`
 }
 
-type ContactInfo struct {
+type contactInfo struct {
 	ID             string `json:"-"`
 	Cellphone      string `json:"cellphone"`
 	Email          string `json:"email"`
@@ -122,7 +123,7 @@ func agentContactInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, *ci)
 }
 
-func getUserContactInfoInvitationCode(userID string) (*ContactInfo, error) {
+func getUserContactInfoInvitationCode(userID string) (*contactInfo, error) {
 	var cellphone, email, realName sql.NullString
 	var wechatID, wechatName, wechatQR, address, additionalInfo sql.NullString
 	q := fmt.Sprintf(`SELECT cellphone, email, realname, wechat_id, wechat_name, wechat_qr, address, additional_info 
@@ -130,7 +131,7 @@ func getUserContactInfoInvitationCode(userID string) (*ContactInfo, error) {
 	if err := dbQueryRow(q).Scan(&cellphone, &email, &realName, &wechatID, &wechatName, &wechatQR, &address, &additionalInfo); err != nil {
 		return nil, err
 	}
-	return &ContactInfo{
+	return &contactInfo{
 		ID:             userID,
 		Cellphone:      cellphone.String,
 		Email:          email.String,

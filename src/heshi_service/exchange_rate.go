@@ -206,9 +206,10 @@ type currency struct {
 	Base      string   `json:"base"`
 	Timestamp int64    `json:"timestamp"`
 	Rates     Rate     `json:"rates"`
-	RatesFluc RateFluc `json:"-"`
+	RatesFluc rateFluc `json:"-"`
 }
 
+// Rate ...
 type Rate struct {
 	USD float64 `json:"USD"` //USD
 	CNY float64 `json:"CNY"` //RMB
@@ -220,7 +221,7 @@ type Rate struct {
 	NZD float64 `json:"NZD"` //New Zealand Dollar
 }
 
-type RateFluc struct {
+type rateFluc struct {
 	USDFluc float64 `json:"USD_Fluc"` //USD
 	CNYFluc float64 `json:"CNY_Fluc"` //RMB
 	EURFluc float64 `json:"EUR_Fluc"` //Euro

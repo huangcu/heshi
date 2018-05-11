@@ -26,7 +26,7 @@ import (
 // ⑦给用户的微信客户端推送“绑定成功”的提示；
 // ⑧通知前台页面，绑定已完成，刷新页面，并返回一些微信账户信息。完成绑定
 
-type TempQrCode struct {
+type tempQrCode struct {
 	SceneID   int32  `json:"scene_id"`
 	QrCodeURL string `json:"qr_code_url"`
 }
@@ -67,7 +67,7 @@ func wechatTempQrCode(c *gin.Context) {
 	}
 
 	qrcodeURL := qrcode.QrcodePicURL(tempQRCode.Ticket)
-	t := TempQrCode{
+	t := tempQrCode{
 		SceneID:   sceneID,
 		QrCodeURL: qrcodeURL,
 	}

@@ -21,7 +21,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CORSMiddleware() gin.HandlerFunc {
+func cORSMiddleware() gin.HandlerFunc {
 	config := cors.Config{
 		AllowAllOrigins: true,
 		// AllowOrigins:     []string{"http://localhost:8080"},
@@ -44,7 +44,7 @@ func CORSMiddleware() gin.HandlerFunc {
 	// cors.DefaultConfig()
 }
 
-func AuthenticateMiddleWare() *jwt.GinJWTMiddleware {
+func authenticateMiddleWare() *jwt.GinJWTMiddleware {
 	return &jwt.GinJWTMiddleware{
 		Realm:            "HESHI",
 		Key:              []byte("secret key"),
@@ -123,7 +123,7 @@ func jwtAuthorizator(userID string, c *gin.Context) bool {
 	return false
 }
 
-func AuthMiddleWare() gin.HandlerFunc {
+func authMiddleWare() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		t := c.Request.Header.Get("X-Auth-Token")
 		if t == "" {
@@ -136,7 +136,7 @@ func AuthMiddleWare() gin.HandlerFunc {
 	}
 }
 
-func SessionMiddleWare() gin.HandlerFunc {
+func sessionMiddleWare() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		s := sessions.Default(c)
 		if s.Get(USER_SESSION_KEY) != nil {
@@ -148,7 +148,7 @@ func SessionMiddleWare() gin.HandlerFunc {
 	}
 }
 
-func UserSessionMiddleWare() gin.HandlerFunc {
+func userSessionMiddleWare() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set("usertype", CUSTOMER)
 		if os.Getenv("STAGE") == "dev" {
@@ -166,7 +166,7 @@ func UserSessionMiddleWare() gin.HandlerFunc {
 	}
 }
 
-func AdminSessionMiddleWare() gin.HandlerFunc {
+func adminSessionMiddleWare() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set("usertype", ADMIN)
 		if os.Getenv("STAGE") == "dev" {
@@ -188,7 +188,7 @@ func AdminSessionMiddleWare() gin.HandlerFunc {
 	}
 }
 
-func AgentSessionMiddleWare() gin.HandlerFunc {
+func agentSessionMiddleWare() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set("usertype", AGENT)
 		if os.Getenv("STAGE") == "dev" {
@@ -209,7 +209,7 @@ func AgentSessionMiddleWare() gin.HandlerFunc {
 		c.Next()
 	}
 }
-func RequestLogger() gin.HandlerFunc {
+func requestLogger() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		buf, _ := ioutil.ReadAll(c.Request.Body)
 		rdr1 := ioutil.NopCloser(bytes.NewBuffer(buf))

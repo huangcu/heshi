@@ -126,7 +126,7 @@ func wechatToken(c *gin.Context) {
 			return
 		}
 
-		wu := WechatUserInfo{userinfo}
+		wu := wechatUserInfo{userinfo}
 		if err := wu.newWechatUser(); err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return

@@ -108,6 +108,8 @@ type replyMsgHeader struct {
 	CreateTime   int64     `xml:"CreateTime"  `
 	MsgType      CDATAText `xml:"MsgType"     `
 }
+
+// CDATAText ...
 type CDATAText struct {
 	Text string `xml:",innerxml"`
 }

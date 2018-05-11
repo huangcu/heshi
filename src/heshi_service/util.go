@@ -111,8 +111,8 @@ func isItemExistInDbByPropertyWithDifferentID(dbName, property, propertyValue, i
 	return true, nil
 }
 
-func ItemsNotInArray(item string, items []string) []string {
-	itemStr := FormatInputString(item)
+func itemsNotInArray(item string, items []string) []string {
+	itemStr := formatInputString(item)
 	var notIn []string
 	for _, v := range strings.Split(itemStr, ",") {
 		if !util.IsInArrayString(v, items) {
@@ -122,7 +122,7 @@ func ItemsNotInArray(item string, items []string) []string {
 	return notIn
 }
 
-func FormatInputString(input string) string {
+func formatInputString(input string) string {
 	return strings.ToUpper(strings.Replace(input, " ", "", -1))
 }
 

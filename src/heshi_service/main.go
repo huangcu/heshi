@@ -18,6 +18,7 @@ import (
 	"util"
 
 	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
 )
@@ -27,7 +28,7 @@ var (
 	ctx                 context.Context
 	cancelFn            context.CancelFunc
 	serverIsInterrupted bool
-	store               sessions.CookieStore
+	store               cookie.Store
 	activeCurrencyRate  *currency
 	activeConfig        exchangeRateFloat
 )
@@ -93,9 +94,9 @@ func startWebServer(port string) error {
 
 	r.Use(gin.Recovery())
 	//CORS
-	r.Use(CORSMiddleware())
+	r.Use(cORSMiddleware())
 	//session
-	store = sessions.NewCookieStore([]byte("secret"))
+	store = cookie.NewStore([]byte("secret"))
 	// store, _ := sessions.NewRedisStore(10, "tcp", "localhost:6379", "", []byte("secret"))
 	store.Options(sessions.Options{
 		MaxAge:   7 * 24 * 60 * 60, //set max age 1 week // 30 * 60 - 30 min - not int(30 * time.Minute),
@@ -117,7 +118,7 @@ func configRoute(r *gin.Engine) {
 	api := r.Group("/api")
 	if os.Getenv("STAGE") != "dev" {
 		// auth - access service api
-		api.Use(AuthMiddleWare())
+		api.Use(authMiddleWare())
 
 		// Cross-Site Request Forgery (CSRF)
 		// api.Use(csrf.Middleware(csrf.Options{
@@ -129,8 +130,8 @@ func configRoute(r *gin.Engine) {
 		// }))
 	}
 	//access api log
-	api.Use(RequestLogger())
-	api.Use(SessionMiddleWare())
+	api.Use(requestLogger())
+	api.Use(sessionMiddleWare())
 
 	apiCustomer := api.Group("customer")
 	apiAdmin := api.Group("admin")
@@ -138,7 +139,7 @@ func configRoute(r *gin.Engine) {
 	apiWechat := api.Group("wechat")
 
 	//authentication
-	jwtMiddleware := AuthenticateMiddleWare()
+	jwtMiddleware := authenticateMiddleWare()
 
 	if os.Getenv("STAGE") == "dev" {
 		api.POST("/login", userLogin)
@@ -151,11 +152,11 @@ func configRoute(r *gin.Engine) {
 	}
 
 	//session check
-	apiCustomer.Use(UserSessionMiddleWare())
-	apiAdmin.Use(AdminSessionMiddleWare())
-	apiAgent.Use(AgentSessionMiddleWare())
+	apiCustomer.Use(userSessionMiddleWare())
+	apiAdmin.Use(adminSessionMiddleWare())
+	apiAgent.Use(agentSessionMiddleWare())
 	//TODO wechat - > admin and customer
-	apiWechat.Use(AdminSessionMiddleWare())
+	apiWechat.Use(adminSessionMiddleWare())
 	api.GET("/refresh/token", jwtMiddleware.RefreshHandler)
 
 	{
@@ -298,8 +299,8 @@ func configRoute(r *gin.Engine) {
 			apiCustomer.POST("/password/change", changePassword)
 		}
 		//websocket
-		api.GET("/ws/customer", SessionMiddleWare(), customerWSService)
-		api.GET("/ws/serve", UserSessionMiddleWare(), serveWSService)
+		api.GET("/ws/customer", sessionMiddleWare(), customerWSService)
+		api.GET("/ws/serve", userSessionMiddleWare(), serveWSService)
 
 		// exchange rate
 		api.GET("/exchangerate", getCurrencyRate)
@@ -333,8 +334,8 @@ func configRoute(r *gin.Engine) {
 		api.Static("/image", ".image")
 		api.Static("/video", ".video")
 		//token
-		api.GET("/token", GetToken)
-		api.POST("/token", VerifyToken)
+		api.GET("/token", getToken)
+		api.POST("/token", verifyToken)
 		api.POST("/excel", parseExcel)
 	}
 	r.Static("../webpage", "webpage")
@@ -356,6 +357,9 @@ func init() {
 		util.Println(err.Error())
 		os.Exit(1)
 	}
+	defer db.Close()
+
+	ctx, cancelFn = context.WithCancel(context.Background())
 	if strings.ToUpper(runtime.GOOS) != "WINDOWS" {
 		fmt.Println("OS: " + runtime.GOOS)
 		val, err := redisClient.FlushAll().Result()

@@ -14,7 +14,7 @@ import (
 type item struct {
 	ItemID       string `json:"item_id"`
 	ItemCategory string `json:"item_category"`
-	ItemQuantity int    `json:"item_quantity, omitempty"`
+	ItemQuantity int    `json:"item_quantity,omitempty"`
 }
 
 type transaction struct {

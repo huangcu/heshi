@@ -20,18 +20,18 @@ type promotion struct {
 	EndAt     *time.Time `json:"end_at,omitempty"`
 	CreatedBy string     `json:"created_by,omitempty"`
 	Status    string     `json:"status,omitempty"`
-	PromotionDiscount
-	PromotionPrice
+	promotionDiscount
+	promotionPrice
 }
 
-type PromotionDiscount struct {
+type promotionDiscount struct {
 	PromDiscount int `json:"prom_discount,omitempty"`
 }
-type PromotionPrice struct {
+type promotionPrice struct {
 	PromPrice float64 `json:"prom_price,omitempty"`
 }
 
-var PROM_TYPE = []string{"DISCOUNT", "FREE_ACCESSORY", "SPECIAL_OFFER"}
+var promTypeConst = []string{"DISCOUNT", "FREE_ACCESSORY", "SPECIAL_OFFER"}
 
 // promote|depromote - promotion_id = ""
 type promotionProduct struct {
@@ -110,7 +110,7 @@ func promoteProducts(c *gin.Context) {
 func newPromotion(c *gin.Context) {
 	createdBy := c.MustGet("id").(string)
 	promType := strings.ToUpper(c.PostForm("prom_type"))
-	if !util.IsInArrayString(promType, PROM_TYPE) {
+	if !util.IsInArrayString(promType, promTypeConst) {
 		c.JSON(http.StatusBadRequest, fmt.Sprintf("%s is not valid", promType))
 		return
 	}
@@ -202,7 +202,7 @@ func updatePromotion(c *gin.Context) {
 	updatedBy := c.MustGet("id").(string)
 	promType := strings.ToUpper(c.PostForm("prom_type"))
 	if promType != "" {
-		if !util.IsInArrayString(promType, PROM_TYPE) {
+		if !util.IsInArrayString(promType, promTypeConst) {
 			c.JSON(http.StatusBadRequest, fmt.Sprintf("%s is not valid", promType))
 			return
 		}
