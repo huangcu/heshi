@@ -14,18 +14,6 @@
 			"branch": "master"
 		},
 		{
-			"importpath": "github.com/Shaked/gomobiledetect",
-			"repository": "https://github.com/Shaked/gomobiledetect",
-			"revision": "25f014f665680d424817c814f3d2982a13f0985a",
-			"branch": "master"
-		},
-		{
-			"importpath": "github.com/appleboy/gin-jwt",
-			"repository": "https://github.com/appleboy/gin-jwt",
-			"revision": "a2cab93652d826ce56deb44084b25e7dabbf8b57",
-			"branch": "master"
-		},
-		{
 			"importpath": "github.com/asaskevich/govalidator",
 			"repository": "https://github.com/asaskevich/govalidator",
 			"revision": "7d2e70ef918f16bd6455529af38304d6d025c952",
@@ -57,17 +45,11 @@
 			"branch": "master"
 		},
 		{
-			"importpath": "github.com/chanxuehong/util",
+			"importpath": "github.com/chanxuehong/util/security",
 			"repository": "https://github.com/chanxuehong/util",
 			"revision": "3283ef9c9f257d87e79ade33fc113ec8a22c3b00",
-			"branch": "master"
-		},
-		{
-			"importpath": "github.com/davidrjenni/reftools/vendor/golang.org/x/tools/go/gcexportdata",
-			"repository": "https://github.com/davidrjenni/reftools",
-			"revision": "3813a62570d272cb4d138bfb5bbcb013633db6f4",
 			"branch": "master",
-			"path": "/vendor/golang.org/x/tools/go/gcexportdata"
+			"path": "/security"
 		},
 		{
 			"importpath": "github.com/dgrijalva/jwt-go",
@@ -79,12 +61,6 @@
 			"importpath": "github.com/disintegration/imaging",
 			"repository": "https://github.com/disintegration/imaging",
 			"revision": "bbcee2f5c9d5e94ca42c8b50ec847fec64a6c134",
-			"branch": "master"
-		},
-		{
-			"importpath": "github.com/dustin/go-broadcast",
-			"repository": "https://github.com/dustin/go-broadcast",
-			"revision": "f664265f5a662fb4d1df7f3533b1e8d0e0277120",
 			"branch": "master"
 		},
 		{
@@ -132,40 +108,15 @@
 			"branch": "master"
 		},
 		{
-			"importpath": "github.com/gin-gonic/autotls",
-			"repository": "https://github.com/gin-gonic/autotls",
-			"revision": "be87bd5ef97b7398e468c35ad266aabf099a095b",
-			"branch": "master"
-		},
-		{
-			"importpath": "github.com/gin-gonic/contrib/sessions",
-			"repository": "https://github.com/gin-gonic/contrib",
-			"revision": "33543d11593dd66df698cae8b4c776faa0827359",
-			"branch": "master",
-			"path": "/sessions"
-		},
-		{
 			"importpath": "github.com/gin-gonic/gin",
 			"repository": "https://github.com/gin-gonic/gin",
 			"revision": "995fa8e9ce404a7a8dc293c90ec018367639ffa9",
 			"branch": "master"
 		},
 		{
-			"importpath": "github.com/go-playground/locales",
-			"repository": "https://github.com/go-playground/locales",
-			"revision": "f63010822830b6fe52288ee52d5a1151088ce039",
-			"branch": "master"
-		},
-		{
-			"importpath": "github.com/go-playground/universal-translator",
-			"repository": "https://github.com/go-playground/universal-translator",
-			"revision": "71201497bace774495daed26a3874fd339e0b538",
-			"branch": "master"
-		},
-		{
 			"importpath": "github.com/go-redis/redis",
 			"repository": "https://github.com/go-redis/redis",
-			"revision": "12c0262c7506392ba615d07f566d0a9acea5dcf6",
+			"revision": "bc49453a24e10f8d1b15568f323ca16c67bb3cf5",
 			"branch": "master"
 		},
 		{
@@ -224,12 +175,6 @@
 			"branch": "master"
 		},
 		{
-			"importpath": "github.com/manucorporat/stats",
-			"repository": "https://github.com/manucorporat/stats",
-			"revision": "3ba42d56d227cf2a6086b63baba5e00669235853",
-			"branch": "master"
-		},
-		{
 			"importpath": "github.com/mattn/go-colorable",
 			"repository": "https://github.com/mattn/go-colorable",
 			"revision": "efa589957cd060542a26d2dd7832fd6a6c6c3ade",
@@ -248,6 +193,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/quasoft/memstore",
+			"repository": "https://github.com/quasoft/memstore",
+			"revision": "72cbde23778087efc0d9af366d6f08ceacbf4705",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/satori/go.uuid",
 			"repository": "https://github.com/satori/go.uuid",
 			"revision": "36e9d2ebbde5e3f13ab2e25625fd453271d6522e",
@@ -260,31 +211,11 @@
 			"branch": "master"
 		},
 		{
-			"importpath": "github.com/thinkerou/favicon",
-			"repository": "https://github.com/thinkerou/favicon",
-			"revision": "94a442a49da6e2d44bdd5e0d2e2e185c43a19d93",
-			"branch": "master"
-		},
-		{
 			"importpath": "github.com/ugorji/go/codec",
 			"repository": "https://github.com/ugorji/go",
 			"revision": "f3cacc17c85ecb7f1b6a9e373ee85d1480919868",
 			"branch": "master",
 			"path": "/codec"
-		},
-		{
-			"importpath": "golang.org/x/crypto/acme",
-			"repository": "https://go.googlesource.com/crypto",
-			"revision": "2d027ae1dddd4694d54f7a8b6cbe78dca8720226",
-			"branch": "master",
-			"path": "/acme"
-		},
-		{
-			"importpath": "golang.org/x/crypto/acme/autocert",
-			"repository": "https://go.googlesource.com/crypto",
-			"revision": "2d027ae1dddd4694d54f7a8b6cbe78dca8720226",
-			"branch": "master",
-			"path": "/acme/autocert"
 		},
 		{
 			"importpath": "golang.org/x/crypto/bcrypt",
@@ -315,13 +246,6 @@
 			"path": "/tiff"
 		},
 		{
-			"importpath": "golang.org/x/net/context",
-			"repository": "https://go.googlesource.com/net",
-			"revision": "f73e4c9ed3b7ebdd5f699a16a880c2b1994e50dd",
-			"branch": "master",
-			"path": "/context"
-		},
-		{
 			"importpath": "golang.org/x/net/html",
 			"repository": "https://go.googlesource.com/net",
 			"revision": "f73e4c9ed3b7ebdd5f699a16a880c2b1994e50dd",
@@ -336,17 +260,158 @@
 			"path": "/websocket"
 		},
 		{
-			"importpath": "golang.org/x/sync/errgroup",
-			"repository": "https://go.googlesource.com/sync",
-			"revision": "1d60e4601c6fd243af51cc01ddf169918a5407ca",
+			"importpath": "golang.org/x/text/encoding",
+			"repository": "https://go.googlesource.com/text",
+			"revision": "7922cc490dd5a7dbaa7fd5d6196b49db59ac042f",
 			"branch": "master",
-			"path": "/errgroup"
+			"path": "/encoding"
 		},
 		{
-			"importpath": "gopkg.in/chanxuehong/wechat.v2",
+			"importpath": "golang.org/x/text/internal/language",
+			"repository": "https://go.googlesource.com/text",
+			"revision": "7922cc490dd5a7dbaa7fd5d6196b49db59ac042f",
+			"branch": "master",
+			"path": "/internal/language"
+		},
+		{
+			"importpath": "golang.org/x/text/internal/tag",
+			"repository": "https://go.googlesource.com/text",
+			"revision": "7922cc490dd5a7dbaa7fd5d6196b49db59ac042f",
+			"branch": "master",
+			"path": "/internal/tag"
+		},
+		{
+			"importpath": "golang.org/x/text/internal/utf8internal",
+			"repository": "https://go.googlesource.com/text",
+			"revision": "7922cc490dd5a7dbaa7fd5d6196b49db59ac042f",
+			"branch": "master",
+			"path": "/internal/utf8internal"
+		},
+		{
+			"importpath": "golang.org/x/text/language",
+			"repository": "https://go.googlesource.com/text",
+			"revision": "7922cc490dd5a7dbaa7fd5d6196b49db59ac042f",
+			"branch": "master",
+			"path": "/language"
+		},
+		{
+			"importpath": "golang.org/x/text/runes",
+			"repository": "https://go.googlesource.com/text",
+			"revision": "7922cc490dd5a7dbaa7fd5d6196b49db59ac042f",
+			"branch": "master",
+			"path": "/runes"
+		},
+		{
+			"importpath": "golang.org/x/text/transform",
+			"repository": "https://go.googlesource.com/text",
+			"revision": "7922cc490dd5a7dbaa7fd5d6196b49db59ac042f",
+			"branch": "master",
+			"path": "/transform"
+		},
+		{
+			"importpath": "gopkg.in/chanxuehong/wechat.v2/internal/debug/api",
 			"repository": "https://gopkg.in/chanxuehong/wechat.v2",
 			"revision": "3dab9fa09f43bbee5104eecb1803cfc52269f6b0",
-			"branch": "v2"
+			"branch": "v2",
+			"path": "/internal/debug/api"
+		},
+		{
+			"importpath": "gopkg.in/chanxuehong/wechat.v2/internal/debug/callback",
+			"repository": "https://gopkg.in/chanxuehong/wechat.v2",
+			"revision": "3dab9fa09f43bbee5104eecb1803cfc52269f6b0",
+			"branch": "v2",
+			"path": "/internal/debug/callback"
+		},
+		{
+			"importpath": "gopkg.in/chanxuehong/wechat.v2/internal/util",
+			"repository": "https://gopkg.in/chanxuehong/wechat.v2",
+			"revision": "3dab9fa09f43bbee5104eecb1803cfc52269f6b0",
+			"branch": "v2",
+			"path": "/internal/util"
+		},
+		{
+			"importpath": "gopkg.in/chanxuehong/wechat.v2/mp/base",
+			"repository": "https://gopkg.in/chanxuehong/wechat.v2",
+			"revision": "3dab9fa09f43bbee5104eecb1803cfc52269f6b0",
+			"branch": "v2",
+			"path": "/mp/base"
+		},
+		{
+			"importpath": "gopkg.in/chanxuehong/wechat.v2/mp/core",
+			"repository": "https://gopkg.in/chanxuehong/wechat.v2",
+			"revision": "3dab9fa09f43bbee5104eecb1803cfc52269f6b0",
+			"branch": "v2",
+			"path": "/mp/core"
+		},
+		{
+			"importpath": "gopkg.in/chanxuehong/wechat.v2/mp/dkf",
+			"repository": "https://gopkg.in/chanxuehong/wechat.v2",
+			"revision": "3dab9fa09f43bbee5104eecb1803cfc52269f6b0",
+			"branch": "v2",
+			"path": "/mp/dkf"
+		},
+		{
+			"importpath": "gopkg.in/chanxuehong/wechat.v2/mp/menu",
+			"repository": "https://gopkg.in/chanxuehong/wechat.v2",
+			"revision": "3dab9fa09f43bbee5104eecb1803cfc52269f6b0",
+			"branch": "v2",
+			"path": "/mp/menu"
+		},
+		{
+			"importpath": "gopkg.in/chanxuehong/wechat.v2/mp/message/callback/request",
+			"repository": "https://gopkg.in/chanxuehong/wechat.v2",
+			"revision": "3dab9fa09f43bbee5104eecb1803cfc52269f6b0",
+			"branch": "v2",
+			"path": "/mp/message/callback/request"
+		},
+		{
+			"importpath": "gopkg.in/chanxuehong/wechat.v2/mp/message/callback/response",
+			"repository": "https://gopkg.in/chanxuehong/wechat.v2",
+			"revision": "3dab9fa09f43bbee5104eecb1803cfc52269f6b0",
+			"branch": "v2",
+			"path": "/mp/message/callback/response"
+		},
+		{
+			"importpath": "gopkg.in/chanxuehong/wechat.v2/mp/message/custom",
+			"repository": "https://gopkg.in/chanxuehong/wechat.v2",
+			"revision": "3dab9fa09f43bbee5104eecb1803cfc52269f6b0",
+			"branch": "v2",
+			"path": "/mp/message/custom"
+		},
+		{
+			"importpath": "gopkg.in/chanxuehong/wechat.v2/mp/message/template",
+			"repository": "https://gopkg.in/chanxuehong/wechat.v2",
+			"revision": "3dab9fa09f43bbee5104eecb1803cfc52269f6b0",
+			"branch": "v2",
+			"path": "/mp/message/template"
+		},
+		{
+			"importpath": "gopkg.in/chanxuehong/wechat.v2/mp/oauth2",
+			"repository": "https://gopkg.in/chanxuehong/wechat.v2",
+			"revision": "3dab9fa09f43bbee5104eecb1803cfc52269f6b0",
+			"branch": "v2",
+			"path": "/mp/oauth2"
+		},
+		{
+			"importpath": "gopkg.in/chanxuehong/wechat.v2/mp/qrcode",
+			"repository": "https://gopkg.in/chanxuehong/wechat.v2",
+			"revision": "3dab9fa09f43bbee5104eecb1803cfc52269f6b0",
+			"branch": "v2",
+			"path": "/mp/qrcode"
+		},
+		{
+			"importpath": "gopkg.in/chanxuehong/wechat.v2/oauth2",
+			"repository": "https://gopkg.in/chanxuehong/wechat.v2",
+			"revision": "3dab9fa09f43bbee5104eecb1803cfc52269f6b0",
+			"branch": "v2",
+			"path": "/oauth2"
+		},
+		{
+			"importpath": "gopkg.in/chanxuehong/wechat.v2/util",
+			"repository": "https://gopkg.in/chanxuehong/wechat.v2",
+			"revision": "3dab9fa09f43bbee5104eecb1803cfc52269f6b0",
+			"branch": "v2",
+			"path": "/util"
 		},
 		{
 			"importpath": "gopkg.in/dgrijalva/jwt-go.v3",
@@ -376,7 +441,7 @@
 			"importpath": "gopkg.in/yaml.v2",
 			"repository": "https://gopkg.in/yaml.v2",
 			"revision": "5420a8b6744d3b0345ab293f6fcba19c978f1183",
-			"branch": "v2"
+			"branch": "master"
 		}
 	]
 }
