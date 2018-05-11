@@ -63,6 +63,13 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/davidrjenni/reftools/vendor/golang.org/x/tools/go/gcexportdata",
+			"repository": "https://github.com/davidrjenni/reftools",
+			"revision": "3813a62570d272cb4d138bfb5bbcb013633db6f4",
+			"branch": "master",
+			"path": "/vendor/golang.org/x/tools/go/gcexportdata"
+		},
+		{
 			"importpath": "github.com/dgrijalva/jwt-go",
 			"repository": "https://github.com/dgrijalva/jwt-go",
 			"revision": "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e",
@@ -208,6 +215,12 @@
 			"importpath": "github.com/kidstuff/mongostore",
 			"repository": "https://github.com/kidstuff/mongostore",
 			"revision": "db2a8b4fac1f737c75e7fb84cb3fdb07dfc8fbc9",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/kisielk/gotool",
+			"repository": "https://github.com/kisielk/gotool",
+			"revision": "80517062f582ea3340cd4baf70e86d539ae7d84d",
 			"branch": "master"
 		},
 		{
