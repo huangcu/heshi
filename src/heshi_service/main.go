@@ -75,10 +75,11 @@ func main() {
 		port = ":8443"
 	}
 
-	log.Fatal(startWebServer(port))
 	ctx, cancelFn = context.WithCancel(context.Background())
 	defer cancelFn()
-	go signalNotify()
+	defer db.Close()
+	go signalNotify(ctx)
+	log.Fatal(startWebServer(port))
 }
 
 func startWebServer(port string) error {
@@ -364,7 +365,6 @@ func init() {
 		util.Println(err.Error())
 		os.Exit(1)
 	}
-	defer db.Close()
 
 	if strings.ToUpper(runtime.GOOS) != "WINDOWS" {
 		fmt.Println("OS: " + runtime.GOOS)
@@ -412,7 +412,7 @@ func mkDir() error {
 	return os.MkdirAll(uploadFileDir, 0755)
 }
 
-func signalNotify() {
+func signalNotify(ctx context.Context) {
 	sigc := make(chan os.Signal, 1)
 	signal.Notify(sigc, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 	c := <-sigc
@@ -421,4 +421,5 @@ func signalNotify() {
 	if err := webServer.Shutdown(ctx); err != nil {
 		log.Fatal("Server Shut Down ERROR:", err)
 	}
+	os.Exit(0)
 }

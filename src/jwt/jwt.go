@@ -15,7 +15,7 @@ import (
 
 // GinJWTMiddleware provides a Json-Web-Token authentication implementation. On failure, a 401 HTTP response
 // is returned. On success, the wrapped middleware is called, and the userID is made available as
-// c.Get("userID").(string).
+// c.Get("userID").(string). -- here we set id the authentication result - userprofile
 // Users can get a token by posting a json request to LoginHandler. The token then needs to be passed in
 // the Authentication header. Example: Authorization:Bearer XXX_TOKEN_XXX
 type GinJWTMiddleware struct {
@@ -292,6 +292,7 @@ func (mw *GinJWTMiddleware) middlewareImpl(c *gin.Context) {
 	id := mw.IdentityHandler(claims)
 	c.Set("JWT_PAYLOAD", claims)
 	c.Set("userID", id)
+	c.Set("userprofile", id)
 
 	if !mw.Authorizator(id, c) {
 		mw.unauthorized(c, http.StatusForbidden, mw.HTTPStatusMessageFunc(ErrForbidden, c))

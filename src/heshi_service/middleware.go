@@ -44,12 +44,13 @@ func cORSMiddleware() gin.HandlerFunc {
 	// cors.DefaultConfig()
 }
 
+// give it 2 mins chance window to refresh token after current token expire
 func authenticateMiddleWare() *jwt.GinJWTMiddleware {
 	return &jwt.GinJWTMiddleware{
 		Realm:            "HESHI",
 		Key:              []byte("secret key"),
 		Timeout:          30 * time.Minute,
-		MaxRefresh:       30 * time.Minute,
+		MaxRefresh:       32 * time.Minute,
 		Authenticator:    jwtAuthenticator,
 		Authorizator:     jwtAuthorizator,
 		TokenLookup:      "header:Authorization",
@@ -69,7 +70,7 @@ func jwtAuthenticator(username, password1 string, c *gin.Context) (string, bool)
 	var id, password, userType, status string
 	if err := dbQueryRow(q).Scan(&id, &password, &userType, &status); err != nil {
 		if err == sql.ErrNoRows {
-			return fmt.Sprintf("%s not exists", username), false
+			return errorLoginUserNamePassword, false
 		}
 		return "System error, please try again later", false
 	}
