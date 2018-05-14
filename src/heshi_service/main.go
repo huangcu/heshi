@@ -11,9 +11,11 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"runtime"
 	"strings"
+	"syscall"
 	"time"
 	"util"
 
@@ -76,22 +78,11 @@ func main() {
 	log.Fatal(startWebServer(port))
 	ctx, cancelFn = context.WithCancel(context.Background())
 	defer cancelFn()
-	if err := webServer.Shutdown(ctx); err != nil {
-		log.Fatal("Server Shut Down ERROR:", err)
-	}
+	go signalNotify()
 }
 
 func startWebServer(port string) error {
 	r := gin.New()
-	//session
-	store = cookie.NewStore([]byte("secret"))
-	// store, _ := sessions.NewRedisStore(10, "tcp", "localhost:6379", "", []byte("secret"))
-	store.Options(sessions.Options{
-		MaxAge:   7 * 24 * 60 * 60, //set max age 1 week // 30 * 60 - 30 min - not int(30 * time.Minute),
-		Path:     "/",
-		Secure:   false,
-		HttpOnly: false,
-	})
 
 	//if PRO
 	cer, err := tls.LoadX509KeyPair("server.crt", "server.key")
@@ -111,6 +102,15 @@ func startWebServer(port string) error {
 	r.Use(gin.Recovery())
 	//CORS
 	r.Use(cORSMiddleware())
+	//session
+	store = cookie.NewStore([]byte("secret"))
+	// store, _ := sessions.NewRedisStore(10, "tcp", "localhost:6379", "", []byte("secret"))
+	store.Options(sessions.Options{
+		MaxAge:   7 * 24 * 60 * 60, //set max age 1 week // 30 * 60 - 30 min - not int(30 * time.Minute),
+		Path:     "/",
+		Secure:   false,
+		HttpOnly: false,
+	})
 	r.Use(sessions.Sessions("SESSIONID", store))
 	configRoute(r)
 	if os.Getenv("STAGE") != "dev" {
@@ -410,4 +410,15 @@ func mkDir() error {
 		}
 	}
 	return os.MkdirAll(uploadFileDir, 0755)
+}
+
+func signalNotify() {
+	sigc := make(chan os.Signal, 1)
+	signal.Notify(sigc, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
+	c := <-sigc
+	serverIsInterrupted = true
+	util.Traceln("Service receive signal", c)
+	if err := webServer.Shutdown(ctx); err != nil {
+		log.Fatal("Server Shut Down ERROR:", err)
+	}
 }
