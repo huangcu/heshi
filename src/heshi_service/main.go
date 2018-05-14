@@ -403,5 +403,5 @@ func mkDir() error {
 			}
 		}
 	}
-	return os.MkdirAll(UPLOADFILEDIR, 0755)
+	return os.MkdirAll(uploadFileDir, 0755)
 }

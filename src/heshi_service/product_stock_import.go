@@ -64,7 +64,7 @@ func uploadAndProcessProducts(c *gin.Context) {
 		return
 	}
 	// Upload the file to specific dst.
-	if err := os.MkdirAll(filepath.Join(UPLOADFILEDIR, category, uid), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Join(uploadFileDir, category, uid), 0755); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
@@ -76,7 +76,7 @@ func uploadAndProcessProducts(c *gin.Context) {
 	} else {
 		filename = file.Filename + time.Now().Format(timeFormatFileName)
 	}
-	dst := filepath.Join(UPLOADFILEDIR, category, uid, filename)
+	dst := filepath.Join(uploadFileDir, category, uid, filename)
 	err = c.SaveUploadedFile(file, dst)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))

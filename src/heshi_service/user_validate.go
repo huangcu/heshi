@@ -51,7 +51,7 @@ func (u *User) preValidateNewUser() []errors.HSMessage {
 		vmsgs = append(vmsgs, vmsg)
 	}
 
-	if !util.IsInArrayString(u.UserType, VALID_USERTYPE) {
+	if !util.IsInArrayString(u.UserType, validUserType) {
 		vmsgs = append(vmsgs, vemsgUserUsertypeNotValid)
 	}
 

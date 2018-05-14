@@ -34,7 +34,7 @@ type tempQrCode struct {
 func wechatQrCode(c *gin.Context) {
 	state := string(rand.NewHex())
 	s := sessions.Default(c)
-	s.Set(USER_SESSION_KEY, state)
+	s.Set(userSessionKey, state)
 	s.Save()
 	authURL := mpoauth2.AuthCodeURL(wxAppIDDebug, redirectURI, "snsapi_userinfo", state)
 	util.Println("qrcode AuthCodeURL:", authURL)

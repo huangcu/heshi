@@ -61,14 +61,14 @@ func userLogin(c *gin.Context) {
 		return
 	}
 	s := sessions.Default(c)
-	s.Set(USER_SESSION_KEY, id)
+	s.Set(userSessionKey, id)
 	// c.SetCookie(USER_SESSION_KEY, id, 10, "/", "localhost", true, false)
 	if userType == ADMIN {
-		s.Set(ADMIN_KEY, id)
+		s.Set(adminKey, id)
 		// c.SetCookie(ADMIN_KEY, id, 10, "/", "localhost", true, false)
 	}
 	if userType == AGENT {
-		s.Set(AGENT_KEY, id)
+		s.Set(agentKey, id)
 		// c.SetCookie(AGENT_KEY, id, 10, "/", "localhost", true, false)
 	}
 	s.Save()
@@ -81,10 +81,10 @@ func userLogin(c *gin.Context) {
 
 func userLogout(c *gin.Context) {
 	s := sessions.Default(c)
-	fmt.Println(s.Get(USER_SESSION_KEY).(string))
-	s.Delete(USER_SESSION_KEY)
-	s.Delete(ADMIN_KEY)
-	s.Delete(AGENT_KEY)
+	fmt.Println(s.Get(userSessionKey).(string))
+	s.Delete(userSessionKey)
+	s.Delete(adminKey)
+	s.Delete(agentKey)
 	s.Save()
 	c.JSON(http.StatusOK, "User logout!")
 }

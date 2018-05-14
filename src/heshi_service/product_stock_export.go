@@ -235,11 +235,11 @@ func exportDiamondProducts(uid string) (string, error) {
 		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "Y", index), createdAt.Format(timeFormat))
 	}
 
-	dst := filepath.Join(UPLOADFILEDIR, DIAMOND, uid, "export"+time.Now().Format(timeFormatFileName)+".xlsx")
-	if err := os.MkdirAll(filepath.Join(UPLOADFILEDIR, DIAMOND, uid), 0755); err != nil {
+	dst := filepath.Join(uploadFileDir, DIAMOND, uid, "export"+time.Now().Format(timeFormatFileName)+".xlsx")
+	if err := os.MkdirAll(filepath.Join(uploadFileDir, DIAMOND, uid), 0755); err != nil {
 		return "", err
 	}
-	servePath := strings.TrimLeft(dst, UPLOADFILEDIR+"/")
+	servePath := strings.TrimLeft(dst, uploadFileDir+"/")
 	if err := xlsx.SaveAs(dst); err != nil {
 		return "", err
 	}
@@ -341,11 +341,11 @@ func exportJewelryProducts(uid, jewelrySubCategory string) (string, error) {
 		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "AF", index), createdAt.Format(timeFormat))
 	}
 
-	dst := filepath.Join(UPLOADFILEDIR, JEWELRY, uid, "export"+time.Now().Format(timeFormatFileName)+".xlsx")
-	if err := os.MkdirAll(filepath.Join(UPLOADFILEDIR, JEWELRY, uid), 0755); err != nil {
+	dst := filepath.Join(uploadFileDir, JEWELRY, uid, "export"+time.Now().Format(timeFormatFileName)+".xlsx")
+	if err := os.MkdirAll(filepath.Join(uploadFileDir, JEWELRY, uid), 0755); err != nil {
 		return "", err
 	}
-	servePath := strings.TrimLeft(dst, UPLOADFILEDIR+"/")
+	servePath := strings.TrimLeft(dst, uploadFileDir+"/")
 	if err := xlsx.SaveAs(dst); err != nil {
 		return "", err
 	}
@@ -429,11 +429,11 @@ func exportGemProducts(uid string) (string, error) {
 		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", "U", index), createdAt.Format(timeFormat))
 	}
 
-	dst := filepath.Join(UPLOADFILEDIR, GEM, uid, "export"+time.Now().Format(timeFormatFileName)+".xlsx")
-	if err := os.MkdirAll(filepath.Join(UPLOADFILEDIR, GEM, uid), 0755); err != nil {
+	dst := filepath.Join(uploadFileDir, GEM, uid, "export"+time.Now().Format(timeFormatFileName)+".xlsx")
+	if err := os.MkdirAll(filepath.Join(uploadFileDir, GEM, uid), 0755); err != nil {
 		return "", err
 	}
-	servePath := strings.TrimLeft(dst, UPLOADFILEDIR+"/")
+	servePath := strings.TrimLeft(dst, uploadFileDir+"/")
 	if err := xlsx.SaveAs(dst); err != nil {
 		return "", err
 	}

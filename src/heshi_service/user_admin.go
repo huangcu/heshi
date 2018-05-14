@@ -45,7 +45,7 @@ func updateAdmin(c *gin.Context) {
 	q := fmt.Sprintf(`UPDATE admins SET created_by='%s'`, agentID)
 
 	if levelStr != "" {
-		if !util.IsInArrayString(levelStr, VALID_AGENTLEVEL) {
+		if !util.IsInArrayString(levelStr, validAgentLevel) {
 			c.JSON(http.StatusOK, vemsgAgentLevelNotValid)
 			return
 		}
@@ -75,7 +75,7 @@ func (a *User) prevalidateNewAdmin() ([]errors.HSMessage, error) {
 	var vemsg []errors.HSMessage
 	//TODO admin level
 	//TODO validate wechat_kefu???
-	if !util.IsInArrayString(a.Admin.LevelStr, VALID_ADMINLEVEL) {
+	if !util.IsInArrayString(a.Admin.LevelStr, validAdminLevel) {
 		vemsg = append(vemsg, vemsgAdminLevelNotValid)
 	} else {
 		level, err := strconv.Atoi(a.Admin.LevelStr)

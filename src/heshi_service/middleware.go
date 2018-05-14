@@ -91,15 +91,15 @@ func jwtAuthenticator(username, password1 string, c *gin.Context) (string, bool)
 		return errors.GetMessage(err), false
 	}
 	s := sessions.Default(c)
-	s.Set(USER_SESSION_KEY, id)
+	s.Set(userSessionKey, id)
 	// c.SetCookie(USER_SESSION_KEY, id, 10, "/", "localhost", true, false)
 
 	if userType == ADMIN {
-		s.Set(ADMIN_KEY, id)
+		s.Set(adminKey, id)
 		// c.SetCookie(ADMIN_KEY, id, 10, "/", "localhost", true, false)
 	}
 	if userType == AGENT {
-		s.Set(AGENT_KEY, id)
+		s.Set(agentKey, id)
 		// c.SetCookie(AGENT_KEY, id, 10, "/", "localhost", true, false)
 	}
 	s.Save()
@@ -139,8 +139,8 @@ func authMiddleWare() gin.HandlerFunc {
 func sessionMiddleWare() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		s := sessions.Default(c)
-		if s.Get(USER_SESSION_KEY) != nil {
-			c.Set("id", s.Get(USER_SESSION_KEY))
+		if s.Get(userSessionKey) != nil {
+			c.Set("id", s.Get(userSessionKey))
 		} else {
 			c.Set("id", "guest:"+c.Request.RemoteAddr)
 		}
@@ -157,11 +157,11 @@ func userSessionMiddleWare() gin.HandlerFunc {
 			return
 		}
 		s := sessions.Default(c)
-		if s.Get(USER_SESSION_KEY) == nil {
+		if s.Get(userSessionKey) == nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, "Must login first")
 			return
 		}
-		c.Set("id", s.Get(USER_SESSION_KEY))
+		c.Set("id", s.Get(userSessionKey))
 		c.Next()
 	}
 }
@@ -175,15 +175,15 @@ func adminSessionMiddleWare() gin.HandlerFunc {
 			return
 		}
 		s := sessions.Default(c)
-		if s.Get(USER_SESSION_KEY) == nil {
+		if s.Get(userSessionKey) == nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, "Must login first")
 			return
 		}
-		if s.Get(ADMIN_KEY) == nil {
+		if s.Get(adminKey) == nil {
 			c.AbortWithStatusJSON(http.StatusForbidden, "Login User is not admin")
 			return
 		}
-		c.Set("id", s.Get(USER_SESSION_KEY))
+		c.Set("id", s.Get(userSessionKey))
 		c.Next()
 	}
 }
@@ -197,15 +197,15 @@ func agentSessionMiddleWare() gin.HandlerFunc {
 			return
 		}
 		s := sessions.Default(c)
-		if s.Get(USER_SESSION_KEY) == nil {
+		if s.Get(userSessionKey) == nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, "Must login first")
 			return
 		}
-		if s.Get(AGENT_KEY) == nil {
+		if s.Get(agentKey) == nil {
 			c.AbortWithStatusJSON(http.StatusForbidden, "Login User is not a agent")
 			return
 		}
-		c.Set("id", s.Get(USER_SESSION_KEY))
+		c.Set("id", s.Get(userSessionKey))
 		c.Next()
 	}
 }
@@ -219,7 +219,7 @@ func requestLogger() gin.HandlerFunc {
 		util.Tracef("=======REQUEST HEADER: %v========", c.Request.Header)
 		util.Tracef("=======REQUEST BODY: %s========", readBody(rdr1)) // Print request body
 		s := sessions.Default(c)
-		user := s.Get(USER_SESSION_KEY)
+		user := s.Get(userSessionKey)
 		if user == nil {
 			user = "guest"
 		}

@@ -220,7 +220,7 @@ func newUser(c *gin.Context) {
 	}
 
 	s := sessions.Default(c)
-	s.Set(USER_SESSION_KEY, nu.ID)
+	s.Set(userSessionKey, nu.ID)
 	s.Save()
 
 	c.JSON(http.StatusOK, nu)
@@ -340,7 +340,7 @@ func getAllUsers(c *gin.Context) {
 	level,discount,point,total_purchase_amount,icon,status FROM users WHERE status='ACTIVE'`
 	userType := strings.ToUpper(c.Query("user_type"))
 	if userType != "" {
-		if !util.IsInArrayString(userType, VALID_USERTYPE) {
+		if !util.IsInArrayString(userType, validUserType) {
 			c.JSON(http.StatusBadRequest, userType+" not a valid user type")
 			return
 		}
@@ -406,8 +406,8 @@ func changePassword(c *gin.Context) {
 	}
 	// should relogin, clean session
 	s := sessions.Default(c)
-	s.Delete(USER_SESSION_KEY)
-	s.Delete(ADMIN_KEY)
+	s.Delete(userSessionKey)
+	s.Delete(adminKey)
 	s.Save()
 	c.JSON(http.StatusOK, "PASSWORD changed!")
 }

@@ -67,7 +67,7 @@ var (
 func wechatAuth(c *gin.Context) {
 	state := string(rand.NewHex())
 	s := sessions.Default(c)
-	s.Set(USER_SESSION_KEY, state)
+	s.Set(userSessionKey, state)
 	s.Save()
 	authURL := mpoauth2.AuthCodeURL(wxAppIDDebug, redirectURI, "snsapi_userinfo", state)
 	util.Traceln("AuthCodeURL:", authURL)
@@ -92,7 +92,7 @@ func wechatToken(c *gin.Context) {
 	}
 
 	s := sessions.Default(c)
-	savedState := s.Get(USER_SESSION_KEY)
+	savedState := s.Get(userSessionKey)
 	if savedState != queryState {
 		str := fmt.Sprintf("state 不匹配, session 中的为 %q, url 传递过来的是 %q", savedState, queryState)
 		util.Println(str)
@@ -133,7 +133,7 @@ func wechatToken(c *gin.Context) {
 		}
 		util.Printf("userinfo: %+v\r\n", userinfo)
 	}
-	s.Set(USER_SESSION_KEY, token.OpenId)
+	s.Set(userSessionKey, token.OpenId)
 	s.Save()
 	util.Println("redirect to home page: http://localhost:8081")
 	c.Redirect(http.StatusFound, "http://localhost:8081")

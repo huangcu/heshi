@@ -344,7 +344,7 @@ func updateOrder(c *gin.Context) {
 	}
 
 	if oi.Status != "" {
-		if !util.IsInArrayString(oi.Status, VALID_ORDER_STATUS_M) {
+		if !util.IsInArrayString(oi.Status, validOrderStatusM) {
 			c.JSON(http.StatusOK, vemsgOrderStatusNotValid)
 			return
 		}

@@ -60,7 +60,7 @@ func updateAgent(c *gin.Context) {
 	q := fmt.Sprintf(`UPDATE agents SET created_by='%s'`, agentID)
 
 	if levelStr != "" {
-		if !util.IsInArrayString(levelStr, VALID_AGENTLEVEL) {
+		if !util.IsInArrayString(levelStr, validAgentLevel) {
 			c.JSON(http.StatusOK, vemsgAgentLevelNotValid)
 			return
 		}
@@ -146,7 +146,7 @@ func getUserContactInfoInvitationCode(userID string) (*contactInfo, error) {
 
 func (a *User) prevalidateNewAgent() ([]errors.HSMessage, error) {
 	var vemsg []errors.HSMessage
-	if !util.IsInArrayString(a.Agent.LevelStr, VALID_AGENTLEVEL) {
+	if !util.IsInArrayString(a.Agent.LevelStr, validAgentLevel) {
 		vemsg = append(vemsg, vemsgAgentLevelNotValid)
 	} else {
 		level, err := strconv.Atoi(a.Agent.LevelStr)

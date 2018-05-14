@@ -87,27 +87,28 @@ var (
 )
 
 var (
-	VALID_USERTYPE        = []string{CUSTOMER, AGENT, ADMIN}
-	VALID_CUSTOMERLEVEL   = []string{LEVEL1, LEVEL2, LEVEL3, LEVEL4}
-	VALID_AGENTLEVEL      = []string{LEVEL1, LEVEL2, LEVEL3}
-	VALID_ADMINLEVEL      = []string{LEVEL1, LEVEL2, LEVEL3, LEVEL4, LEVEL5, LEVEL6}
-	VALID_CURRENCY_SYMBOL = []string{"USD", "CNY", "EUR", "CAD", "AUD", "CHF", "RUB", "NZD"}
-	VALID_ORDER_STATUS_M  = []string{MCANCELLED, MDOWNPAYMENT, MPAID, MDELIVERED, MRECEIVED}
-	VALID_ORDER_STATUS_A  = []string{ORDERED, CANCELLED, DOWNPAYMENT, PAID, DELIVERED, RECEIVED}
-	USER_SESSION_KEY      = "hs_sessionuserid"
-	ADMIN_KEY             = "hs_sessionadmin"
-	AGENT_KEY             = "hs_sessionagent"
+	validUserType       = []string{CUSTOMER, AGENT, ADMIN}
+	validCustomerLevel  = []string{LEVEL1, LEVEL2, LEVEL3, LEVEL4}
+	validAgentLevel     = []string{LEVEL1, LEVEL2, LEVEL3}
+	validAdminLevel     = []string{LEVEL1, LEVEL2, LEVEL3, LEVEL4, LEVEL5, LEVEL6}
+	validCurrencySymbol = []string{"USD", "CNY", "EUR", "CAD", "AUD", "CHF", "RUB", "NZD"}
+	validOrderStatusM   = []string{MCANCELLED, MDOWNPAYMENT, MPAID, MDELIVERED, MRECEIVED}
+	validOrderStatusA   = []string{ORDERED, CANCELLED, DOWNPAYMENT, PAID, DELIVERED, RECEIVED}
+)
 
-	UPLOADFILEDIR        = ".uploaded"
+const (
+	userSessionKey = "hs_sessionuserid"
+	adminKey       = "hs_sessionadmin"
+	agentKey       = "hs_sessionagent"
+
+	uploadFileDir        = ".uploaded"
 	videoPath            = ".video"
 	imagePath            = ".image"
 	userIconSizeLimit    = 50 * 1024
 	imageSizeLimit       = 5 * 1024 * 1024
 	videoSizeLimit       = 10 * 1024 * 1024
 	uploadedZipFileLimit = 100 * 1024 * 1024
-)
 
-const (
 	CUSTOMER = "CUSTOMER"
 	AGENT    = "AGENT"
 	ADMIN    = "ADMIN"
