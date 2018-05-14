@@ -147,25 +147,25 @@ func (p *priceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
 	}
 	p.Priority = pValue
 
-	invalid := itemsNotInArray(p.GradingLabs, VALID_GRADING_LAB)
+	invalid := itemsNotInArray(p.GradingLabs, validGradingLab)
 	if len(invalid) != 0 {
 		vemsgNotValid.Message = fmt.Sprintf("grading lab input has invalid value: %s", strings.Join(invalid, ","))
 		vemsg = append(vemsg, vemsgNotValid)
 	}
 
-	invalid = itemsNotInArray(p.Clarities, VALID_CLARITY)
+	invalid = itemsNotInArray(p.Clarities, validClarity)
 	if len(invalid) != 0 {
 		vemsgNotValid.Message = fmt.Sprintf("clarity input has invalid value: %s", strings.Join(invalid, ","))
 		vemsg = append(vemsg, vemsgNotValid)
 	}
 
-	invalid = itemsNotInArray(p.Colors, VALID_COLOR)
+	invalid = itemsNotInArray(p.Colors, validColor)
 	if len(invalid) != 0 {
 		vemsgNotValid.Message = fmt.Sprintf("color input has invalid value: %s", strings.Join(invalid, ","))
 		vemsg = append(vemsg, vemsgNotValid)
 	}
 
-	invalid = itemsNotInArray(p.CutGrades, VALID_CUT_GRADE)
+	invalid = itemsNotInArray(p.CutGrades, validCutGrade)
 	// p.CutGrades = strings.Join(cutGrades, ",")
 	if len(invalid) != 0 {
 		vemsgNotValid.Message = fmt.Sprintf("cut grade input has invalid value: %s", strings.Join(invalid, ","))
@@ -174,7 +174,7 @@ func (p *priceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
 
 	invalid = []string{}
 	for _, v := range strings.Split(p.Fluos, ",") {
-		if !util.IsInArrayString(v, VALID_FLUORESCENCE_INTENSITY) {
+		if !util.IsInArrayString(v, validFluorescenceIntensity) {
 			invalid = append(invalid, v)
 		}
 	}
@@ -185,7 +185,7 @@ func (p *priceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
 
 	invalid = []string{}
 	for _, v := range strings.Split(p.Polishs, ",") {
-		if !util.IsInArrayString(v, VALID_POLISH) {
+		if !util.IsInArrayString(v, validPolish) {
 			invalid = append(invalid, v)
 		}
 	}
@@ -196,7 +196,7 @@ func (p *priceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
 
 	invalid = []string{}
 	for _, v := range strings.Split(p.Symmetries, ",") {
-		if !util.IsInArrayString(v, VALID_SYMMETRY) {
+		if !util.IsInArrayString(v, validSymmetry) {
 			invalid = append(invalid, v)
 		}
 	}

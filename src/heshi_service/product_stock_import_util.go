@@ -261,7 +261,7 @@ func handleImage(srcPath, dstPath, filename string) error {
 }
 
 func bulkUpload(c *gin.Context) {
-	if util.IsInArrayString(c.PostForm("product"), VALID_PRODUCTS) {
+	if util.IsInArrayString(c.PostForm("product"), validProductsConst) {
 		c.JSON(http.StatusBadRequest, fmt.Sprintf("product category: %s not right", c.PostForm("product")))
 		return
 	}

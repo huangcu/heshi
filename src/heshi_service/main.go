@@ -31,6 +31,7 @@ var (
 	store               cookie.Store
 	activeCurrencyRate  *currency
 	activeConfig        exchangeRateFloat
+	webServer           *http.Server
 )
 var redisClient = redis.NewClient(&redis.Options{
 	Addr:     "localhost:6379",
@@ -73,10 +74,25 @@ func main() {
 	}
 
 	log.Fatal(startWebServer(port))
+	ctx, cancelFn = context.WithCancel(context.Background())
+	defer cancelFn()
+	if err := webServer.Shutdown(ctx); err != nil {
+		log.Fatal("Server Shut Down ERROR:", err)
+	}
 }
 
 func startWebServer(port string) error {
 	r := gin.New()
+	//session
+	store = cookie.NewStore([]byte("secret"))
+	// store, _ := sessions.NewRedisStore(10, "tcp", "localhost:6379", "", []byte("secret"))
+	store.Options(sessions.Options{
+		MaxAge:   7 * 24 * 60 * 60, //set max age 1 week // 30 * 60 - 30 min - not int(30 * time.Minute),
+		Path:     "/",
+		Secure:   false,
+		HttpOnly: false,
+	})
+
 	//if PRO
 	cer, err := tls.LoadX509KeyPair("server.crt", "server.key")
 	if err != nil {
@@ -95,22 +111,13 @@ func startWebServer(port string) error {
 	r.Use(gin.Recovery())
 	//CORS
 	r.Use(cORSMiddleware())
-	//session
-	store = cookie.NewStore([]byte("secret"))
-	// store, _ := sessions.NewRedisStore(10, "tcp", "localhost:6379", "", []byte("secret"))
-	store.Options(sessions.Options{
-		MaxAge:   7 * 24 * 60 * 60, //set max age 1 week // 30 * 60 - 30 min - not int(30 * time.Minute),
-		Path:     "/",
-		Secure:   false,
-		HttpOnly: false,
-	})
 	r.Use(sessions.Sessions("SESSIONID", store))
 	configRoute(r)
 	if os.Getenv("STAGE") != "dev" {
-		webServer := &http.Server{Addr: port, Handler: r, TLSConfig: config}
+		webServer = &http.Server{Addr: port, Handler: r, TLSConfig: config}
 		return webServer.ListenAndServeTLS("server.crt", "server.key")
 	}
-	webServer := &http.Server{Addr: port, Handler: r}
+	webServer = &http.Server{Addr: port, Handler: r}
 	return webServer.ListenAndServe()
 }
 
@@ -359,7 +366,6 @@ func init() {
 	}
 	defer db.Close()
 
-	ctx, cancelFn = context.WithCancel(context.Background())
 	if strings.ToUpper(runtime.GOOS) != "WINDOWS" {
 		fmt.Println("OS: " + runtime.GOOS)
 		val, err := redisClient.FlushAll().Result()

@@ -53,7 +53,7 @@ func uploadAndProcessProducts(c *gin.Context) {
 	uid := c.MustGet("id").(string)
 	category := strings.ToUpper(c.PostForm("category"))
 	jewelrySubCategory := strings.ToUpper(c.PostForm("jewelryCategory"))
-	if !util.IsInArrayString(category, VALID_PRODUCTS) {
+	if !util.IsInArrayString(category, validProductsConst) {
 		vemsgUploadProductsCategoryNotValid.Message = fmt.Sprintf("%s is not valid product type", category)
 		c.JSON(http.StatusOK, vemsgUploadProductsCategoryNotValid)
 		return

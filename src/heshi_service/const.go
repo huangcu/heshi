@@ -109,27 +109,42 @@ const (
 	videoSizeLimit       = 10 * 1024 * 1024
 	uploadedZipFileLimit = 100 * 1024 * 1024
 
+	// CUSTOMER ...
 	CUSTOMER = "CUSTOMER"
-	AGENT    = "AGENT"
-	ADMIN    = "ADMIN"
+	// AGENT ...
+	AGENT = "AGENT"
+	// ADMIN ...
+	ADMIN = "ADMIN"
 
-	// diamonds, jewelry, gem
+	// AVAILABLE diamonds, jewelry, gem
 	AVAILABLE = "AVAILABLE"
-	OFFLINE   = "OFFLINE"
-	DELETED   = "DELETED"
+	// OFFLINE ...
+	OFFLINE = "OFFLINE"
+	// DELETED ...
+	DELETED = "DELETED"
 
-	// orders
-	ORDERED      = "ORDERED"
-	CANCELLED    = "CANCELLED"
-	DOWNPAYMENT  = "DOWNPAYMENT"
-	PAID         = "PAID"
-	DELIVERED    = "DELIVERED"
-	RECEIVED     = "RECEIVED"
-	MCANCELLED   = "M-CANCELLED"
+	// ORDERED orders
+	ORDERED = "ORDERED"
+	// CANCELLED order status by system flow - user cancel or system cancel
+	CANCELLED = "CANCELLED"
+	// DOWNPAYMENT order status by system flow
+	DOWNPAYMENT = "DOWNPAYMENT"
+	// PAID order status by system flow
+	PAID = "PAID"
+	// DELIVERED order status by system flow
+	DELIVERED = "DELIVERED"
+	// RECEIVED order status by system flow
+	RECEIVED = "RECEIVED"
+	// MCANCELLED admin changed order status
+	MCANCELLED = "M-CANCELLED"
+	// MDOWNPAYMENT admin changed order status
 	MDOWNPAYMENT = "M-DOWNPAYMENT"
-	MPAID        = "M-PAID"
-	MDELIVERED   = "M-DELIVERED"
-	MRECEIVED    = "M-RECEIVED"
+	// MPAID admin changed order status
+	MPAID = "M-PAID"
+	// MDELIVERED admin changed order status
+	MDELIVERED = "M-DELIVERED"
+	// MRECEIVED admin changed order status
+	MRECEIVED = "M-RECEIVED"
 )
 
 //TODO level comes from configs db

@@ -129,7 +129,7 @@ func customizeJewelryItems(c *gin.Context) {
 		return
 	}
 	category := c.PostForm("category")
-	if !util.IsInArrayString(category, VALID_CATEGORY) {
+	if !util.IsInArrayString(category, validCategory) {
 		c.JSON(http.StatusOK, vemsgUploadProductsCategoryNotValid)
 		return
 	}
@@ -226,7 +226,7 @@ func customizeJewelryDiamondsQualityFirst(c *gin.Context) {
 		diaSizeMin = diaSize - 0.3
 	}
 
-	clarityFields := strings.Join(VALID_CLARITY, "','")
+	clarityFields := strings.Join(validClarity, "','")
 	//DollarToEuro round(EuroToDollar($budget-priceforaccount_jewelry($accountlevel, $jew_price))*1.02)
 	budgetDiamond := budget - price
 	if category != "EARRING" {

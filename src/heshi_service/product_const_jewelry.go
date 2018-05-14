@@ -94,7 +94,7 @@ var gemHeaders = []string{
 //成品首饰 need diamond: NO,
 //空托    need diamond: YES,
 
-var VALID_CATEGORY = []string{
+var validCategory = []string{
 	"PENDANT",
 	"RING",
 	"EARRING",
@@ -105,14 +105,14 @@ var VALID_CATEGORY = []string{
 // Request URL:http://www.beyoudiamond.com/jewelry.php?class=mounting (kongtuo)
 // Request URL:http://www.beyoudiamond.com/jewelry.php (chengpin)
 // Request URL:http://www.beyoudiamond.com/colored-gems.php
-var VALID_MATERIAL = []string{
+var validMaterial = []string{
 	"PT",
 	"ROSE_GOLD",
 	"COLORED_GOLD",
 	"UNKNOWN",
 }
 
-var VALID_MOUNTING_TYPE = []string{
+var validMountingType = []string{
 	"3NODE",
 	"4NODE",
 	"6NODE",

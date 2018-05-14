@@ -15,7 +15,7 @@ import (
 //TODO search
 func searchProducts(c *gin.Context) {
 	category := strings.ToUpper(c.Param("category"))
-	if !util.IsInArrayString(category, VALID_PRODUCTS) {
+	if !util.IsInArrayString(category, validProductsConst) {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
@@ -46,7 +46,7 @@ func searchProducts(c *gin.Context) {
 
 func filterProducts(c *gin.Context) {
 	category := strings.ToUpper(c.Param("category"))
-	if !util.IsInArrayString(category, VALID_PRODUCTS) {
+	if !util.IsInArrayString(category, validProductsConst) {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
@@ -275,7 +275,7 @@ func sortDiamondsByQuery(sortBy, direction string) string {
 		return fmt.Sprintf("ORDER BY color %s, supplier ASC, price_retail ASC", direction)
 
 	case "clarity":
-		clarityFields := strings.Join(VALID_CLARITY, "','")
+		clarityFields := strings.Join(validClarity, "','")
 		return fmt.Sprintf("ORDER BY Field(clarity, '%s')  %s, supplier ASC, price_retail ASC", clarityFields, direction)
 	case "price":
 		return fmt.Sprintf("ORDER BY price_retail %s, supplier ASC", direction)

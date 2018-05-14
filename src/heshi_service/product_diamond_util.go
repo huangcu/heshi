@@ -164,8 +164,8 @@ func importDiamondsCustomizeHeaders(headers map[string]string, records [][]strin
 	suppliers, err = getAllValidSupplierName()
 	if err != nil {
 		util.Printf("Fail to get all suppliers name from db, use default predefined: %s",
-			strings.Join(VALID_SUPPLIER_NAME, ","))
-		suppliers = VALID_SUPPLIER_NAME
+			strings.Join(validSupplierName, ","))
+		suppliers = validSupplierName
 	}
 	originalHeaders := []string{}
 	ignoredRows := [][]string{}
@@ -680,8 +680,8 @@ func diamondSupplierPageReq(supplier string) (string, error) {
 	suppliers, err := getAllValidSupplierName()
 	if err != nil {
 		util.Traceln("Fail to get all suppliers name from db, use default predefined: %s",
-			strings.Join(VALID_SUPPLIER_NAME, ","))
-		suppliers = VALID_SUPPLIER_NAME
+			strings.Join(validSupplierName, ","))
+		suppliers = validSupplierName
 	}
 	if len(supplier) != 0 {
 		if util.IsInArrayString(strings.ToUpper(supplier), suppliers) {

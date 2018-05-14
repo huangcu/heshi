@@ -28,8 +28,8 @@ func importDiamondProducts(uid, file string) ([]util.Row, error) {
 	suppliers, err = getAllValidSupplierName()
 	if err != nil {
 		util.Traceln("Fail to get all suppliers name from db, use default predefined: %s",
-			strings.Join(VALID_SUPPLIER_NAME, ","))
-		suppliers = VALID_SUPPLIER_NAME
+			strings.Join(validSupplierName, ","))
+		suppliers = validSupplierName
 	}
 
 	rows, err := util.ParseCSVToStruct(file)
@@ -364,7 +364,7 @@ func offlineDiamondsNoLongerExist(stockRefList map[string]struct{}) error {
 
 func diamondClarity(clarity string) (string, error) {
 	if len(clarity) != 0 {
-		if util.IsInArrayString(strings.ToUpper(clarity), VALID_CLARITY) {
+		if util.IsInArrayString(strings.ToUpper(clarity), validClarity) {
 			return strings.ToUpper(clarity), nil
 		}
 	}
@@ -500,7 +500,7 @@ func diamondSupplier(supplier string, suppliers []string) (string, error) {
 
 //TODO should return error ????
 func diamondGradingLab(gradingLab string) (string, error) {
-	if util.IsInArrayString(strings.ToUpper(gradingLab), VALID_GRADING_LAB) {
+	if util.IsInArrayString(strings.ToUpper(gradingLab), validGradingLab) {
 		return strings.ToUpper(gradingLab), nil
 	}
 	return "", errors.Newf("%s is not a valid grading lab", gradingLab)

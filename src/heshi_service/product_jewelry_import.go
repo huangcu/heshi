@@ -189,7 +189,7 @@ func importJewelryProducts(uid, file, category string) ([]util.Row, error) {
 
 func jewelryCategory(category string) (string, error) {
 	cate := strings.ToUpper(category)
-	if util.IsInArrayString(cate, VALID_CATEGORY) {
+	if util.IsInArrayString(cate, validCategory) {
 		return cate, nil
 	}
 	return "", errors.Newf("%s not a valid category", category)
@@ -197,7 +197,7 @@ func jewelryCategory(category string) (string, error) {
 
 func jewelryMaterial(material string) string {
 	m := strings.ToUpper(strings.Replace(material, " ", "_", -1))
-	if util.IsInArrayString(m, VALID_MATERIAL) {
+	if util.IsInArrayString(m, validMaterial) {
 		return m
 	}
 	return "UNKNOWN-" + m
@@ -218,7 +218,7 @@ func jewelryShape(shapeStr string) (string, error) {
 
 func jewelryMountingType(mountingType string) (string, error) {
 	mt := strings.ToUpper(mountingType)
-	if util.IsInArrayString(mountingType, VALID_MOUNTING_TYPE) {
+	if util.IsInArrayString(mountingType, validMountingType) {
 		return mt, nil
 	}
 	return "", errors.Newf("%s is not a valid mounting type", mountingType)

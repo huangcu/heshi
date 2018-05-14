@@ -56,7 +56,7 @@ func addToShoppingCart(c *gin.Context) {
 		cib.ItemQuantity = 1
 	}
 
-	if !util.IsInArrayString(cib.ItemCategory, VALID_PRODUCTS) {
+	if !util.IsInArrayString(cib.ItemCategory, validProductsConst) {
 		c.JSON(http.StatusBadRequest, fmt.Sprintf("%s category is not right", cib.ItemCategory))
 		return
 	}

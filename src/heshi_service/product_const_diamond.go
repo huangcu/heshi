@@ -1,13 +1,17 @@
 package main
 
 const (
-	DIAMOND      = "DIAMOND"
+	// DIAMOND ...
+	DIAMOND = "DIAMOND"
+	// SMALLDIAMOND ...
 	SMALLDIAMOND = "SMALL_DIAMOND"
-	JEWELRY      = "JEWELRY"
-	GEM          = "GEM"
+	// JEWELRY ...
+	JEWELRY = "JEWELRY"
+	// GEM ...
+	GEM = "GEM"
 )
 
-var VALID_PRODUCTS = []string{DIAMOND, SMALLDIAMOND, JEWELRY, GEM}
+var validProductsConst = []string{DIAMOND, SMALLDIAMOND, JEWELRY, GEM}
 
 var diamondHeaders = []string{
 	//must have fields
@@ -72,7 +76,7 @@ var smallDiamondHeaders = []string{
 // RB
 // MARQUISE
 // RCRB
-var VALID_DIAMOND_SHAPE = []string{
+var validDiamondShape = []string{
 	"BR",
 	"PS",
 	"PR",
@@ -97,13 +101,13 @@ var VALID_DIAMOND_SHAPE = []string{
 //GIA: https://my.hrdantwerp.com/?L=&record_number='["certificate_number"].'&certificatetype=MC"
 //HRD: http://www.gia.edu/cs/Satellite?pagename=GST%2FDispatcher&childpagename=GIA%2FPage%2FReportCheck&c=Page&cid=1355954554547&reportno='["certificate_number"].'"
 //IGI: http://www.igiworldwide.com/verify.php?r='["certificate_number"].'"
-var VALID_GRADING_LAB = []string{
+var validGradingLab = []string{
 	"GIA",
 	"HRD",
 	"IGI",
 }
 
-var VALID_SUPPLIER_NAME = []string{
+var validSupplierName = []string{
 	"KGK",
 	"DIAM",
 	"BEYOU-HESHI",
@@ -135,7 +139,7 @@ var VALID_SUPPLIER_NAME = []string{
 // }else{
 // 	$diacomment='';
 // }
-var VALID_CLARITY = []string{
+var validClarity = []string{
 	"VVS1",
 	"VVS2",
 	"VS1",
@@ -157,7 +161,7 @@ var VALID_CLARITY = []string{
 // VST - "Very Strong",
 // SL - SLT - "Slight",
 // VSL - "Very Slight",
-var VALID_FLUORESCENCE_INTENSITY = []string{
+var validFluorescenceIntensity = []string{
 	"NON",
 	"FNT",
 	"MED",
@@ -171,7 +175,7 @@ var VALID_FLUORESCENCE_INTENSITY = []string{
 
 // "EX" - "EXC" - "Excellent"
 // "GD" - "G"
-var VALID_POLISH = []string{
+var validPolish = []string{
 	"EX",
 	"VG",
 	"G", "GD",
@@ -182,7 +186,7 @@ var VALID_POLISH = []string{
 // 	"VG",
 // 	"GD" - "G",
 // 	"FAIR" - "F",
-var VALID_SYMMETRY = []string{
+var validSymmetry = []string{
 	"EX",
 	"VG",
 	"G", "GD",
@@ -207,7 +211,7 @@ var VALID_SYMMETRY = []string{
 // 	"VG",
 // 	"GD" - "G",
 // 	"FAIR" - "F",
-var VALID_CUT_GRADE = []string{
+var validCutGrade = []string{
 	"EX",
 	"VG",
 	"G", "GD",
@@ -218,7 +222,7 @@ var VALID_CUT_GRADE = []string{
 	// "NN",
 }
 
-var VALID_COLOR = []string{
+var validColor = []string{
 	"D",
 	"E",
 	"F",

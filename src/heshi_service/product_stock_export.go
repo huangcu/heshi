@@ -120,12 +120,12 @@ func exportProduct(c *gin.Context) {
 		return
 	}
 	if jewelrySubCategory != "" {
-		if !util.IsInArrayString(jewelrySubCategory, VALID_CATEGORY) {
+		if !util.IsInArrayString(jewelrySubCategory, validCategory) {
 			c.JSON(http.StatusBadRequest, fmt.Sprintf("%s not a valid jewelry category", jewelrySubCategory))
 			return
 		}
 	}
-	if !util.IsInArrayString(category, VALID_PRODUCTS) {
+	if !util.IsInArrayString(category, validProductsConst) {
 		vemsgUploadProductsCategoryNotValid.Message = fmt.Sprintf("%s is not valid product type", category)
 		c.JSON(http.StatusOK, vemsgUploadProductsCategoryNotValid)
 		return
