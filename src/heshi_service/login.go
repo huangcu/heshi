@@ -31,8 +31,7 @@ func userLogin(c *gin.Context) {
 	var id, password, userType, status string
 	if err := dbQueryRow(q).Scan(&id, &password, &userType, &status); err != nil {
 		if err == sql.ErrNoRows {
-			vemsgLoginErrorUserName.Message = fmt.Sprintf("%s not exists", loginUser.Username)
-			c.JSON(http.StatusOK, vemsgLoginErrorUserName)
+			c.JSON(http.StatusBadRequest, errorLoginUserNamePassword)
 			return
 		}
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
@@ -40,8 +39,7 @@ func userLogin(c *gin.Context) {
 	}
 
 	if status != "ACTIVE" {
-		vemsgLoginErrorUserName.Message = fmt.Sprintf("%s is not an active user!", loginUser.Username)
-		c.JSON(http.StatusOK, vemsgLoginErrorUserName)
+		c.JSON(http.StatusBadRequest, fmt.Sprintf("%s is not an active user!", loginUser.Username))
 		return
 	}
 
@@ -51,7 +49,7 @@ func userLogin(c *gin.Context) {
 	}
 
 	if !util.IsPassOK(loginUser.Password, password) {
-		c.JSON(http.StatusOK, vemsgLoginErrorUserName)
+		c.JSON(http.StatusBadRequest, errorLoginUserNamePassword)
 		return
 	}
 

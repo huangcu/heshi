@@ -395,7 +395,7 @@ func changePassword(c *gin.Context) {
 	}
 	oPass := c.PostForm("old_password")
 	if !util.IsPassOK(oPass, password) {
-		c.JSON(http.StatusOK, vemsgLoginErrorPassword)
+		c.JSON(http.StatusBadRequest, errorLoginPassword)
 		return
 	}
 	nPass := c.PostForm("new_password")

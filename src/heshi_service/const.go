@@ -13,9 +13,8 @@ var (
 	vemsgCannotRecommend    = errors.HSMessage{Code: 2000, Message: "被您推荐的人不能再推荐您"}
 
 	// //User Login (20-29)
-	vemsgLoginErrorUserName   = errors.HSMessage{Code: 20020, Message: "wrong username or password"}
-	vemsgLoginErrorPassword   = errors.HSMessage{Code: 20020, Message: "wrong password"}
-	vemsgLoginMissingUserName = errors.HSMessage{Code: 20021, Message: "missing username or password"}
+	errorLoginUserNamePassword = "wrong username or password"
+	errorLoginPassword         = "wrong password"
 
 	//fail to find in db
 	vemsgUserNotExist         = errors.HSMessage{Code: 20023, Message: "user not exist"}

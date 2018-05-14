@@ -83,7 +83,7 @@ func jwtAuthenticator(username, password1 string, c *gin.Context) (string, bool)
 	}
 
 	if !util.IsPassOK(password1, password) {
-		return vemsgLoginErrorUserName.Message, false
+		return errorLoginUserNamePassword, false
 	}
 
 	userProfile, err := getUserByID(id)

@@ -8,8 +8,6 @@ import (
 	"strings"
 	"time"
 
-	hserror "heshi/errors"
-
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"gopkg.in/dgrijalva/jwt-go.v3"
@@ -60,9 +58,6 @@ type GinJWTMiddleware struct {
 
 	// User can define own Unauthorized func.
 	Unauthorized func(*gin.Context, int, string)
-
-	// User can define own Unauthorized func.
-	HSUnauthorized func(*gin.Context, int, hserror.HSMessage)
 
 	// Set the identity handler function
 	IdentityHandler func(jwt.MapClaims) string
@@ -243,12 +238,6 @@ func (mw *GinJWTMiddleware) MiddlewareInit() error {
 		}
 	}
 
-	if mw.HSUnauthorized == nil {
-		mw.HSUnauthorized = func(c *gin.Context, code int, message hserror.HSMessage) {
-			c.JSON(code, message)
-		}
-	}
-
 	if mw.IdentityHandler == nil {
 		mw.IdentityHandler = func(claims jwt.MapClaims) string {
 			return claims["id"].(string)
@@ -325,8 +314,7 @@ func (mw *GinJWTMiddleware) LoginHandler(c *gin.Context) {
 
 	var loginVals Login
 	if c.ShouldBindWith(&loginVals, binding.Form) != nil {
-
-		mw.hsunauthorized(c, http.StatusOK, hserror.HSMessage{Code: 20021, Message: "missing username or password"})
+		mw.unauthorized(c, http.StatusBadRequest, "wrong username or password")
 		return
 	}
 
@@ -338,7 +326,7 @@ func (mw *GinJWTMiddleware) LoginHandler(c *gin.Context) {
 	authResult, ok := mw.Authenticator(loginVals.Username, loginVals.Password, c)
 
 	if !ok {
-		mw.hsunauthorized(c, http.StatusOK, hserror.HSMessage{Code: 20020, Message: authResult})
+		mw.unauthorized(c, http.StatusBadRequest, authResult)
 		return
 	}
 
@@ -368,10 +356,9 @@ func (mw *GinJWTMiddleware) LoginHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"code":        http.StatusOK,
-		"token":       tokenString,
-		"userprofile": authResult,
-		"expire":      expire.Format(time.RFC3339),
+		"code":   http.StatusOK,
+		"token":  tokenString,
+		"expire": expire.Format(time.RFC3339),
 	})
 }
 
@@ -533,20 +520,6 @@ func (mw *GinJWTMiddleware) unauthorized(c *gin.Context, code int, message strin
 	c.Abort()
 
 	mw.Unauthorized(c, code, message)
-
-	return
-}
-
-func (mw *GinJWTMiddleware) hsunauthorized(c *gin.Context, code int, message hserror.HSMessage) {
-
-	if mw.Realm == "" {
-		mw.Realm = "gin jwt"
-	}
-
-	c.Header("WWW-Authenticate", "JWT realm="+mw.Realm)
-	c.Abort()
-
-	mw.HSUnauthorized(c, code, message)
 
 	return
 }
