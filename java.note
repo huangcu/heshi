@@ -1,0 +1,37 @@
+1: JAVA TYPE
+primitive type: 
+Numeric primitives: short(16), int(32), long(64), float(32) and double(64).
+Textual primitives: byte(8) and char(16).
+Boolean(1) and null primitives: boolean and null
+in java default(infer): int and double
+Object type :
+2: Object super class of all class 
+  public boolean equals(Object obj)
+  public native int hashCode()
+  Public String toString()
+  protected native Object clone()
+  protected void finalize()
+  public final native Class<?> getClass()
+  public final native void notify()
+  public final native void notifyAll()
+  public final native void wait()
+  public final native void wait(long timeout)
+  public final native void wait(long timeout, int nanos)
+A Java class inherits these methods and can override any method that's not declared final
+
+A native method is a Java method (either an instance method or a class method) whose implementation is written in another programming language such as C
+3: Final VS Static (https://stackoverflow.com/questions/8005250/difference-between-a-static-and-a-final-static-variable-in-java)
+  variables
+    variables are declared in methods, and used as some kind of mutable local storage (int x; x = 5; x++)
+  final variables
+    final variables are also declared in methods, and are used as an immutable local storage (final int y; y = 0; y++; // won't compile).
+  fields
+    fields define the mutable state of objects, and are declared in classes
+  final fields
+    final fields define the immutable state of objects, are declared in classes and must be initialized before the constructor finishes (class x { final int myField = 5; }). They cannot be modified.
+  static fields
+    static fields are shared among all instances of any class. You can think of them as some kind of global mutable storage (class x { static int globalField = 5; })
+  final static fields
+    final static fields are global constants 
+
+4: Exception, RunTimeException, Error
