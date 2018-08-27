@@ -130,6 +130,25 @@ golang
  middleware - the sequence of middleware matters, first them move on to next 
  middleware and group sequence matters too.??? 
 
+21: go package
+   import "path/filepath"  filepath - > walk -> walkFn(root string, info FileInfo, err error ) error 
+   import "os" - > File, err:= os.Open("")
+        type File struct {
+            // contains filtered or unexported fields
+        }
+         
+        type FileInfo interface {
+        Name() string       // base name of the file
+        Size() int64        // length in bytes for regular files; system-dependent for others
+        Mode() FileMode     // file mode bits
+        ModTime() time.Time // modification time
+        IsDir() bool        // abbreviation for Mode().IsDir()
+        Sys() interface{}   // underlying data source (can return nil)
+        }
+
+    import "io/ioutil"
+    import "io"
+        Reader/ByteReader/ByteScanner/Writer/ReaderWriter
 mysql:
 
 order by filed('en','cn') asc 
