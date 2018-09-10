@@ -483,6 +483,25 @@ func selectUserQuery(id string) string {
 	return q
 }
 
+// func getUserByID(id string) (interface{}, error) {
+// 	q := selectUserQuery(id)
+
+// 	rows, err := dbQuery(q)
+// 	if err != nil {
+// 		return "", err
+// 	}
+// 	defer rows.Close()
+
+// 	us, err := composeUser(rows)
+// 	if err != nil {
+// 		return "", err
+// 	}
+// 	if len(us) != 1 {
+// 		return "", errors.Newf("error to find record with id %s")
+// 	}
+// 	return us[0], nil
+// }
+
 func getUserByID(id string) (string, error) {
 	q := selectUserQuery(id)
 

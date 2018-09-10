@@ -4,10 +4,11 @@ import (
 	"database/sql"
 	"fmt"
 	"heshi/errors"
+	"jwt"
 	"net/http"
+	"time"
 	"util"
 
-	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -58,18 +59,18 @@ func userLogin(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 		return
 	}
-	s := sessions.Default(c)
-	s.Set(userSessionKey, id)
-	// c.SetCookie(USER_SESSION_KEY, id, 10, "/", "localhost", true, false)
-	if userType == ADMIN {
-		s.Set(adminKey, id)
-		// c.SetCookie(ADMIN_KEY, id, 10, "/", "localhost", true, false)
-	}
-	if userType == AGENT {
-		s.Set(agentKey, id)
-		// c.SetCookie(AGENT_KEY, id, 10, "/", "localhost", true, false)
-	}
-	s.Save()
+	// s := sessions.Default(c)
+	// s.Set(userSessionKey, id)
+	// // c.SetCookie(USER_SESSION_KEY, id, 10, "/", "localhost", true, false)
+	// if userType == ADMIN {
+	// 	s.Set(adminKey, id)
+	// 	// c.SetCookie(ADMIN_KEY, id, 10, "/", "localhost", true, false)
+	// }
+	// if userType == AGENT {
+	// 	s.Set(agentKey, id)
+	// 	// c.SetCookie(AGENT_KEY, id, 10, "/", "localhost", true, false)
+	// }
+	// s.Save()
 	c.JSON(http.StatusOK, gin.H{
 		"code":        http.StatusOK,
 		"token":       "faketoken",
@@ -78,11 +79,35 @@ func userLogin(c *gin.Context) {
 }
 
 func userLogout(c *gin.Context) {
-	s := sessions.Default(c)
-	fmt.Println(s.Get(userSessionKey).(string))
-	s.Delete(userSessionKey)
-	s.Delete(adminKey)
-	s.Delete(agentKey)
-	s.Save()
+	// s := sessions.Default(c)
+	// fmt.Println(s.Get(userSessionKey).(string))
+	// s.Delete(userSessionKey)
+	// s.Delete(adminKey)
+	// s.Delete(agentKey)
+	// s.Save()
+	token := jwt.GetToken(c)
+	if token != "" {
+		claims := jwt.ExtractClaims(c)
+		var remaining time.Duration
+		if validity, ok := claims["exp"].(int64); ok {
+			tm := time.Unix(int64(validity), 0)
+			remainer := tm.Sub(time.Now())
+			if remainer > 0 {
+				// TODO
+				redisClient.Set(token, token, remaining)
+			}
+		}
+		redisClient.Set(token, token, remaining)
+	}
 	c.JSON(http.StatusOK, "User logout!")
+}
+
+func isTokenInBlackList(token string) bool {
+	token, err := redisClient.Get(token).Result()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	//Err, not in black list - false
+	// no err, in black list - true
+	return token != ""
 }

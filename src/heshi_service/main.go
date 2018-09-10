@@ -70,7 +70,7 @@ func main() {
 	defer func() {
 		exit <- true
 	}()
-	port := ":8080"
+	port := ":8008"
 	if os.Getenv("STAGE") != "dev" {
 		port = ":8443"
 	}
@@ -139,32 +139,33 @@ func configRoute(r *gin.Engine) {
 	}
 	//access api log
 	api.Use(requestLogger())
-	api.Use(sessionMiddleWare())
+	// api.Use(sessionMiddleWare())
 
 	apiCustomer := api.Group("customer")
 	apiAdmin := api.Group("admin")
 	apiAgent := api.Group("agent")
 	apiWechat := api.Group("wechat")
-
-	//authentication
-	jwtMiddleware := authenticateMiddleWare()
+	apiUser := api.Group("user")
+	//authentication & authorization
+	jwtMiddleware := jwtMiddleWare()
 
 	if os.Getenv("STAGE") == "dev" {
-		api.POST("/login", userLogin)
+		apiUser.POST("/login", userLogin)
 	} else {
 		//jwt authentication(user login)
 		apiCustomer.Use(jwtMiddleware.MiddlewareFunc())
 		apiAdmin.Use(jwtMiddleware.MiddlewareFunc())
 		apiAgent.Use(jwtMiddleware.MiddlewareFunc())
-		api.POST("/login", jwtMiddleware.LoginHandler)
+		apiUser.Use(jwtMiddleware.MiddlewareFunc())
+		api.POST("/user/login", jwtMiddleware.LoginHandler)
 	}
 
 	//session check
-	apiCustomer.Use(userSessionMiddleWare())
-	apiAdmin.Use(adminSessionMiddleWare())
-	apiAgent.Use(agentSessionMiddleWare())
+	// apiCustomer.Use(userSessionMiddleWare())
+	// apiAdmin.Use(adminSessionMiddleWare())
+	// apiAgent.Use(agentSessionMiddleWare())
 	//TODO wechat - > admin and customer
-	apiWechat.Use(adminSessionMiddleWare())
+	// apiWechat.Use(adminSessionMiddleWare())
 	api.GET("/refresh/token", jwtMiddleware.RefreshHandler)
 
 	{
@@ -303,12 +304,15 @@ func configRoute(r *gin.Engine) {
 			apiCustomer.GET("/cart/remove/:id", removeFromShoppingCart)
 			apiCustomer.GET("/cart", getShoppingCartList)
 
-			apiCustomer.GET("/logout", userLogout)
 			apiCustomer.POST("/password/change", changePassword)
 		}
-		//websocket
-		api.GET("/ws/customer", sessionMiddleWare(), customerWSService)
-		api.GET("/ws/serve", userSessionMiddleWare(), serveWSService)
+
+		{
+			apiUser.GET("/logout", userLogout)
+		}
+		// //websocket
+		// api.GET("/ws/customer", sessionMiddleWare(), customerWSService)
+		// api.GET("/ws/serve", userSessionMiddleWare(), serveWSService)
 
 		// exchange rate
 		api.GET("/exchangerate", getCurrencyRate)
