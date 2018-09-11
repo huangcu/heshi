@@ -57,7 +57,7 @@ func userLogin(c *gin.Context) {
 		return
 	}
 
-	userProfile, err := getUserByID(id)
+	userProfile, user, err := getUserByID(id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 		return
@@ -66,7 +66,8 @@ func userLogin(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":   http.StatusOK,
 		"token":  userProfile,
-		"expire": time.Minute * 30,
+		"user":   user,
+		"expire": time.Now().Add(time.Minute * 30).Format(time.RFC3339),
 	})
 }
 

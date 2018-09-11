@@ -98,7 +98,7 @@ func jwtAuthenticator(c *gin.Context) (interface{}, error) {
 		return nil, errors.New(errorLoginUserNamePassword)
 	}
 
-	userProfile, err := getUserByID(id)
+	userProfile, _, err := getUserByID(id)
 	if err != nil {
 		return nil, err
 	}
@@ -156,11 +156,14 @@ func identityHandler(c *gin.Context) interface{} {
 	return claims["userprofile"]
 }
 
-func loginResponse(c *gin.Context, code int, token string, expire time.Time) {
+func loginResponse(c *gin.Context, code int, token string, data string, expire time.Time) {
 	redisClient.Set(token, token, expire.Sub(time.Now()))
+	var user User
+	json.Unmarshal([]byte(data), &user)
 	c.JSON(http.StatusOK, gin.H{
 		"code":   http.StatusOK,
 		"token":  token,
+		"user":   user,
 		"expire": expire.Format(time.RFC3339),
 	})
 }
