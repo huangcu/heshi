@@ -157,7 +157,7 @@ func identityHandler(c *gin.Context) interface{} {
 }
 
 func loginResponse(c *gin.Context, code int, token string, expire time.Time) {
-	redisClient.Set(token, token, time.Duration(expire.UnixNano()))
+	redisClient.Set(token, token, expire.Sub(time.Now()))
 	c.JSON(http.StatusOK, gin.H{
 		"code":   http.StatusOK,
 		"token":  token,
