@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"heshi/errors"
 	"jwt"
+	"log"
 	"net/http"
+	"os"
 	"time"
 	"util"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis"
 )
 
 // LoginUser ...
@@ -59,22 +62,11 @@ func userLogin(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 		return
 	}
-	// s := sessions.Default(c)
-	// s.Set(userSessionKey, id)
-	// // c.SetCookie(USER_SESSION_KEY, id, 10, "/", "localhost", true, false)
-	// if userType == ADMIN {
-	// 	s.Set(adminKey, id)
-	// 	// c.SetCookie(ADMIN_KEY, id, 10, "/", "localhost", true, false)
-	// }
-	// if userType == AGENT {
-	// 	s.Set(agentKey, id)
-	// 	// c.SetCookie(AGENT_KEY, id, 10, "/", "localhost", true, false)
-	// }
-	// s.Save()
+
 	c.JSON(http.StatusOK, gin.H{
-		"code":        http.StatusOK,
-		"token":       "faketoken",
-		"userprofile": userProfile,
+		"code":   http.StatusOK,
+		"token":  userProfile,
+		"expire": time.Minute * 30,
 	})
 }
 
@@ -85,29 +77,23 @@ func userLogout(c *gin.Context) {
 	// s.Delete(adminKey)
 	// s.Delete(agentKey)
 	// s.Save()
-	token := jwt.GetToken(c)
-	if token != "" {
-		claims := jwt.ExtractClaims(c)
-		var remaining time.Duration
-		if validity, ok := claims["exp"].(int64); ok {
-			tm := time.Unix(int64(validity), 0)
-			remainer := tm.Sub(time.Now())
-			if remainer > 0 {
-				// TODO
-				redisClient.Set(token, token, remaining)
-			}
+	fmt.Println("logout")
+	if os.Getenv("STAGE") != "dev" {
+		token := jwt.GetToken(c)
+		if token != "" {
+			redisClient.Del(token)
 		}
-		redisClient.Set(token, token, remaining)
 	}
 	c.JSON(http.StatusOK, "User logout!")
 }
 
-func isTokenInBlackList(token string) bool {
-	token, err := redisClient.Get(token).Result()
-	if err != nil {
-		fmt.Println(err.Error())
+func isValidCacheToken(token string) bool {
+	fmt.Println("is valid token")
+	if _, err := redisClient.Get(token).Result(); err != nil {
+		if err != redis.Nil {
+			log.Println("redis error: " + err.Error())
+		}
+		return false
 	}
-	//Err, not in black list - false
-	// no err, in black list - true
-	return token != ""
+	return true
 }

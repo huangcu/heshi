@@ -4,9 +4,13 @@ import (
 	"database/sql"
 	"fmt"
 	"heshi/errors"
+	"log"
+	"os"
+	"util"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/configor"
+	uuid "github.com/satori/go.uuid"
 )
 
 var Config = struct {
@@ -72,6 +76,12 @@ func OpenDB() (*sql.DB, error) {
 		return nil, err
 	}
 	db.SetMaxIdleConns(0)
+
+	if os.Getenv("STAGE") == "dev" {
+		if err := createDefaultDevUser(db); err != nil {
+			log.Fatal(err.Error())
+		}
+	}
 	return db, nil
 }
 
@@ -87,4 +97,51 @@ func createDatabase(db *sql.DB, name string) {
 	if _, err := db.Exec(fmt.Sprintf("USE %s", name)); err != nil {
 		panic(err)
 	}
+}
+
+func createDefaultDevUser(db *sql.DB) error {
+	if exist, err := isUserExistByEmail(db, "agent@dev.com"); (err == nil) && !exist {
+		v4, _ := uuid.NewV4()
+		id := v4.String()
+		qAgent := fmt.Sprintf(`INSERT INTO users (id, username, password, email, user_type, invitation_code) 
+			VALUES ('%s', 'agent','%s','agent@dev.com', 'AGENT', 'ignore_agent')`, id, util.Encrypt("agent"))
+		if _, err := db.Exec(qAgent); err != nil {
+			return err
+		}
+		if _, err := db.Exec(fmt.Sprintf(`INSERT INTO agents (user_id, level) VALUES ('%s',10)`, id)); err != nil {
+			return err
+		}
+	}
+
+	if exist, err := isUserExistByEmail(db, "admin@dev.com"); (err == nil) && !exist {
+		v4, _ := uuid.NewV4()
+		id := v4.String()
+		qAdmin := fmt.Sprintf(`INSERT INTO users (id, username, password, email, user_type, invitation_code) 
+			VALUES ('%s', 'admin','%s','admin@dev.com', 'ADMIN', 'ignore_admin')`, id, util.Encrypt("admin"))
+		if _, err := db.Exec(qAdmin); err != nil {
+			return err
+		}
+		if _, err := db.Exec(fmt.Sprintf(`INSERT INTO admins (user_id, level) VALUES ('%s',10)`, id)); err != nil {
+			return err
+		}
+	}
+
+	if exist, err := isUserExistByEmail(db, "customer@dev.com"); (err == nil) && !exist {
+		v4, _ := uuid.NewV4()
+		id := v4.String()
+		qCustomer := fmt.Sprintf(`INSERT INTO users (id, username, password, email, user_type, invitation_code) 
+			VALUES ('%s', 'customer','%s','customer@dev.com', 'CUSTOMER', 'ignore_customer')`, id, util.Encrypt("customer"))
+		if _, err := db.Exec(qCustomer); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func isUserExistByEmail(db *sql.DB, email string) (bool, error) {
+	var count int
+	if err := db.QueryRow(fmt.Sprintf("SELECT COUNT(*) FROM users WHERE email='%s'", email)).Scan(&count); err != nil {
+		return false, err
+	}
+	return count == 1, nil
 }

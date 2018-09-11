@@ -1,6 +1,8 @@
 package main
 
-import "heshi/errors"
+import (
+	"heshi/errors"
+)
 
 var (
 	//GENERAL

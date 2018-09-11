@@ -219,10 +219,6 @@ func newUser(c *gin.Context) {
 		return
 	}
 
-	s := sessions.Default(c)
-	s.Set(userSessionKey, nu.ID)
-	s.Save()
-
 	c.JSON(http.StatusOK, nu)
 }
 
@@ -483,25 +479,6 @@ func selectUserQuery(id string) string {
 	return q
 }
 
-// func getUserByID(id string) (interface{}, error) {
-// 	q := selectUserQuery(id)
-
-// 	rows, err := dbQuery(q)
-// 	if err != nil {
-// 		return "", err
-// 	}
-// 	defer rows.Close()
-
-// 	us, err := composeUser(rows)
-// 	if err != nil {
-// 		return "", err
-// 	}
-// 	if len(us) != 1 {
-// 		return "", errors.Newf("error to find record with id %s")
-// 	}
-// 	return us[0], nil
-// }
-
 func getUserByID(id string) (string, error) {
 	q := selectUserQuery(id)
 
@@ -524,6 +501,32 @@ func getUserByID(id string) (string, error) {
 		return string(bs), nil
 	}
 	return "", errors.Newf("fail to find user with id %s", id)
+}
+
+func getUserByEmail(email string) (string, error) {
+	q := fmt.Sprintf(`SELECT id,username,cellphone,email,real_name,user_type,wechat_id,
+	wechat_name,wechat_qr,address,additional_info,recommended_by,invitation_code,
+	level,discount,point,total_purchase_amount,icon,status FROM users WHERE status='ACTIVE' AND email='%s'`, email)
+
+	rows, err := dbQuery(q)
+	if err != nil {
+		return "", err
+	}
+	defer rows.Close()
+
+	us, err := composeUser(rows)
+	if err != nil {
+		return "", err
+	}
+
+	if len(us) > 0 {
+		bs, err := json.Marshal(us[0])
+		if err != nil {
+			return "", err
+		}
+		return string(bs), nil
+	}
+	return "", errors.Newf("fail to find user with email %s", email)
 }
 
 //recommended_by by invitation_code link to user_id -- user_validate validateRecommendedBy

@@ -44,11 +44,7 @@ var redisClient = redis.NewClient(&redis.Options{
 var env string
 
 func main() {
-	flag.StringVar(&env, "env", "dev", "specifiy env dev or pro, default env - dev.")
-	flag.Parse()
-	os.Setenv("STAGE", env)
-	os.Setenv("TRACE", "true")
-
+	// set log
 	lf, err := os.OpenFile("heshi.log", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
 	if err != nil {
 		log.Fatal(err)
@@ -65,11 +61,13 @@ func main() {
 		gin.DefaultWriter = io.MultiWriter(lf)
 	}
 	log.SetFlags(log.LstdFlags)
+	// start long run
 	exit := make(chan bool)
 	go longRun(exit)
 	defer func() {
 		exit <- true
 	}()
+
 	port := ":8008"
 	if os.Getenv("STAGE") != "dev" {
 		port = ":8443"
@@ -139,34 +137,29 @@ func configRoute(r *gin.Engine) {
 	}
 	//access api log
 	api.Use(requestLogger())
-	// api.Use(sessionMiddleWare())
 
 	apiCustomer := api.Group("customer")
 	apiAdmin := api.Group("admin")
 	apiAgent := api.Group("agent")
 	apiWechat := api.Group("wechat")
 	apiUser := api.Group("user")
-	//authentication & authorization
-	jwtMiddleware := jwtMiddleWare()
 
 	if os.Getenv("STAGE") == "dev" {
-		apiUser.POST("/login", userLogin)
+		apiCustomer.Use(devMiddleware())
+		apiAdmin.Use(devMiddleware())
+		apiAgent.Use(devMiddleware())
+		apiUser.Use(devMiddleware())
+		api.POST("/user/login", userLogin)
 	} else {
-		//jwt authentication(user login)
+		//authentication & authorization
+		jwtMiddleware := jwtMiddleWare()
 		apiCustomer.Use(jwtMiddleware.MiddlewareFunc())
-		apiAdmin.Use(jwtMiddleware.MiddlewareFunc())
 		apiAgent.Use(jwtMiddleware.MiddlewareFunc())
 		apiUser.Use(jwtMiddleware.MiddlewareFunc())
+		apiAdmin.Use(jwtMiddleware.MiddlewareFunc())
 		api.POST("/user/login", jwtMiddleware.LoginHandler)
+		api.GET("/refresh/token", jwtMiddleware.RefreshHandler)
 	}
-
-	//session check
-	// apiCustomer.Use(userSessionMiddleWare())
-	// apiAdmin.Use(adminSessionMiddleWare())
-	// apiAgent.Use(agentSessionMiddleWare())
-	//TODO wechat - > admin and customer
-	// apiWechat.Use(adminSessionMiddleWare())
-	api.GET("/refresh/token", jwtMiddleware.RefreshHandler)
 
 	{
 		{
@@ -363,13 +356,20 @@ func init() {
 	// if err := chdir(); err != nil {
 	// 	log.Fatal(err)
 	// }
+
+	// parse args
+	flag.StringVar(&env, "env", "dev", "specifiy env dev or pro, default env - dev.")
+	flag.Parse()
+	os.Setenv("STAGE", env)
+	os.Setenv("TRACE", "true")
 	var err error
+
+	//open db
 	db, err = mysql.OpenDB()
 	if db == nil && err != nil {
 		util.Println(err.Error())
 		os.Exit(1)
 	}
-
 	if strings.ToUpper(runtime.GOOS) != "WINDOWS" {
 		fmt.Println("OS: " + runtime.GOOS)
 		val, err := redisClient.FlushAll().Result()
@@ -384,7 +384,7 @@ func init() {
 	if err := getLatestRates(); err != nil {
 		log.Fatalf("fail to get latest rate from intenet. err: %s;", err.Error())
 	}
-	activeConfig = exchangeRateFloat{ExchangeRateFloat: 0.01, CreatedBy: "system", CreatedAt: time.Now()}
+	activeConfig = exchangeRateFloat{ExchangeRateFloat: 0.01, CreatedBy: "SYSTEM", CreatedAt: time.Now()}
 	activeConfig.getActiveRateConfig()
 	activeCurrencyRate, err = getActiveCurrencyRate()
 	if err != nil {

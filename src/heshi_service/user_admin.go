@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"heshi/errors"
 	"net/http"
@@ -20,14 +21,15 @@ type Admin struct {
 
 func getAdmin(uid string) (*Admin, error) {
 	var level int
-	var wechatKefu, createdBy string
+	var createdBy string
+	var wechatKefu sql.NullString
 	q := fmt.Sprintf("SELECT level, wechat_kefu, created_by FROM admins WHERE user_id='%s'", uid)
 	if err := dbQueryRow(q).Scan(&level, &wechatKefu, &createdBy); err != nil {
 		return nil, err
 	}
 	a := &Admin{
 		Level:      level,
-		WechatKefu: wechatKefu,
+		WechatKefu: wechatKefu.String,
 		CreatedBy:  createdBy,
 	}
 	return a, nil

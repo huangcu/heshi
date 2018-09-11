@@ -61,6 +61,7 @@ func jwtMiddleWare() *jwt.GinJWTMiddleware {
 		SigningAlgorithm: "RS512",
 		IdentityKey:      "userprofile",
 		IdentityHandler:  identityHandler,
+		LoginResponse:    loginResponse,
 		// TimeFunc provides the current time. You can override it to use another time value. This is useful for testing or if your server uses a different time zone than your tokens.
 		TimeFunc: time.Now,
 	})
@@ -101,19 +102,7 @@ func jwtAuthenticator(c *gin.Context) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	s := sessions.Default(c)
-	s.Set(userSessionKey, id)
-	// c.SetCookie(USER_SESSION_KEY, id, 10, "/", "localhost", true, false)
 
-	if userType == ADMIN {
-		s.Set(adminKey, id)
-		// c.SetCookie(ADMIN_KEY, id, 10, "/", "localhost", true, false)
-	}
-	if userType == AGENT {
-		s.Set(agentKey, id)
-		// c.SetCookie(AGENT_KEY, id, 10, "/", "localhost", true, false)
-	}
-	s.Save()
 	return userProfile, nil
 }
 
@@ -125,6 +114,11 @@ func jwtAuthorizator(data interface{}, c *gin.Context) bool {
 	}
 	c.Set("id", user.ID)
 	c.Set("user", user)
+	token := jwt.GetToken(c)
+	if !isValidCacheToken(token) {
+		fmt.Println("token not valid" + token)
+		return false
+	}
 	if strings.HasPrefix(c.Request.RequestURI, "/api/admin") && user.UserType == ADMIN {
 		return true
 	}
@@ -141,13 +135,9 @@ func jwtAuthorizator(data interface{}, c *gin.Context) bool {
 }
 
 func identityHandler(c *gin.Context) interface{} {
-	if isTokenInBlackList(jwt.GetToken(c)) {
-		return ""
-	}
 	claims := jwt.ExtractClaims(c)
 	ip := claims["ip"]
 	userAgent := claims["user-agent"]
-
 	// 	ipFormat := regexp.MustCompile(`^(\d+).(\d+).(\d+).(\d+):\d+$`)
 	// previousIP := ipFormat.FindStringSubmatch(ip)
 	// currentIP := ipFormat.FindStringSubmatch(request.RemoteAddr)
@@ -166,6 +156,14 @@ func identityHandler(c *gin.Context) interface{} {
 	return claims["userprofile"]
 }
 
+func loginResponse(c *gin.Context, code int, token string, expire time.Time) {
+	redisClient.Set(token, token, time.Duration(expire.UnixNano()))
+	c.JSON(http.StatusOK, gin.H{
+		"code":   http.StatusOK,
+		"token":  token,
+		"expire": expire.Format(time.RFC3339),
+	})
+}
 func authMiddleWare() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		t := c.Request.Header.Get("X-Auth-Token")
@@ -179,79 +177,21 @@ func authMiddleWare() gin.HandlerFunc {
 	}
 }
 
-// func sessionMiddleWare() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		s := sessions.Default(c)
-// 		if s.Get(userSessionKey) != nil {
-// 			c.Set("id", s.Get(userSessionKey))
-// 		} else {
-// 			c.Set("id", "guest:"+c.Request.RemoteAddr)
-// 		}
-// 		c.Next()
-// 	}
-// }
+func devMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userprofile := c.Request.Header.Get("token")
+		if userprofile == "" {
+			c.AbortWithStatusJSON(http.StatusBadRequest, "for dev, please pass user profile in header as token")
+		} else {
+			var user User
+			json.Unmarshal([]byte(userprofile), &user)
+			c.Set("id", user.ID)
+			c.Set("user", user)
+			c.Next()
+		}
+	}
+}
 
-// func userSessionMiddleWare() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		c.Set("usertype", CUSTOMER)
-// 		if os.Getenv("STAGE") == "dev" {
-// 			c.Set("id", "system_dev_user")
-// 			c.Next()
-// 			return
-// 		}
-// 		s := sessions.Default(c)
-// 		if s.Get(userSessionKey) == nil {
-// 			c.AbortWithStatusJSON(http.StatusUnauthorized, "Must login first")
-// 			return
-// 		}
-// 		c.Set("id", s.Get(userSessionKey))
-// 		c.Next()
-// 	}
-// }
-
-// func adminSessionMiddleWare() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		c.Set("usertype", ADMIN)
-// 		if os.Getenv("STAGE") == "dev" {
-// 			c.Set("id", "system_dev_admin")
-// 			c.Next()
-// 			return
-// 		}
-// 		s := sessions.Default(c)
-// 		if s.Get(userSessionKey) == nil {
-// 			c.AbortWithStatusJSON(http.StatusUnauthorized, "Must login first")
-// 			return
-// 		}
-// 		if s.Get(adminKey) == nil {
-// 			c.AbortWithStatusJSON(http.StatusForbidden, "Login User is not admin")
-// 			return
-// 		}
-// 		c.Set("id", s.Get(userSessionKey))
-// 		c.Next()
-// 	}
-// }
-
-// func agentSessionMiddleWare() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		c.Set("usertype", AGENT)
-// 		if os.Getenv("STAGE") == "dev" {
-// 			c.Set("id", "system_dev_admin")
-// 			c.Next()
-// 			return
-// 		}
-// 		s := sessions.Default(c)
-// 		if s.Get(userSessionKey) == nil {
-// 			c.AbortWithStatusJSON(http.StatusUnauthorized, "Must login first")
-// 			return
-// 		}
-// 		if s.Get(agentKey) == nil {
-// 			c.AbortWithStatusJSON(http.StatusForbidden, "Login User is not a agent")
-// 			return
-// 		}
-// 		c.Set("id", s.Get(userSessionKey))
-// 		c.Next()
-// 	}
-// }
 func requestLogger() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		buf, _ := ioutil.ReadAll(c.Request.Body)
@@ -266,7 +206,7 @@ func requestLogger() gin.HandlerFunc {
 		if user == nil {
 			user = "guest"
 		}
-		if err := userUsingRecord(c.Request.URL.Path, user.(string), platform, c.Request.RemoteAddr); err != nil {
+		if err := userUsingRecord(c.Request.URL.Path, user.(string), platform, util.GetRequestIP(c.Request)); err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
