@@ -107,15 +107,13 @@ func jwtAuthenticator(c *gin.Context) (interface{}, error) {
 }
 
 func jwtAuthorizator(data interface{}, c *gin.Context) bool {
+	token := jwt.GetToken(c)
+	if !isValidCacheToken(token) {
+		return false
+	}
 	var user User
 	userprofile := data.(string)
 	if err := json.Unmarshal([]byte(userprofile), &user); err != nil {
-		return false
-	}
-	c.Set("id", user.ID)
-	c.Set("user", user)
-	token := jwt.GetToken(c)
-	if !isValidCacheToken(token) {
 		return false
 	}
 	if strings.HasPrefix(c.Request.RequestURI, "/api/admin") && user.UserType == ADMIN {
@@ -130,6 +128,8 @@ func jwtAuthorizator(data interface{}, c *gin.Context) bool {
 			return false
 		}
 	}
+	c.Set("id", user.ID)
+	c.Set("user", user)
 	return true
 }
 
