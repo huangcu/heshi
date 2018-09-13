@@ -89,12 +89,12 @@ func userLogout(c *gin.Context) {
 }
 
 func isValidCacheToken(token string) bool {
-	fmt.Println("is valid token")
 	if _, err := redisClient.Get(token).Result(); err != nil {
 		if err != redis.Nil {
 			log.Println("redis error: " + err.Error())
 		}
 		return false
 	}
+	redisClient.Expire(token, time.Minute*30)
 	return true
 }

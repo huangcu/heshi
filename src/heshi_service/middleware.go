@@ -45,13 +45,13 @@ func cORSMiddleware() gin.HandlerFunc {
 	// cors.DefaultConfig()
 }
 
-// give it 2 mins chance window to refresh token after current token expire
+//set exp(timeout) to 1 day, cache token to 30 mins
 func jwtMiddleWare() *jwt.GinJWTMiddleware {
 	mw, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:            "HESHI",
 		Key:              []byte("secret key"),
-		Timeout:          30 * time.Minute,
-		MaxRefresh:       32 * time.Minute,
+		Timeout:          24 * time.Hour,
+		MaxRefresh:       30 * time.Minute,
 		Authenticator:    jwtAuthenticator,
 		Authorizator:     jwtAuthorizator,
 		TokenLookup:      "header:Authorization",
@@ -116,7 +116,6 @@ func jwtAuthorizator(data interface{}, c *gin.Context) bool {
 	c.Set("user", user)
 	token := jwt.GetToken(c)
 	if !isValidCacheToken(token) {
-		fmt.Println("token not valid" + token)
 		return false
 	}
 	if strings.HasPrefix(c.Request.RequestURI, "/api/admin") && user.UserType == ADMIN {
@@ -157,7 +156,7 @@ func identityHandler(c *gin.Context) interface{} {
 }
 
 func loginResponse(c *gin.Context, code int, token string, data string, expire time.Time) {
-	redisClient.Set(token, token, expire.Sub(time.Now()))
+	redisClient.Set(token, token, time.Minute*30)
 	var user User
 	json.Unmarshal([]byte(data), &user)
 	c.JSON(http.StatusOK, gin.H{
