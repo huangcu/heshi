@@ -1,0 +1,304 @@
+Spring Boot is the best Java framework for microservices. We recommend you to become an expert at Spring Boot!
+
+Q : Spring Boot vs Spring MVC vs Spring - How do they compare?
+Spring Framework
+Most important feature of Spring Framework is Dependency Injection. 
+At the core of all Spring Modules is Dependency Injection or IOC Inversion of Control.
+Basics of Spring Framework
+    Dependency Injection
+        When writing a complex Java application, application classes should be as independent as possible of other Java classes to increase the possibility to reuse these classes and to test them independently of other classes while unit testing. 
+        Dependency Injection helps in gluing these classes together and at the same time keeping them independent.
+    a) Constructor Injections
+        public TextEditor(SpellChecker spellChecker) {
+            System.out.println("Inside TextEditor constructor." );
+            this.spellChecker = spellChecker;
+        }
+        Constructor-based dependency injection
+        Constructor-based DI is accomplished when the container invokes a class constructor with a number of arguments, 
+        each representing a dependency on the other class.
+    b) Setter Injections
+       // a setter method to inject the dependency.
+        public void setSpellChecker(SpellChecker spellChecker) {
+            System.out.println("Inside setSpellChecker." );
+            this.spellChecker = spellChecker;
+        }
+        Setter-based DI is accomplished by the container calling setter methods on your beans after 
+        invoking a no-argument constructor or no-argument static factory method to instantiate your bean.
+        You should note the difference in Beans.xml file defined in the constructor-based injection 
+        and the setter-based injection. The only difference is inside the <bean> element where we have used 
+        <constructor-arg> tags for constructor-based injection and <property> tags for setter-based injection.
+
+
+    Autowiring
+    @Configuration @Component @Autowired
+Spring Modules:
+    Spring Core/Bean/Context/SpEL
+    Spring JDBC/ORM/OXM/JMS/Transaction
+    Spring MVC/Web/Web-MVC/Web-Socket/Web-Portlet
+    Spring AOP/Aspects/Instrumentation/Messaging
+    Spring Test
+
+When DI or IOC is used properly, we can develop loosely coupled applications. 
+And loosely coupled applications can be easily unit tested.
+
+The Spring container is at the core of the Spring Framework. 
+The container will create the objects, wire them together, 
+configure them, and manage their complete life cycle from creation till destruction. 
+The Spring container uses DI to manage the components that make up an application. 
+These objects are called Spring Beans
+The container gets its instructions on what objects to instantiate, configure, 
+and assemble by reading the configuration metadata provided. 
+The configuration metadata can be represented either by XML, Java annotations, or Java code. 
+Spring BeanFactory Container:
+Spring Application Context Container: 
+    The most commonly used ApplicationContext implementations are −
+        FileSystemXmlApplicationContext − This container loads the definitions of the beans from an XML file. Here you need to provide the full path of the XML bean configuration file to the constructor.
+        ClassPathXmlApplicationContext − This container loads the definitions of the beans from an XML file. Here you do not need to provide the full path of the XML file but you need to set CLASSPATH properly because this container will look like bean configuration XML file in CLASSPATH.
+        WebXmlApplicationContext − This container loads the XML file with definitions of all beans from within a web application.
+
+Beans:
+    The objects that form the backbone of your application and that are managed by the Spring IoC container are called beans.
+    A bean is an object that is instantiated, assembled, and otherwise managed by a Spring IoC container. 
+    These beans are created with the configuration metadata that you supply to the container.
+
+class/id/scope/constructor-arg/properties/autowiring mode/lazy-initialization mode/initialization method/destruction method
+scope: 
+singleton - This scopes the bean definition to a single instance per Spring IoC container (default).
+prototype - This scopes a single bean definition to have any number of object instances.
+request - This scopes a bean definition to an HTTP request. Only valid in the context of a web-aware Spring ApplicationContext.
+session - This scopes a bean definition to an HTTP session. Only valid in the context of a web-aware Spring ApplicationContext.
+global-session - This scopes a bean definition to a global HTTP session. Only valid in the context of a web-aware Spring ApplicationContext.
+
+Spring - Bean Definition Inheritance (parent)
+
+
+Spring Configuration Metadata
+Spring IoC container is totally decoupled from the format in which this configuration metadata is actually written. 
+Following are the three important methods to provide configuration metadata to the Spring Container −
+    XML based configuration file.
+    Annotation-based configuration
+    Java-based configuration
+
+Inner beans are beans that are defined within the scope of another bean. 
+Thus, a <bean/> element inside the <property/> or <constructor-arg/> elements is called inner bean 
+
+primitive data type - > value attribute 
+object references -> ref attribute
+injection Collections(List/Set/Map/Props)
+
+Beans autowiring mode:
+no - This is default setting which means no autowiring and you should use explicit bean reference for wiring.
+byName - Autowiring by property name.
+    Spring container looks at the properties of the beans on which autowire attribute is set to byName in the XML configuration file. 
+        It then tries to match and wire its properties with the beans defined by the same names in the configuration file.
+byType - Autowiring by property datatype.
+    Spring container looks at the properties of the beans on which autowire attribute is set to byType in the XML configuration file. 
+    It then tries to match and wire a property if its type matches with exactly one of the beans name in configuration file. If more than one such beans exists, a fatal exception is thrown.
+
+constructor - Similar to byType, but type applies to constructor arguments. 
+    If there is not exactly one bean of the constructor argument type in the container, a fatal error is raised.
+autodetect - Spring first tries to wire using autowire by constructor, 
+if it does not work, Spring tries to autowire by byType.
+
+
+Annotation-based configuration
+Starting from Spring 2.5 it became possible to configure the dependency injection using annotations.
+So instead of using XML to describe a bean wiring, you can move the bean configuration into the component class 
+itself by using annotations on the relevant class, method, or field declaration.
+Annotation injection is performed before XML injection. 
+Thus, the latter configuration will override the former for properties wired through both approaches.
+Annotation wiring is not turned on in the Spring container by default. - enabling it by  <context:annotation-config/>
+@Required - bean property setter method
+@Autowired - bean property setter method,non-setter methods, constructor and properties
+@Qualifier
+@Resource, @PostConstruct and @PreDestroy
+
+Java-based configuration
+Java-based configuration option enables you to write most of your Spring configuration without XML 
+but with the help of few Java-based annotations 
+@Configuration indicates that the class can be used by the Spring IoC container as a source of bean definitions
+@Bean annotation tells Spring that a method annotated with @Bean will return an object that should be registered as a bean in the Spring application context. 
+@Import, @Scope
+
+Spring MVC
+Spring MVC Framework provides decoupled way of developing web applications. 
+With simple concepts like Dispatcher Servlet, ModelAndView and View Resolver, 
+it makes it easy to develop web applications.
+
+Spring Boot
+The problem with Spring and Spring MVC is the amount of configuration that is needed.
+Spring Boot solves this problem through a combination of Auto Configuration and Starter Projects. 
+Spring Boot also provide a few non functional features to make building production ready applications faster.
+
+Spring Boot looks at 
+    a) Frameworks available on the CLASSPATH 
+    b) Existing configuration for the application. 
+Based on these, Spring Boot provides basic configuration needed to configure the application with these frameworks. 
+This is called Auto Configuration.
+
+Starters are a set of convenient dependency descriptors that you can include in your application. 
+You get a one-stop-shop for all the Spring and related technology that you need, 
+without having to hunt through sample code and copy paste loads of dependency descriptors. 
+For example, if you want to get started using Spring and JPA for database access, 
+just include the spring-boot-starter-data-jpa dependency in your project, and you are good to go.
+
+
+Spring Boot Auto Configuration
+When we use Spring MVC, we need to configure component scan, dispatcher servlet, a view resolver, web jars(for delivering static content) among other things.
+ (component scan)   <context:component-scan base-package="com.leap.demo" />
+ (view resolver)   <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF" />
+        <property name="suffix" value=".jsp" />
+    </bean>
+    <bean class="org.springframework.web.servlet.handler.
+      SimpleMappingExceptionResolver">
+        <property name="exceptionMappings">
+            <props>
+                <prop key="com.leap.demo.SpringException">
+                    ExceptionPage
+                </prop>
+            </props>
+        </property>
+        <property name="defaultErrorView" value="error"/>
+    </bean>
+    <mvc:resources mapping="/pages/**" location="/WEB-INF/pages/" />
+    <mvc:annotation-driven/>
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>/WEB-INF/Hello-servlet.xml</param-value>
+    </context-param>
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+(DispatcherServlet)    <servlet>
+        <servlet-name>Hello</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+@Configuration tags the class as a source of bean definitions for the application context.
+@EnableAutoConfiguration tells Spring Boot to start adding beans based on classpath settings, 
+    other beans, and various property settings.
+    Normally you would add @EnableWebMvc for a Spring MVC app, 
+    but Spring Boot adds it automatically when it sees spring-webmvc on the classpath. 
+    This flags the application as a web application and activates key behaviors such as setting up a DispatcherServlet.
+@ComponentScan tells Spring to look for other components, configurations,
+    and services in the hello package, allowing it to find the controllers.
+
+@Named  - >  just a way to identify named components, does not provide a composable model. otherwise same as @Component
+@Component - 
+@Controller - 控制层 
+@Service - 服务层 
+@Repository 持久层 
+
+一个接口多个实现,匹配引入想要的实现类
+   1) 使用@Named注解(一个接口多个实现,匹配引入想要的实现类)
+   	public interface DemoService{
+		public void demoTest();
+	}
+	@Named("demoService_A_impl")
+	public class DemoService_A_impl implements DemoService{
+		@Override
+		public void demoTest(){
+			//here codes
+		}
+	}
+
+	@Named("demoService_B_impl")
+	public class DemoService_B_impl implements DemoService{
+		@Override
+		public void demoTest(){
+			//codes here----codes here
+		}
+	}
+
+	public class UseDemo{		
+		@Inject
+		@Named("demoService_B_impl")   //指定注入实现类B
+		private DemoService demoService;
+		
+		public void doSomething(){
+			demoService.demoTest();    //在此处调用的是实现类B的实现方法
+		}
+    }
+
+   2) Qualifier 
+    @Autowired
+    @Qualifier("customer")
+    private Cus1 customer;
+
+Autowired - > 首先按类型匹配。这里两个类同一个接口，所以继续以value分辨，不写value时，value是下面这句。
+            然后value名和private Cus1  这里的变量名相同，就注入他
+nterface：Cus1
+
+value：指定bean的id。如果不指定value属性，默认bean的id是当前类的类名。首字母小写。
+//没有指定value属性，这里id就是类名的首字母小写customer
+@Component
+Customer implents Cus1(){
+    syso("1")
+}
+
+//没有指定value属性，这里id就是类名的首字母小写customer2
+@Component
+Customer2 implents Cus1(){
+    syso("2")
+}
+
+@Service(value="customerService")
+CustomerService(){
+    @Autowired
+    private Cus1 customer;
+    //首先按类型匹配 Cus1 有多个实现，无法唯一确定
+    //如果有 value (@Autowired(value="customer")), 按value来分辨
+    //没有 value的话， 按变量名称来匹配，和变量名称customer 一样的 就注入
+}
+
+Spring自带的@Autowired的缺省情况等价于JSR-330的@Inject注解； 
+Spring自带的@Qualifier的缺省的根据Bean名字注入情况等价于JSR-330的@Named注解； 
+Spring自带的@Qualifier的扩展@Qualifier限定描述符注解情况等价于JSR-330的@Qualifier注解
+下面列出一下Spring注解和Java原生注解的区别： 
+（1）@Autowire 和 @Inject 默认 autowired by type 
+    可以 通过@Qualifier 显式指定 autowired by qualifier name。
+    @Autowired 和@Qualifier 结合使用时，自动注入的策略就从 byType 转变成 byName 了。
+    @Autowired 可以对成员变量、方法以及构造函数进行标注，来完成自动注入，而@Qualifier 的标注对象是成员变量、方法入参、构造函数入参。
+
+相同点： 
+同样可以在成员变量上标注、在set方法或者其他需要注入的方法上面标注、在构造函数上面标注，来完成自动注入
+
+不同点： 
+@Autowire 有@required标签，允许对象为空 - 可以配置为false，如果配置为false之后，当没有找到相应bean的时候，系统不会抛错。
+@Inject没有@required标签，强制要求对象不能为空,如果没有找到相应的bean的时候，系统抛错。
+
+（2）@Qualifier @Named(限定器或者类似Component定义bean)
+相同点： 
+都是作为限定器来使用，都可以使用标签或者bean的id来限定。
+
+“构造函数注入”和“set方法注入”唯一的区别在于2种方式创建合作者的顺序不同。
+set方法注入：
+Spring首先去调用A对象的构造函数实例化A，然后查找A依赖的对象本例子中是B。一但找到，Spring就会调用(B)的构造函数实例化B。
+如果B还有依赖的对象Spring会把B上依赖的所有对象都按照相同的机制实例化，然后调用A对象的setB(B b)把b对象注入给A。 
+因为Spring调用一个对象的set方法注入前,这个对象必须先被实例化。所以在"使用set方法注入"的情况下Spring会首先调用对象的构造函数。
+A 先存在 -》实例化B
+构造函数注入：
+发现配置了对象的构造注入，那么Spring会在调用构造函数前把构造函数需要的依赖对象都实例化好，然后再把这些实例化后的对象作为参数去调用构造函数。
+先实例化依赖类B，然后A构造函数，实例化A
+
+
+web.xml 
+Java web applications use a deployment descriptor file to determine how URLs map to servlets, 
+which URLs require authentication, and other information. This file is named web.xml, 
+and resides in the app's WAR under the WEB-INF/ directory
+ web.xml is part of the servlet standard for web applications.
+ https://cloud.google.com/appengine/docs/flexible/java/configuring-the-web-xml-deployment-descriptor
+
+Servlet(WebServlet)
+WebServlet
+The @WebServlet annotation is used to declare a servlet. 
+The annotated class must extend the javax.servlet.http.HttpServlet class.
+
+Servlet Filter (WebFilter)
+    void init(FilterConfig paramFilterConfig)
+    doFilter(ServletRequest paramServletRequest, ServletResponse paramServletResponse, FilterChain paramFilterChain)
+    void destroy()
+ServletRequest -> HttpServletRequest 
+https://blog.csdn.net/huan_mie/article/details/6114427

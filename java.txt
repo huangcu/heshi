@@ -1,0 +1,311 @@
+1 public static void main(String[] args) is the most important Java method
+Java main method is the entry point of any java program. Its syntax is always public static void main(String[] args). 
+You can only change the name of String array argument, for example you can change args to myStringArgs
+This is the access modifier of the main method. It has to be public so that java runtime can execute this method.
+When java runtime starts, there is no object of the class present. 
+That’s why the main method has to be static so that JVM can load the class into memory and call the main method.
+
+Heap VS Stack 
+Java Heap space is used by java runtime to allocate memory to Objects and JRE classes. 
+    Whenever we create any object, it’s always created in the Heap space.
+    Garbage Collection runs on the heap memory to free the memory used by objects that doesn’t have any reference.
+    Any object created in the heap space has global access and can be referenced from anywhere of the application.
+Java Stack memory is used for execution of a thread. 
+    They contain method specific values that are short-lived and 
+    references to other objects in the heap that are getting referred from the method.
+    Stack memory is always referenced in LIFO (Last-In-First-Out) order. Whenever a method is invoked, 
+    a new block is created in the stack memory for the method to hold local primitive values and reference to other objects in the method.
+    As soon as method ends, the block becomes unused and become available for next method.
+    Stack memory size is very less compared to Heap memory.
+
+1 Heap memory is used by all the parts of the application whereas stack memory is used only by one thread of execution.
+2 Whenever an object is created, it’s always stored in the Heap space and stack memory contains the reference to it. Stack memory only contains local primitive variables and reference variables to objects in heap space.
+3 Objects stored in the heap are globally accessible whereas stack memory can’t be accessed by other threads.
+4 Memory management in stack is done in LIFO manner whereas it’s more complex in Heap memory because it’s used globally. Heap memory is divided into Young-Generation, Old-Generation etc, more details at Java Garbage Collection.
+5 Stack memory is short-lived whereas heap memory lives from the start till the end of application execution.
+6 We can use -Xms and -Xmx JVM option to define the startup size and maximum size of heap memory. We can use -Xss to define the stack memory size.
+7 When stack memory is full, Java runtime throws java.lang.StackOverFlowError whereas if heap memory is full, it throws java.lang.OutOfMemoryError: Java Heap Space error.
+8 Stack memory size is very less when compared to Heap memory. Because of simplicity in memory allocation (LIFO), stack memory is very fast when compared to heap memory.
+
+
+Local/Instance/Class(Static) variable
+Local variables are declared in methods, constructors, or blocks.
+Local variables are created when the method, constructor or block is entered and the variable will be destroyed once it exits the method, constructor, or block.
+Access modifiers cannot be used for local variables.
+Local variables are visible only within the declared method, constructor, or block.
+Local variables are implemented at stack level internally.
+There is no default value for local variables, so local variables should be declared and 
+an initial value should be assigned before the first use.
+
+Instance variables are declared in a class, but outside a method, constructor or any block.
+When a space is allocated for an object in the heap, a slot for each instance variable value is created.
+Instance variables are created when an object is created with the use of the keyword 'new' and destroyed when the object is destroyed.
+Instance variables hold values that must be referenced by more than one method, constructor or block, or essential parts of an object's state that must be present throughout the class.
+Instance variables can be declared in class level before or after use.
+Access modifiers can be given for instance variables.
+The instance variables are visible for all methods, constructors and block in the class. Normally, it is recommended to make these variables private (access level). However, visibility for subclasses can be given for these variables with the use of access modifiers.
+Instance variables have default values. For numbers, the default value is 0, for Booleans it is false, and for object references it is null. Values can be assigned during the declaration or within the constructor.
+Instance variables can be accessed directly by calling the variable name inside the class. However, within static methods (when instance variables are given accessibility), they should be called using the fully qualified name. ObjectReference.VariableName.
+
+Class variables also known as static variables are declared with the static keyword in a class, but outside a method, constructor or a block.
+There would only be one copy of each class variable per class, regardless of how many objects are created from it.
+Static variables are rarely used other than being declared as constants. Constants are variables that are declared as public/private, final, and static. Constant variables never change from their initial value.
+Static variables are stored in the static memory. It is rare to use static variables other than declared final and used as either public or private constants.
+Static variables are created when the program starts and destroyed when the program stops.
+Visibility is similar to instance variables. However, most static variables are declared public since they must be available for users of the class.
+Default values are same as instance variables. For numbers, the default value is 0; for Booleans, it is false; and for object references, it is null. Values can be assigned during the declaration or within the constructor. Additionally, values can be assigned in special static initializer blocks.
+Static variables can be accessed by calling with the class name ClassName.VariableName.
+When declaring class variables as public static final, then variable names (constants) are all in upper case. 
+
+Static VS Final 
+Final: You can assign a value to a final variable only one time.(When declared or in constructor as constructor will only called once unlike methods which can be called multiple times)
+You can set a final variable only in a constructor or in an initializer. Regular methods cannot change the value of variables declared final.
+Though it is instance variable, A blank final instance variable must be definitely assigned at the end of every constructor of the class in which it is declared; otherwise a compile-time error occurs.
+
+Java primitive data type VS reference data type(default value: null)
+boolean(1 bit), byte(8bit) char (16bit), short(16), int(32), long(64), float(32), double(64)
+java.lang.Boolean, .Byte, .Character, .Short, .Integer, .Long, .Float, .Double
+null - In Java, null is just a value that a reference (which is basically a restricted pointer) can have.
+It means that the reference refers to nothing. In this case you still consume the space for the reference. 
+This is 4 bytes on 32-bit systems or 8 bytes on 64-bit systems. 
+However, you're not consuming any space for the class that the reference points to until you actually allocate an instance of that class to point the reference at.
+
+abstract class VS interface 
+
+Java 8:
+1: Interface default methods and static methods 
+2: Lambda expression And Functional Interface(interface with exactly one abstract method(non-object), Lambda expression to instantiate them)
+    Some of the useful java 8 functional interfaces are Consumer, Supplier, Function and Predicate.
+    
+    // Not functional because equals is already an implicit member (Object class)
+    interface Foo { boolean equals(Object obj); }
+
+    // Functional because Comparator has only one abstract non-Object method
+    interface Comparator<T> {
+    boolean equals(Object obj);
+    int compare(T o1, T o2);
+    }
+
+    // Not functional because method Object.clone is not public
+    interface Foo {
+    int m();
+    Object clone();
+    }
+    Lambda Expressions syntax is (argument) -> (body)
+3: Java Stream 
+We can use Java Stream API to implement internal iteration, 
+that is better because java framework is in control of the iteration.
+Internal iteration provides several features such as sequential and parallel execution, 
+filtering based on the given criteria, mapping etc.
+Most of the Java 8 Stream API method arguments are functional interfaces, 
+so lambda expressions work very well with them
+java.util.stream
+IntStream/LongStream/DoubleStream
+From Java 8 onwards, we can define static methods in interfaces too. Java interface static method can’t be overridden in the implementation classes. 
+This feature helps us in avoiding undesired results in case of poor implementation in implementation classes
+
+Function and BiFunction
+Predicate and BiPredicate
+Consumer and BiConsumer
+Supplier
+Java Stream Intermediate and Terminal Operations
+    Java 8 Stream API operations that returns a result or produce a side effect. Once the terminal method is called on a stream, it consumes the stream and after that we can’t use stream.
+1 Stream.of()/Stream<Integer> stream = Stream.of(1,2,3,4);/Stream<Integer> stream = Stream.of(new Integer[]{1,2,3,4}); 
+2 Collection stream() to create sequential stream and parallelStream() to create parallel stream.
+    //sequential stream
+    Stream<Integer> sequentialStream = myList.stream();		
+    //parallel stream
+    Stream<Integer> parallelStream = myList.parallelStream();
+3 Stream.generate() and Stream.iterate() methods to create Stream.
+    Stream<String> stream1 = Stream.generate(() -> {return "abc";});
+    Stream<String> stream2 = Stream.iterate("abc", (i) -> i);
+
+4 Using Arrays.stream() and String.chars() methods.
+
+Intermediate operations are further divided into stateless and stateful operations. 
+Stateless operations, such as filter and map, retain no state from previously seen element when processing 
+a new element -- each element can be processed independently of operations on other elements.
+Stateful operations, such as distinct and sorted, may incorporate state from previously seen elements when processing new elements.
+Stateful operations may need to process the entire input before producing a result. 
+For example, one cannot produce any results from sorting a stream until one has seen all elements of the stream. 
+As a result, under parallel computation, some pipelines containing stateful intermediate operations may 
+require multiple passes on the data or may need to buffer significant data. 
+Pipelines containing exclusively stateless intermediate operations can be processed in a single pass, 
+whether sequential or parallel, with minimal data buffering.
+
+Non-interference
+/Stateless behaviors
+
+
+Comparable VS Comparator (Java Generics)
+Comparable
+ - implement comparable, override compareTo(object o) - > this object compare 
+ - Collections.sort(xx)/Arrays.sort(xx)
+Comparator
+ - new comparator/or new class implement comparator, override compare(object o1, object o2) -> 2 objects comapre
+ - Collections.sort(xxx, xxcomparator)/Arrays
+ with JAVA 8 Lambda expression, comparator is much consice, and List interface support sort too, no need to use Collections.sort
+
+listDevs.sort(new Comparator<Developer>() {
+		@Override
+		public int compare(Developer o1, Developer o2) {
+			return o2.getAge() - o1.getAge();
+		}
+	});
+listDevs.sort((Developer o1, Developer o2)->o1.getAge()-o2.getAge());
+ 
+ Comparator<Developer> byName = 
+		(Developer o1, Developer o2)->o1.getName().compareTo(o2.getName());
+Thread
+Implementing the java.lang.Runnable interface. - override void run() 
+    in JAVA 8, Runnable is also Functional Interface, can use Lambda expression
+Extending the java.lang.Thread class. - override void run()
+    //anonymous subclass (inner class - abstract or concrete)
+    1:  Thread t = new Thread()
+        {
+            public void run()
+            {
+                System.out.println("Child Thread");
+            }
+        };
+        t.start();
+    //anonymous implementation of Runnable
+    2: Runnable r = new Runnable()
+        {
+            public void run()
+            {
+                System.out.println("Child Thread");
+            }
+        };
+        Thread t = new Thread(r);
+        t.start()
+    //anonymous implementation of Runnable
+    3: Thread t = new Thread(new Runnable()
+        {
+            public void run()
+            {
+                System.out.println("Child Thread");
+            }
+        });         
+        t.start();
+    //anonymous implementation of Runnable with lambda expressions
+    //Runnable is a functional interface. Here we utilize Java 8 lambda expressions
+    //The major benefit of java 8 functional interfaces is that we can use lambda expressions to 
+    //instantiate them and avoid using bulky anonymous class implementation.
+    4: Thread t = new Thread(()->{
+        System.out.println("Child Thread");
+    });
+
+        t.start();
+Thread Pool
+Executor interface
+ExecutorService interface
+ThreadPoolExecutor class
+
+Executors implement ExecutorService using ThreadPoolExecutor(simple implementation)
+class - ThreadPoolExecutor class implement both Executor(interface) and ExecutorService
+
+1. Create a task(Runnable Object) to execute
+2. Create Executor Pool using Executors(implement Executor Interface)
+    newFixedThreadPool(int)/newScheduledThreadPool(int)           Creates a fixed size thread pool.
+    newCachedThreadPool()             Creates a thread pool that creates new 
+                                  threads as needed, but will reuse previously 
+                                  constructed threads when they are available
+    newSingleThreadExecutor()/newSingleThreadScheduledExecutor         Creates a single thread. 
+3. Pass tasks to Executor Pool
+4. Shutdown the Executor Pool
+
+ScheduledExecutorService interface
+ScheduledThreadPoolExecutor class implement both Executor and ScheduledExecutorService
+
+1. Create a task(Runnable Object) to execute
+2. Create Executor Pool using Executors
+    newScheduledThreadPool(int)           Creates a fixed size thread pool.
+    newSingleThreadScheduledExecutor         Creates a single thread. 
+3. Pass tasks to Executor Pool
+4. Shutdown the Executor Pool
+scheduleAtFixedRate,scheduleWithFixedDelay
+
+MultiThread issues: Deadlock/Thread Leakage/Resource Thrashing - > (not too many thread, find an optimal number)
+
+Thread Safety:- > data inconsistency. multiple threads created from same Object share object variables and this can lead to data inconsistency when the threads are used to read and update the shared data
+The reason for data inconsistency is because updating any field value is not an atomic process, 
+it requires three steps; 
+    first to read the current value, 
+    second to do the necessary operations to get the updated value 
+    and third to assign the updated value to the field reference.
+    
+    1: Synchronization
+    2: Atomic Wrapper classes from java.util.concurrent.atomic package for int and long that 
+    can be used to achieve this atomically without usage of Synchronization
+    Concurrency:
+        atomic operation - performed in a single unit of task without interference from other operations
+            Atomic operations are necessity in multi-threaded environment to avoid data inconsistency
+    3: Use of locks from java.util.concurrent.locks package.
+    4: Using thread safe collection classes
+
+
+Java Generic
+Added in Java5 to provide compile-time type checking and removing risk of ClassCastException hat was common while working with collection classes
+Java Generic Type
+    E – Element (used extensively by the Java Collections Framework, for example ArrayList, Set etc.)
+    K – Key (Used in Map)
+    N – Number
+    T – Type
+    V – Value (Used in Map)
+    S,U,V etc. – 2nd, 3rd, 4th types
+Java Generic Method
+	//Java Generic Method
+	public static <T> boolean isEqual(GenericsType<T> g1, GenericsType<T> g2){
+		return g1.get().equals(g2.get());
+	}
+    boolean isEqual = GenericsMethods.<String>isEqual(g1, g2);
+	//above statement can be written simply as
+	boolean isEqual = GenericsMethods.isEqual(g1, g2);
+	//This feature, known as type inference,
+    //allows you to invoke a generic method as an ordinary method, without specifying a type between angle brackets.
+Java Generics Bounded Type Parameters
+Java Generics and Inheritance
+Java Generic Classes and Subtyping
+For example, ArrayList<E> implements List<E> that extends Collection<E>,
+so ArrayList<String> is a subtype of List<String> and List<String> is subtype of Collection<String>.
+Java Generics Upper Bounded Wildcard - public static double sum(List<? extends Number>
+Java Generics Unbounded Wildcard - public static void printData(List<?> list) (Its same as using <? extends Object>)
+Java Generics Lower bounded Wildcard - public static double sum(List<? super Integer>
+
+
+Serialization in Java allows us to convert an Object to stream that we can send over the network or save it as file or store in DB for later usage. 
+Deserialization is the process of converting Object stream to actual Java Object to be used in our program. 
+Serialization in Java seems very easy to use at first but it comes with some trivial security and integrity issues that we will look in the later part of this article. 
+If you want a class object to be serializable, all you need to do it implement the java.io.Serializable interface. 
+Serializable in java is a marker interface and has no fields or methods to implement. 
+It’s like an Opt-In process through which we make our classes serializable.
+Serialization in java is implemented by ObjectInputStream and ObjectOutputStream, so all we need is a wrapper over them to either save it to file or send it over the network
+For transient variable, it’s value was not saved to file and not retrieved in the new object. 
+Similarly static variable values are also not serialized since they belongs to class and not object.
+
+Externalizable - writeExternal readExternal
+
+java.util.Properties -> load/getProperty/setProperty/store/storeToXML
+java.util.zip.ZipOutputStream/ZipInputStream/ZipEntry
+java.util.zip.GZIPInputStream/GZIPOutputStream
+
+flush/close 
+Closing a ByteArrayOutputStream has no effect. The methods in this class can be called after the stream has been closed without generating an IOException.
+Also, if you look at the code, both flush and close are no-ops in the ByteArrayOutputStream class (although flush is inherited from OutputStream, 
+it is a no-op in OutputStream unless overridden in the specific implementation).
+You don't have to close ByteArrayInputStream, the moment it is not referenced by any variable, garbage collector will release the stream and somebytes (of course assuming they aren't referenced somewhere else).
+However it is always a good practice to close every stream, in fact, maybe the implementation creating the stream will change in the future and instead of raw bytes you'll be reading file? Also static code analyzing tools like PMD or FindBugs (see comments) will most likely complain.
+
+annotation
+Creating custom annotation in java is similar to writing an interface, except that it interface keyword is prefixed with @ symbol. We can declare methods in annotation.
+Annotation methods can’t have parameters.
+Annotation methods return types are limited to primitives, String, Enums, Annotation or array of these.
+Java Annotation methods can have default values.
+Annotations can have meta annotations attached to them. Meta annotations are used to provide information about the annotation.
+Meta annotations in java: @Retention, Documented, Target, Inherited 
+RetentionPolicy.SOURCE	refers to the source code, discarded during compilation. It will not be available in the compiled class.
+RetentionPolicy.CLASS	refers to the .class file, available to java compiler but not to JVM . It is included in the class file.
+RetentionPolicy.RUNTIME	refers to the runtime, available to java compiler and JVM .
+Built-in annotations in Java
+@Override, @SuppressWarnings, @Deprecated
