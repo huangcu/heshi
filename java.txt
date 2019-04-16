@@ -1,3 +1,22 @@
+Abstract class: is a class that is declared abstract, it may or may not include abstract methods,
+cannot be instantiated, but they can be subclassed, they have constructor, you can provide one or default one, as it can be sublcassed, 
+the subclass constructor will call super class constructor.
+One of the reasons which make sense is when any class extends an abstract class, 
+the constructor of sub class will invoke the constructor of super class either implicitly or explicitly. 
+This chaining of constructors is one of the reasons abstract class can have constructors in Java.
+
+
+Can we override static method in Java
+No, you cannot override static method in Java because method overriding is based upon dynamic binding at runtime 
+and static methods are bonded using static binding at compile time.
+Though you can declare a method with same name and method signature in sub class with does look like you can override static method in java, but in reality that is method hiding.
+An abstract method is defined only so that it can be overridden in a subclass. 
+However, static methods can not be overridden. 
+Therefore, it is a compile-time error to have an abstract, static method. ... 
+It's because static methods belongs to a particular class and not to its instance.
+
+This && Super
+
 1 public static void main(String[] args) is the most important Java method
 Java main method is the entry point of any java program. Its syntax is always public static void main(String[] args). 
 You can only change the name of String array argument, for example you can change args to myStringArgs
@@ -19,9 +38,11 @@ Java Stack memory is used for execution of a thread.
     Stack memory size is very less compared to Heap memory.
 
 1 Heap memory is used by all the parts of the application whereas stack memory is used only by one thread of execution.
-2 Whenever an object is created, it’s always stored in the Heap space and stack memory contains the reference to it. Stack memory only contains local primitive variables and reference variables to objects in heap space.
+2 Whenever an object is created, it’s always stored in the Heap space and stack memory contains the reference to it. 
+    Stack memory only contains local primitive variables and reference variables to objects in heap space.
 3 Objects stored in the heap are globally accessible whereas stack memory can’t be accessed by other threads.
-4 Memory management in stack is done in LIFO manner whereas it’s more complex in Heap memory because it’s used globally. Heap memory is divided into Young-Generation, Old-Generation etc, more details at Java Garbage Collection.
+4 Memory management in stack is done in LIFO manner whereas it’s more complex in Heap memory because it’s used globally. 
+Heap memory is divided into Young-Generation, Old-Generation etc, more details at Java Garbage Collection.
 5 Stack memory is short-lived whereas heap memory lives from the start till the end of application execution.
 6 We can use -Xms and -Xmx JVM option to define the startup size and maximum size of heap memory. We can use -Xss to define the stack memory size.
 7 When stack memory is full, Java runtime throws java.lang.StackOverFlowError whereas if heap memory is full, it throws java.lang.OutOfMemoryError: Java Heap Space error.
@@ -273,6 +294,52 @@ Java Generics Upper Bounded Wildcard - public static double sum(List<? extends N
 Java Generics Unbounded Wildcard - public static void printData(List<?> list) (Its same as using <? extends Object>)
 Java Generics Lower bounded Wildcard - public static double sum(List<? super Integer>
 
+a，什么叫序列化和反序列化
+b，作用。为啥要实现这个 Serializable 接口，也就是为啥要序列化
+c，serialVersionUID 这个的值到底是在怎么设置的，有什么用。有的是1L，有的是一长串数字，迷惑ing。
+
+1,序列化和反序列化的概念
+序列化：把对象转换为字节序列的过程称为对象的序列化。
+反序列化：把字节序列恢复为对象的过程称为对象的反序列化
+2,什么情况下需要序列化 
+当你想把的内存中的对象状态保存到一个文件中或者数据库中时候；
+当你想用套接字在网络上传送对象的时候；
+当你想通过RMI传输对象的时候；
+
+3,java如何实现序列化
+实现Serializable接口即可
+ObjectOutputStream代表对象输出流：
+它的writeObject(Object obj)方法可对参数指定的obj对象进行序列化，把得到的字节序列写到一个目标输出流中。
+
+ObjectInputStream代表对象输入流：
+它的readObject()方法从一个源输入流中读取字节序列，再把它们反序列化为一个对象，并将其返回。
+transient 修饰的属性, 是不会被序列化的, 静态static的属性，不序列化
+4, serialVersionUID 的作用和用法
+ 4.1 if not implement serializable, 然后执行后面的序列化和反序列化的方法。直接报错。抛异常：NotSerializableException
+ 4.2 没有明确的给这个 serialVersionUID 赋值
+    然后就是，还和上面的操作差不多，先是单独执行序列化方法。生成文件。
+    然后，打开属性 addTip ，这之后，再次执行反序列化方法，看现象 - > 抛异常：InvalidClassException 
+
+    因为我再model里面是没有明确的给这个 serialVersionUID 赋值，但是，Java会自动的给我赋值的，
+    这个值跟这个model的属性相关计算出来的。我保存的时候，也就是我序列化的时候，那时候还没有这个addTip属性呢，
+    所以，自动生成的serialVersionUID 这个值，
+    在我反序列化的时候Java自动生成的这个serialVersionUID值是不同的，他就抛异常啦。
+
+4.3 把 private static final long serialVersionUID = 1L 这行代码的注释打开
+    然后就是，还和上面的操作差不多，先是单独执行序列化方法。生成文件。
+    然后，打开属性 addTip ，这之后，再次执行反序列化方法，看现象 - > 
+    这个时候，代码执行OK，一切正常。good。序列化的时候，是没的那个属性的，在发序列化的时候，对应的model多了个属性，但是，反序列化执行OK，没出异常
+    这个现象对我们有什么意义：-> 没写这个 serialVersionUID 那么在后来扩展的时候，可能就会出现不认识旧数据的bug, so, you must assgin a value to serialVersionUID
+
+强烈建议 所有可序列化类都显式声明 serialVersionUID 值，
+原因是计算默认的 serialVersionUID 对类的详细信息具有较高的敏感性，
+根据编译器实现的不同可能千差万别，这样在反序列化过程中可能会导致意外的 InvalidClassException。
+因此，为保证 serialVersionUID 值跨不同 java 编译器实现的一致性，序列化类必须声明一个明确的 serialVersionUID 值。
+还强烈建议使用 private 修饰符显示声明 serialVersionUID（如果可能），
+原因是这种声明仅应用于直接声明类 -- serialVersionUID 字段作为继承成员没有用处。
+数组类不能声明一个明确的 serialVersionUID，因此它们总是具有默认的计算值，但是数组类没有匹配 serialVersionUID 值的要求
+
+原文：https://blog.csdn.net/qq_27093465/article/details/78544505 
 
 Serialization in Java allows us to convert an Object to stream that we can send over the network or save it as file or store in DB for later usage. 
 Deserialization is the process of converting Object stream to actual Java Object to be used in our program. 
@@ -280,7 +347,8 @@ Serialization in Java seems very easy to use at first but it comes with some tri
 If you want a class object to be serializable, all you need to do it implement the java.io.Serializable interface. 
 Serializable in java is a marker interface and has no fields or methods to implement. 
 It’s like an Opt-In process through which we make our classes serializable.
-Serialization in java is implemented by ObjectInputStream and ObjectOutputStream, so all we need is a wrapper over them to either save it to file or send it over the network
+Serialization in java is implemented by ObjectInputStream and ObjectOutputStream, 
+so all we need is a wrapper over them to either save it to file or send it over the network
 For transient variable, it’s value was not saved to file and not retrieved in the new object. 
 Similarly static variable values are also not serialized since they belongs to class and not object.
 
@@ -309,3 +377,24 @@ RetentionPolicy.CLASS	refers to the .class file, available to java compiler but 
 RetentionPolicy.RUNTIME	refers to the runtime, available to java compiler and JVM .
 Built-in annotations in Java
 @Override, @SuppressWarnings, @Deprecated
+
+List equal
+Compares the specified object with this list for equality. 
+Returns true if and only if the specified object is also a list, both lists have the same size, 
+and all corresponding pairs of elements in the two lists are equal. 
+(Two elements e1 and e2 are equal if (e1==null ? e2==null : e1.equals(e2)).) In other words, two lists are defined to be equal if they contain the same elements in the same order. 
+This definition ensures that the equals method works properly across different implementations of the List interface.
+
+STRING:
+String in immutable and final in Java and JVM uses String Pool to store all the String objects.
+Some other interesting things about String is the way we can instantiate a String object using double quotes and overloading of “+” operator for concatenation.
+When we create a String using double quotes, JVM looks in the String pool to find if any other String is stored with the same value. 
+If found, it just returns the reference to that String object else it creates a new String object with given value and stores it in the String pool.
+When we use the new operator, JVM creates the String object but don’t store it into the String Pool. 
+We can use intern() method to store the String object into String pool or return the reference if there is already a String with equal value present in the pool.
+
+
+Why character array is better than String for Storing password in Java
+1) Since Strings are immutable in Java if you store password as plain text it will be available in memory until Garbage collector clears it and since String are used in String pool for reusability there is pretty high chance that it will be remain in memory for long duration, which pose a security threat. Since any one who has access to memory dump can find the password in clear text and that's another reason you should always used an encrypted password than plain text. Since Strings are immutable there is no way contents of Strings can be changed because any change will produce new String, while if you char[] you can still set all his element as blank or zero. So Storing password in character array clearly mitigates security risk of stealing password.
+2) Java itself recommends using getPassword() method of JPasswordField which returns a char[] and deprecated getText() method which returns password in clear text stating security reason. Its good to follow advice from Java team and adhering to standard rather than going against it.
+3) With String there is always a risk of printing plain text in log file or console but if use Array you won't print contents of array instead its memory location get printed. though not a real reason but still make sense.
