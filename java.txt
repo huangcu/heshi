@@ -159,10 +159,12 @@ Non-interference
 
 
 Comparable VS Comparator (Java Generics)
-Comparable
+Comparable - > Comparable is an interface defining a strategy of comparing an object with other objects of the same type. 
+             This is called the class’s “natural ordering”
  - implement comparable, override compareTo(object o) - > this object compare 
  - Collections.sort(xx)/Arrays.sort(xx)
-Comparator
+Comparator - > The Comparator interface defines a compare(arg1, arg2) method with two arguments which represent compared objects 
+                and works similarly to the Comparable.compareTo() method.
  - new comparator/or new class implement comparator, override compare(object o1, object o2) -> 2 objects comapre
  - Collections.sort(xxx, xxcomparator)/Arrays
  with JAVA 8 Lambda expression, comparator is much consice, and List interface support sort too, no need to use Collections.sort
