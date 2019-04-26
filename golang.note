@@ -32,17 +32,74 @@ go get -u -v sourcegraph.com/sqs/goreturns
 golang 
 
 1: type (https://www.goinggo.net/2013/07/understanding-type-in-go.html && http://golang.org/ref/spec#Types) 
-    bool - 1byte
+    bool - 1bit
     uint, int, uintptr ->   int (int32 or int64 - 32bit OS or 64bit OS)
     uint8, uint16, uint32, uint64
     int8, int16, int32, int64
     float32, float64
     rune 
-    string 
+    string: A string type represents the set of string values. A string value is a (possibly empty) sequence of bytes
+Array type
+    An array is a numbered sequence of elements of a single type, called the element type. 
+    The number of elements is called the length of the array and is never negative.
+    Arrays do not need to be initialized explicitly; 
+    By default an array is zero-valued of that single type;(Kind of like struct)
+    the zero value of an array is a ready-to-use array whose elements are themselves zeroed:
+Slice type(make | new) -> make([]byte, 5, 5) () - > func make([]T, len, cap) []T
+    A slice is a descriptor for a contiguous segment of an underlying array and provides access to a numbered sequence of elements from that array. 
+    A slice type denotes the set of all slices of arrays of its element type. 
+    The number of elements is called the length of the slice and is never negative. 
+    The value of an uninitialized slice is nil.
+    The len and cap functions will both return 0 for a nil slice.
+Struct type:
+    A struct is a sequence of named elements, called fields, each of which has a name and a type. 
+    Field names may be specified explicitly (IdentifierList) or implicitly (EmbeddedField). 
+    Within a struct, non-blank field names must be unique.
+    The zero value of a struct value is not nil
+      Each element of such a variable or value is set to the zero value for its type: 
+        false for booleans, 
+        0 for integers,
+        0.0 for floats,
+        "" for strings,
+        nil for pointers, functions, interfaces, slices, channels, and maps.
+
+Pointer type:
+    A pointer type denotes the set of all pointers to variables of a given type, called the base type of the pointer. 
+    The value of an uninitialized pointer is nil.
+Function type:
+    A function type denotes the set of all functions with the same parameter and result types.
+    The value of an uninitialized variable of function type is nil.
+Interface type: 
+    An interface type specifies a method set called its interface. 
+    A variable of interface type can store a value of any type with a method set that is any superset of the interface. 
+    Such a type is said to implement the interface. 
+    The value of an uninitialized variable of interface type is nil.
+
+    A type implements any interface comprising any subset of its methods and may therefore implement several distinct interfaces. 
+    For instance, all types implement the empty interface: interface{}
+Map type(make):
+    A map is an unordered group of elements of one type, called the element type, 
+    indexed by a set of unique keys of another type, called the key type. 
+    The value of an uninitialized map is nil.
+Channel type: 
+    A channel provides a mechanism for concurrently executing functions to communicate by sending and receiving values of a specified element type. 
+    The value of an uninitialized channel is nil.
 
     8 byte alignment rule; 
     Go is a type safe language. 
+    Type safety means that the compiler will validate types while compiling, 
+    and throw an error if you try to assign the wrong type to a variable.
+
     This means that the compiler will always enforce like types on each side of an assignment operator. 
+    
+    Google Go is statically typed, but a number of features make it "appear" to be (at least somewhat) dynamically typed. 
+    For example, you do not need to explicitly mark your class as implementing any interfaces. 
+    If the method signatures of your class match up with those on the interface, then your class automatically implements that interface (a kind of duck-typing). 
+    This is useful for extending built-in classes and classes in third-party libraries, 
+    because you can just make up your interface to match the methods on the third-party class and 
+    it will automatically implement it.
+
+    Go's map type is not thread-safe, it is statically typed
 
 2: Slice VS Array 
     (https://golang.org/doc/effective_go.html#slices) && 
@@ -155,6 +212,13 @@ order by filed('en','cn') asc
 
 GOLANG ERRORS: 
 2018/03/16 19:12:36 http2: server: error reading preface from client [::1]:33036: read tcp [::1]:8443->[::1]:33036: read: connection reset by peer
+
+
+Goroutine
+通过使用goroutine而不是裸用操作系统的并发机制，以及使用消息传递来共享内存而不是使用共享内存来通信，Go语言让并发编程变得更加轻盈和安全。
+通过在函数调用前使用关键字go，我们即可让该函数以goroutine方式执行，goroutine是一种比线程更加轻盈、更省资源的协程.
+另外，由于一个进程内创建的所有goroutine运行在同一个内存地址空间中，因此如果不同的goroutine不得不去访问共享的内存变量，
+访问前应该先获取相应的读写锁。Go语言标准库中的sync包提供了完备的读写锁功能。
 
 
 history 
