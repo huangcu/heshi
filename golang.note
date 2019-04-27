@@ -47,10 +47,13 @@ Array type
     the zero value of an array is a ready-to-use array whose elements are themselves zeroed:
 Slice type(make | new) -> make([]byte, 5, 5) () - > func make([]T, len, cap) []T
     A slice is a descriptor for a contiguous segment of an underlying array and provides access to a numbered sequence of elements from that array. 
+    A slice is a descriptor of an array segment. 
+    It consists of a pointer to the array, the length of the segment, and its capacity
     A slice type denotes the set of all slices of arrays of its element type. 
     The number of elements is called the length of the slice and is never negative. 
     The value of an uninitialized slice is nil.
-    The len and cap functions will both return 0 for a nil slice.
+    The len and cap functions will both return 0 for a nil slice. has no underlying array.
+    (build-in append: append works on nil slices.The slice grows as needed.)
 Struct type:
     A struct is a sequence of named elements, called fields, each of which has a name and a type. 
     Field names may be specified explicitly (IdentifierList) or implicitly (EmbeddedField). 
@@ -69,6 +72,41 @@ Pointer type:
 Function type:
     A function type denotes the set of all functions with the same parameter and result types.
     The value of an uninitialized variable of function type is nil.
+    Functions are values too. They can be passed around just like other values.
+    Go functions may be closures. A closure is a function value that references variables from outside its body. 
+    The function may access and assign to the referenced variables; in this sense the function is "bound" to the variables.
+    =================
+    For example, the adder function returns a closure. Each closure is bound to its own sum variable.
+    package main
+    import "fmt"
+
+    func adder() func(int) int {
+        sum := 0
+        return func(x int) int {
+            sum += x
+            return sum
+        }
+    }
+
+    func main() {
+        pos, neg := adder(), adder()
+        for i := 0; i < 10; i++ {
+            fmt.Println(
+                pos(i),
+                neg(-2*i),
+            )
+        }
+    }
+
+    func fibonacci() func() int {
+        a := 1
+        b := 0
+        return func() int {
+        a, b = b, a+b
+        return a
+        }
+    }
+    ==================
 Interface type: 
     An interface type specifies a method set called its interface. 
     A variable of interface type can store a value of any type with a method set that is any superset of the interface. 
@@ -80,7 +118,13 @@ Interface type:
 Map type(make):
     A map is an unordered group of elements of one type, called the element type, 
     indexed by a set of unique keys of another type, called the key type. 
-    The value of an uninitialized map is nil.
+    The value of an uninitialized map is nil.  A nil map has no keys, nor can keys be added
+    (Why can't nil maps spring into existence when assigned to?) 
+    https://www.reddit.com/r/golang/comments/4v2taq/why_cant_nil_maps_spring_into_existence_when/
+    A map is implemented using a hash table, which is providing faster lookups on the data element 
+    and you can easily retrieve a value by providing the key. maps are unordered collections, 
+    and there's no way to predict the order in which the key/value pairs will be returned. 
+    Every iteration over a map could return a different order.
 Channel type: 
     A channel provides a mechanism for concurrently executing functions to communicate by sending and receiving values of a specified element type. 
     The value of an uninitialized channel is nil.
@@ -114,6 +158,24 @@ Channel type:
 
 3: Map 
     a nil map VS an empty map (gotour)
+    var employee = make(map[string]int)
+    var employee = map[string]int{} 
+    employee is empty map, not a nil map; 
+   while "var m map[string]int64", m declared here is a nil map
+
+    #########################
+    var m map[string]int64
+    log.Println(m == nil)
+    log.Printf("%T\n", m)
+    It will print:
+
+    $ true
+    $ map[string]int64
+    So m is actually nil at this point.
+    A nil value (can) have a type too and the formater uses that to print out something meaningful when possible.
+
+    A map is a reference type. And in Go you can call methods of a struct even if it's value is nil.
+    ###############################
 
 4: interface (gotour)
     Under the covers, interface values can be thought of as a tuple of a value and a concrete type:(value, type)
@@ -125,9 +187,76 @@ Channel type:
     It represents the empty set of methods and is satisfied by any value at all, since any value has zero or more methods.
 
 5: embedded types , method, interface (indirection) - > object oriented programming;(封装， 集成，多态) 在 go中的类似实现 
+    Methods:  Go does not have classes. However, you can define methods on types.
+              A method is a function with a special receiver argument.
+    Receiver: A receiver is a value or a pointer of a named or struct type.
+    Pointer Receiver VS Value Receiver
+        With a value receiver, the Scale method operates on a copy of the original Vertex value. 
+        (This is the same behavior as for any other function argument.) 
+        Methods with pointer receivers can modify the value to which the receiver points (as Scale does here). 
+        Since methods often need to modify their receiver, pointer receivers are more common than value receivers
+    Methods and pointer indirection:
+        Functions with a pointer argument must take a pointer
+        Functions that take a value argument must take a value of that specific type
+
+        Methods with pointer receivers take either a value or a pointer as the receiver when they are called.
+        Methods with value receivers take either a value or a pointer as the receiver when they are called.
+    Rule: 
+        1: The method set of the corresponding pointer type *T is the set of all methods with receiver *T or T
+        2: The method set of any other type T consists of all methods with receiver type T.
+
+    =======================
+    package main
+
+    import (
+        "log"
+    )
+
+    type User struct {
+        Name  string
+        Email string
+    }
+
+    func (u *User) Notify() error {
+        log.Printf("User: Sending User Email To %s<%s>\n",
+            u.Name,
+            u.Email)
+
+        return nil
+    }
+
+    type Notifier interface {
+        Notify() error
+    }
+
+    func SendNotification(notify Notifier) error {
+        return notify.Notify()
+    }
+
+    func main() {
+        user := User{
+            Name:  "janet jones",
+            Email: "janet@email.com",
+        }
+        user.Notify() //This is right. 
+                     //Method with a pointer receiver Can take a pointer or a value as Receiver when they are called
+        SendNotification(user) //This is wrong.
+                               //Function SendNotification accepts any value or pointer of a type that implements the Notifier interface, 
+                               //User (type) not implement Notifier interface, while *User (type) implement Notifier interface 
+                               //SendNotification(&user) is right
+    }
+===========================
+
+    Choosing a value or pointer receiver
+        There are two reasons to use a pointer receiver.
+        The first is so that the method can modify the value that its receiver points to.
+        The second is to avoid copying the value on each method call. 
+        This can be more efficient if the receiver is a large struct, for example.
+
     https://www.goinggo.net/2014/05/methods-interfaces-and-embedded-types.html
     important !!!!!! 
-    method promotion!!!When we embed a type, the methods of that type become methods of the outer type, but when they are invoked, the receiver of the method is the inner type, not the outer one.
+    method promotion!!!When we embed a type, the methods of that type become methods of the outer type, 
+    but when they are invoked, the receiver of the method is the inner type, not the outer one.
     Struct S has anonymous field T VS anonymous field *T -> methods set of S vs *S , and T , *T method promotion
 
     method define on T, *T, same method name will cause compile error, already exists.
@@ -220,8 +349,11 @@ Goroutine
 另外，由于一个进程内创建的所有goroutine运行在同一个内存地址空间中，因此如果不同的goroutine不得不去访问共享的内存变量，
 访问前应该先获取相应的读写锁。Go语言标准库中的sync包提供了完备的读写锁功能。
 
+Switch: 
+    In effect, the break statement that is needed at the end of each case in those languages is provided automatically in Go.
+    Another important difference is that Go's switch cases need not be constants, and the values involved need not be integers
+    history
 
-history 
 ID USER_ID CATEGORY, FIELD, OLDVALUE, NEWVALUE
 //PRICE - > 
 //FLOAT + 
