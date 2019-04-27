@@ -330,16 +330,30 @@ If the compiler accepted the type declaration, how does the compiler determine w
 If the outer type contains an implementation that satisfies the interface, it will be used. 
 Otherwise, thanks to method promotion, any inner type that implements the interface can be used through the outer type.
 
-6: exported && unexported (variable, struct field, function etc) in GO 
+6: exported && unexported (type, variable, struct field, function etc) in GO 
     https://www.goinggo.net/2014/03/exportedunexported-identifiers-in-go.html
     
 7: all paramters (all type of) is passed by value; 
 
-8: defer, panic, recover;  (https://www.goinggo.net/2013/06/understanding-defer-panic-and-recover.html)
+8: defer, panic, recover;  (https://www.goinggo.net/2013/06/understanding-defer-panic-and-recover.html)???
     defer function paramters - > passed by value and value is at the time defer is scanned?? 
     inline defer;
     (recover panic)
+    The recover function stops the chain reaction from going any farther up the call stack.
+    The recover function can only be used inside of a defer function.
+    This is because during the panic chain reaction only defer functions will be executed.
+    If the recover function is called and there is no panic occurring, the recover function will return nil.
+    If there is a panic occurring, then the panic is stopped and the value given to the panic call will be returned.
+    Also notice that "End Test" is never displayed. The function terminated as soon as panic was called.
+    One thing to note is that Go will execute these inline defer functions in the opposite order that are defined (First In - Last Out). (Multiple defer, first one with recover())
+
 9: make VS new (effective go) - > memory allocation
+New: It's a built-in function that allocates memory, but unlike its namesakes in some other languages it does not initialize the memory, it only zeros it. 
+That is, new(T) allocates zeroed storage for a new item of type T and returns its address, a value of type *T. 
+In Go terminology, it returns a pointer to a newly allocated zero value of type T
+
+Make: The built-in function make(T, args) serves a purpose different from new(T). 
+It creates slices, maps, and channels only, and it returns an initialized (not zeroed) value of type T (not *T)
 
 10: structtag, reflection -> reflect value, type (interface can be viewed as (value, type), gettag  (https://blog.golang.org/laws-of-reflection))
                                 A variable of interface type stores a pair: the concrete value assigned to the variable, and that value's type descriptor.
