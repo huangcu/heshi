@@ -178,12 +178,17 @@ Channel type:
     ###############################
 
 4: interface (gotour)
+Interface Values: 
     Under the covers, interface values can be thought of as a tuple of a value and a concrete type:(value, type)
     An interface value holds a value of a specific underlying concrete type.
     Calling a method on an interface value executes the method of the same name on its underlying type.
-    
-    a nil value interface VS empty interface; 
-    empty interface: interface{}
+        
+    Interface holds a nil concrete value: an interface value that holds a nil concrete value is itself non-nil. (it has a type)
+        If the concrete value inside the interface itself is nil, the method will be called with a nil receiver.
+        In some languages this would trigger a null pointer exception, but in Go it is common to write methods that gracefully handle being called with a nil receiver.
+    A nil interface: holds neither value nor concrete type, it is nil.
+        Calling a method on a nil interface is a run-time error because there is no type inside the interface tuple to indicate which concrete method to call.
+    Empty interface: interface{}
     It represents the empty set of methods and is satisfied by any value at all, since any value has zero or more methods.
 
 5: embedded types , method, interface (indirection) - > object oriented programming;(封装， 集成，多态) 在 go中的类似实现 
@@ -255,11 +260,75 @@ Channel type:
 
     https://www.goinggo.net/2014/05/methods-interfaces-and-embedded-types.html
     important !!!!!! 
-    method promotion!!!When we embed a type, the methods of that type become methods of the outer type, 
+    method promotion!!
+    !When we embed a type, the methods of that type become methods of the outer type, 
     but when they are invoked, the receiver of the method is the inner type, not the outer one.
-    Struct S has anonymous field T VS anonymous field *T -> methods set of S vs *S , and T , *T method promotion
+    ======================
+    type Admin struct {
+        User   --->(User is the embedded type, the method on User become method on Admin, it implement Notifier)
+        Level string
+    }
+    func main() {
+    admin := &Admin{
+            User: User{
+                Name:  "john smith",
+                Email: "john@email.com",
+            },
+            Level: "super",
+        }
+
+        SendNotification(admin)  (This is right. admin takes embedded (User method) which implement Notifier, so admin implement Notifier too)
+    }
+    admin.User.Notify() (This is right)
+    admin.Notify() (This is right. when invoked, the receiver of the mothed(Notify()) is the innner type User, Not outer one Admin)
+    ============================
+    Rules for inner type method set promotion: 
+    Struct S has anonymous field T -> 
+        methods set of S include promoted methods with receiver T.
+        methods set of *S include promoted methods with receiver T and *T.
+    Struct S has anonymous field *T ->
+        methods set of S include promoted methods with receiver T and *T.
+        methods set of *S include promoted methods with receiver T and *T.
 
     method define on T, *T, same method name will cause compile error, already exists.
+
+=================
+func (a *Admin) Notify() error {
+    log.Printf("Admin: Sending Admin Email To %s<%s>\n",
+        a.Name,
+        a.Email)
+
+    return nil
+}
+
+func main() {
+    admin := &Admin{
+        User: User{
+            Name:  "john smith",
+            Email: "john@email.com",
+        },
+        Level: "super",
+    }
+
+    SendNotification(admin)
+}
+
+// Output
+Admin: Sending Admin Email To john smith<john@email.com>
+
+admin.Notify()
+
+// Output
+Admin: Sending Admin Email To john smith<john@email.com>
+
+When Admin implement Notifier, The User type’s implementation is no longer promoted to the outer type.
+So:Would the compiler throw an error because we now had two implementations of the interface?
+No, because when we use an embedded type, the unqualified type’s name acts as the field name. 
+This has the effect of fields and methods of the embedded type having a unique name as an inner type of the struct. 
+So we can have an inner and outer implementation of the same interface with each implementation being unique and accessible.
+If the compiler accepted the type declaration, how does the compiler determine which implementation to use for interface calls?
+If the outer type contains an implementation that satisfies the interface, it will be used. 
+Otherwise, thanks to method promotion, any inner type that implements the interface can be used through the outer type.
 
 6: exported && unexported (variable, struct field, function etc) in GO 
     https://www.goinggo.net/2014/03/exportedunexported-identifiers-in-go.html
@@ -348,6 +417,7 @@ Goroutine
 通过在函数调用前使用关键字go，我们即可让该函数以goroutine方式执行，goroutine是一种比线程更加轻盈、更省资源的协程.
 另外，由于一个进程内创建的所有goroutine运行在同一个内存地址空间中，因此如果不同的goroutine不得不去访问共享的内存变量，
 访问前应该先获取相应的读写锁。Go语言标准库中的sync包提供了完备的读写锁功能。
+Goroutines run in the same address space, so access to shared memory must be synchronized. 
 
 Switch: 
     In effect, the break statement that is needed at the end of each case in those languages is provided automatically in Go.
