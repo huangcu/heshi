@@ -35,3 +35,128 @@ A native method is a Java method (either an instance method or a class method) w
     final static fields are global constants 
 
 4: Exception, RunTimeException, Error
+
+5: String StringBuffer StringBuilder
+Both StringBuffer and StringBuilder are two important classes in Java which represents mutable String i.e. the String object, whose value can be changed. 
+Since String is Immutable in Java, any change or operation on String object e.g. 
+converting it to upper or lower case, adding character, removing a character, or getting a substring, 
+all results in a new String object. This can put a lot of pressure on Garbage collector if your application generates lots of throws away String instances. 
+To avoid this issue, Java designer presented initially StringBuffer class and later StringBuilder as mutable String. 
+
+6: Sleep(), Wait(), Notify(), NotifyAll()
+wait(), notify(), and notifyAll() methods of object class must have to be called inside synchronized method or synchronized block in Java
+
+The key difference between wait() and sleep() is that former is used for inter-thread communication while later is used to introduced to pause the current thread for a short duration. This difference is more obvious from the fact that, when a thread calls the wait() method, it releases the monitor or lock it was holding on that object, but when a thread calls the sleep() method, it never releases the monitor even if it is holding. 
+https://javarevisited.blogspot.com/2011/12/difference-between-wait-sleep-yield.html#ixzz5mSoDsHkl
+
+Synchronized is to provide mutual exclusion and ensuring thread safety of Java class like race condition while wait and notify are communication mechanism between two thread.
+Read more: https://javarevisited.blogspot.com/2012/02/why-wait-notify-and-notifyall-is.html#ixzz5mSxfZzRz
+
+7: How hashmap internally works in java
+hashCode(), equals()
+https://www.journaldev.com/21095/java-equals-hashcode 
+https://netjs.blogspot.com/2015/05/how-hashmap-internally-works-in-java.html
+
+HashMap works on the principal of hashing.
+HashMap in Java uses the hashCode() method to calculate a hash value. Hash value is calculated using the key object. This hash value is used to find the correct bucket where Entry object will be stored.
+HashMap uses the equals() method to find the correct key whose value is to be retrieved in case of get() and to find if that key already exists or not in case of put().
+With in the internal implementation of HashMap hashing collision means more than one key having the same hash value, in that case Entry objects are stored as a linked-list with in a same bucket.
+With in a bucket values are stored as Entry objects which contain both key and value.
+In Java 8 hash elements use balanced trees instead of linked lists after a certain threshold is reached while storing values. This improves the worst case performance from O(n) to O(log n).
+
+override hashCode and equals together 
+key-> bucket -> (equals)
+
+Why String is popular HashMap key in Java ?
+Since String is immutable, its hashcode is cached at the time of creation and 
+it doesn’t need to be calculated again. This makes it a great candidate for key in a Map and its processing is fast than other HashMap key objects. 
+This is why String is mostly used Object as HashMap keys.
+
+How get method of HashMap and hashtable works internally in Java
+http://www.java67.com/2013/06/how-get-method-of-hashmap-or-hashtable-works-internally.html
+a) Key.hashCode() method is used to find the bucket location in backing array. 
+  (Remember HashMap is backed by array in Java)
+b) In backing array or better known as the bucket, key and values are stored in the form of a nested class called Entry
+  If there is only one Entry at bucket location, then the value from that entry is returned.
+
+What happens if two keys have the same hashCode? 
+If multiple keys have the same hashCode, then during put() operation collision had occurred, 
+which means multiple Entry objects stored in a bucket location. 
+Each Entry keeps track of another Entry, forming a linked list data structure there.
+Now, if we need to retrieve value object in this situation, following steps will be followed :
+1) Call hashCode() method of the key to finding bucket location.
+2) Traverse thought linked list, comparing keys in each entries using keys.equals() until it returns true.
+
+
+9: modCount
+ConcurrentModificationException   -> 
+copyonwritearraylist ->"snapshot style"
+Iterator returned by CopyOnWriteArrayList in Java is fail-safe, 
+it uses a reference to the state of the array at the point that the iterator was created. 
+You know by now any mutation will result in a fresh copy of the underlying array. 
+Thus the array that the iterator has a reference to never changes during the lifetime of the iterator
+1: The iterator will not reflect additions, removals, or changes to the list since the iterator was created thus it is also known as "snapshot style" iterator.
+2: Element-changing operations on iterators themselves (remove, set, and add) are not supported. These methods throw UnsupportedOperationException.
+
+https://www.journaldev.com/1289/copyonwritearraylist-java
+https://netjs.blogspot.com/2016/01/copyonwritearraylist-in-java.html
+fail-fast VS fail safe
+
+
+The Collection subclass maintains an integer modCount that is incremented on every operation that structurally modifies the collection (like add, remove, clear).
+The fail-fast iterators also contain an integer field expectedModCount which is initialized to the modCount while the iterator is created. 
+Later on, during every iteration, the iterator verifies if the expectedModCount is same as the modCount of the collection it is iterating over.
+A mismatch means that the collection has been modified during the life cycle of the iterator and a ConcurrentModificationException is thrown.
+
+10: dynamic binding VS static binding
+Can we override static method in Java? - Method Hiding
+
+No, you cannot override static method in Java because method overriding is based upon dynamic binding at runtime 
+and static methods are bonded using static binding at compile time. 
+Though you can declare a method with same name and method signature in sub class 
+which does look like you can override static method in Java but in reality that is method hiding. 
+Java won't resolve method call at runtime and depending upon type of Object which is used to call static method, corresponding method will be called. 
+It means if you use Parent class's type to call static method, original static will be called from patent class, 
+on ther other hand if you use Child class's type to call static method, method from child class will be called. 
+In short you can not override static method in Java.
+
+11: Java 8 static and default method on Interface
+11: Abstract VS Interface 
+the main difference between an abstract class and interface in Java 8 is the fact that an abstract class is a class and an interface is an interface. A class can have a state which can be modified by non-abstract methods but an interface cannot have the state because they can't have instance variables.
+The second difference is that an interface cannot have a constructor even in Java 8 but you may remember that abstract class can also have a constructor in Java. All methods of an interface were abstract but since Java 8 you can define non-abstract methods in the form of default and static methods inside interface in Java.
+
+12: Can abstract class have Constructor in Java 
+Yes, an abstract class can have a constructor in Java. 
+You can either explicitly provide a constructor to abstract class or if you don't, 
+the compiler will add default constructor of no argument in abstract class.
+ This is true for all classes and it also applies to an abstract class. 
+ For those who want to recall what is an abstract class in Java, 
+ it's a class which can not be instantiated with new() operator or any other ways. 
+ In order to use an abstract class in Java,  You need to extend it and provide a concrete class.
+
+13: Why can an abstract class have a constructor in Java?
+if we can not create an instance of an abstract class then why do Java adds a constructor in the abstract class. 
+One of the reasons which make sense is  when any class extends an abstract class,
+ the constructor of sub class will invoke the constructor of super class either implicitly or explicitly.
+  This chaining of constructors is one of the reasons abstract class can have constructors in Java.
+
+14: Overloading Overridding Hiding 
+You can hide a field or variable in Java. 
+A field is said to be hidden by another field if they have the same name in both parent and child class. 
+For example, if Parent class has a name field and Child class also have age field then Child.age will hide Parent.age in the Child class.
+
+if you have two static or private methods with the same name in both Parent and Child class 
+then the method in Child class will hide the method from the Parent class
+
+15: thread -> run(), start() 
+when you call start() method it creates new Thread and executes code declared in the run() 
+while directly calling run() method doesn’t create any new thread and execute code on the same calling thread.
+
+15: Java 8 features 
+  Interface changes with default and static methods
+    default method: help us in extending interfaces with additional methods, all we need is to provide a default implementation. no need to override, but we can override them
+    static methods: visible to interface methods only, we can’t override them in the implementation classes.
+  Functional interfaces and Lambda Expressions
+    An interface with exactly one abstract method is known as Functional Interface.
+  Java Stream API for collection classes
+  Java Date Time API
