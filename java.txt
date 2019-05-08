@@ -386,17 +386,3 @@ Returns true if and only if the specified object is also a list, both lists have
 and all corresponding pairs of elements in the two lists are equal. 
 (Two elements e1 and e2 are equal if (e1==null ? e2==null : e1.equals(e2)).) In other words, two lists are defined to be equal if they contain the same elements in the same order. 
 This definition ensures that the equals method works properly across different implementations of the List interface.
-
-STRING:
-String in immutable and final in Java and JVM uses String Pool to store all the String objects.
-Some other interesting things about String is the way we can instantiate a String object using double quotes and overloading of “+” operator for concatenation.
-When we create a String using double quotes, JVM looks in the String pool to find if any other String is stored with the same value. 
-If found, it just returns the reference to that String object else it creates a new String object with given value and stores it in the String pool.
-When we use the new operator, JVM creates the String object but don’t store it into the String Pool. 
-We can use intern() method to store the String object into String pool or return the reference if there is already a String with equal value present in the pool.
-
-
-Why character array is better than String for Storing password in Java
-1) Since Strings are immutable in Java if you store password as plain text it will be available in memory until Garbage collector clears it and since String are used in String pool for reusability there is pretty high chance that it will be remain in memory for long duration, which pose a security threat. Since any one who has access to memory dump can find the password in clear text and that's another reason you should always used an encrypted password than plain text. Since Strings are immutable there is no way contents of Strings can be changed because any change will produce new String, while if you char[] you can still set all his element as blank or zero. So Storing password in character array clearly mitigates security risk of stealing password.
-2) Java itself recommends using getPassword() method of JPasswordField which returns a char[] and deprecated getText() method which returns password in clear text stating security reason. Its good to follow advice from Java team and adhering to standard rather than going against it.
-3) With String there is always a risk of printing plain text in log file or console but if use Array you won't print contents of array instead its memory location get printed. though not a real reason but still make sense.

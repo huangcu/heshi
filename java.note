@@ -1,3 +1,21 @@
+1.JVM -- java virtual machineJVM就是我们常说的java虚拟机，它是整个java实现跨平台的最核心的部分，
+所有的java程序会首先被编译为.class的类文件，这种类文件可以在虚拟机上执行，也就是说class并不直接与机器的操作系统相对应，
+而是经过虚拟机间接与操作系统交互，由虚拟机将程序解释给本地系统执行。
+2.JRE -- java runtime environment
+JRE是指java运行环境。光有JVM还不能成class的执行，因为在解释class的时候JVM需要调用解释所需要的类库lib。
+在JDK的安装目录里你可以找到jre目录，里面有两个文件夹bin和lib,在这里可以认为bin里的就是jvm，lib中则是jvm工作所需要的类库，而jvm和 lib和起来就称为jre。
+所以，在你写完java程序编译成.class之后，你可以把这个.class文件和jre一起打包发给朋友，这样你的朋友就可以运行你写程序了。（jre里有运行.class的java.exe）
+3.JDK -- java development kit
+JDK是java开发工具包
+在目录下面有六个文件夹、一个src类库源码压缩包、和其他几个声明文件。
+其中，真正在运行java时起作用的是以下四个文件夹：bin、include、lib、 jre。
+
+现在我们可以看出这样一个关系，JDK包含JRE，而JRE包含JVM。
+bin:最主要的是编译器(javac.exe)
+include:java和JVM交互用的头文件
+lib：类库
+jre:java运行环境
+
 1: JAVA TYPE
 primitive type: 
 Numeric primitives: short(16), int(32), long(64), float(32) and double(64).
@@ -43,6 +61,31 @@ converting it to upper or lower case, adding character, removing a character, or
 all results in a new String object. This can put a lot of pressure on Garbage collector if your application generates lots of throws away String instances. 
 To avoid this issue, Java designer presented initially StringBuffer class and later StringBuilder as mutable String. 
 
+STRING:
+String in immutable and final in Java and JVM uses String Pool to store all the String objects.
+Some other interesting things about String is the way we can instantiate a String object using double quotes and overloading of “+” operator for concatenation.
+When we create a String using double quotes, JVM looks in the String pool to find if any other String is stored with the same value. 
+If found, it just returns the reference to that String object else it creates a new String object with given value and stores it in the String pool.
+When we use the new operator, JVM creates the String object but don’t store it into the String Pool. 
+We can use intern() method to store the String object into String pool or return the reference if there is already a String with equal value present in the pool.
+
+
+Why character array is better than String for Storing password in Java
+1) Since Strings are immutable in Java if you store password as plain text it will be available in memory until Garbage collector clears it and since String are used in String pool for reusability there is pretty high chance that it will be remain in memory for long duration, which pose a security threat. Since any one who has access to memory dump can find the password in clear text and that's another reason you should always used an encrypted password than plain text. Since Strings are immutable there is no way contents of Strings can be changed because any change will produce new String, while if you char[] you can still set all his element as blank or zero. So Storing password in character array clearly mitigates security risk of stealing password.
+2) Java itself recommends using getPassword() method of JPasswordField which returns a char[] and deprecated getText() method which returns password in clear text stating security reason. Its good to follow advice from Java team and adhering to standard rather than going against it.
+3) With String there is always a risk of printing plain text in log file or console but if use Array you won't print contents of array instead its memory location get printed. though not a real reason but still make sense.
+
+Why String is immutable?
+String is immutable for several reasons:  caching, security, synchronization, and performance.
+  - Security: parameters are typically represented as String in network connections, database connection urls, 
+  usernames/passwords etc. If it were mutable, these parameters could be easily changed.
+  - Synchronization and concurrency: making String immutable automatically makes them thread safe 
+  thereby solving the synchronization issues.
+  - Caching: when compiler optimizes your String objects, 
+  it sees that if two objects have same value (a="test", and b="test") and thus you need only one string object (for both a and b, these two will point to the same object).
+  - Class loading: String is used as arguments for class loading. 
+  If mutable, it could result in wrong class being loaded (because mutable objects change their state).
+
 6: Sleep(), Wait(), Notify(), NotifyAll()
 wait(), notify(), and notifyAll() methods of object class must have to be called inside synchronized method or synchronized block in Java
 
@@ -58,8 +101,10 @@ https://www.journaldev.com/21095/java-equals-hashcode
 https://netjs.blogspot.com/2015/05/how-hashmap-internally-works-in-java.html
 
 HashMap works on the principal of hashing.
-HashMap in Java uses the hashCode() method to calculate a hash value. Hash value is calculated using the key object. This hash value is used to find the correct bucket where Entry object will be stored.
-HashMap uses the equals() method to find the correct key whose value is to be retrieved in case of get() and to find if that key already exists or not in case of put().
+HashMap in Java uses the hashCode() method to calculate a hash value. Hash value is calculated using the key object.
+ This hash value is used to find the correct bucket where Entry object will be stored.
+HashMap uses the equals() method to find the correct key whose value is to be retrieved in case of get() 
+and to find if that key already exists or not in case of put().
 With in the internal implementation of HashMap hashing collision means more than one key having the same hash value, in that case Entry objects are stored as a linked-list with in a same bucket.
 With in a bucket values are stored as Entry objects which contain both key and value.
 In Java 8 hash elements use balanced trees instead of linked lists after a certain threshold is reached while storing values. This improves the worst case performance from O(n) to O(log n).
@@ -160,3 +205,32 @@ while directly calling run() method doesn’t create any new thread and execute 
     An interface with exactly one abstract method is known as Functional Interface.
   Java Stream API for collection classes
   Java Date Time API
+
+16: ArrayList LinkedList
+Main difference between ArrayList and LinkedList is that 
+ArrayList is implemented using re sizable array
+ while LinkedList is implemented using doubly LinkedList.
+
+1.ArrayList是实现了基于动态数组的数据结构，LinkedList基于链表的数据结构。 
+2.对于随机访问get和set，ArrayList觉得优于LinkedList，因为LinkedList要移动指针。 
+3.对于新增和删除操作add和remove，LinedList比较占优势，因为ArrayList要移动数据。 
+
+ArrayList内部是使用可増长数组实现的，所以是用get和set方法是花费常数时间的，但是如果插入元素和删除元素，除非插入和删除的位置都在表末尾，
+否则代码开销会很大，因为里面需要数组的移动。ArrayList更适合读取数据.
+
+ArrayList 是线性表（数组）， 
+get() 直接读取第几个下标，复杂度O（1）
+add(E) 添加元素， 直接在后面添加 ， 复杂度 O(1)
+add(index, E) 添加元素， 在第几个元素后面插入，后面元素需要向后移动，复杂度 O(n)
+remove() 删除元素，后面元素需要逐个移动， 复杂度O(n)，除非删除最后一个 
+
+LinkedList是使用双链表实现的，所以get会非常消耗资源，除非位置离头部很近。但是插入和删除元素花费常数时间。 linkedList更多的时候添加或删除数据。
+LinkedList 是链表的操作 
+get() 获取第几个元素 ，依次遍历，复杂度O（n）
+add(E) 添加元素， 直接在后面添加 ， 复杂度 O(1)
+add(index, E) 添加元素， 需要先查找到第几个元素，直接指针指向操作，复杂度 O(n)
+remove() 删除元素，直接指针指向操作， 复杂度O(1)
+
+Arraylist：底层是基于动态数组(Arraylist可以进行扩容)，根据下表随机访问数组元素的效率高，向数组尾部添加元素的效率高；
+但是，删除数组中的数据以及向数组中间添加数据效率低，因为需要移动数组。
+例如最坏的情况是删除第一个数组元素，则需要将第2至第n个数组元素各向前移动一位。
