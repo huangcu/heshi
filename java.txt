@@ -249,25 +249,6 @@ ScheduledThreadPoolExecutor class implement both Executor and ScheduledExecutorS
 4. Shutdown the Executor Pool
 scheduleAtFixedRate,scheduleWithFixedDelay
 
-MultiThread issues: Deadlock/Thread Leakage/Resource Thrashing - > (not too many thread, find an optimal number)
-
-Thread Safety:- > data inconsistency. multiple threads created from same Object share object variables and this can lead to data inconsistency when the threads are used to read and update the shared data
-The reason for data inconsistency is because updating any field value is not an atomic process, 
-it requires three steps; 
-    first to read the current value, 
-    second to do the necessary operations to get the updated value 
-    and third to assign the updated value to the field reference.
-    
-    1: Synchronization
-    2: Atomic Wrapper classes from java.util.concurrent.atomic package for int and long that 
-    can be used to achieve this atomically without usage of Synchronization
-    Concurrency:
-        atomic operation - performed in a single unit of task without interference from other operations
-            Atomic operations are necessity in multi-threaded environment to avoid data inconsistency
-    3: Use of locks from java.util.concurrent.locks package.
-    4: Using thread safe collection classes
-
-
 Java Generic
 Added in Java5 to provide compile-time type checking and removing risk of ClassCastException hat was common while working with collection classes
 Java Generic Type

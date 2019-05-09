@@ -86,13 +86,62 @@ String is immutable for several reasons:  caching, security, synchronization, an
   - Class loading: String is used as arguments for class loading. 
   If mutable, it could result in wrong class being loaded (because mutable objects change their state).
 
+Thread: 
+
+MultiThread issues: Deadlock/Thread Leakage/Resource Thrashing - > (not too many thread, find an optimal number)
+
+Thread Safety:- > data inconsistency. multiple threads created from same Object share object variables and 
+this can lead to data inconsistency when the threads are used to read and update the shared data
+The reason for data inconsistency is because updating any field value is not an atomic process, 
+it requires three steps; 
+    first to read the current value, 
+    second to do the necessary operations to get the updated value 
+    and third to assign the updated value to the field reference.
+    
+    1: Synchronization
+    2: Atomic Wrapper classes from java.util.concurrent.atomic package for int and long that 
+    can be used to achieve this atomically without usage of Synchronization
+    Concurrency:
+        atomic operation - performed in a single unit of task without interference from other operations
+            Atomic operations are necessity in multi-threaded environment to avoid data inconsistency
+    3: Use of locks from java.util.concurrent.locks package.
+    4: Using thread safe collection classes
+
+1: synchronized
+一、当两个并发线程访问同一个对象object中的这个synchronized(this)同步代码块时，一个时间内只能有一个线程得到执行。
+另一个线程必须等待当前线程执行完这个代码块以后才能执行该代码块。
+二、然而，当一个线程访问object的一个synchronized(this)同步代码块时，另一个线程仍然可以访问该object中的非synchronized(this)同步代码块。
+三、尤其关键的是，当一个线程访问object的一个synchronized(this)同步代码块时，其他线程对object中所有其它synchronized(this)同步代码块的访问将被阻塞。
+
+2: java中的synchronized（同步代码块和同步方法的区别)
+//下列两个方法有什么区别
+同步方法
+public synchronized void method1(){}
+
+synchronized 方法控制对类成员变量的访问：每个类实例对应一把锁，每个 synchronized 方法都必须获得调用该方法的类实例的锁方能执行，
+否则所属线程阻塞，方法一旦执行，就独占该锁，直到从该方法返回时才将锁释放，此后被阻塞的线程方能获得该锁，重新进入可执行状态。
+这种机制确保了同一时刻对于每一个类实例，其所有声明为 synchronized 的成员函数中至多只有一个处于可执行状态（因为至多只有一个能够获得该类实例对应的锁），
+从而有效避免了类成员变量的访问冲突（只要所有可能访问类成员变量的方法均被声明为 synchronized）
+缺陷：若将一个大的方法声明为synchronized 将会大大影响效率
+
+同步代码块
+public void method2(){
+ synchronized  (syncObject){}
+}
+其中的代码必须获得对象 syncObject （可以是类实例或类）的锁方能执行，具体机制同前所述。
+由于可以针对任意代码块，且可任意指定上锁的对象，故灵活性较高。 
+
 6: Sleep(), Wait(), Notify(), NotifyAll()
 wait(), notify(), and notifyAll() methods of object class must have to be called inside synchronized method or synchronized block in Java
 
-The key difference between wait() and sleep() is that former is used for inter-thread communication while later is used to introduced to pause the current thread for a short duration. This difference is more obvious from the fact that, when a thread calls the wait() method, it releases the monitor or lock it was holding on that object, but when a thread calls the sleep() method, it never releases the monitor even if it is holding. 
+The key difference between wait() and sleep() is that former is used for inter-thread communication while later is used to introduced to pause the current thread for a short duration. 
+This difference is more obvious from the fact that, when a thread calls the wait() method, 
+it releases the monitor or lock it was holding on that object, but when a thread calls the sleep() method, 
+it never releases the monitor even if it is holding. 
 https://javarevisited.blogspot.com/2011/12/difference-between-wait-sleep-yield.html#ixzz5mSoDsHkl
 
-Synchronized is to provide mutual exclusion and ensuring thread safety of Java class like race condition while wait and notify are communication mechanism between two thread.
+Synchronized is to provide mutual exclusion and ensuring thread safety of Java class like race condition while wait 
+and notify are communication mechanism between two thread.
 Read more: https://javarevisited.blogspot.com/2012/02/why-wait-notify-and-notifyall-is.html#ixzz5mSxfZzRz
 
 7: How hashmap internally works in java
