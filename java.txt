@@ -250,6 +250,8 @@ ScheduledThreadPoolExecutor class implement both Executor and ScheduledExecutorS
 scheduleAtFixedRate,scheduleWithFixedDelay
 
 Java Generic
+泛型提供了编译时类型安全检测机制，该机制允许程序员在编译时检测到非法的类型，而不是在运行时才出现错误
+        编译时强类型检查/无需手动进行类型转换/可以实现复用，编写通用算法
 Added in Java5 to provide compile-time type checking and removing risk of ClassCastException hat was common while working with collection classes
 Java Generic Type
     E – Element (used extensively by the Java Collections Framework, for example ArrayList, Set etc.)

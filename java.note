@@ -87,9 +87,7 @@ String is immutable for several reasons:  caching, security, synchronization, an
   If mutable, it could result in wrong class being loaded (because mutable objects change their state).
 
 Thread: 
-
 MultiThread issues: Deadlock/Thread Leakage/Resource Thrashing - > (not too many thread, find an optimal number)
-
 Thread Safety:- > data inconsistency. multiple threads created from same Object share object variables and 
 this can lead to data inconsistency when the threads are used to read and update the shared data
 The reason for data inconsistency is because updating any field value is not an atomic process, 
@@ -106,12 +104,35 @@ it requires three steps;
             Atomic operations are necessity in multi-threaded environment to avoid data inconsistency
     3: Use of locks from java.util.concurrent.locks package.
     4: Using thread safe collection classes
+    5: volatile 关键字
+
+Java 内存模型中的可见性、原子性和有序性
+可见性，是指线程之间的可见性，一个线程修改的状态对另一个线程是可见的。 
+      volatile修饰的变量不允许线程内部缓存和重排序，即直接修改内存。所以对其他线程是可见的。
+      但是这里需要注意一个问题，volatile只能让被他修饰内容具有可见性，但不能保证它具有原子性。
+原子性：在 Java 中 synchronized 和在 lock、unlock 中操作保证原子性。
+有序性：
+
+当把变量声明为volatile类型后，编译器与运行时都会注意到这个变量是共享的，因此不会将该变量上的操作与其他内存操作一起重排序。
+volatile变量不会被缓存在寄存器或者对其他处理器不可见的地方，因此在读取volatile类型的变量时总会返回最新写入的值。
+当对非 volatile 变量进行读写的时候，每个线程先从内存拷贝变量到CPU缓存中。
+如果计算机有多个CPU，每个线程可能在不同的CPU上被处理，这意味着每个线程可以拷贝到不同的 CPU cache 中。
+而声明变量是 volatile 的，JVM 保证了每次读变量都从内存中读，跳过 CPU cache 这一步。
+
+用在多线程，同步变量。 线程为了提高效率，将成员变量(如A)某拷贝了一份（如B），线程中对A的访问其实访问的是B。
+只在某些动作时才进行A和B的同步。因此存在A和B不一致的情况。volatile就是用来避免这种情况的。
+volatile告诉jvm， 它所修饰的变量不保留拷贝，直接访问主内存中的（也就是上面说的A) 
+
+在访问volatile变量时不会执行加锁操作，因此也就不会使执行线程阻塞，因此volatile变量是一种比sychronized关键字更轻量级的同步机制。
 
 1: synchronized
 一、当两个并发线程访问同一个对象object中的这个synchronized(this)同步代码块时，一个时间内只能有一个线程得到执行。
 另一个线程必须等待当前线程执行完这个代码块以后才能执行该代码块。
 二、然而，当一个线程访问object的一个synchronized(this)同步代码块时，另一个线程仍然可以访问该object中的非synchronized(this)同步代码块。
 三、尤其关键的是，当一个线程访问object的一个synchronized(this)同步代码块时，其他线程对object中所有其它synchronized(this)同步代码块的访问将被阻塞。
+
+1.Synchronized修饰非静态方法，实际上是对调用该方法的对象加锁，俗称“对象锁”。
+2.Synchronized修饰静态方法，实际上是对该类对象加锁，俗称“类锁”。
 
 2: java中的synchronized（同步代码块和同步方法的区别)
 //下列两个方法有什么区别
@@ -131,6 +152,16 @@ public void method2(){
 其中的代码必须获得对象 syncObject （可以是类实例或类）的锁方能执行，具体机制同前所述。
 由于可以针对任意代码块，且可任意指定上锁的对象，故灵活性较高。 
 
+Synchronize VS ReentrantLock
+相似点: 都是阻塞式的同步，也就是说当如果一个线程获得了对象锁，进入了同步块，其他访问该同步块的线程都必须阻塞在同步块外面等待
+区别: 1: Synchronized来说，它是java语言的关键字，是原生语法层面的互斥，需要jvm实现
+      Lock它是JDK 1.5之后提供的API层面的互斥锁，需要lock()和unlock()方法配合try/finally语句块来完成。
+     2: 等待可中断 - 使用synchronized。如果Thread1不释放，Thread2将一直等待，不能被中断。synchronized也可以说是Java提供的原子性内置锁机制。
+                    内部锁扮演了互斥锁（mutual exclusion lock ，mutex）的角色，一个线程引用锁的时候，别的线程阻塞等待。
+                    使用ReentrantLock。如果Thread1不释放，Thread2等待了很长时间以后，可以中断等待，转而去做别的事情
+    3: 公平锁   - synchronized的锁是非公平锁, 在锁被释放时，任何一个等待锁的线程都有机会获得锁.
+                ReentrantLock默认情况下也是非公平锁，但可以通过带布尔值的构造函数要求使用公平锁, 多个线程在等待同一个锁时，必须按照申请的时间顺序来依次获得锁
+
 6: Sleep(), Wait(), Notify(), NotifyAll()
 wait(), notify(), and notifyAll() methods of object class must have to be called inside synchronized method or synchronized block in Java
 
@@ -143,6 +174,25 @@ https://javarevisited.blogspot.com/2011/12/difference-between-wait-sleep-yield.h
 Synchronized is to provide mutual exclusion and ensuring thread safety of Java class like race condition while wait 
 and notify are communication mechanism between two thread.
 Read more: https://javarevisited.blogspot.com/2012/02/why-wait-notify-and-notifyall-is.html#ixzz5mSxfZzRz
+
+ThreadLocal : ThreadLocal的实例代表了一个线程局部的变量，每条线程都只能看到自己的值
+每个Thread的对象都有一个ThreadLocalMap，当创建一个ThreadLocal的时候，就会将该ThreadLocal对象添加到该Map中，其中键就是ThreadLocal，值可以是任意类型。
+
+15: thread -> run(), start() 
+when you call start() method it creates new Thread and executes code declared in the run() 
+while directly calling run() method doesn’t create any new thread and execute code on the same calling thread.
+
+3.thread vs process
+Thread:
+run in shared memory space;
+easier tocreate and terminate;
+lightweight;faster task-switching;
+data sharing with otherthread;
+care synchronization overhead of shared data;
+Process:
+separate memory space;
+independentof each other;
+consist of mutipule thread
 
 7: How hashmap internally works in java
 hashCode(), equals()
@@ -189,8 +239,10 @@ Iterator returned by CopyOnWriteArrayList in Java is fail-safe,
 it uses a reference to the state of the array at the point that the iterator was created. 
 You know by now any mutation will result in a fresh copy of the underlying array. 
 Thus the array that the iterator has a reference to never changes during the lifetime of the iterator
-1: The iterator will not reflect additions, removals, or changes to the list since the iterator was created thus it is also known as "snapshot style" iterator.
-2: Element-changing operations on iterators themselves (remove, set, and add) are not supported. These methods throw UnsupportedOperationException.
+1: The iterator will not reflect additions, removals, or changes to the list since the iterator was created 
+thus it is also known as "snapshot style" iterator.
+2: Element-changing operations on iterators themselves (remove, set, and add) are not supported. 
+These methods throw UnsupportedOperationException.
 
 https://www.journaldev.com/1289/copyonwritearraylist-java
 https://netjs.blogspot.com/2016/01/copyonwritearraylist-in-java.html
@@ -242,10 +294,6 @@ For example, if Parent class has a name field and Child class also have age fiel
 if you have two static or private methods with the same name in both Parent and Child class 
 then the method in Child class will hide the method from the Parent class
 
-15: thread -> run(), start() 
-when you call start() method it creates new Thread and executes code declared in the run() 
-while directly calling run() method doesn’t create any new thread and execute code on the same calling thread.
-
 15: Java 8 features 
   Interface changes with default and static methods
     default method: help us in extending interfaces with additional methods, all we need is to provide a default implementation. no need to override, but we can override them
@@ -283,3 +331,31 @@ remove() 删除元素，直接指针指向操作， 复杂度O(1)
 Arraylist：底层是基于动态数组(Arraylist可以进行扩容)，根据下表随机访问数组元素的效率高，向数组尾部添加元素的效率高；
 但是，删除数组中的数据以及向数组中间添加数据效率低，因为需要移动数组。
 例如最坏的情况是删除第一个数组元素，则需要将第2至第n个数组元素各向前移动一位。
+
+Hashmap 是非线程安全的
+Hashtable 是线程安全的，任一时间只有一个线程能写Hashtable，并发性不如ConcurrentHashMap，因为ConcurrentHashMap引入了分段锁 
+          HashTable 只有一把锁，当一个线程访问HashTable的同步方法时，会将整张table 锁住, HashTable 对get，put，remove 方法都使用了同步操作
+ConcurrentHashMap (segment) 分段锁技术
+          ConcurrentHashMap 将数据分为多个segment（默认16个），然后每次操作对一个segment 加锁, ConcurrnetHashMap中get 方法是不涉及到锁的
+
+1、put的时候导致的多线程数据不一致。
+这个问题比较好想象，比如有两个线程A和B，首先A希望插入一个key-value对到HashMap中，首先计算记录所要落到的桶的索引坐标，然后获取到该桶里面的链表头结点，
+此时线程A的时间片用完了，而此时线程B被调度得以执行，和线程A一样执行，只不过线程B成功将记录插到了桶里面，
+假设线程A插入的记录计算出来的桶索引和线程B要插入的记录计算出来的桶索引是一样的，那么当线程B成功插入之后，线程A再次被调度运行时，
+它依然持有过期的链表头但是它对此一无所知，以至于它认为它应该这样做，如此一来就覆盖了线程B插入的记录，这样线程B插入的记录就凭空消失了，
+造成了数据不一致的行为。
+
+2、另外一个比较明显的线程不安全的问题是HashMap的get操作可能因为resize而引起死循环（cpu100%）
+HashMap(int initialCapacity, float loadFactor) (16, 0.75)
+其中参数initialCapacity为初始容量，loadFactor为加载因子，
+扩容就是在put加入元素的个数超过initialCapacity * loadFactor的时候就会将内部Entry数组大小扩大至原来的2倍，
+然后将数组元素按照新的数组大小重新计算索引，放在新的数组中，同时修改每个节点的链表关系（主要是next和节点在链表中的位置）
+
+
+Exception分两种，checked和unchecked。
+  checked Exception就是在写代码的时候，IDE(比如Eclipse)会要求你写try catch的那种Exception，比如IOException。
+    这种Exception是Java的设计者要求你的程序去处理的,一般不会影响程序的主体，容易手动诊断修复，
+    所以Java要求你在catch下面写出处理的代码，以保证程序遇到此类exception之后还可以正常运行。
+  unchecked这一类就是你在代码处理了checked exception之后，你在运行时候依然会遇到的exception，
+    所以又叫做RunTimeException，比如NullPointerException, IndexOutOfBoundsException。此类exception相较于前面那种更容易影响程序运行，
+    从设计者角度不提倡从程序中catch出来并处理

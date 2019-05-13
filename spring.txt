@@ -6,7 +6,8 @@ Most important feature of Spring Framework is Dependency Injection.
 At the core of all Spring Modules is Dependency Injection or IOC Inversion of Control.
 Basics of Spring Framework
     Dependency Injection
-        When writing a complex Java application, application classes should be as independent as possible of other Java classes to increase the possibility to reuse these classes and to test them independently of other classes while unit testing. 
+        When writing a complex Java application, application classes should be as independent as possible of other Java classes 
+        to increase the possibility to reuse these classes and to test them independently of other classes while unit testing. 
         Dependency Injection helps in gluing these classes together and at the same time keeping them independent.
     a) Constructor Injections
         public TextEditor(SpellChecker spellChecker) {
