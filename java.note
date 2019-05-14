@@ -266,7 +266,6 @@ It means if you use Parent class's type to call static method, original static w
 on ther other hand if you use Child class's type to call static method, method from child class will be called. 
 In short you can not override static method in Java.
 
-11: Java 8 static and default method on Interface
 11: Abstract VS Interface 
 the main difference between an abstract class and interface in Java 8 is the fact that an abstract class is a class and an interface is an interface. A class can have a state which can be modified by non-abstract methods but an interface cannot have the state because they can't have instance variables.
 The second difference is that an interface cannot have a constructor even in Java 8 but you may remember that abstract class can also have a constructor in Java. All methods of an interface were abstract but since Java 8 you can define non-abstract methods in the form of default and static methods inside interface in Java.
@@ -296,13 +295,17 @@ then the method in Child class will hide the method from the Parent class
 
 15: Java 8 features 
   Interface changes with default and static methods
-    default method: help us in extending interfaces with additional methods, all we need is to provide a default implementation. no need to override, but we can override them
+    default method: help us in extending interfaces with additional methods, all we need is to provide a default implementation. 
+    no need to override, but we can override them. 
+    if diamond issue happens, must override default method in implementation class, otherwize, compile error.
     static methods: visible to interface methods only, we can’t override them in the implementation classes.
   Functional interfaces and Lambda Expressions
     An interface with exactly one abstract method is known as Functional Interface.
   Java Stream API for collection classes
   Java Date Time API
-
+  Java Optional class (java.util package)
+    Advantages of Java 8 Optional: Null checks are not required. /No more NullPointerException at run-time. / We can develop clean and neat APIs. /No more Boiler plate code
+  (isPresent(), ifPresent(), orElse())
 16: ArrayList LinkedList
 Main difference between ArrayList and LinkedList is that 
 ArrayList is implemented using re sizable array
@@ -359,3 +362,30 @@ Exception分两种，checked和unchecked。
   unchecked这一类就是你在代码处理了checked exception之后，你在运行时候依然会遇到的exception，
     所以又叫做RunTimeException，比如NullPointerException, IndexOutOfBoundsException。此类exception相较于前面那种更容易影响程序运行，
     从设计者角度不提倡从程序中catch出来并处理
+
+Singleton Class in Java
+a singleton class is a class that can have only one object (an instance of the class) at a time.
+To design a singleton class:
+  1: Private constructor to restrict instantiation of the class from other classes.
+  2: Private static variable of the same class that is the only instance of the class.
+  3: Public static method that returns the instance of the class,
+    this is the global access point for outer world to get the instance of the singleton class.
+
+Difference in normal and singleton class in terms of instantiation is that, 
+For normal class we use constructor, whereas for singleton class we use getInstance() method 
+
+Eager initialization/Static block initialization: the instance of Singleton Class is created at the time of class loading
+Lazy Initialization:  Lazy initialization method to implement Singleton pattern creates the instance in the global access method. 
+  public class LazyInitializedSingleton {
+      private static LazyInitializedSingleton instance;    
+      private LazyInitializedSingleton(){}    
+      public static LazyInitializedSingleton getInstance(){
+          if(instance == null){
+              instance = new LazyInitializedSingleton();
+          }
+          return instance;
+      }
+  }
+Thread Safe Singleton: (synchronized)
+The easier way to create a thread-safe singleton class is to make the global access method synchronized,
+ so that only one thread can execute this method at a time.
