@@ -363,6 +363,24 @@ Exception分两种，checked和unchecked。
     所以又叫做RunTimeException，比如NullPointerException, IndexOutOfBoundsException。此类exception相较于前面那种更容易影响程序运行，
     从设计者角度不提倡从程序中catch出来并处理
 
+一个线程运行时发生异常会怎样？
+所以这里存在两种情形： 
+① 如果该异常被捕获或抛出，则程序继续运行。(默认在控制台输出异常信息) 
+② 如果异常没有被捕获该线程将会停止执行。 
+  Thread.UncaughtExceptionHandler是用于处理未捕获异常造成线程突然中断情况的一个内嵌接口。
+  当一个未捕获异常将造成线程中断的时候JVM会使用Thread.getUncaughtExceptionHandler()来查询线程的UncaughtExceptionHandler，
+  并将线程和异常作为参数传递给handler的uncaughtException()方法进行处理
+
+  设置UncaughtException异常处理器来自定义处理操作
+  异常处理器：实现Thread.UncaughtExceptionHandler接口
+  public class ThreadExceptionHandler implements Thread.UncaughtExceptionHandler {
+      @Override
+      public void uncaughtException(Thread t, Throwable e) {
+          System.out.println(t.getName() + "  throws an exception");
+          e.printStackTrace();
+      }
+  }
+
 Singleton Class in Java
 a singleton class is a class that can have only one object (an instance of the class) at a time.
 To design a singleton class:

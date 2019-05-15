@@ -385,14 +385,11 @@ It creates slices, maps, and channels only, and it returns an initialized (not z
     time.Ticker
 18: go GB_LDFLAGS -x .....
 
-19: type assertion, type switch (gotour, reflection)
+19: type assertion, type switch (gotour, reflection) - can only swith on interface value!!!!
     type assertion in reflection, 
     t.(T) !!!!
 
     fmt package digs into a reflect.Value to show the concrete!!!!!! value inside. The String method does not
-
-
-
     gotour, effective go, goblog, www.goinggo.net
 
 20: gin 
@@ -418,13 +415,7 @@ It creates slices, maps, and channels only, and it returns an initialized (not z
     import "io/ioutil"
     import "io"
         Reader/ByteReader/ByteScanner/Writer/ReaderWriter
-mysql:
-
-order by filed('en','cn') asc 
-
-GOLANG ERRORS: 
-2018/03/16 19:12:36 http2: server: error reading preface from client [::1]:33036: read tcp [::1]:8443->[::1]:33036: read: connection reset by peer
-
+GOMock: https://github.com/golang/mock  (testing framework)
 
 Goroutine
 通过使用goroutine而不是裸用操作系统的并发机制，以及使用消息传递来共享内存而不是使用共享内存来通信，Go语言让并发编程变得更加轻盈和安全。
@@ -438,31 +429,109 @@ Switch:
     Another important difference is that Go's switch cases need not be constants, and the values involved need not be integers
     history
 
-ID USER_ID CATEGORY, FIELD, OLDVALUE, NEWVALUE
-//PRICE - > 
-//FLOAT + 
+Thread safe in go 
+In Go there are numerous constructs to achieve that (e.g. mutexes, channels, waitgroups, primitives in sync/atomic), 
+but Go's proverb is: "Do not communicate by sharing memory; instead, share memory by communicating
 
-USER USER_LEVEL, USER_DISCOUNT, (default 0, 98), recommended_by(...), inviationcode 
-user_type: CUSTOMER, AGENT, admin
-agent {agent_level, discount}
-admin (admin_level, discount)
+Context 
+Context的使用最多的地方就是在Golang的web开发中，在http包的Server中，每一个请求在都有一个对应的goroutine去处理。
+请求处理函数通常会启动额外的goroutine用来访问后端服务，比如数据库和RPC服务。
+用来处理一个请求的goroutine通常需要访问一些与请求特定的数据，比如终端用户的身份认证信息、验证相关的token、请求的截止时间。
+当一个请求被取消或超时时，所有用来处理该请求的 goroutine都应该迅速退出，然后系统才能释放这些goroutine占用的资源。
 
----> inviationcode --- > user --> recommended_by --> used_id;
+for 循环不会每次循环的时候都新建循环变量stu, 所以将stu变量的地址赋值给map后，循环结束后，map中所以值还是指向stu地址。
+    for _, stu := range stus {
+        s := stu  // 这里新建一个变量
+        m[stu.Name] = &s  
+        fmt.Printf("%p \n", &s)
+    }
 
-ADMIN --> update user level/agent, discount; ()
+如何复制 slice、map 和 interface 的值？
+Slice: 
+    1. 直接赋值, 底层数组将不会更新
+    2. 使用 copy(), 返回值是 min(len(des), len(src)), 底层数组将会更新
+Map: 遍历所有 key
+interface:  Go 中没有内建的函数来直接拷贝 interface 的值，也不能直接赋值。
+ But what we learned is that since an address is always stored, it is the address that is being copied and never the value itself.
+struct: 不能直接复制/可以使用反射来赋值
 
-level --- discount 
+########################
+func main() {
+    fmt.Println(double1(5))
+    fmt.Println(double1(6))
+    fmt.Println()
+    fmt.Println(double2(5))
+    fmt.Println(double2(6))
+}
+// 匿名返回
+// 加倍参数，若结果超过 10 则还原
+func double1(v1 int) int {
+    var v2 int
+    defer func() {
+        if v2 > 10 {
+            v2 = v1 // v2 不会被修改
+        }
+    }()
+    v2 = v1 * 2
+    return v2 
+}
+// 有名返回
+func double2(v1 int)(v2 int) {
+    // v2 与函数一起被声明，在 defer 中能被修改
+    defer func() {
+        if v2 > 10 {
+          v2 = v1 // v2 被修改
+        } 
+    }() 
+    v2 = v1 * 2
+    return
+}
+########################
 
-config: 
+########################
+3. 考察 goroutine 的传值方式
+func main() {
+    runtime.GOMAXPROCS(1) // 强制使多个 goroutine 串行执行
+    wg := sync.WaitGroup{}
+    wg.Add(10)
+    for i := 0; i < 5; i++ {
+        go func() {
+            fmt.Println("i: ", i)
+            wg.Done()
+        }()
+        // time.Sleep(1 * time.Second)  // 此时将顺序输出 1 2 3 4 5 
+    }
+  for i := 0; i < 5; i++ {
+      go func(i int) {
+          fmt.Println("i: ", i)
+          wg.Done()
+      }(i)
+  }
+  wg.Wait()
+}
+第一个 for 循环：以极快的速度分配完 5 个 goroutine，此时 i 的值为 5，gouroutine 得到的 i 都是 5
+第二个 for 循环：每次都会将 i 的值拷贝一份传给 goroutine，得到的 i 不同，输出不同
+##############################
+##############################
+func main() {
+    a := 1
+    b := 2
+    defer add("A", a, add("B", a, b))
+    a = 0
+    defer add("C", a, add("D", a, b))
+    b = 1
+}
 
-level: 0, 98
-1, 95
-2, 92
 
-Transactions: 1200 -- 1000 
-
-order id, itemid price, downpayment, final_price, currency, rate, //returnpoint 
-
-ORDERS
-id1 ItemID, XX, price, findal_price, downpayment(dingji), rate, transaction_id 
-id2 itemid 2 , xx, price , findal_price, downpayment(), usd, rate, transaction_id
+func add(desc string, a, b int) int {
+    sum := a + b
+    fmt.Println(desc, a, b, sum)
+    return sum
+}
+//output 
+B 1 2 3
+D 0 2 2
+C 0 2 2
+A 1 3 4
+defer 语句会计算好 func 的参数，再放入执行栈中
+#################################
