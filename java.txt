@@ -92,7 +92,7 @@ The instance variables are visible for all methods, constructors and block in th
 Instance variables have default values. For numbers, the default value is 0, for Booleans it is false, and for object references it is null. Values can be assigned during the declaration or within the constructor.
 Instance variables can be accessed directly by calling the variable name inside the class. However, within static methods (when instance variables are given accessibility), they should be called using the fully qualified name. ObjectReference.VariableName.
 
-Class variables also known as static variables are declared with the static keyword in a class, but outside a method, constructor or a block.
+Static Class variables also known as static variables are declared with the static keyword in a class, but outside a method, constructor or a block.
 There would only be one copy of each class variable per class, regardless of how many objects are created from it.
 Static variables are rarely used other than being declared as constants. Constants are variables that are declared as public/private, final, and static. Constant variables never change from their initial value.
 Static variables are stored in the static memory. It is rare to use static variables other than declared final and used as either public or private constants.
@@ -269,9 +269,13 @@ ScheduledThreadPoolExecutor class implement both Executor and ScheduledExecutorS
 2. Create Executor Pool using Executors
     newScheduledThreadPool(int)           Creates a fixed size thread pool.
     newSingleThreadScheduledExecutor         Creates a single thread. 
-3. Pass tasks to Executor Pool
-4. Shutdown the Executor Pool
-scheduleAtFixedRate,scheduleWithFixedDelay
+3. Pass tasks to Executor Pool  (.submit()) (scheduleAtFixedRate(), scheduleWithFixedDelay())
+4. Shutdown the Executor Pool (.Shutdown())
+
+BlockingQueue: 
+Java BlockingQueue doesn’t accept null values and throw NullPointerException if you try to store null value in the queue.
+Java BlockingQueue implementations are thread-safe. 
+All queuing methods are atomic in nature and use internal locks or other forms of concurrency control.
 
 Java Generic
 泛型提供了编译时类型安全检测机制，该机制允许程序员在编译时检测到非法的类型，而不是在运行时才出现错误
