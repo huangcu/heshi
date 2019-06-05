@@ -536,11 +536,9 @@ A 1 3 4
 defer 语句会计算好 func 的参数，再放入执行栈中
 #################################
 
-<<<<<<< HEAD
 order by filed('en','cn') asc 
-
 add not
-=======
+
 golang 中 select 多个case同时满足的情况, 会随机触发一个
 ch1 := make (chan int, 10)
 t1 := time.NewTimer(time.Second * 1)
@@ -555,4 +553,3 @@ t1 := time.NewTimer(time.Second * 1)
         }
     }
 1秒过后第二个case有可能会被走到
->>>>>>> 3dac1b9be45f915b3610e00c2973f8f4f44ec465
