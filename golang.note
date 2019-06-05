@@ -537,7 +537,6 @@ defer 语句会计算好 func 的参数，再放入执行栈中
 #################################
 
 order by filed('en','cn') asc 
-add not
 
 golang 中 select 多个case同时满足的情况, 会随机触发一个
 ch1 := make (chan int, 10)
