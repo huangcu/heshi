@@ -11,17 +11,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Agent ...
 type Agent struct {
-	User
-	// UserInfo    User   `json:"user"`
-	Level       int    `json:"agent_level"`
+	Level       int    `json:"level,omitempty"`
 	LevelStr    string `json:"-"`
-	Discount    int    `json:"agent_discount"`
+	Discount    int    `json:"discount,omitempty"`
 	DiscountStr string `json:"-"`
-	CreatedBy   string `json:"created_by"`
+	CreatedBy   string `json:"created_by,omitempty"`
 }
 
-type ContactInfo struct {
+type contactInfo struct {
 	ID             string `json:"-"`
 	Cellphone      string `json:"cellphone"`
 	Email          string `json:"email"`
@@ -45,6 +44,7 @@ func getAgent(uid string) (*Agent, error) {
 		Discount:  discount,
 		CreatedBy: createdBy,
 	}
+	fmt.Println(a)
 	return a, nil
 }
 
@@ -54,12 +54,13 @@ func updateAgent(c *gin.Context) {
 	discountStr := c.PostForm("discount")
 	if levelStr == "" && discountStr == "" {
 		c.JSON(http.StatusOK, vemsgNotValid)
+		return
 	}
 	agentID := c.Param("id")
 	q := fmt.Sprintf(`UPDATE agents SET created_by='%s'`, agentID)
 
 	if levelStr != "" {
-		if !util.IsInArrayString(levelStr, VALID_AGENTLEVEL) {
+		if !util.IsInArrayString(levelStr, validAgentLevel) {
 			c.JSON(http.StatusOK, vemsgAgentLevelNotValid)
 			return
 		}
@@ -87,26 +88,34 @@ func updateAgent(c *gin.Context) {
 	c.JSON(http.StatusOK, "success")
 }
 
-func (a *Agent) newAgent() error {
-	q := fmt.Sprintf(`INSERT INTO agents (user_id, level, discount, created_by) VALUES (%s', '%d', '%d', '%s')`,
-		a.ID, a.Level, a.Discount, a.CreatedBy)
+func (a *User) newAgent() error {
+	q := fmt.Sprintf(`INSERT INTO agents (user_id, level, discount, created_by) VALUES ('%s', '%d', '%d', '%s')`,
+		a.ID, a.Agent.Level, a.Agent.Discount, a.Agent.CreatedBy)
 	_, err := dbExec(q)
 	return err
 }
 
-//find user is recommanded by - user_id
-//from invitation code, get which user recommanded this
-// if the recommand is agent ???
-func agentContactInfo(c *gin.Context) {
-	id := c.MustGet("id").(string)
-
-	q := fmt.Sprintf(`SELECT recommanded_by from users where id=%s`, id)
-	var recommandedBy string
-	if err := dbQueryRow(q).Scan(&recommandedBy); err != nil {
+//TODO what kind of info should pass to agent
+func getUsersRecommendedByAgent(c *gin.Context) {
+	agentID := c.MustGet("id").(string)
+	us, err := getUsersRecommendedBy(agentID)
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
-	ci, err := getUserContactInfoInvitationCode(recommandedBy)
+	c.JSON(http.StatusOK, us)
+}
+
+func agentContactInfo(c *gin.Context) {
+	id := c.MustGet("id").(string)
+
+	q := fmt.Sprintf(`SELECT recommended_by from users where id=%s`, id)
+	var recommendedBy string
+	if err := dbQueryRow(q).Scan(&recommendedBy); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	ci, err := getUserContactInfoInvitationCode(recommendedBy)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
@@ -114,27 +123,15 @@ func agentContactInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, *ci)
 }
 
-// func userRecommandedByAgent(uid string) (string, error) {
-// 	q := fmt.Sprintf(`SELECT recommanded_by from users where id=%s`, uid)
-// 	var recommandedBy string
-// 	if err := dbQueryRow(q).Scan(&recommandedBy); err != nil {
-// 		return "", err
-// 	}
-
-// }
-
-func getUserContactInfoInvitationCode(userID string) (*ContactInfo, error) {
-	// var userID string
-	// if err := dbQueryRow("SELECT user_id from invitation_codes WHERE invitation_code=?", code).Scan(&userID); err != nil {
-	// 	return nil, err
-	// }
+func getUserContactInfoInvitationCode(userID string) (*contactInfo, error) {
 	var cellphone, email, realName sql.NullString
 	var wechatID, wechatName, wechatQR, address, additionalInfo sql.NullString
-	q := `SELECT cellphone, email, realname, wechat_id, wechat_name, wechat_qr, address, additional_info from users where id=?`
-	if err := dbQueryRow(q, userID).Scan(&cellphone, &email, &realName, &wechatID, &wechatName, &wechatQR, &address, &additionalInfo); err != nil {
+	q := fmt.Sprintf(`SELECT cellphone, email, realname, wechat_id, wechat_name, wechat_qr, address, additional_info 
+	FROM users WHERE id='%s'`, userID)
+	if err := dbQueryRow(q).Scan(&cellphone, &email, &realName, &wechatID, &wechatName, &wechatQR, &address, &additionalInfo); err != nil {
 		return nil, err
 	}
-	return &ContactInfo{
+	return &contactInfo{
 		ID:             userID,
 		Cellphone:      cellphone.String,
 		Email:          email.String,
@@ -147,28 +144,28 @@ func getUserContactInfoInvitationCode(userID string) (*ContactInfo, error) {
 	}, nil
 }
 
-func (a *Agent) prevalidateNewAgent() ([]errors.HSMessage, error) {
+func (a *User) prevalidateNewAgent() ([]errors.HSMessage, error) {
 	var vemsg []errors.HSMessage
-	if !util.IsInArrayString(a.LevelStr, VALID_AGENTLEVEL) {
+	if !util.IsInArrayString(a.Agent.LevelStr, validAgentLevel) {
 		vemsg = append(vemsg, vemsgAgentLevelNotValid)
 	} else {
-		level, err := strconv.Atoi(a.LevelStr)
+		level, err := strconv.Atoi(a.Agent.LevelStr)
 		if err != nil {
 			vemsg = append(vemsg, vemsgAgentLevelNotValid)
 		} else if level < 0 || level > 10 {
 			vemsg = append(vemsg, vemsgAgentLevelNotValid)
 		} else {
-			a.Level = level
+			a.Agent.Level = level
 		}
 	}
 
-	discount, err := strconv.Atoi(a.DiscountStr)
+	discount, err := strconv.Atoi(a.Agent.DiscountStr)
 	if err != nil {
 		vemsg = append(vemsg, vemsgAgentDiscountNotValid)
 	} else if discount < 0 || discount > 100 {
 		vemsg = append(vemsg, vemsgAgentDiscountNotValid)
 	} else {
-		a.Discount = discount
+		a.Agent.Discount = discount
 	}
 	vmsg, err := a.validNewUser()
 	if err != nil {

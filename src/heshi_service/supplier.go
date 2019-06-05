@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"heshi/errors"
 	"net/http"
-
-	"github.com/satori/go.uuid"
+	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -36,10 +36,10 @@ func newSupplier(c *gin.Context) {
 		c.JSON(http.StatusOK, vemsg)
 		return
 	}
-	ns.ID = uuid.NewV4().String()
+	ns.ID = newV4()
 	q := ns.composeInsertQuery()
 	if _, err := dbExec(q); err != nil {
-		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 
@@ -50,14 +50,16 @@ func getAllSuppliers(c *gin.Context) {
 	q := `SELECT id, name, prefix, connected, status FROM suppliers ORDER BY created_at DESC`
 	rows, err := dbQuery(q)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
+	defer rows.Close()
+
 	var ss []supplier
 	for rows.Next() {
 		var id, name, prefix, connected, status string
 		if err := rows.Scan(&id, &name, &prefix, &connected, &status); err != nil {
-			c.JSON(http.StatusInternalServerError, err.Error())
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 		s := supplier{
@@ -85,7 +87,7 @@ func getSupplier(c *gin.Context) {
 			c.JSON(http.StatusOK, vemsgNotExist)
 			return
 		}
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	s := supplier{
@@ -101,26 +103,28 @@ func getSupplier(c *gin.Context) {
 
 //TODO better only allowed to change connected or not, name, prefix not allowed to change
 func updateSupplier(c *gin.Context) {
+	uid := c.MustGet("id").(string)
 	s := supplier{
 		ID:        c.Param("id"),
 		Name:      c.PostForm("name"),
 		Prefix:    c.PostForm("prefix"),
 		Connected: c.PostForm("connected"),
 	}
-	q := s.composeUpdateQuery()
+	q := s.composeUpdateQueryTrack(uid)
 	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 		return
 	}
 
 	c.JSON(http.StatusOK, s.ID)
+	// go newHistoryRecords(uid, "suppliers", s.ID, s.paramsKV())
 }
 
 //TODO check return row number?
 func disableSupplier(c *gin.Context) {
 	id := c.Param("id")
-	q := "UPDATE suppliers SET status='disabled' WHERE id=?"
-	if _, err := dbExec(q, id); err != nil {
+	q := fmt.Sprintf("UPDATE suppliers SET status='disabled' WHERE id='%s'", id)
+	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
@@ -142,6 +146,8 @@ func (s *supplier) composeInsertQuery() string {
 			va = fmt.Sprintf("%s, '%d'", va, v.(int))
 		case int64:
 			va = fmt.Sprintf("%s, '%d'", va, v.(int64))
+		case time.Time:
+			va = fmt.Sprintf("%s, '%s'", va, v.(time.Time).Format(timeFormat))
 		}
 	}
 	return fmt.Sprintf("%s) %s)", q, va)
@@ -160,9 +166,33 @@ func (s *supplier) composeUpdateQuery() string {
 			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int))
 		case int64:
 			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
+		case time.Time:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(time.Time).Format(timeFormat))
 		}
 	}
 
+	q = fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, s.ID)
+	return q
+}
+
+func (s *supplier) composeUpdateQueryTrack(updatedBy string) string {
+	params := s.paramsKV()
+	q := `UPDATE suppliers SET`
+	for k, v := range params {
+		switch v.(type) {
+		case string:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(string))
+		case float64:
+			q = fmt.Sprintf("%s %s='%f',", q, k, v.(float64))
+		case int:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int))
+		case int64:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
+		case time.Time:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(time.Time).Format(timeFormat))
+		}
+	}
+	newHistoryRecords(updatedBy, "suppliers", s.ID, params)
 	q = fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, s.ID)
 	return q
 }
@@ -171,13 +201,13 @@ func (s *supplier) paramsKV() map[string]interface{} {
 	params := make(map[string]interface{})
 
 	if s.Name != "" {
-		params["name"] = s.Name
+		params["name"] = strings.ToUpper(s.Name)
 	}
 	if s.Prefix != "" {
-		params["prefix"] = s.Prefix
+		params["prefix"] = strings.ToUpper(s.Prefix)
 	}
 	if s.Connected != "" {
-		params["connected"] = s.Connected
+		params["connected"] = strings.ToUpper(s.Connected)
 	}
 	return params
 }

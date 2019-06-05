@@ -3,13 +3,14 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"heshi/errors"
 	"log"
 	"util"
 
 	_ "github.com/go-sql-driver/mysql"
+	uuid "github.com/satori/go.uuid"
 
 	"github.com/jinzhu/configor"
-	uuid "github.com/satori/go.uuid"
 )
 
 var config = struct {
@@ -24,19 +25,20 @@ var config = struct {
 func main() {
 	db, err := openDB()
 	if err != nil {
-		log.Fatalf("fail to open db. err: %s", err.Error())
+		log.Fatalf("fail to open db. err: %s", errors.GetMessage(err))
 	}
 
-	id := uuid.NewV4().String()
+	v4, _ := uuid.NewV4()
+	id := v4.String()
 	password := util.Encrypt("admin")
-	q := `INSERT INTO users (id, username, password, email, user_type, invitation_code) 
-	VALUES (?, 'admin',?,'admin@admin.com', 'admin', 'ignore')`
-	if _, err := db.Exec(q, id, password); err != nil {
-		log.Fatalf("fail to create supre admin. err: %s", err.Error())
+	q := fmt.Sprintf(`INSERT INTO users (id, username, password, email, user_type, invitation_code) 
+	VALUES ('%s', 'admin','%s','admin@admin.com', 'admin', 'ignore')`, id, password)
+	if _, err := db.Exec(q); err != nil {
+		log.Fatalf("fail to create supre admin. err: %s", errors.GetMessage(err))
 	}
-	q = `INSERT INTO admins (user_id, level) VALUES (?,10)`
-	if _, err := db.Exec(q, id); err != nil {
-		log.Fatalf("fail to create supre admin. err: %s", err.Error())
+	q = fmt.Sprintf(`INSERT INTO admins (user_id, level) VALUES ('%s',10)`, id)
+	if _, err := db.Exec(q); err != nil {
+		log.Fatalf("fail to create supre admin. err: %s", errors.GetMessage(err))
 	}
 }
 

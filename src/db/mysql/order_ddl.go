@@ -8,16 +8,17 @@ const orderDdl = `
 CREATE TABLE IF NOT EXISTS orders
 (
 	id VARCHAR(225) PRIMARY KEY NOT NULL,
-	item_id INT NOT NULL,
-	item_price FLOAT NOT NULL,
-	item_category INT NOT NULL,
+	item_id VARCHAR(225) NOT NULL,
+	item_category VARCHAR(20) NOT NULL,
+	item_quantity SMALLINT NOT NULL DEFAULT 1,
 	transaction_id VARCHAR(225) NOT NULL,
-	buyer_id TINYINT(4) NOT NULL,
-	downpayment FLOAT,
-	chosen_by VARCHAR(28) NOT NULL,
-	sold_discount INT,
-	sold_price FLOAT,
-	return_point VARCHAR(4),
+	buyer_id VARCHAR(225) NOT NULL,
+	downpayment DECIMAL(12,2),
+	chosen_by VARCHAR(28),
+	sold_price_usd DECIMAL(12,2),
+	sold_price_cny DECIMAL(12,2),
+	sold_price_eur DECIMAL(12,2),
+	return_point FLOAT,
 	status VARCHAR(20) NOT NULL DEFAULT 'ORDERED',
 	extra_info VARCHAR(225),
 	special_notice VARCHAR(225),
@@ -26,13 +27,30 @@ CREATE TABLE IF NOT EXISTS orders
 ) ENGINE=INNODB;
 `
 
+// 购物车
+// item_price FLOAT NOT NULL,
+const shoppingCart = `
+CREATE TABLE IF NOT EXISTS shopping_cart
+(
+	id VARCHAR(225) PRIMARY KEY NOT NULL,
+	item_id VARCHAR(225) NOT NULL,
+	item_category VARCHAR(20) NOT NULL,
+	item_quantity SMALLINT NOT NULL DEFAULT 1,
+	user_id VARCHAR(225) NOT NULL,
+	extra_info VARCHAR(225),
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+) ENGINE=INNODB;
+`
+
+// 我的收藏 TODO to be removed
 const interestedItemDdl = `
 CREATE TABLE IF NOT EXISTS interested_items
 (
 	id VARCHAR(225) PRIMARY KEY NOT NULL,
 	user_id VARCHAR(225) NOT NULL,
-	item_type VARCHAR(28) NOT NULL,
-	item_id VARCHAR(58) NOT NULL,
+	item_id VARCHAR(225) NOT NULL,
+	item_category VARCHAR(20) NOT NULL,
 	item_accessory int(11),
 	confirmed_for_check VARCHAR(8) NOT NULL DEFAULT 'No',
 	available VARCHAR(25) NOT NULL DEFAULT 'TOBECHECKED',

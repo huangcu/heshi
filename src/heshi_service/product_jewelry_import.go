@@ -6,8 +6,6 @@ import (
 	"heshi/errors"
 	"strings"
 	"util"
-
-	uuid "github.com/satori/go.uuid"
 )
 
 // <td width="88">唯一商品号(StockID)</td>
@@ -33,7 +31,7 @@ func validateJewelryHeaders(headers []string) []string {
 	return missingHeaders
 }
 
-func importJewelryProducts(file, category string) ([]util.Row, error) {
+func importJewelryProducts(uid, file, category string) ([]util.Row, error) {
 	oldStockIDList, err := getAllStockIDBySubCategory(category)
 	if err != nil {
 		return nil, err
@@ -51,6 +49,7 @@ func importJewelryProducts(file, category string) ([]util.Row, error) {
 	originalHeaders := rows[0]
 
 	//process rows
+	util.Println("start process jewelry")
 	for index := 1; index < len(rows); index++ {
 		j := jewelry{}
 		row := rows[index]
@@ -101,12 +100,10 @@ func importJewelryProducts(file, category string) ([]util.Row, error) {
 				j.VideoLink = record[i]
 			case "text":
 				j.Text = record[i]
-			case "online":
-				j.Online = strings.ToUpper(record[i])
+			case "status":
+				j.Status = strings.ToUpper(record[i])
 			case "verified":
 				j.Verified = strings.ToUpper(record[i])
-			case "in_stock":
-				j.InStock = strings.ToUpper(record[i])
 			case "featured":
 				j.Featured = strings.ToUpper(record[i])
 			case "stock_quantity":
@@ -115,6 +112,8 @@ func importJewelryProducts(file, category string) ([]util.Row, error) {
 				j.Profitable = strings.ToUpper(record[i])
 			case "free_acc":
 				j.FreeAcc = strings.ToUpper(record[i])
+			case "image", "image1", "image2", "image3", "image4", "image5":
+				j.Images = append(j.Images, record[i])
 			}
 		}
 
@@ -131,7 +130,7 @@ func importJewelryProducts(file, category string) ([]util.Row, error) {
 			//new record
 			if err == sql.ErrNoRows {
 				//validate as new request
-				if vemsg, err := j.validateJewelryReq(true, true); err != nil {
+				if vemsg, err := j.validateJewelryReq(false); err != nil {
 					return nil, err
 				} else if len(vemsg) != 0 {
 					row.Ignored = true
@@ -143,7 +142,8 @@ func importJewelryProducts(file, category string) ([]util.Row, error) {
 					continue
 				}
 				//pass validation, insert into db
-				j.ID = uuid.NewV4().String()
+				j.ID = newV4()
+				j.jewelryImages()
 				q := j.composeInsertQuery()
 				if _, err := dbExec(q); err != nil {
 					util.Printf("fail to add jewelry item. stock id: %s; err: %s", j.StockID, errors.GetMessage(err))
@@ -156,7 +156,7 @@ func importJewelryProducts(file, category string) ([]util.Row, error) {
 		}
 
 		//already exist, validate as update request
-		if vemsg, err := j.validateJewelryReq(false, true); err != nil {
+		if vemsg, err := j.validateJewelryReq(true); err != nil {
 			return nil, err
 		} else if len(vemsg) != 0 {
 			row.Ignored = true
@@ -169,12 +169,14 @@ func importJewelryProducts(file, category string) ([]util.Row, error) {
 		}
 		//pass validation, update db
 		j.ID = id
-		q = j.composeUpdateQuery()
+		j.jewelryImages()
+		q = j.composeUpdateQueryTrack(uid)
 		if _, err := dbExec(q); err != nil {
 			util.Printf("fail to update jewelry item. stock id: %s; err; %s", j.StockID, errors.GetMessage(err))
 			return nil, err
 		}
 		util.Printf("jewelry item updated. stock id: %s", j.StockID)
+		// go newHistoryRecords(uid, "jewelrys", j.ID, j.parmsKV())
 		//remove updated stockID from old one as this has been scanned and processed
 		delete(oldStockIDList, j.StockID)
 	}
@@ -187,7 +189,7 @@ func importJewelryProducts(file, category string) ([]util.Row, error) {
 
 func jewelryCategory(category string) (string, error) {
 	cate := strings.ToUpper(category)
-	if util.IsInArrayString(cate, VALID_CATEGORY) {
+	if util.IsInArrayString(cate, validCategory) {
 		return cate, nil
 	}
 	return "", errors.Newf("%s not a valid category", category)
@@ -195,15 +197,15 @@ func jewelryCategory(category string) (string, error) {
 
 func jewelryMaterial(material string) string {
 	m := strings.ToUpper(strings.Replace(material, " ", "_", -1))
-	if util.IsInArrayString(m, VALID_MATERIAL) {
+	if util.IsInArrayString(m, validMaterial) {
 		return m
 	}
-	return "UNKNOW-" + m
+	return "UNKNOWN-" + m
 }
 
 func jewelryShape(shapeStr string) (string, error) {
 	var jShapes []string
-	shapes := strings.Split(FormatInputString(shapeStr), ",")
+	shapes := strings.Split(formatInputString(shapeStr), ",")
 	for _, shape := range shapes {
 		s, err := diamondShape(shape)
 		if err != nil {
@@ -216,10 +218,19 @@ func jewelryShape(shapeStr string) (string, error) {
 
 func jewelryMountingType(mountingType string) (string, error) {
 	mt := strings.ToUpper(mountingType)
-	if util.IsInArrayString(mountingType, VALID_MOUNTING_TYPE) {
+	if util.IsInArrayString(mountingType, validMountingType) {
 		return mt, nil
 	}
 	return "", errors.Newf("%s is not a valid mounting type", mountingType)
+}
+
+func (j *jewelry) jewelryImages() {
+	var imageNames []string
+	for _, imageName := range j.Images {
+		name := fmt.Sprintf("beyoudiamond-image-%s-%s", j.StockID, imageName)
+		imageNames = append(imageNames, name)
+	}
+	j.Images = imageNames
 }
 
 // <option value="JP">素金吊坠／项链</option> 1
@@ -233,7 +244,7 @@ func jewelryMountingType(mountingType string) (string, error) {
 // <option value="CE">成品耳环／耳钉</option> 3/NO
 func getAllStockIDBySubCategory(subCategory string) (map[string]struct{}, error) {
 	q := ""
-	switch subCategory {
+	switch strings.ToUpper(subCategory) {
 	case "JR":
 		q = "small_dias='NO' AND need_diamond='YES' AND category='RING' ORDER BY id ASC"
 	case "JE":
@@ -256,11 +267,13 @@ func getAllStockIDBySubCategory(subCategory string) (map[string]struct{}, error)
 		return nil, errors.New("missing upload sub category")
 	}
 	stockIds := make(map[string]struct{})
-	q = fmt.Sprintf("SELECT stock_id FROM jewelry WHERE online='YES' AND %s", q)
+	q = fmt.Sprintf("SELECT stock_id FROM jewelrys WHERE status IN ('AVAILABLE','OFFLINE') AND %s", q)
 	rows, err := dbQuery(q)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+
 	for rows.Next() {
 		var stockID string
 		if err := rows.Scan(&stockID); err != nil {
@@ -274,14 +287,15 @@ func getAllStockIDBySubCategory(subCategory string) (map[string]struct{}, error)
 
 //下线不存在的钻石 //TODO return or just trace err ???
 func offlineJewelrysNoLongerExist(stockIDList map[string]struct{}) error {
-	util.Tracef("Start to offline all jewelrys no longer exists")
+	util.Traceln("Start to offline all jewelrys no longer exists.")
 	for k := range stockIDList {
-		q := fmt.Sprintf("UPDATE jewelry SET offline='YES',updated_at=(CURRENT_TIMESTAMP) WHERE stock_id ='%s'", k)
+		q := fmt.Sprintf("UPDATE jewelrys SET status='OFFLINE',updated_at=(CURRENT_TIMESTAMP) WHERE stock_id ='%s'", k)
+		util.Tracef("Offline jewelry stock_id: %s.\n", k)
 		if _, err := dbExec(q); err != nil {
-			util.Tracef("error when offline jewelry. stock_id: %s. err: ", k, errors.GetMessage(err))
+			util.Tracef("error when offline jewelry. stock_id: %s. err: \n", k, errors.GetMessage(err))
 			return err
 		}
 	}
-	util.Tracef("Finished offline all jewelrys no longer exists")
+	util.Traceln("Finished offline all jewelrys no longer exists")
 	return nil
 }

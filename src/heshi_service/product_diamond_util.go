@@ -5,6 +5,7 @@ import (
 	"heshi/errors"
 	"strconv"
 	"strings"
+	"time"
 	"util"
 )
 
@@ -23,6 +24,8 @@ func (d *diamond) composeInsertQuery() string {
 			va = fmt.Sprintf("%s, '%d'", va, v.(int))
 		case int64:
 			va = fmt.Sprintf("%s, '%d'", va, v.(int64))
+		case time.Time:
+			va = fmt.Sprintf("%s, '%s'", va, v.(time.Time).Format(timeFormat))
 		}
 	}
 	q = fmt.Sprintf("%s) %s)", q, va)
@@ -42,7 +45,38 @@ func (d *diamond) composeUpdateQuery() string {
 			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int))
 		case int64:
 			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
+		case time.Time:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(time.Time).Format(timeFormat))
 		}
+	}
+	q = fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, d.ID)
+	return q
+}
+
+//only track price/promotion_id(track in promotion section) change
+func (d *diamond) composeUpdateQueryTrack(updatedBy string) string {
+	trackMap := make(map[string]interface{})
+	params := d.parmsKV()
+	q := `UPDATE diamonds SET`
+	for k, v := range params {
+		if k == "price_retail" {
+			trackMap["price_retail"] = v
+		}
+		switch v.(type) {
+		case string:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(string))
+		case float64:
+			q = fmt.Sprintf("%s %s='%f',", q, k, v.(float64))
+		case int:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int))
+		case int64:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
+		case time.Time:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(time.Time).Format(timeFormat))
+		}
+	}
+	if len(trackMap) != 0 {
+		newHistoryRecords(updatedBy, "diamonds", d.ID, trackMap)
 	}
 	q = fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, d.ID)
 	return q
@@ -102,23 +136,17 @@ func (d *diamond) parmsKV() map[string]interface{} {
 	if d.Featured != "" {
 		params["featured"] = d.Featured
 	}
-	if d.RecommandWords != "" {
-		params["recommand_words"] = d.RecommandWords
+	if d.RecommendWords != "" {
+		params["recommend_words"] = d.RecommendWords
 	}
 	if d.ExtraWords != "" {
 		params["extra_words"] = d.ExtraWords
 	}
+	if len(d.Images) != 0 {
+		params["images"] = strings.Join(d.Images, ";")
+	}
 	if d.Status != "" {
 		params["status"] = d.Status
-	}
-	if d.OrderedBy != "" {
-		params["ordered_by"] = d.OrderedBy
-	}
-	if d.PickedUp != "" {
-		params["picked_up"] = d.PickedUp
-	}
-	if d.SoldPrice != 0 {
-		params["sold_price"] = d.SoldPrice
 	}
 	if d.Profitable != "" {
 		params["profitable"] = d.Profitable
@@ -126,6 +154,7 @@ func (d *diamond) parmsKV() map[string]interface{} {
 	return params
 }
 
+// TODO to be removed
 func importDiamondsCustomizeHeaders(headers map[string]string, records [][]string) ([][]string, error) {
 	oldStockRefList, err := getAllStockRef()
 	if err != nil {
@@ -134,9 +163,9 @@ func importDiamondsCustomizeHeaders(headers map[string]string, records [][]strin
 	var suppliers []string
 	suppliers, err = getAllValidSupplierName()
 	if err != nil {
-		util.Traceln("Fail to get all suppliers name from db, use default predefined: %s",
-			strings.Join(VALID_SUPPLIER_NAME, ","))
-		suppliers = VALID_SUPPLIER_NAME
+		util.Printf("Fail to get all suppliers name from db, use default predefined: %s",
+			strings.Join(validSupplierName, ","))
+		suppliers = validSupplierName
 	}
 	originalHeaders := []string{}
 	ignoredRows := [][]string{}
@@ -146,6 +175,7 @@ func importDiamondsCustomizeHeaders(headers map[string]string, records [][]strin
 			originalHeaders = records[0]
 		}
 	}
+	util.Println("start process diamond")
 	for index := 0; index < len(records); index++ {
 		//process records
 		if index != 0 {
@@ -179,9 +209,19 @@ func importDiamondsCustomizeHeaders(headers map[string]string, records [][]strin
 							}
 							d.Carat = cValue
 						case "color":
-							d.Color = diamondColor(record[i])
+							if c, err := diamondColor(record[i]); err != nil {
+								ignoredRows = append(ignoredRows, record)
+								ignored = true
+							} else {
+								d.Color = c
+							}
 						case "clarity":
-							d.Clarity = diamondClarity(record[i])
+							if c, err := diamondClarity(record[i]); err != nil {
+								ignoredRows = append(ignoredRows, record)
+								ignored = true
+							} else {
+								d.Clarity = c
+							}
 						case "grading_lab":
 							if s, err := diamondGradingLab(record[i]); err != nil {
 								ignoredRows = append(ignoredRows, record)
@@ -192,13 +232,33 @@ func importDiamondsCustomizeHeaders(headers map[string]string, records [][]strin
 						case "certificate_number":
 							d.CertificateNumber = strings.ToUpper(record[i])
 						case "cut_grade":
-							d.CutGrade = diamondCutGradeSymmetryPolish(record[i])
+							if c, err := diamondCutGradeSymmetryPolish(record[i]); err != nil {
+								ignoredRows = append(ignoredRows, record)
+								ignored = true
+							} else {
+								d.CutGrade = c
+							}
 						case "polish":
-							d.Polish = diamondCutGradeSymmetryPolish(record[i])
+							if c, err := diamondCutGradeSymmetryPolish(record[i]); err != nil {
+								ignoredRows = append(ignoredRows, record)
+								ignored = true
+							} else {
+								d.Polish = c
+							}
 						case "symmetry":
-							d.Symmetry = diamondCutGradeSymmetryPolish(record[i])
+							if c, err := diamondCutGradeSymmetryPolish(record[i]); err != nil {
+								ignoredRows = append(ignoredRows, record)
+								ignored = true
+							} else {
+								d.Symmetry = c
+							}
 						case "fluorescence_intensity":
-							d.FluorescenceIntensity = diamondFluo(record[i])
+							if c, err := diamondFluo(record[i]); err != nil {
+								ignoredRows = append(ignoredRows, record)
+								ignored = true
+							} else {
+								d.FluorescenceIntensity = c
+							}
 						case "country":
 							d.Country = strings.ToUpper(record[i])
 						case "supplier":
@@ -230,7 +290,7 @@ func importDiamondsCustomizeHeaders(headers map[string]string, records [][]strin
 							d.PriceRetail = cValue
 						case "featured":
 							d.Featured = strings.ToUpper(record[i])
-						case "recommand_words":
+						case "recommend_words":
 							d.Featured = strings.ToUpper(record[i])
 						case "extra_words":
 							d.Featured = strings.ToUpper(record[i])
@@ -263,7 +323,7 @@ func importDiamondsCustomizeHeaders(headers map[string]string, records [][]strin
 
 //TODO double check url GIA
 func composeCertifcateLink(gradingLab, certificate string) string {
-	switch gradingLab {
+	switch strings.ToUpper(gradingLab) {
 	case "HRD":
 		return fmt.Sprintf("https://my.hrdantwerp.com/?L=&record_number=%s&certificatetype=MC", certificate)
 	case "GIA":
@@ -317,97 +377,168 @@ func (d *diamond) validateDiamondReq(update bool) ([]errors.HSMessage, error) {
 	}
 
 	if !update && d.StockRef == "" {
-		vemsgNotValid.Message = "diamond stock ref can not be empty"
-		vemsg = append(vemsg, vemsgNotValid)
-	} else if d.StockRef != "" {
+		vemsgEmpty.Message = "diamond stock ref can not be empty"
+		vemsg = append(vemsg, vemsgEmpty)
+	}
+	if d.StockRef != "" {
 		if err := d.composeStockRefWithSupplierPrefix(); err != nil {
 			return nil, err
 		}
-		if exist, err := isItemExistInDbByProperty("diamonds", "stock_ref", d.StockRef); err != nil {
-			return nil, err
-		} else if exist {
-			vemsgAlreadyExist.Message = "diamond stock_ref " + d.StockRef + " already exists"
-			vemsg = append(vemsg, vemsgAlreadyExist)
+		if update {
+			if exist, err := isItemExistInDbByPropertyWithDifferentID("diamonds", "stock_ref", d.StockRef, d.ID); err != nil {
+				return nil, err
+			} else if exist {
+				vemsgAlreadyExist.Message = "diamond stock_ref " + d.StockRef + " already exists"
+				vemsg = append(vemsg, vemsgAlreadyExist)
+			}
+		} else {
+			if exist, err := isItemExistInDbByProperty("diamonds", "stock_ref", d.StockRef); err != nil {
+				return nil, err
+			} else if exist {
+				vemsgAlreadyExist.Message = "diamond stock_ref " + d.StockRef + " already exists"
+				vemsg = append(vemsg, vemsgAlreadyExist)
+			}
 		}
 	}
 	if !update && d.DiamondID == "" {
-		vemsgNotValid.Message = "diamond id can not be empty"
+		vemsgEmpty.Message = "diamond id can not be empty"
 		vemsg = append(vemsg, vemsgNotValid)
-	} else if d.DiamondID != "" {
-		if exist, err := isItemExistInDbByProperty("diamonds", "diamond_id", d.DiamondID); err != nil {
-			return nil, err
-		} else if exist {
-			vemsgAlreadyExist.Message = "diamond id " + d.DiamondID + " already exists"
-			vemsg = append(vemsg, vemsgAlreadyExist)
+	}
+	if d.DiamondID != "" {
+		if update {
+			if exist, err := isItemExistInDbByPropertyWithDifferentID("diamonds", "diamond_id", d.DiamondID, d.ID); err != nil {
+				return nil, err
+			} else if exist {
+				vemsgAlreadyExist.Message = "diamond id " + d.DiamondID + " already exists"
+				vemsg = append(vemsg, vemsgAlreadyExist)
+			}
+		} else {
+			if exist, err := isItemExistInDbByProperty("diamonds", "diamond_id", d.DiamondID); err != nil {
+				return nil, err
+			} else if exist {
+				vemsgAlreadyExist.Message = "diamond id " + d.DiamondID + " already exists"
+				vemsg = append(vemsg, vemsgAlreadyExist)
+			}
 		}
 	}
 
 	if !update && d.Shape == "" {
-		vemsgNotValid.Message = "diamond shape can not be empty"
-		vemsg = append(vemsg, vemsgNotValid)
+		vemsgEmpty.Message = "diamond shape can not be empty"
+		vemsg = append(vemsg, vemsgEmpty)
 	} else if d.Shape != "" {
-		s, err := diamondShape(d.Shape)
-		if err != nil {
-			return nil, err
+		if s, err := diamondShape(d.Shape); err != nil {
+			vemsgNotValid.Message = errors.GetMessage(err)
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.Shape = s
 		}
-		d.Shape = s
+	}
+
+	if !update && d.GradingLab == "" {
+		vemsgEmpty.Message = "diamond grading lab can not be empty"
+		vemsg = append(vemsg, vemsgEmpty)
+	} else if d.GradingLab != "" {
+		if s, err := diamondGradingLab(d.GradingLab); err != nil {
+			vemsgNotValid.Message = errors.GetMessage(err)
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.GradingLab = s
+		}
 	}
 
 	if !update && d.Color == "" {
-		vemsgNotValid.Message = "diamond color can not be empty"
-		vemsg = append(vemsg, vemsgNotValid)
+		vemsgEmpty.Message = "diamond color can not be empty"
+		vemsg = append(vemsg, vemsgEmpty)
 	} else if d.Color != "" {
-		d.Color = diamondColor(d.Color)
+		if d.Color != "" {
+			if c, err := diamondColor(d.Color); err != nil {
+				vemsgNotValid.Message = errors.GetMessage(err)
+				vemsg = append(vemsg, vemsgNotValid)
+			} else {
+				d.Color = c
+			}
+		}
 	}
 
 	if !update && d.Clarity == "" {
-		vemsgNotValid.Message = "diamond clarity can not be empty"
-		vemsg = append(vemsg, vemsgNotValid)
+		vemsgEmpty.Message = "diamond clarity can not be empty"
+		vemsg = append(vemsg, vemsgEmpty)
 	} else if d.Clarity != "" {
-		d.Clarity = diamondClarity(d.Clarity)
+		if c, err := diamondClarity(d.Clarity); err != nil {
+			vemsgNotValid.Message = errors.GetMessage(err)
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.Clarity = c
+		}
 	}
 
 	if !update && d.CutGrade == "" {
-		vemsgNotValid.Message = "diamond cut grade can not be empty"
-		vemsg = append(vemsg, vemsgNotValid)
+		vemsgEmpty.Message = "diamond cut grade can not be empty"
+		vemsg = append(vemsg, vemsgEmpty)
 	} else if d.CutGrade != "" {
-		d.CutGrade = diamondCutGradeSymmetryPolish(d.CutGrade)
+		if c, err := diamondCutGradeSymmetryPolish(d.CutGrade); err != nil {
+			vemsgNotValid.Message = errors.GetMessage(err)
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.CutGrade = c
+		}
 	}
 
 	if !update && d.Polish == "" {
-		vemsgNotValid.Message = "diamond polish can not be empty"
-		vemsg = append(vemsg, vemsgNotValid)
+		vemsgEmpty.Message = "diamond polish can not be empty"
+		vemsg = append(vemsg, vemsgEmpty)
 	} else if d.Polish != "" {
-		d.Polish = diamondCutGradeSymmetryPolish(d.Polish)
+		if c, err := diamondCutGradeSymmetryPolish(d.Polish); err != nil {
+			vemsgNotValid.Message = errors.GetMessage(err)
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.Polish = c
+		}
 	}
 
 	if !update && d.Symmetry == "" {
-		vemsgNotValid.Message = "diamond symmetry can not be empty"
-		vemsg = append(vemsg, vemsgNotValid)
+		vemsgEmpty.Message = "diamond symmetry can not be empty"
+		vemsg = append(vemsg, vemsgEmpty)
 	} else if d.Symmetry != "" {
-		d.Symmetry = diamondCutGradeSymmetryPolish(d.Symmetry)
+		if c, err := diamondCutGradeSymmetryPolish(d.Symmetry); err != nil {
+			vemsgNotValid.Message = errors.GetMessage(err)
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.Symmetry = c
+		}
 	}
 
 	if !update && d.FluorescenceIntensity == "" {
-		vemsgNotValid.Message = "diamond fluorescence intensity can not be empty"
-		vemsg = append(vemsg, vemsgNotValid)
+		vemsgEmpty.Message = "diamond fluorescence intensity can not be empty"
+		vemsg = append(vemsg, vemsgEmpty)
 	} else if d.FluorescenceIntensity != "" {
-		d.FluorescenceIntensity = diamondFluo(d.FluorescenceIntensity)
+		if c, err := diamondFluo(d.FluorescenceIntensity); err != nil {
+			vemsgNotValid.Message = errors.GetMessage(err)
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.FluorescenceIntensity = c
+		}
 	}
 
-	//TODO format and validate country
 	if !update && d.Country == "" {
-		vemsgNotValid.Message = "diamond country can not be empty"
-		vemsg = append(vemsg, vemsgNotValid)
+		vemsgEmpty.Message = "diamond country can not be empty"
+		vemsg = append(vemsg, vemsgEmpty)
+	} else if d.Country != "" {
+		if c, err := diamondCountry(d.Country); err != nil {
+			vemsgNotValid.Message = errors.GetMessage(err)
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.Country = c
+		}
 	}
 
 	if !update && d.Supplier == "" {
-		vemsgNotValid.Message = "diamond supplier can not be empty"
-		vemsg = append(vemsg, vemsgNotValid)
+		vemsgEmpty.Message = "diamond supplier can not be empty"
+		vemsg = append(vemsg, vemsgEmpty)
 	} else if d.Supplier != "" {
 		if s, err := diamondSupplierPageReq(d.Supplier); err != nil {
-			vemsgNotValid.Message = errors.GetMessage(err)
-			vemsg = append(vemsg, vemsgNotValid)
+			vemsgEmpty.Message = errors.GetMessage(err)
+			vemsg = append(vemsg, vemsgEmpty)
 		} else {
 			d.Supplier = s
 		}
@@ -454,7 +585,7 @@ func (d *diamond) validateDiamondUpdateReq() ([]errors.HSMessage, error) {
 		}
 	}
 	if d.StockRef != "" {
-		if exist, err := isItemExistInDbByProperty("diamonds", "stock_ref", d.StockRef); err != nil {
+		if exist, err := isItemExistInDbByPropertyWithDifferentID("diamonds", "stock_ref", d.StockRef, d.ID); err != nil {
 			return nil, err
 		} else if exist {
 			vemsgAlreadyExist.Message = "diamond stock_ref " + d.StockRef + " already exists"
@@ -462,7 +593,7 @@ func (d *diamond) validateDiamondUpdateReq() ([]errors.HSMessage, error) {
 		}
 	}
 	if d.DiamondID != "" {
-		if exist, err := isItemExistInDbByProperty("diamonds", "diamond_id", d.DiamondID); err != nil {
+		if exist, err := isItemExistInDbByPropertyWithDifferentID("diamonds", "diamond_id", d.DiamondID, d.ID); err != nil {
 			return nil, err
 		} else if exist {
 			vemsgAlreadyExist.Message = "diamond id " + d.DiamondID + " already exists"
@@ -478,27 +609,57 @@ func (d *diamond) validateDiamondUpdateReq() ([]errors.HSMessage, error) {
 	}
 
 	if d.Color != "" {
-		d.Color = diamondColor(d.Color)
+		if c, err := diamondColor(d.Color); err != nil {
+			vemsgNotValid.Message = "diamond color is not valid"
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.Color = c
+		}
 	}
 
 	if d.Clarity != "" {
-		d.Clarity = diamondClarity(d.Clarity)
+		if c, err := diamondClarity(d.Clarity); err != nil {
+			vemsgNotValid.Message = "diamond clarity is not valid"
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.Clarity = c
+		}
 	}
 
 	if d.CutGrade != "" {
-		d.CutGrade = diamondCutGradeSymmetryPolish(d.CutGrade)
+		if c, err := diamondCutGradeSymmetryPolish(d.CutGrade); err != nil {
+			vemsgNotValid.Message = "diamond cut grade is not valid"
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.CutGrade = c
+		}
 	}
 
 	if d.Polish != "" {
-		d.Polish = diamondCutGradeSymmetryPolish(d.Polish)
+		if c, err := diamondCutGradeSymmetryPolish(d.Polish); err != nil {
+			vemsgNotValid.Message = "diamond polish is not valid"
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.Polish = c
+		}
 	}
 
 	if d.Symmetry != "" {
-		d.Symmetry = diamondCutGradeSymmetryPolish(d.Symmetry)
+		if c, err := diamondCutGradeSymmetryPolish(d.Symmetry); err != nil {
+			vemsgNotValid.Message = "diamond symmetry is not valid"
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.Symmetry = c
+		}
 	}
 
 	if d.FluorescenceIntensity != "" {
-		d.FluorescenceIntensity = diamondFluo(d.FluorescenceIntensity)
+		if c, err := diamondFluo(d.FluorescenceIntensity); err != nil {
+			vemsgNotValid.Message = "diamond fluorescence is not valid"
+			vemsg = append(vemsg, vemsgNotValid)
+		} else {
+			d.FluorescenceIntensity = c
+		}
 	}
 
 	if d.Supplier != "" {
@@ -519,8 +680,8 @@ func diamondSupplierPageReq(supplier string) (string, error) {
 	suppliers, err := getAllValidSupplierName()
 	if err != nil {
 		util.Traceln("Fail to get all suppliers name from db, use default predefined: %s",
-			strings.Join(VALID_SUPPLIER_NAME, ","))
-		suppliers = VALID_SUPPLIER_NAME
+			strings.Join(validSupplierName, ","))
+		suppliers = validSupplierName
 	}
 	if len(supplier) != 0 {
 		if util.IsInArrayString(strings.ToUpper(supplier), suppliers) {
@@ -533,4 +694,24 @@ func diamondSupplierPageReq(supplier string) (string, error) {
 //TODO compose stock ref with supplier prefix?????
 func diamondStockRef(stockRef, supplierPrefix string) string {
 	return supplierPrefix + stockRef
+}
+
+func (d *diamond) isDiamondExistByDiamondID() error {
+	var id string
+	q := fmt.Sprintf("SELECT id FROM diamonds WHERE diamond_id='%s' AND status IN ('AVAILABLE', 'OFFLINE')", d.DiamondID)
+	if err := dbQueryRow(q).Scan(&id); err != nil {
+		return err
+	}
+	d.ID = id
+	return nil
+}
+
+// ONLY can update diamonds AVAIABLE, OFFLINE, if it has been ordered, can not update
+func isDiamondExistByID(id string) (bool, error) {
+	var count int
+	q := fmt.Sprintf("SELECT COUNT(*) FROM diamonds WHERE id='%s' AND status IN ('AVAILABLE', 'OFFLINE') ", id)
+	if err := dbQueryRow(q).Scan(&count); err != nil {
+		return false, err
+	}
+	return count == 1, nil
 }

@@ -1,0 +1,11 @@
+ 
+zcash-cli z_gettotalbalance
+{
+  "transparent": "0.1405163",
+  "private": "0.00",
+  "total": "0.1405163"
+}
+
+zcash-cli listreceivedbyaddress
+
+zcash-cli z_sendmany t1VZ7mW2GiyqAMpdKmXzUwekPbKcaLYtroC "[{\"address\":\"t1fcPCnJ8gzq39Cq7AmgrbVmcoCiZV5TWfi\",\"amount\":0.1}]"

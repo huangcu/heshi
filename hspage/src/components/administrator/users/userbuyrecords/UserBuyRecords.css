@@ -1,0 +1,365 @@
+td {
+    background: #FFF9FF;
+    border-bottom-style: dotted;
+    border-width: 1px;
+    border-color: #CC6699;
+    padding: 3px;
+}
+
+.filterbtn {
+    display: inline-block;
+}
+
+a.modifybtn {
+    display: inline-block;
+    text-decoration: none;
+    color: #FFF;
+    padding: 1px 8px;
+    background-color: #CC6699;
+    border-radius: 4px;
+}
+
+a.modifybtn:hover {
+    color: #000;
+}
+
+h3.pagetitle {
+    text-align: center;
+}
+
+div#userinfobox {
+    text-align: center;
+    position: relative;
+    width: 380px;
+    padding: 15px;
+    background-color: #EEE;
+    margin: 0 auto;
+}
+
+div.userinfotxtbox {
+    width: 220px;
+    float: left;
+    text-align: left;
+}
+
+p#nameofuser {
+    font-size: 20px;
+}
+
+div.history {
+    max-width: 1380px;
+    text-align: center;
+    margin: 20px auto;
+    padding: 0;
+}
+
+.historybox ul {
+    padding: 15px;
+}
+
+li.dia-order-history {
+    text-align: left;
+    list-style: none;
+    background-color: #699;
+    padding: 5px 15px 12px 15px;
+    margin: 0px 0 22px 0;
+    position: relative;
+}
+
+li.dia-order-history.oneyear {
+    background-color: #390;
+}
+
+.history-subseller li.dia-order-history {
+    background-color: #9CC;
+}
+
+span.jewelry-description,
+span.dia-description,
+span.jewelry-name,
+span.totalpricecrr,
+span.pointvalue {
+    display: inline-block;
+    padding: 3px 5px;
+    background-color: #FFF;
+}
+
+span.dia-description,
+span.jewelry-name {
+    background-color: #FFC;
+}
+
+span.totalpricecrr {
+    background-color: #CFF;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #C90;
+}
+
+span.orderedtime {
+    position: relative;
+    display: block;
+    margin: 2px 0;
+    font-size: 12px;
+    color: #FFF;
+}
+
+span.pointvalue {
+    background-color: #C90;
+    color: #FFF;
+}
+
+span.notavailable {
+    background-color: #CCC;
+}
+
+span.paid {
+    background-color: #CF9;
+    color: #333;
+}
+
+button.pointnabtn,
+button.pointpaidbtn,
+button#totalpointpaidbtn {
+    padding: 5px 12px;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button.pointpaidbtn,
+button#totalpointpaidbtn {
+    background-color: #390;
+    color: #FFF;
+    border-color: #360;
+}
+
+button.pointnabtn {
+    background-color: #FCC;
+    color: #333;
+    border-color: #900;
+    margin-left: 55px;
+}
+
+button#totalpointpaidbtn {
+    font-size: 18px;
+    padding: 12px 50px;
+}
+
+div.userbybox {
+    position: relative;
+    text-align: center;
+    padding: 30px;
+    margin: 0 auto;
+    max-width: 588px;
+}
+
+.userbybox ul {
+    padding: 0;
+    margin: 0;
+}
+
+li.byuser {
+    list-style: none;
+    display: inline-block;
+    position: relative;
+    margin: 0 3px;
+    padding: 0;
+}
+
+.byuser>a {
+    display: inline-block;
+    position: relative;
+    padding: 2px 12px;
+    background-color: #090;
+    color: #FFF;
+}
+
+p.recommender {
+    margin-bottom: 15px;
+    font-size: 16px;
+    color: #666;
+}
+
+.recommender a {
+    font-size: 18px;
+    color: #090;
+}
+
+a#sendmessagtbtn {
+    display: inline-block;
+    width: 1px;
+    overflow: visible;
+    position: relative;
+    left: 12px;
+    white-space: nowrap;
+    font-size: 14px;
+    color: #090;
+}
+
+span.buyertxt {
+    position: relative;
+    display: block;
+    margin: 3px 0;
+    padding: 2px 5px;
+    width: 258px;
+    overflow: visible;
+    background-color: #fFF;
+    color: #000;
+    border-style: solid;
+    border-width: 5px;
+    border-color: #F90;
+    text-align: center;
+}
+
+a#addnewbtn,
+a.addnewbtn {
+    display: inline-block;
+    padding: 3px 15px;
+    background-color: #FC3;
+    color: #030;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #030;
+    border-radius: 6px;
+    font-size: 16px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+strong.oneyearpoint {
+    position: relative;
+    display: inline-block;
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0 8px;
+}
+
+p.addedindi {
+    display: block;
+    padding: 5px;
+    margin: 20px auto 0 auto;
+    font-size: 18px;
+    color: #390;
+    text-align: center;
+    background-color: #FFC;
+    max-width: 388px;
+    border-style: solid;
+    border-width: 2px;
+    border-color: #390;
+}
+
+li.no-record {
+    max-width: 128px;
+    background-color: #9CC;
+    text-align: center;
+    margin: 0 auto 25px auto;
+}
+
+li.no-profit {
+    background-color: #bbb;
+}
+
+span.glyphicon.glyphicon-ban-circle {
+    color: #C00;
+}
+
+li#noprofittitle {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+}
+
+li.dia-order-history.no-profit {
+    margin-bottom: 3px;
+}
+
+button.deleteorderbtn {
+    float: right;
+    background-color: #FFF;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #C00;
+    color: #C00;
+    font-size: 12px;
+    padding: 2px;
+    border-radius: 3px;
+}
+
+span.manuallyaddedrecord {
+    position: absolute;
+    display: inline-block;
+    background-color: #99F;
+    color: #FFF;
+    font-size: 12px;
+    padding: 1px 5px;
+    top: 2px;
+    right: 5px;
+}
+
+span.specialnotecontainer {
+    position: relative;
+    display: inline-block;
+    width: 218px;
+}
+
+textarea.specialnote {
+    position: relative;
+    display: inline-block;
+    width: 158px;
+    height: 50px;
+    font-size: 12px;
+    padding: 5px;
+    top: 12px;
+    background-color: #dceeb0;
+}
+
+button.specialnoteBTN {
+    background-color: #F93;
+    border-width: 1px;
+    padding: 1px 3px;
+    font-size: 12px;
+}
+
+button.specialnotesaved {
+    background-color: #6CF;
+}
+
+span.profitable-box {
+    display: inline-block;
+    padding: 1px 5px;
+    background-color: #bfe;
+    margin: 0 12px;
+    color: #000;
+}
+
+span.profitable-box.no {
+    background-color: #CCC;
+}
+
+span.indi-update-profitting-status {
+    display: inline-block;
+    position: relative;
+    background-color: #FFC;
+    padding: 0;
+    color: #090;
+    display: none;
+}
+
+span.totaldiscountbox {
+    position: relative;
+    display: inline-block;
+    background-color: #FC0;
+    padding: 3px 5px;
+}
+
+span.totaldiscountbox.statusupdated {
+    background-color: #CFC;
+    color: #090;
+}
+
+span.glyphicon.glyphicon-warning-sign {
+    color: #C00;
+}

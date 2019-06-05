@@ -5,10 +5,11 @@ import (
 	"heshi/errors"
 	"strconv"
 	"strings"
+	"time"
 	"util"
 )
 
-func (p *PriceSetting) composeInsertQuery() string {
+func (p *priceSetting) composeInsertQuery() string {
 	params := p.paramsKV()
 	q := `INSERT INTO price_settings_universal (id `
 	va := fmt.Sprintf(`VALUES ('%s'`, p.ID)
@@ -23,12 +24,14 @@ func (p *PriceSetting) composeInsertQuery() string {
 			va = fmt.Sprintf("%s, '%d'", va, v.(int))
 		case int64:
 			va = fmt.Sprintf("%s, '%d'", va, v.(int64))
+		case time.Time:
+			va = fmt.Sprintf("%s, '%s'", va, v.(time.Time).Format(timeFormat))
 		}
 	}
 	return fmt.Sprintf("%s) %s)", q, va)
 }
 
-func (p *PriceSetting) composeUpdateQuery() string {
+func (p *priceSetting) composeUpdateQuery() string {
 	params := p.paramsKV()
 	q := `UPDATE price_settings_universal SET`
 	for k, v := range params {
@@ -41,13 +44,35 @@ func (p *PriceSetting) composeUpdateQuery() string {
 			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int))
 		case int64:
 			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
+		case time.Time:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(time.Time).Format(timeFormat))
 		}
 	}
 
 	return fmt.Sprintf("%s WHERE id='%s'", strings.TrimSuffix(q, ","), p.ID)
 }
+func (p *priceSetting) composeUpdateQueryTrack(updatedBy string) string {
+	params := p.paramsKV()
+	q := `UPDATE price_settings_universal SET`
+	for k, v := range params {
+		switch v.(type) {
+		case string:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(string))
+		case float64:
+			q = fmt.Sprintf("%s %s='%f',", q, k, v.(float64))
+		case int:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int))
+		case int64:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
+		case time.Time:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(time.Time).Format(timeFormat))
+		}
+	}
+	newHistoryRecords(updatedBy, "price_settings_universal", p.ID, params)
+	return fmt.Sprintf("%s WHERE id='%s'", strings.TrimSuffix(q, ","), p.ID)
+}
 
-func (p *PriceSetting) paramsKV() map[string]interface{} {
+func (p *priceSetting) paramsKV() map[string]interface{} {
 	params := make(map[string]interface{})
 	if p.SupplierID != "" {
 		params["supplier_id"] = p.SupplierID
@@ -91,7 +116,7 @@ func (p *PriceSetting) paramsKV() map[string]interface{} {
 	return params
 }
 
-func (p *PriceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
+func (p *priceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
 	var vemsg []errors.HSMessage
 
 	sValue, err := util.StringToFloat(p.CaratFromStr)
@@ -122,25 +147,25 @@ func (p *PriceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
 	}
 	p.Priority = pValue
 
-	invalid := ItemsNotInArray(p.GradingLabs, VALID_GRADING_LAB)
+	invalid := itemsNotInArray(p.GradingLabs, validGradingLab)
 	if len(invalid) != 0 {
 		vemsgNotValid.Message = fmt.Sprintf("grading lab input has invalid value: %s", strings.Join(invalid, ","))
 		vemsg = append(vemsg, vemsgNotValid)
 	}
 
-	invalid = ItemsNotInArray(p.Clarities, VALID_CLARITY)
+	invalid = itemsNotInArray(p.Clarities, validClarity)
 	if len(invalid) != 0 {
 		vemsgNotValid.Message = fmt.Sprintf("clarity input has invalid value: %s", strings.Join(invalid, ","))
 		vemsg = append(vemsg, vemsgNotValid)
 	}
 
-	invalid = ItemsNotInArray(p.Colors, VALID_COLOR)
+	invalid = itemsNotInArray(p.Colors, validColor)
 	if len(invalid) != 0 {
 		vemsgNotValid.Message = fmt.Sprintf("color input has invalid value: %s", strings.Join(invalid, ","))
 		vemsg = append(vemsg, vemsgNotValid)
 	}
 
-	invalid = ItemsNotInArray(p.CutGrades, VALID_CUT_GRADE)
+	invalid = itemsNotInArray(p.CutGrades, validCutGrade)
 	// p.CutGrades = strings.Join(cutGrades, ",")
 	if len(invalid) != 0 {
 		vemsgNotValid.Message = fmt.Sprintf("cut grade input has invalid value: %s", strings.Join(invalid, ","))
@@ -149,7 +174,7 @@ func (p *PriceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
 
 	invalid = []string{}
 	for _, v := range strings.Split(p.Fluos, ",") {
-		if !util.IsInArrayString(v, VALID_FLUORESCENCE_INTENSITY) {
+		if !util.IsInArrayString(v, validFluorescenceIntensity) {
 			invalid = append(invalid, v)
 		}
 	}
@@ -160,7 +185,7 @@ func (p *PriceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
 
 	invalid = []string{}
 	for _, v := range strings.Split(p.Polishs, ",") {
-		if !util.IsInArrayString(v, VALID_POLISH) {
+		if !util.IsInArrayString(v, validPolish) {
 			invalid = append(invalid, v)
 		}
 	}
@@ -171,7 +196,7 @@ func (p *PriceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
 
 	invalid = []string{}
 	for _, v := range strings.Split(p.Symmetries, ",") {
-		if !util.IsInArrayString(v, VALID_SYMMETRY) {
+		if !util.IsInArrayString(v, validSymmetry) {
 			invalid = append(invalid, v)
 		}
 	}
@@ -180,4 +205,13 @@ func (p *PriceSetting) validatePriceSetting() ([]errors.HSMessage, error) {
 		vemsg = append(vemsg, vemsgNotValid)
 	}
 	return vemsg, nil
+}
+
+func isSupplierPriceRuleExistByID(id string) (bool, error) {
+	var count int
+	q := fmt.Sprintf("SELECT COUNT(*) FROM price_settings_universal WHERE id='%s'", id)
+	if err := dbQueryRow(q).Scan(&count); err != nil {
+		return false, err
+	}
+	return count == 1, nil
 }

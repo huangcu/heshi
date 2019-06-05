@@ -7,9 +7,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//TODO another field to indicate recommand by heshi
-func recommnadDiamonds(c *gin.Context) {
-	///api/recommand/diamonds?sort='carat'&order='up'
+//TODO another field to indicate recommend by heshi
+func recommendDiamonds(c *gin.Context) {
+	///api/recommend/diamonds?sort='carat'&order='up'
 	sort := "carat"
 	if c.Query("sort") == "price_retail" {
 		sort = "price_retail"
@@ -18,7 +18,7 @@ func recommnadDiamonds(c *gin.Context) {
 	if c.Query("order") == "down" {
 		order = "DESC"
 	}
-	q := fmt.Sprintf("SELECT * FROM diamonds WHERE recommnaded_by_heshi=='YES' AND statu <> 'SOLD' ORDER BY %s %s",
+	q := fmt.Sprintf("SELECT * FROM diamonds WHERE recommnaded_by_heshi=='YES' AND status IN ('AVAILABLE', 'OFFLINE')  ORDER BY %s %s",
 		sort, order)
 	util.Println(q)
 	// $query_sort=' ORDER BY carat ';

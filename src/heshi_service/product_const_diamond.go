@@ -1,12 +1,17 @@
 package main
 
 const (
-	DIAMOND      = "diamond"
-	SMALLDIAMOND = "small_diamond"
-	JEWELRY      = "jewelry"
+	// DIAMOND ...
+	DIAMOND = "DIAMOND"
+	// SMALLDIAMOND ...
+	SMALLDIAMOND = "SMALL_DIAMOND"
+	// JEWELRY ...
+	JEWELRY = "JEWELRY"
+	// GEM ...
+	GEM = "GEM"
 )
 
-var VALID_PRODUCTS = []string{DIAMOND, SMALLDIAMOND, JEWELRY}
+var validProductsConst = []string{DIAMOND, SMALLDIAMOND, JEWELRY, GEM}
 
 var diamondHeaders = []string{
 	//must have fields
@@ -29,8 +34,14 @@ var diamondHeaders = []string{
 	// optional fields
 	"price_retail",
 	"featured",
-	"recommand_words",
+	"recommend_words",
 	"extra_words",
+	"image",
+	"image1",
+	"image2",
+	"image3",
+	"image4",
+	"image5",
 }
 
 var smallDiamondHeaders = []string{
@@ -41,8 +52,8 @@ var smallDiamondHeaders = []string{
 }
 
 //  "BR" :"圆形" /_images/constant/ico-stones.png - round
-//  "PS": "梨形" /_images/constant/ico-stones.png - pear
-// 	"PR": "公主方" /_images/constant/ico-stones.png - princess
+//  "PS": "梨形" /_images/constant/ico-stones.png - princess
+// 	"PR": "公主方" /_images/constant/ico-stones.png - pear
 // 	"HS": "心形" /_images/constant/ico-stones.png - heart
 // 	"MQ": "橄榄形" /_images/constant/ico-stones.png - marquise
 // 	"OV": "椭圆形" /_images/constant/ico-stones.png - oval
@@ -50,35 +61,53 @@ var smallDiamondHeaders = []string{
 // 	"RA": "雷蒂恩" /_images/constant/ico-stones.png???? - "RAD" - radiant
 // 	"CU": "枕形" /_images/constant/ico-stones.png - cushion
 // 	"AS": "Asscher" /_images/constant/ico-stones.png
-var VALID_DIAMOND_SHAPE = []string{
+// BR
+// AS
+// HS
+// CU
+// EM
+// MQ
+// OV
+// PR
+// PS
+// RAD
+// RC
+
+// RB
+// MARQUISE
+// RCRB
+var validDiamondShape = []string{
 	"BR",
 	"PS",
 	"PR",
 	"HS",
-	"MQ",
+	"MQ", "MARQUISE",
 	"OV",
 	"EM",
 	"CU",
 	"AS",
 	"RAD",
-	"RBC",
-	"RCRB",
 	"RC",
+
+	"RCRB",
+	"RB",
+
 	"PE",
 	"HT",
+	"RBC",
 	"CMB",
 }
 
 //GIA: https://my.hrdantwerp.com/?L=&record_number='["certificate_number"].'&certificatetype=MC"
 //HRD: http://www.gia.edu/cs/Satellite?pagename=GST%2FDispatcher&childpagename=GIA%2FPage%2FReportCheck&c=Page&cid=1355954554547&reportno='["certificate_number"].'"
 //IGI: http://www.igiworldwide.com/verify.php?r='["certificate_number"].'"
-var VALID_GRADING_LAB = []string{
+var validGradingLab = []string{
 	"GIA",
 	"HRD",
 	"IGI",
 }
 
-var VALID_SUPPLIER_NAME = []string{
+var validSupplierName = []string{
 	"KGK",
 	"DIAM",
 	"BEYOU-HESHI",
@@ -110,7 +139,7 @@ var VALID_SUPPLIER_NAME = []string{
 // }else{
 // 	$diacomment='';
 // }
-var VALID_CLARITY = []string{
+var validClarity = []string{
 	"VVS1",
 	"VVS2",
 	"VS1",
@@ -132,35 +161,35 @@ var VALID_CLARITY = []string{
 // VST - "Very Strong",
 // SL - SLT - "Slight",
 // VSL - "Very Slight",
-var VALID_FLUORESCENCE_INTENSITY = []string{
+var validFluorescenceIntensity = []string{
 	"NON",
 	"FNT",
 	"MED",
 	"STG",
-	"VST",
+	"VST", "VSTG",
 	"SLT",
 	"VSL",
 	// "NIL",
 	// "STR",
-	// "VSTG",
 }
 
 // "EX" - "EXC" - "Excellent"
 // "GD" - "G"
-var VALID_POLISH = []string{
+var validPolish = []string{
 	"EX",
 	"VG",
-	"G",
+	"G", "GD",
+	"F",
 }
 
 //  "EXC" - "Excellent"-	"EX",
 // 	"VG",
 // 	"GD" - "G",
 // 	"FAIR" - "F",
-var VALID_SYMMETRY = []string{
+var validSymmetry = []string{
 	"EX",
 	"VG",
-	"G",
+	"G", "GD",
 	"F",
 }
 
@@ -182,18 +211,55 @@ var VALID_SYMMETRY = []string{
 // 	"VG",
 // 	"GD" - "G",
 // 	"FAIR" - "F",
-var VALID_CUT_GRADE = []string{
+var validCutGrade = []string{
 	"EX",
 	"VG",
-	"G",
+	"G", "GD",
 	"F",
+	"-",
 	// "3EX",
 	// "NA",
 	// "NN",
 }
 
-var VALID_COLOR = []string{}
+var validColor = []string{
+	"D",
+	"E",
+	"F",
+	"G",
+	"H",
+	"I",
+	"J",
+	"K",
+	"L",
+	"M",
+	"N",
+	"O-P",
+	"M, Faint Brown",
+	"N, Very Light Brown",
+	"K, Faint Brown",
+	"L, Faint Brown",
+	"FPB",
+	"FP",
+	"W-X, Light Brown",
+	"U-V",
+	"F.O-Y",
+	"O-P,Very Light Brown",
+	"Q-R",
+	"S-T",
+	"Y-Z",
+	"W-X",
+	"FY", "FANCY YELLOW",
+	"FLY",
+	"FBY", "FANCY BROWNISH YELLOW",
+	"FLBY", "FANCY LIGHT BROWNISH YELLOW",
+	"FIY", "FANCY INTENSE YELLOW",
+	"FVY", "FANCY VIVID YELLOW",
+	"FLBGY",
+}
 
+// | FY             |
+// | FANCY YELLOW   |
 // | J              |
 // | G              |
 // | F              |
@@ -205,7 +271,6 @@ var VALID_COLOR = []string{}
 // | D              |
 // | K              |
 // | L, Faint Brown |
-// | FY             |
 // | N              |
 // | -              |
 // | O-P            |
@@ -229,13 +294,30 @@ var VALID_COLOR = []string{}
 // | W-X            |
 // | FLBGY          |
 // | NBY            |
-// | FANCY YELLOW   |
 // | N-O            |
 // | FDBY
 
-var VALID_DIAMOND_STATUS = []string{
-	"SOLD",
-	"AVAILABLE",
-	"RESERVED",
-	"OFFLINE",
-}
+//   case 'FY':
+//   return '<span class="fancycolortxt">黄色</span>'
+// case 'FANCY YELLOW':
+//   return '<span class="fancycolortxt">黄色</span>'
+// case 'FLY':
+//   return '<span class="fancycolortxt">浅黄色</span>'
+// case 'FANCY BROWNISH YELLOW':
+//   return '<span class="fancycolortxt">棕黄色</span>'
+// case 'FBY':
+//   return '<span class="fancycolortxt">棕黄色</span>'
+// case 'FANCY LIGHT BROWNISH YELLOW':
+//   return '<span class="fancycolortxt">浅棕黄</span>'
+// case 'FLBY':
+//   return '<span class="fancycolortxt">浅棕黄</span>'
+// case 'FANCY INTENSE YELLOW':
+//   return '<span class="fancycolortxt">浓彩黄</span>'
+// case 'FIY':
+//   return '<span class="fancycolortxt">浓彩黄</span>'
+// case 'FANCY VIVID YELLOW':
+//   return '<span class="fancycolortxt">艳黄色</span>'
+// case 'FVY':
+//   return '<span class="fancycolortxt">艳黄色</span>'
+// case 'FLBGY':
+//   return '<span class="fancycolortxt">浅棕灰</span>'

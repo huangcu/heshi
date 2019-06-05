@@ -1,0 +1,194 @@
+div.contentmainwrapper {
+    position: relative;
+    text-align: center;
+    max-width: 980px;
+    margin: 35px auto 120px auto;
+}
+
+span#thetxtofpagetitle {
+    display: inline-block;
+    position: relative;
+}
+
+div.accountinfobox {
+    padding: 5px 25px;
+    border-style: solid;
+    border-color: #c6e3e1;
+    border-width: 3px;
+    background-color: #EFFCEF;
+    margin-bottom: 15px;
+    /* display: none; */
+}
+
+.accountinfobox>div {
+    display: block;
+    max-width: 288px;
+    padding: 20px;
+    background-color: #c6e3e1;
+    text-align: center;
+    margin: 20px auto;
+}
+
+.accountinfobox label {
+    display: inline-block;
+    width: 58px;
+    text-align: left;
+}
+
+.accountinfobox form input {
+    position: relative;
+    width: 188px;
+    font-size: 14px;
+    padding: 2px 5px;
+    background-color: #EFFCEF;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #01934d;
+}
+
+
+/* div#personalinfo {
+    display: none;
+} */
+
+p#updatewarning {
+    color: #C00;
+    font-size: 14px;
+}
+
+div.logoutbtnbox {
+    position: relative;
+    margin: 38px;
+    text-align: center;
+}
+
+div#qrcodebg,
+div#qrcodebg-watch {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    background-color: rgba(255, 255, 255, 0.97);
+    z-index: 888;
+    text-align: center;
+}
+
+div#qrcode-box {
+    position: relative;
+    top: 50%;
+    margin-top: -218px;
+    width: 288px;
+    margin-left: auto;
+    margin-right: auto;
+    height: 358px;
+}
+
+p.qrexpl {
+    margin-bottom: 8px;
+}
+
+img#weixin-indi {
+    display: inline-block;
+    height: 26px;
+    margin-right: 3px;
+    position: relative;
+}
+
+#qrcode-img-container {
+    position: relative;
+    padding: 0;
+    margin: 0 auto;
+    width: 221px;
+    height: 221px;
+    background-image: url('/_images/constant/circle-loading-icon.gif');
+    background-size: 88px auto;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #F3FCFF;
+    border-style: solid;
+    border-width: 3px;
+    border-color: #86c610;
+}
+
+span#loading-txt {
+    display: inline-block;
+    position: absolute;
+    bottom: 25px;
+    width: 100%;
+    text-align: center;
+    z-index: 0;
+    left: 0;
+}
+
+#the_account_qrcode,
+#the_account_qrcode_w {
+    width: 215px;
+    z-index: 8;
+    position: relative;
+    background-color: #FFF;
+    background-image: url('/_images/constant/circle-loading-icon.gif');
+    background-size: 88px auto;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.no_weixin a {
+    color: #793;
+}
+
+p.no_weixin {
+    margin-top: 0;
+}
+
+p.no_weixin,
+p.expire_expl {
+    margin-top: 22px;
+    color: #999;
+    font-size: 12px;
+}
+
+#logoutform-inqrstatus {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+}
+
+button#x-it {
+    display: inline-block;
+    background-color: #FCC;
+    color: #c00;
+    font-size: 14px;
+    padding: 2px 8px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #C00;
+    border-radius: 6px;
+}
+
+#changeinfosavebtn {
+    position: relative;
+    background-color: #01934d;
+    color: #FFF;
+    border-style: solid;
+    border-bottom-width: 1px;
+    border-color: #01934d;
+    border-radius: 6px;
+    padding: 3px 12px;
+    font-size: 14px;
+    margin-top: 15px;
+}
+
+input#logoutbtn,
+input#logoutbtn-qrstates {
+    display: inline-block;
+    background-color: #FCC;
+    color: #c00;
+    font-size: 14px;
+    padding: 2px 15px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #C00;
+    border-radius: 6px;
+}

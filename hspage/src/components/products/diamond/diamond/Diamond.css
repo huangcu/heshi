@@ -1,0 +1,289 @@
+body {}
+
+div.contentmainwrapper {
+    position: relative;
+    text-align: center;
+    max-width: 980px;
+    margin: 58px auto;
+}
+
+.pricebox {
+    margin-bottom: 35px;
+}
+
+img.jewelry-img {
+    display: block;
+    max-width: 588px;
+    max-height: 800px;
+    height: auto;
+    margin: 12px auto;
+    border-style: solid;
+    border-width: 15px;
+    border-color: #c6e3e1;
+    padding: 28px;
+    background-color: #FFF;
+}
+
+div.jewelry-pics {}
+
+p.choosebtnbox,
+div.choosebtnbox {
+    margin: 58px 0 25px 0;
+}
+
+a.choosebtn,
+button.choosebtn {
+    display: inline-block;
+    font-size: 20px;
+    padding: 8px 18px;
+    background-color: #01934d;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 8px;
+    color: #fff;
+    border-color: #01934d;
+}
+
+a.choosebtn:hover,
+button.choosebtn:hover {
+    text-decoration: none;
+    color: #FFF;
+    background-color: #01934d;
+}
+
+p.gobackbtnbox {
+    margin: 55px 0 88px 0;
+}
+
+span.gobackindisign {
+    font-size: 20px;
+    color: #999;
+    position: relative;
+    left: -10px;
+}
+
+a.gobackbtn {
+    display: inline-block;
+    padding: 12px;
+    font-size: 20px;
+}
+
+div#chosendiabox {
+    padding: 12px 0 30px 0;
+    margin: 12px auto 50px auto;
+    background-color: #c6e3e1;
+    max-width: 680px;
+}
+
+.needdiatitle {
+    margin-bottom: 5px;
+    font-size: 20px;
+    color: #999;
+}
+
+img#chosendiaimg {
+    width: 128px;
+}
+
+div#diamonds-reco-box {
+    background-color: #c6e3e1;
+    padding: 25px 0 15px 0;
+    margin: 38px 0 0 0;
+}
+
+h2.dia-reco-title {
+    margin-top: 5px;
+    margin-bottom: 20px;
+}
+
+ul.reco-list {
+    margin: 0;
+    padding: 0;
+}
+
+li.reco-dia {
+    display: inline-block;
+    list-style: none;
+    width: 287px;
+    background-color: #FFF;
+    margin: 12px;
+}
+
+.reco-dia h3 {
+    font-size: 22px;
+    padding: 8px 0;
+}
+
+img.reco-dia-img {
+    width: 128px;
+}
+
+p.dia-chara {
+    position: relative;
+    top: -5px;
+    font-size: 14px;
+}
+
+p.dia-chara-0 {
+    position: relative;
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 0;
+    top: -15px;
+}
+
+p.dia-chara-1 {
+    font-size: 18px;
+}
+
+span.price-dropped {
+    display: inline-block;
+    color: #999;
+    text-decoration: line-through;
+}
+
+span.price-in-currency {
+    font-size: 12px;
+}
+
+button.dia-choosebtn {
+    display: inline-block;
+    font-size: 14px;
+    padding: 5px 22px;
+    background-color: #FFF;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 8px;
+    color: #01934d;
+    border-color: #01934d;
+    margin: 12px 0 20px 0;
+}
+
+button.dia-choosebtn:hover {
+    background-color: #01934d;
+    color: #FFF;
+}
+
+.reco-dia span.glyphicon {
+    position: relative;
+    left: -5px;
+    display: none;
+}
+
+.chosen button.dia-choosebtn {
+    background-color: #01934d;
+    color: #fff;
+}
+
+.chosen span.glyphicon {
+    display: inline-block;
+}
+
+p#methodexpl {
+    font-size: 16px;
+    margin: 50px 0 38px 0;
+}
+
+span.price-special {
+    display: block;
+    margin: 9px;
+}
+
+
+/* ------------------------------- */
+
+div.thechosendia,
+div.thepairingdia {
+    width: 258px;
+    display: inline-block;
+    background-color: #FFF;
+    padding: 8px 0;
+    margin: 12px;
+}
+
+.thechosendia h3,
+.thepairingdia h3 {
+    margin: 8px 0;
+    font-size: 20px;
+}
+
+p.expl-words {
+    padding: 15px;
+    font-size: 16px;
+}
+
+span.sidetxt {
+    color: #666;
+    font-size: 12px;
+}
+
+img.chosendiaimg {
+    width: 88px;
+}
+
+p.plussigncontainer {
+    margin: 12px 0;
+    display: block;
+}
+
+.plussigncontainer span.glyphicon {
+    display: inline-block;
+    left: 0;
+}
+
+div.chooseformbox {
+    margin-top: 58px;
+}
+
+span.pricelinethrough {
+    font-size: 12px;
+    color: #999;
+    text-decoration: line-through;
+}
+
+span.dia-description {
+    display: inline-block;
+    padding: 2px 5px;
+    margin: 3px 5px;
+    background-color: #EFFCEF;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #01934d;
+}
+
+div.pricebox {
+    margin-top: 20px;
+}
+
+div#reco-words {
+    margin-top: 25px;
+    font-size: 16px;
+}
+
+p.certi-linker {
+    margin: 12px;
+}
+
+p.gobackbtnbox {
+    margin: 55px 0 88px 0;
+    text-align: center;
+}
+
+span.gobackindisign {
+    font-size: 20px;
+    color: #999;
+    position: relative;
+    left: -10px;
+}
+
+a.gobackbtn {
+    display: inline-block;
+    padding: 12px;
+    font-size: 20px;
+}
+
+@media (max-width: 620px) {
+    img.jewelry-img {
+        width: 100%;
+    }
+}

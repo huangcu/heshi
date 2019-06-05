@@ -1,0 +1,137 @@
+#maincontentbox {
+    background-color: #c6e3e1;
+    padding: 2px;
+}
+
+div.loginform-cover {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1888;
+    background-color: rgba(88, 125, 108, 0.92);
+}
+
+div#userloginform,
+div#signupform {
+    position: relative;
+    width: 268px;
+    padding: 35px 20px 3px 20px;
+    margin: 88px auto;
+    background-color: #FFF;
+    text-align: center;
+}
+
+#userloginform h4,
+#signupform h4 {
+    margin-top: 0px;
+}
+
+input.inputtextforloginform {
+    width: 200px;
+    padding: 5px 8px;
+    margin: 12px auto;
+    background-color: #EFFCEF;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #363;
+    display: block;
+}
+
+input#loginbtn,
+#registeropenbtn,
+#registerformsubmitbtn {
+    position: relative;
+    background-color: #01934d;
+    color: #FFF;
+    border-style: solid;
+    border-bottom-width: 1px;
+    border-color: #01934d;
+    border-radius: 6px;
+    padding: 5px 18px;
+    margin-top: 15px;
+}
+
+#registeropenbtn {
+    display: inline-block;
+}
+
+#registerformsubmitbtn {
+    margin-bottom: 35px;
+}
+
+p.registerindibox {
+    position: relative;
+    margin: 3px 25px 25px 25px;
+    font-size: 12px;
+    padding-top: 15px;
+    color: #999;
+    border-top-style: solid;
+    border-width: 1px;
+    border-color: #01934d;
+}
+
+#registeropenbtn {
+    background-color: #FFF;
+    color: #01934d;
+    border-color: #01934d;
+    border-width: 1px;
+    padding: 2px 8px;
+    margin-left: 5px;
+}
+
+#loginformclose {
+    position: absolute;
+    top: 98px;
+    left: 50%;
+    margin-left: 138px;
+    color: #FFF;
+    font-size: 32px;
+}
+
+p.getbackpassword {
+    margin: 15px 0 5px 0;
+    font-size: 12px;
+    color: #999;
+}
+
+.loginfeedbackwords {
+    color: #C00;
+}
+
+p#recommend-ticket-box {
+    margin: 0;
+    padding: 8px 0;
+}
+
+#recommend-ticket-box label {
+    margin-bottom: 0;
+    padding-bottom: 3px;
+    color: #555;
+}
+
+#recommend-ticket-box label span.glyphicon {
+    color: #FC0;
+}
+
+input#therecommendticketcode {
+    text-align: center;
+    width: 200px;
+    padding: 5px 8px;
+    margin: 0 auto;
+    background-color: #FffFDF;
+    color: #999;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #360;
+    position: relative;
+    left: 0;
+    display: block;
+}
+
+p.loginfeedbackwords,
+p.registerfeedbackmessage {
+    color: #C00;
+}

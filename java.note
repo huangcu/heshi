@@ -1,0 +1,480 @@
+1.JVM -- java virtual machineJVM就是我们常说的java虚拟机，它是整个java实现跨平台的最核心的部分，
+所有的java程序会首先被编译为.class的类文件，这种类文件可以在虚拟机上执行，也就是说class并不直接与机器的操作系统相对应，
+而是经过虚拟机间接与操作系统交互，由虚拟机将程序解释给本地系统执行。
+2.JRE -- java runtime environment
+JRE是指java运行环境。光有JVM还不能成class的执行，因为在解释class的时候JVM需要调用解释所需要的类库lib。
+在JDK的安装目录里你可以找到jre目录，里面有两个文件夹bin和lib,在这里可以认为bin里的就是jvm，lib中则是jvm工作所需要的类库，而jvm和 lib和起来就称为jre。
+所以，在你写完java程序编译成.class之后，你可以把这个.class文件和jre一起打包发给朋友，这样你的朋友就可以运行你写程序了。（jre里有运行.class的java.exe）
+3.JDK -- java development kit
+JDK是java开发工具包
+在目录下面有六个文件夹、一个src类库源码压缩包、和其他几个声明文件。
+其中，真正在运行java时起作用的是以下四个文件夹：bin、include、lib、 jre。
+
+现在我们可以看出这样一个关系，JDK包含JRE，而JRE包含JVM。
+bin:最主要的是编译器(javac.exe)
+include:java和JVM交互用的头文件
+lib：类库
+jre:java运行环境
+
+1: JAVA TYPE
+primitive type: 
+Numeric primitives: short(16), int(32), long(64), float(32) and double(64).
+Textual primitives: byte(8) and char(16).
+Boolean(1) and null primitives: boolean and null
+in java default(infer): int and double
+Object type :
+2: Object super class of all class 
+  public boolean equals(Object obj)
+  public native int hashCode()
+  Public String toString()
+  protected native Object clone()
+  protected void finalize()
+  public final native Class<?> getClass()
+  public final native void notify()
+  public final native void notifyAll()
+  public final native void wait()
+  public final native void wait(long timeout)
+  public final native void wait(long timeout, int nanos)
+A Java class inherits these methods and can override any method that's not declared final
+
+A native method is a Java method (either an instance method or a class method) whose implementation is written in another programming language such as C
+3: Final VS Static (https://stackoverflow.com/questions/8005250/difference-between-a-static-and-a-final-static-variable-in-java)
+  variables
+    variables are declared in methods, and used as some kind of mutable local storage (int x; x = 5; x++)
+  final variables
+    final variables are also declared in methods, and are used as an immutable local storage (final int y; y = 0; y++; // won't compile).
+  fields
+    fields define the mutable state of objects, and are declared in classes
+  final fields
+    final fields define the immutable state of objects, are declared in classes and must be initialized before the constructor finishes (class x { final int myField = 5; }). They cannot be modified.
+  static fields
+    static fields are shared among all instances of any class. You can think of them as some kind of global mutable storage (class x { static int globalField = 5; })
+  final static fields
+    final static fields are global constants 
+
+4: Exception, RunTimeException, Error
+Exception分两种，checked和unchecked。
+  checked Exception就是在写代码的时候，IDE(比如Eclipse)会要求你写try catch的那种Exception，比如IOException。
+    这种Exception是Java的设计者要求你的程序去处理的,一般不会影响程序的主体，容易手动诊断修复，
+    所以Java要求你在catch下面写出处理的代码，以保证程序遇到此类exception之后还可以正常运行。
+  unchecked这一类就是你在代码处理了checked exception之后，你在运行时候依然会遇到的exception，
+    所以又叫做RunTimeException，比如NullPointerException, IndexOutOfBoundsException。此类exception相较于前面那种更容易影响程序运行，
+    从设计者角度不提倡从程序中catch出来并处理
+
+一个线程运行时发生异常会怎样？
+所以这里存在两种情形： 
+① 如果该异常被捕获或抛出，则程序继续运行。(默认在控制台输出异常信息) 
+② 如果异常没有被捕获该线程将会停止执行。 
+  Thread.UncaughtExceptionHandler是用于处理未捕获异常造成线程突然中断情况的一个内嵌接口。
+  当一个未捕获异常将造成线程中断的时候JVM会使用Thread.getUncaughtExceptionHandler()来查询线程的UncaughtExceptionHandler，
+  并将线程和异常作为参数传递给handler的uncaughtException()方法进行处理
+
+  设置UncaughtException异常处理器来自定义处理操作
+  异常处理器：实现Thread.UncaughtExceptionHandler接口
+  public class ThreadExceptionHandler implements Thread.UncaughtExceptionHandler {
+      @Override
+      public void uncaughtException(Thread t, Throwable e) {
+          System.out.println(t.getName() + "  throws an exception");
+          e.printStackTrace();
+      }
+  }
+5: String StringBuffer StringBuilder
+Both StringBuffer and StringBuilder are two important classes in Java which represents mutable String i.e. the String object, whose value can be changed. 
+Since String is Immutable in Java, any change or operation on String object e.g. 
+converting it to upper or lower case, adding character, removing a character, or getting a substring, 
+all results in a new String object. This can put a lot of pressure on Garbage collector if your application generates lots of throws away String instances. 
+To avoid this issue, Java designer presented initially StringBuffer class and later StringBuilder as mutable String. 
+StringBuffer is mutable and synchronized as well. Where as StringBuilder is mutable but not synchronized by default.
+
+STRING:
+String in immutable and final in Java and JVM uses String Pool to store all the String objects.
+Some other interesting things about String is the way we can instantiate a String object using double quotes and overloading of “+” operator for concatenation.
+When we create a String using double quotes, JVM looks in the String pool to find if any other String is stored with the same value. 
+If found, it just returns the reference to that String object else it creates a new String object with given value and stores it in the String pool.
+When we use the new operator, JVM creates the String object but don’t store it into the String Pool. 
+We can use intern() method to store the String object into String pool or return the reference if there is already a String with equal value present in the pool.
+
+
+Why character array is better than String for Storing password in Java
+1) Since Strings are immutable in Java if you store password as plain text it will be available in memory until Garbage collector clears it and 
+since String are used in String pool for reusability there is pretty high chance that it will be remain in memory for long duration, 
+which pose a security threat. Since any one who has access to memory dump can find the password in clear text and 
+that's another reason you should always used an encrypted password than plain text. 
+Since Strings are immutable there is no way contents of Strings can be changed because any change will produce new String, 
+while if you char[] you can still set all his element as blank or zero. 
+So Storing password in character array clearly mitigates security risk of stealing password.
+2) Java itself recommends using getPassword() method of JPasswordField which returns a char[] and 
+deprecated getText() method which returns password in clear text stating security reason. 
+Its good to follow advice from Java team and adhering to standard rather than going against it.
+3) With String there is always a risk of printing plain text in log file or console 
+but if use Array you won't print contents of array instead its memory location get printed. though not a real reason but still make sense.
+
+Why String is immutable?
+String is immutable for several reasons:  caching, security, synchronization, and performance.
+  - Security: parameters are typically represented as String in network connections, database connection urls, 
+  usernames/passwords etc. If it were mutable, these parameters could be easily changed.
+  - Synchronization and concurrency: making String immutable automatically makes them thread safe 
+  thereby solving the synchronization issues.
+  - Caching: when compiler optimizes your String objects, 
+  it sees that if two objects have same value (a="test", and b="test") and thus you need only one string object 
+  (for both a and b, these two will point to the same object).
+  - Class loading: String is used as arguments for class loading. 
+  If mutable, it could result in wrong class being loaded (because mutable objects change their state).
+
+Thread: 
+MultiThread issues: Deadlock/Thread Leakage/Resource Thrashing - > (not too many thread, find an optimal number)
+Thread Safety:- > data inconsistency. multiple threads created from same Object share object variables and 
+this can lead to data inconsistency when the threads are used to read and update the shared data
+The reason for data inconsistency is because updating any field value is not an atomic process, 
+it requires three steps; 
+    first to read the current value, 
+    second to do the necessary operations to get the updated value 
+    and third to assign the updated value to the field reference.
+    
+    1: Synchronization (Monitor-Objects (used with synchronize keyword))
+    2: Atomic Wrapper classes from java.util.concurrent.atomic package for int and long that 
+    can be used to achieve this atomically without usage of Synchronization
+    Concurrency:
+        atomic operation - performed in a single unit of task without interference from other operations
+            Atomic operations are necessity in multi-threaded environment to avoid data inconsistency
+    3: Use of locks from java.util.concurrent.locks package. ((e.g. ReentrantLock(mutual exclusion lock), ReadWriteLock, StampedLock(optimistic locking)))
+    4: Using thread safe collection classes
+    5: volatile 关键字
+
+Java 内存模型中的可见性、原子性和有序性
+可见性，是指线程之间的可见性，一个线程修改的状态对另一个线程是可见的。 
+      volatile修饰的变量不允许线程内部缓存和重排序，即直接修改内存。所以对其他线程是可见的。
+      但是这里需要注意一个问题，volatile只能让被他修饰内容具有可见性，但不能保证它具有原子性。
+原子性：在 Java 中 synchronized 和在 lock、unlock 中操作保证原子性。
+有序性：
+
+https://www.hollischuang.com/archives/2550
+我们说，并发编程，为了保证数据的安全，需要满足以下三个特性：
+原子性是指在一个操作中就是cpu不可以在中途暂停然后再调度，既不被中断操作，要不执行完成，要不就不执行。
+可见性是指当多个线程访问同一个变量时，一个线程修改了这个变量的值，其他线程能够立即看得到修改的值。
+有序性即程序执行的顺序按照代码的先后顺序执行。
+有没有发现，缓存一致性问题其实就是可见性问题。而处理器优化是可以导致原子性问题的。指令重排即会导致有序性问题。
+
+当把变量声明为volatile类型后，编译器与运行时都会注意到这个变量是共享的，因此不会将该变量上的操作与其他内存操作一起重排序。
+volatile变量不会被缓存在寄存器或者对其他处理器不可见的地方，因此在读取volatile类型的变量时总会返回最新写入的值。
+当对非 volatile 变量进行读写的时候，每个线程先从内存拷贝变量到CPU缓存中。
+如果计算机有多个CPU，每个线程可能在不同的CPU上被处理，这意味着每个线程可以拷贝到不同的 CPU cache 中。
+而声明变量是 volatile 的，JVM 保证了每次读变量都从内存中读，跳过 CPU cache 这一步。
+
+用在多线程，同步变量。 线程为了提高效率，将成员变量(如A)某拷贝了一份（如B），线程中对A的访问其实访问的是B。
+只在某些动作时才进行A和B的同步。因此存在A和B不一致的情况。volatile就是用来避免这种情况的。
+volatile告诉jvm， 它所修饰的变量不保留拷贝，直接访问主内存中的（也就是上面说的A) 
+
+在访问volatile变量时不会执行加锁操作，因此也就不会使执行线程阻塞，因此volatile变量是一种比sychronized关键字更轻量级的同步机制。
+
+1: synchronized
+一、当两个并发线程访问同一个对象object中的这个synchronized(this)同步代码块时，一个时间内只能有一个线程得到执行。
+另一个线程必须等待当前线程执行完这个代码块以后才能执行该代码块。
+二、然而，当一个线程访问object的一个synchronized(this)同步代码块时，另一个线程仍然可以访问该object中的非synchronized(this)同步代码块。
+三、尤其关键的是，当一个线程访问object的一个synchronized(this)同步代码块时，其他线程对object中所有其它synchronized(this)同步代码块的访问将被阻塞。
+
+1.Synchronized修饰非静态方法，实际上是对调用该方法的对象加锁，俗称“对象锁”。
+2.Synchronized修饰静态方法，实际上是对该类对象加锁，俗称“类锁”。
+
+2: java中的synchronized（同步代码块和同步方法的区别)
+//下列两个方法有什么区别
+同步方法
+public synchronized void method1(){}
+
+synchronized 方法控制对类成员变量的访问：每个类实例对应一把锁，每个 synchronized 方法都必须获得调用该方法的类实例的锁方能执行，
+否则所属线程阻塞，方法一旦执行，就独占该锁，直到从该方法返回时才将锁释放，此后被阻塞的线程方能获得该锁，重新进入可执行状态。
+这种机制确保了同一时刻对于每一个类实例，其所有声明为 synchronized 的成员函数中至多只有一个处于可执行状态（因为至多只有一个能够获得该类实例对应的锁），
+从而有效避免了类成员变量的访问冲突（只要所有可能访问类成员变量的方法均被声明为 synchronized）
+缺陷：若将一个大的方法声明为synchronized 将会大大影响效率
+
+同步代码块
+public void method2(){
+ synchronized  (syncObject){}
+}
+其中的代码必须获得对象 syncObject （可以是类实例或类）的锁方能执行，具体机制同前所述。
+由于可以针对任意代码块，且可任意指定上锁的对象，故灵活性较高。 
+
+Synchronize VS ReentrantLock
+相似点: 都是阻塞式的同步，也就是说当如果一个线程获得了对象锁，进入了同步块，其他访问该同步块的线程都必须阻塞在同步块外面等待
+区别: 1: Synchronized来说，它是java语言的关键字，是原生语法层面的互斥，需要jvm实现
+      Lock它是JDK 1.5之后提供的API层面的互斥锁，需要lock()和unlock()方法配合try/finally语句块来完成。
+     2: 等待可中断 - 使用synchronized。如果Thread1不释放，Thread2将一直等待，不能被中断。synchronized也可以说是Java提供的原子性内置锁机制。
+                    内部锁扮演了互斥锁（mutual exclusion lock ，mutex）的角色，一个线程引用锁的时候，别的线程阻塞等待。
+                    使用ReentrantLock。如果Thread1不释放，Thread2等待了很长时间以后，可以中断等待，转而去做别的事情
+    3: 公平锁   - synchronized的锁是非公平锁, 在锁被释放时，任何一个等待锁的线程都有机会获得锁.
+                ReentrantLock默认情况下也是非公平锁，但可以通过带布尔值的构造函数要求使用公平锁, 多个线程在等待同一个锁时，必须按照申请的时间顺序来依次获得锁
+
+6: Sleep(), Wait(), Notify(), NotifyAll()
+wait(), notify(), and notifyAll() methods of object class must have to be called inside synchronized method or synchronized block in Java
+
+The key difference between wait() and sleep() is that former is used for inter-thread communication while later is used to introduced to pause the current thread for a short duration. 
+This difference is more obvious from the fact that, when a thread calls the wait() method, 
+it releases the monitor or lock it was holding on that object, but when a thread calls the sleep() method, 
+it never releases the monitor even if it is holding. 
+https://javarevisited.blogspot.com/2011/12/difference-between-wait-sleep-yield.html#ixzz5mSoDsHkl
+
+Synchronized is to provide mutual exclusion and ensuring thread safety of Java class like race condition while wait 
+and notify are communication mechanism between two thread.
+Read more: https://javarevisited.blogspot.com/2012/02/why-wait-notify-and-notifyall-is.html#ixzz5mSxfZzRz
+
+ThreadLocal : ThreadLocal的实例代表了一个线程局部的变量，每条线程都只能看到自己的值
+每个Thread的对象都有一个ThreadLocalMap，当创建一个ThreadLocal的时候，就会将该ThreadLocal对象添加到该Map中，其中键就是ThreadLocal，值可以是任意类型。
+
+15: thread -> run(), start() 
+when you call start() method it creates new Thread and executes code declared in the run() 
+while directly calling run() method doesn’t create any new thread and execute code on the same calling thread.
+
+Java线程的6种状态及切换
+1. 初始(NEW)：新创建了一个线程对象，但还没有调用start()方法。
+2. 运行(RUNNABLE)：Java线程中将就绪（ready）和运行中（running）两种状态笼统的称为“运行”。
+  线程对象创建后，其他线程(比如main线程）调用了该对象的start()方法。
+  该状态的线程位于可运行线程池中，等待被线程调度选中，获取CPU的使用权，此时处于就绪状态（ready）。
+  就绪状态的线程在获得CPU时间片后变为运行中状态（running）。
+3. 阻塞(BLOCKED)：表示线程阻塞于锁。
+4. 等待(WAITING)：进入该状态的线程需要等待其他线程做出一些特定动作（通知或中断）。
+5. 超时等待(TIMED_WAITING)：该状态不同于WAITING，它可以在指定的时间后自行返回。
+6. 终止(TERMINATED)：表示该线程已经执行完毕。
+
+3.thread vs process
+Thread:
+run in shared memory space;
+easier to create and terminate;
+lightweight;faster task-switching;
+data sharing with otherthread;
+care synchronization overhead of shared data;
+Process:
+separate memory space;
+independentof each other;
+consist of mutipule thread
+
+7: How hashmap internally works in java
+hashCode(), equals()
+https://www.journaldev.com/21095/java-equals-hashcode 
+https://netjs.blogspot.com/2015/05/how-hashmap-internally-works-in-java.html
+
+HashMap works on the principal of hashing.
+HashMap in Java uses the hashCode() method to calculate a hash value. Hash value is calculated using the key object.
+ This hash value is used to find the correct bucket where Entry object will be stored.
+HashMap uses the equals() method to find the correct key whose value is to be retrieved in case of get() 
+and to find if that key already exists or not in case of put().
+With in the internal implementation of HashMap hashing collision means more than one key having the same hash value, in that case Entry objects are stored as a linked-list with in a same bucket.
+With in a bucket values are stored as Entry objects which contain both key and value.
+In Java 8 hash elements use balanced trees instead of linked lists after a certain threshold is reached while storing values. This improves the worst case performance from O(n) to O(log n).
+
+override hashCode and equals together 
+key-> bucket -> (equals)
+
+Why String is popular HashMap key in Java ?
+Since String is immutable, its hashcode is cached at the time of creation and 
+it doesn’t need to be calculated again. This makes it a great candidate for key in a Map and its processing is fast than other HashMap key objects. 
+This is why String is mostly used Object as HashMap keys.
+
+How get method of HashMap and hashtable works internally in Java
+http://www.java67.com/2013/06/how-get-method-of-hashmap-or-hashtable-works-internally.html
+a) Key.hashCode() method is used to find the bucket location in backing array. 
+  (Remember HashMap is backed by array in Java)
+b) In backing array or better known as the bucket, key and values are stored in the form of a nested class called Entry
+  If there is only one Entry at bucket location, then the value from that entry is returned.
+
+What happens if two keys have the same hashCode? 
+If multiple keys have the same hashCode, then during put() operation collision had occurred, 
+which means multiple Entry objects stored in a bucket location. 
+Each Entry keeps track of another Entry, forming a linked list data structure there.
+Now, if we need to retrieve value object in this situation, following steps will be followed :
+1) Call hashCode() method of the key to finding bucket location.
+2) Traverse thought linked list, comparing keys in each entries using keys.equals() until it returns true.
+
+
+9: modCount
+ConcurrentModificationException   -> 
+copyonwritearraylist ->"snapshot style"
+Iterator returned by CopyOnWriteArrayList in Java is fail-safe, 
+it uses a reference to the state of the array at the point that the iterator was created. 
+You know by now any mutation will result in a fresh copy of the underlying array. 
+Thus the array that the iterator has a reference to never changes during the lifetime of the iterator
+1: The iterator will not reflect additions, removals, or changes to the list since the iterator was created 
+thus it is also known as "snapshot style" iterator.
+2: Element-changing operations on iterators themselves (remove, set, and add) are not supported. 
+These methods throw UnsupportedOperationException.
+
+https://www.journaldev.com/1289/copyonwritearraylist-java
+https://netjs.blogspot.com/2016/01/copyonwritearraylist-in-java.html
+fail-fast VS fail safe
+
+
+The Collection subclass maintains an integer modCount that is incremented on every operation that structurally modifies the collection (like add, remove, clear).
+The fail-fast iterators also contain an integer field expectedModCount which is initialized to the modCount while the iterator is created. 
+Later on, during every iteration, the iterator verifies if the expectedModCount is same as the modCount of the collection it is iterating over.
+A mismatch means that the collection has been modified during the life cycle of the iterator and a ConcurrentModificationException is thrown.
+
+10: dynamic binding VS static binding
+Can we override static method in Java? - Method Hiding
+
+No, you cannot override static method in Java because method overriding is based upon dynamic binding at runtime 
+and static methods are bonded using static binding at compile time. 
+Though you can declare a method with same name and method signature in sub class 
+which does look like you can override static method in Java but in reality that is method hiding. 
+Java won't resolve method call at runtime and depending upon type of Object which is used to call static method, corresponding method will be called. 
+It means if you use Parent class's type to call static method, original static will be called from patent class, 
+on ther other hand if you use Child class's type to call static method, method from child class will be called. 
+In short you can not override static method in Java.
+
+11: Abstract VS Interface 
+the main difference between an abstract class and interface in Java 8 is the fact that an abstract class is a class and an interface is an interface. A class can have a state which can be modified by non-abstract methods but an interface cannot have the state because they can't have instance variables.
+The second difference is that an interface cannot have a constructor even in Java 8 but you may remember that abstract class can also have a constructor in Java. All methods of an interface were abstract but since Java 8 you can define non-abstract methods in the form of default and static methods inside interface in Java.
+
+12: Can abstract class have Constructor in Java 
+Yes, an abstract class can have a constructor in Java. 
+You can either explicitly provide a constructor to abstract class or if you don't, 
+the compiler will add default constructor of no argument in abstract class.
+ This is true for all classes and it also applies to an abstract class. 
+ For those who want to recall what is an abstract class in Java, 
+ it's a class which can not be instantiated with new() operator or any other ways. 
+ In order to use an abstract class in Java,  You need to extend it and provide a concrete class.
+
+13: Why can an abstract class have a constructor in Java?
+if we can not create an instance of an abstract class then why do Java adds a constructor in the abstract class. 
+One of the reasons which make sense is  when any class extends an abstract class,
+ the constructor of sub class will invoke the constructor of super class either implicitly or explicitly.
+  This chaining of constructors is one of the reasons abstract class can have constructors in Java.
+
+14: Overloading Overridding Hiding 
+You can hide a field or variable in Java. 
+A field is said to be hidden by another field if they have the same name in both parent and child class. 
+For example, if Parent class has a name field and Child class also have age field then Child.age will hide Parent.age in the Child class.
+
+if you have two static or private methods with the same name in both Parent and Child class 
+then the method in Child class will hide the method from the Parent class
+
+15: Java 8 features 
+  Interface changes with default and static methods
+    default method: help us in extending interfaces with additional methods, all we need is to provide a default implementation. 
+    no need to override, but we can override them. 
+    if diamond issue happens, must override default method in implementation class, otherwize, compile error.
+    static methods: visible to interface methods only, we can’t override them in the implementation classes.
+  Functional interfaces and Lambda Expressions
+    An interface with exactly one abstract method is known as Functional Interface.
+  Java Stream API for collection classes
+  Java Date Time API
+  Java Optional class (java.util package)
+    Advantages of Java 8 Optional: Null checks are not required. /No more NullPointerException at run-time. / We can develop clean and neat APIs. /No more Boiler plate code
+  (isPresent(), ifPresent(), orElse())
+16: ArrayList LinkedList
+Main difference between ArrayList and LinkedList is that 
+ArrayList is implemented using re sizable array
+ while LinkedList is implemented using doubly LinkedList.
+
+1.ArrayList是实现了基于动态数组的数据结构，LinkedList基于链表的数据结构。 
+2.对于随机访问get和set，ArrayList觉得优于LinkedList，因为LinkedList要移动指针。 
+3.对于新增和删除操作add和remove，LinedList比较占优势，因为ArrayList要移动数据。 
+
+ArrayList内部是使用可増长数组实现的，所以是用get和set方法是花费常数时间的，但是如果插入元素和删除元素，除非插入和删除的位置都在表末尾，
+否则代码开销会很大，因为里面需要数组的移动。ArrayList更适合读取数据.
+
+ArrayList 是线性表（数组）， 
+get() 直接读取第几个下标，复杂度O（1）
+add(E) 添加元素， 直接在后面添加 ， 复杂度 O(1)
+add(index, E) 添加元素， 在第几个元素后面插入，后面元素需要向后移动，复杂度 O(n)
+remove() 删除元素，后面元素需要逐个移动， 复杂度O(n)，除非删除最后一个 
+
+LinkedList是使用双链表实现的，所以get会非常消耗资源，除非位置离头部很近。但是插入和删除元素花费常数时间。 linkedList更多的时候添加或删除数据。
+LinkedList 是链表的操作 
+get() 获取第几个元素 ，依次遍历，复杂度O（n）
+add(E) 添加元素， 直接在后面添加 ， 复杂度 O(1)
+add(index, E) 添加元素， 需要先查找到第几个元素，直接指针指向操作，复杂度 O(n)
+remove() 删除元素，直接指针指向操作， 复杂度O(1)
+
+Arraylist：底层是基于动态数组(Arraylist可以进行扩容)，根据下表随机访问数组元素的效率高，向数组尾部添加元素的效率高；
+但是，删除数组中的数据以及向数组中间添加数据效率低，因为需要移动数组。
+例如最坏的情况是删除第一个数组元素，则需要将第2至第n个数组元素各向前移动一位。
+
+Hashmap 是非线程安全的
+Hashtable 是线程安全的，任一时间只有一个线程能写Hashtable，并发性不如ConcurrentHashMap，因为ConcurrentHashMap引入了分段锁 
+          HashTable 只有一把锁，当一个线程访问HashTable的同步方法时，会将整张table 锁住, HashTable 对get，put，remove 方法都使用了同步操作
+ConcurrentHashMap (segment) 分段锁技术
+          ConcurrentHashMap 将数据分为多个segment（默认16个），然后每次操作对一个segment 加锁, ConcurrnetHashMap中get 方法是不涉及到锁的
+
+1、put的时候导致的多线程数据不一致。
+这个问题比较好想象，比如有两个线程A和B，首先A希望插入一个key-value对到HashMap中，首先计算记录所要落到的桶的索引坐标，然后获取到该桶里面的链表头结点，
+此时线程A的时间片用完了，而此时线程B被调度得以执行，和线程A一样执行，只不过线程B成功将记录插到了桶里面，
+假设线程A插入的记录计算出来的桶索引和线程B要插入的记录计算出来的桶索引是一样的，那么当线程B成功插入之后，线程A再次被调度运行时，
+它依然持有过期的链表头但是它对此一无所知，以至于它认为它应该这样做，如此一来就覆盖了线程B插入的记录，这样线程B插入的记录就凭空消失了，
+造成了数据不一致的行为。
+
+2、另外一个比较明显的线程不安全的问题是HashMap的get操作可能因为resize而引起死循环（cpu100%）
+HashMap(int initialCapacity, float loadFactor) (16, 0.75)
+其中参数initialCapacity为初始容量，loadFactor为加载因子，
+扩容就是在put加入元素的个数超过initialCapacity * loadFactor的时候就会将内部Entry数组大小扩大至原来的2倍，
+然后将数组元素按照新的数组大小重新计算索引，放在新的数组中，同时修改每个节点的链表关系（主要是next和节点在链表中的位置）
+
+
+Singleton Class in Java
+a singleton class is a class that can have only one object (an instance of the class) at a time.
+To design a singleton class:
+  1: Private constructor to restrict instantiation of the class from other classes.
+  2: Private static variable of the same class that is the only instance of the class.
+  3: Public static method that returns the instance of the class,
+    this is the global access point for outer world to get the instance of the singleton class.
+
+Difference in normal and singleton class in terms of instantiation is that, 
+For normal class we use constructor, whereas for singleton class we use getInstance() method 
+
+Eager initialization/Static block initialization: the instance of Singleton Class is created at the time of class loading
+Lazy Initialization:  Lazy initialization method to implement Singleton pattern creates the instance in the global access method. 
+  public class LazyInitializedSingleton {
+      private static LazyInitializedSingleton instance;    
+      private LazyInitializedSingleton(){}    
+      public static LazyInitializedSingleton getInstance(){
+          if(instance == null){
+              instance = new LazyInitializedSingleton();
+          }
+          return instance;
+      }
+  }
+Thread Safe Singleton: (synchronized)
+The easier way to create a thread-safe singleton class is to make the global access method synchronized,
+ so that only one thread can execute this method at a time.
+
+GC: 
+新生代：新创建的对象都是用新生代分配内存，Eden空间不足时，触发Minor GC，这时会把存活的对象转移进Survivor区。
+老年代：老年代用于存放经过多次Minor GC之后依然存活的对象。
+
+新生代的GC（Minor GC）：新生代通常存活时间较短基于Copying算法进行回收，所谓Copying算法就是扫描出存活的对象，并复制到一块新的完全未使用的空间中，
+  对应于新生代，就是在Eden和FromSpace或ToSpace之间copy。
+  新生代采用空闲指针的方式来控制GC触发，指针保持最后一个分配的对象在新生代区间的位置，
+  当有新的对象要分配内存时，用于检查空间是否足够，不够就触发GC。
+  当连续分配对象时，对象会逐渐从Eden到Survivor，最后到老年代。
+老年代的GC（Major GC/Full GC）：老年代与新生代不同，老年代对象存活的时间比较长、比较稳定，因此采用标记(Mark)算法来进行回收，
+  所谓标记就是扫描出存活的对象，然后再进行回收未被标记的对象，回收后对用空出的空间要么进行合并、要么标记出来便于下次进行分配，
+  总之目的就是要减少内存碎片带来的效率损耗。
+
+创建对象是新生代的Eden空间调用Minor GC；
+当升到老年代的对象大于老年代剩余空间Full GC；
+GC与非GC时间耗时超过了GCTimeRatio的限制引发OOM。
+
+①超出作用域的对象/引用计数为空的对象。
+　　引用计数算法：给对象中添加一个引用计数器，每当有一个地方引用它时，计数器就加1；
+    当引用失效时，计数器值就减1；任何时刻计数器都为0的对象就是不可能再被使用的。
+②从GC Root开始搜索，且搜索不到的对象
+
+Final:
+1、final变量
+final关键字可用于变量声明，一旦该变量被设定，就不可以再改变该变量的值
+2、final方法
+首先，我们应该了解定义为final的方法不能被重写。
+3、final类
+定义为final的类不能被继承。
+
+Immutable class means that once an object is created, we cannot change its content.
+immutable class 
+• Class must be declared as final (So that child classes can’t be created)
+• Data members in the class must be declared as final (So that we can’t change the value of it after object creation)
+• A parameterized constructor
+• Getter method for all the variables in it
+• No setters(To not have option to change the value of the instance variable)
+
+Factory Pattern
+Factory design pattern is used when we have a super class with multiple sub-classes and based on input, we need to return one of the sub-class.
+This pattern take out the responsibility of instantiation of a class from client program to the factory class.
+
+Singleton Pattern 

@@ -1,0 +1,194 @@
+a {
+    color: #01934d;
+}
+
+a:hover {
+    color: #ffed00;
+    cursor: pointer;
+}
+
+div.navbar-wrapper {
+    display: block;
+    position: relative;
+}
+
+.navbar-wrapper .container {
+    width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+    display: block;
+    position: relative;
+    z-index: 8;
+}
+
+a.logobox {
+    display: block;
+    width: 178px;
+    margin: 12px auto -11px auto;
+    position: relative;
+    left: -378px;
+}
+
+.logobox img {
+    width: 178px;
+    height: auto;
+}
+
+div.small-buttons-container {
+    position: relative;
+    width: 558px;
+    margin: 0 auto;
+    text-align: right;
+    top: -15px;
+    left: 175px;
+}
+
+div.small-buttons-container-mobile {
+    position: fixed;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    z-index: 8892;
+    margin: -33px 0 0 0;
+    padding: 7px 0;
+    background-color: #333;
+    font-size: 12px;
+    color: #FFF;
+    text-align: center;
+    height: 33px;
+    white-space: nowrap;
+    display: none;
+}
+
+#shoppingcartbtn,
+#myaccountbtn,
+#mypresentbtn,
+#shoppingcartbtn-confirmed {
+    display: inline-block;
+    padding: 0;
+    margin: 0 8px;
+    font-size: 15px;
+    position: relative;
+}
+
+.small-buttons-container-mobile #shoppingcartbtn-mobile,
+.small-buttons-container-mobile #myaccountbtn-mobile,
+.small-buttons-container-mobile #mypresentbtn-mobile,
+.small-buttons-container-mobile #shoppingcartbtn-confirmed-mobile {
+    display: inline-block;
+    padding: 0;
+    margin: 0 5px;
+    font-size: 14px;
+    position: relative;
+    color: #FFF;
+}
+
+#mypresentbtn {
+    margin-right: 0;
+    padding-left: 33px;
+}
+
+img#gifticon {
+    width: 35px;
+    position: absolute;
+    top: -9px;
+    left: -5px;
+}
+
+img#gifticon-mobile {
+    width: 35px;
+    position: absolute;
+    top: -9px;
+    left: -5px;
+}
+
+div#navbar {
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+nav.navbar {
+    background-image: linear-gradient(to bottom, #282828 0%, #000 100%);
+    background-color: #000;
+    color: #FFF;
+    margin-bottom: 0;
+}
+
+.navbar .navbar-toggler,
+.navbar .navbar-toggler:hover,
+.navbar .navbar-toggler:focus {
+    background-color: #ddd
+}
+
+.navbar-light .navbar-nav .active>.nav-link,
+.navbar-light .navbar-nav .nav-link.active,
+.navbar-light .navbar-nav .nav-link.show,
+.navbar-light .navbar-nav .show>.nav-link {
+    background-color: #666;
+    background-image: linear-gradient(to bottom, #006a37 0%, #023f22 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#006a37', endColorstr='#023f22', GradientType=0);
+    color: #FFF;
+}
+
+ul.nav.navbar-nav {
+    width: 100%;
+}
+
+.nav>li {
+    padding: 0;
+}
+
+.navbar .navbar-nav .nav-item>a {
+    color: #FFF;
+    text-shadow: none;
+    padding-left: 25px;
+    padding-right: 25px;
+}
+
+.navbar .navbar-nav .nav-item>a:hover {
+    color: #CCC;
+}
+
+@media (max-width: 767px) {
+    nav.navbar {
+        display: block;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        left: 0;
+        z-index: 87;
+    }
+    a.logobox {
+        position: relative;
+        height: 50px;
+        z-index: 88;
+        margin: 0;
+        padding: 0;
+    }
+    img#site-logo {
+        position: fixed;
+        left: 16px;
+        top: 10px;
+        width: 102px;
+        height: auto;
+    }
+    div.small-buttons-container {
+        display: none;
+    }
+    div.small-buttons-container-mobile {
+        display: block;
+    }
+    div.small-buttons-container {
+        text-align: center;
+        top: 0px;
+        left: 0px;
+        padding: 25px 0;
+        width: auto;
+        margin-right: auto;
+    }
+    .container>.navbar-collapse,
+    .container-fluid>.navbar-collapse {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}

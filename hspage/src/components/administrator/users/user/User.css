@@ -1,0 +1,202 @@
+td {
+    background: #FFF9FF;
+    border-bottom-style: dotted;
+    border-width: 1px;
+    border-color: #CC6699;
+    padding: 3px;
+}
+
+.filterbtn {
+    display: inline-block;
+}
+
+a.modifybtn {
+    display: inline-block;
+    text-decoration: none;
+    color: #FFF;
+    padding: 1px 8px;
+    background-color: #CC6699;
+    border-radius: 4px;
+}
+
+a.modifybtn:hover {
+    color: #000;
+}
+
+h3.pagetitle {
+    text-align: center;
+}
+
+div#userinfobox {
+    text-align: center;
+}
+
+p#nameofuser {
+    font-size: 20px;
+}
+
+div.history {
+    max-width: 1380px;
+    text-align: center;
+    margin: 50px auto;
+    padding: 0;
+}
+
+li.dia-order-history {
+    text-align: left;
+    list-style: none;
+    background-color: #0CC;
+    padding: 15px;
+    margin: 5px 0;
+    position: relative;
+}
+
+.history-subseller li.dia-order-history {
+    background-color: #9CC;
+}
+
+span.jewelry-description,
+span.dia-description,
+span.jewelry-name,
+span.totalpricecrr,
+span.pointvalue {
+    display: inline-block;
+    padding: 3px 5px;
+    background-color: #FFF;
+}
+
+span.dia-description,
+span.jewelry-name {
+    background-color: #FFC;
+}
+
+span.totalpricecrr {
+    background-color: #CFF;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #C90;
+}
+
+span.orderedtime {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 12px;
+    color: #FFF;
+}
+
+span.pointvalue {
+    background-color: #C90;
+    color: #FFF;
+}
+
+span.notavailable {
+    background-color: #CCC;
+}
+
+span.paid {
+    background-color: #CF9;
+    color: #333;
+}
+
+button.pointnabtn,
+button.pointpaidbtn,
+button#totalpointpaidbtn {
+    padding: 5px 12px;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button.pointpaidbtn,
+button#totalpointpaidbtn {
+    background-color: #390;
+    color: #FFF;
+    border-color: #360;
+}
+
+button.pointnabtn {
+    background-color: #FCC;
+    color: #333;
+    border-color: #900;
+    margin-left: 55px;
+}
+
+button#totalpointpaidbtn {
+    font-size: 18px;
+    padding: 12px 50px;
+}
+
+div.userbybox {
+    position: relative;
+    text-align: center;
+    padding: 30px;
+    margin: 0 auto;
+    max-width: 588px;
+}
+
+.userbybox ul {
+    padding: 0;
+    margin: 0;
+}
+
+li.byuser {
+    list-style: none;
+    display: inline-block;
+    position: relative;
+    margin: 0 3px;
+    padding: 0;
+}
+
+.byuser>a {
+    display: inline-block;
+    position: relative;
+    padding: 2px 12px;
+    background-color: #090;
+    color: #FFF;
+}
+
+p.recommender {
+    margin-bottom: 15px;
+    font-size: 16px;
+    color: #666;
+}
+
+.recommender a {
+    font-size: 18px;
+    color: #090;
+}
+
+span#actionbtns {
+    display: inline-block;
+    width: 1px;
+    overflow: visible;
+    position: relative;
+    left: 12px;
+    white-space: nowrap;
+    font-size: 14px;
+    color: #090;
+}
+
+a#sendmessagtbtn {
+    display: inline-block;
+    width: auto;
+    position: relative;
+    left: 12px;
+    white-space: nowrap;
+    font-size: 14px;
+    color: #090;
+    /* mar */
+}
+
+a#manageuserbtn {
+    display: inline-block;
+    width: auto;
+    position: relative;
+    left: 12px;
+    white-space: nowrap;
+    font-size: 14px;
+    color: #06C;
+    margin-right: 18px;
+}

@@ -1,0 +1,178 @@
+br.clear {
+    display: block;
+    clear: both;
+    height: 0;
+}
+
+div.pageheader {
+    position: relative;
+    text-align: center;
+    padding-top: 35px;
+    background-color: #EEE;
+    margin: 0;
+}
+
+div.navibox {
+    z-index: 8;
+}
+
+img#logo {
+    position: absolute;
+    width: 88px;
+    left: 28px;
+    top: 38px;
+}
+
+.pageheader h3 {
+    font-size: 20px;
+    margin: 12px 0;
+}
+
+.navi li {
+    display: inline-block;
+    padding: 5px 12px;
+    margin: 5px;
+    background-color: #096;
+    color: #F00;
+}
+
+.navi li a {
+    color: #FFF;
+}
+
+li.contentnavi {
+    background-color: #CFC;
+    color: #060;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #060;
+}
+
+.navi li.contentnavi a {
+    color: #060;
+}
+
+div#maincontent {
+    text-align: center;
+}
+
+li.order {
+    display: block;
+    background-color: #c6e3e1;
+    margin: 20px;
+}
+
+span.dia-shape,
+span.stockref,
+span.pricedetail,
+span.dia-detail,
+span.dia-cut,
+span.dia-lab,
+span.userdetail,
+span.action {
+    display: block;
+}
+
+span.dia-detailbox1,
+span.dia-detailbox2,
+span.jewelry-detail,
+span.ordered_by,
+span.actionbox,
+span.jew-detailbox1,
+span.jew-detailbox2 {
+    display: block;
+    width: 180px;
+    margin: 5px;
+    text-align: center;
+    background-color: #FFF;
+    float: left;
+    padding: 20px;
+}
+
+span.dia-detailbox2 {
+    width: 128px;
+}
+
+span.actionbox {
+    width: 380px;
+    padding: 20px;
+    text-align: left;
+}
+
+.ordered_by label {
+    display: block;
+}
+
+span.jew-pic {
+    display: block;
+    width: 100px;
+    height: 100px;
+    position: relative;
+    background-position: center;
+    background-size: 100px auto;
+}
+
+div#notificationpad {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 0;
+    background-color: #F60;
+    padding-bottom: 5px;
+    padding-right: 128px;
+    text-align: right;
+    box-shadow: 0 0 5px #006600;
+}
+
+a#checkrequestbtn,
+a#newdia-orderbtn,
+a#newjew-orderbtn,
+a#newmessagebtn,
+a#neworderbtn {
+    position: relative;
+    display: inline-block;
+    padding: 3px 15px 5px 15px;
+    background-color: #FFC;
+    border-radius: 0 0 6px 6px;
+    border-bottom-style: solid;
+    border-left-style: solid;
+    border-right-style: solid;
+    border-width: 1px;
+    border-color: #060;
+    font-size: 14px;
+    color: #000;
+}
+
+span.newmessagenum {
+    font-size: 16px;
+    color: #900;
+    font-weight: bold;
+    display: inline-block;
+    padding: 1px 3px;
+    border-radius: 6px;
+    line-height: 14px;
+}
+
+.homepagenavi {
+    position: relative;
+}
+
+ul.subnavi-containner {
+    position: absolute;
+    max-width: 150px;
+    padding: 5px 0 0 0;
+    z-index: 8;
+    background-color: #CFF;
+    display: none;
+}
+
+li.homepagenavi.subnavi {
+    display: block;
+    text-align: left;
+}
+
+li.homepagenavi.subnavi a {
+    font-size: 14px;
+    color: #FFF;
+}

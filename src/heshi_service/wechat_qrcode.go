@@ -1,8 +1,11 @@
 package main
 
 import (
+	"fmt"
+	"heshi/errors"
 	"math"
 	"net/http"
+	"strconv"
 	"util"
 
 	"github.com/chanxuehong/rand"
@@ -22,9 +25,8 @@ import (
 // ⑥建立用户userid与微信用户openid的对应关系；
 // ⑦给用户的微信客户端推送“绑定成功”的提示；
 // ⑧通知前台页面，绑定已完成，刷新页面，并返回一些微信账户信息。完成绑定
-var sceneID int32
 
-type TempQrCode struct {
+type tempQrCode struct {
 	SceneID   int32  `json:"scene_id"`
 	QrCodeURL string `json:"qr_code_url"`
 }
@@ -32,7 +34,7 @@ type TempQrCode struct {
 func wechatQrCode(c *gin.Context) {
 	state := string(rand.NewHex())
 	s := sessions.Default(c)
-	s.Set(USER_SESSION_KEY, state)
+	s.Set(userSessionKey, state)
 	s.Save()
 	authURL := mpoauth2.AuthCodeURL(wxAppIDDebug, redirectURI, "snsapi_userinfo", state)
 	util.Println("qrcode AuthCodeURL:", authURL)
@@ -41,28 +43,40 @@ func wechatQrCode(c *gin.Context) {
 
 func wechatTempQrCode(c *gin.Context) {
 	// 临时二维码的scene_id为32位非0整型->是32位的二进制数，即最大值是2的32次方减1也就是4294967295
+	var sceneID int32
+	if c.Query("sceneID") == "" {
+		c.JSON(http.StatusBadRequest, "sceneID can not be empty")
+		return
+	}
+	sID, err := strconv.Atoi(c.Query("sceneID"))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	sceneID = int32(sID)
+
 	if sceneID > math.MaxInt32 || sceneID == 0 {
-		sceneID = sceneID + 1
-	} else {
-		sceneID = 1
+		c.JSON(http.StatusBadRequest, fmt.Sprintf("sceneID value: %d invalid", sceneID))
+		return
 	}
 
 	tempQRCode, err := qrcode.CreateTempQrcode(wechatClient, sceneID, 120)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
 	}
 
 	qrcodeURL := qrcode.QrcodePicURL(tempQRCode.Ticket)
-	t := TempQrCode{
+	t := tempQrCode{
 		SceneID:   sceneID,
 		QrCodeURL: qrcodeURL,
 	}
 	util.Printf("%v", t)
-	c.JSON(http.StatusOK, t)
+	c.JSON(http.StatusOK, t.QrCodeURL)
 }
 
 func wechatQrCodeStatus(c *gin.Context) {
-	sceneID := c.PostForm("scene_id")
+	sceneID := c.Query("sceneID")
 	openID, err := redisClient.Get(sceneID).Result()
 	if err == redis.Nil {
 		c.JSON(http.StatusOK, "")

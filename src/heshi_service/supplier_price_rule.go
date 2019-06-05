@@ -7,10 +7,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	uuid "github.com/satori/go.uuid"
 )
 
-type PriceSetting struct {
+type priceSetting struct {
 	ID              string  `json:"id"`
 	SupplierID      string  `json:"supplier_id"`
 	CaratFrom       float64 `json:"carat_from"`
@@ -32,17 +31,17 @@ type PriceSetting struct {
 }
 
 func addPriceRule(c *gin.Context) {
-	ps := PriceSetting{
+	ps := priceSetting{
 		SupplierID:      c.PostForm("supplier_id"),
 		CaratFromStr:    c.PostForm("carat_from"),
 		CaratToStr:      c.PostForm("carat_to"),
-		Colors:          FormatInputString(c.PostForm("color")),
-		Clarities:       FormatInputString(c.PostForm("clarity")),
-		CutGrades:       FormatInputString(c.PostForm("cut_grade")),
-		Symmetries:      FormatInputString(c.PostForm("symmetry")),
-		Polishs:         FormatInputString(c.PostForm("polish")),
-		Fluos:           FormatInputString(c.PostForm("fluo")),
-		GradingLabs:     FormatInputString(c.PostForm("grading_lab")),
+		Colors:          formatInputString(c.PostForm("color")),
+		Clarities:       formatInputString(c.PostForm("clarity")),
+		CutGrades:       formatInputString(c.PostForm("cut_grade")),
+		Symmetries:      formatInputString(c.PostForm("symmetry")),
+		Polishs:         formatInputString(c.PostForm("polish")),
+		Fluos:           formatInputString(c.PostForm("fluo")),
+		GradingLabs:     formatInputString(c.PostForm("grading_lab")),
 		TheParaValueStr: c.PostForm("the_para_value"),
 		PriorityStr:     c.PostForm("priority"),
 	}
@@ -54,10 +53,10 @@ func addPriceRule(c *gin.Context) {
 		c.JSON(http.StatusOK, vemsg)
 		return
 	}
-	ps.ID = uuid.NewV4().String()
+	ps.ID = newV4()
 	q := ps.composeInsertQuery()
 	if _, err := dbExec(q); err != nil {
-		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 
@@ -65,8 +64,17 @@ func addPriceRule(c *gin.Context) {
 }
 
 func updatePriceRule(c *gin.Context) {
-	s := PriceSetting{
-		ID:              c.Param("id"),
+	updatedBy := c.MustGet("id").(string)
+	pid := c.Param("id")
+	if exist, err := isSupplierPriceRuleExistByID(pid); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	} else if !exist {
+		c.JSON(http.StatusBadRequest, "price rule doesn't exist")
+		return
+	}
+	s := priceSetting{
+		ID:              pid,
 		CaratFromStr:    c.PostForm("carat_from"),
 		CaratToStr:      c.PostForm("carat_to"),
 		Colors:          c.PostForm("color"),
@@ -87,7 +95,7 @@ func updatePriceRule(c *gin.Context) {
 		c.JSON(http.StatusOK, vemsg)
 		return
 	}
-	q := s.composeUpdateQuery()
+	q := s.composeUpdateQueryTrack(updatedBy)
 	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
 		return
@@ -128,7 +136,7 @@ func getPriceRule(c *gin.Context) {
 
 func getAllPriceRule(c *gin.Context) {
 	q := selectPriceRulesQuery("")
-	rows, err := db.Query(q)
+	rows, err := dbQuery(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
@@ -153,18 +161,18 @@ func selectPriceRulesQuery(id string) string {
 	return q
 }
 
-func composePriceSetting(rows *sql.Rows) ([]PriceSetting, error) {
+func composePriceSetting(rows *sql.Rows) ([]priceSetting, error) {
 	var id, supplierID, color, clarity, cutGrade, symmetry, polish, fluo, gradingLab, status string
 	var caratFrom, caratTo, theParaValue float64
 	var priority int
 
-	var ps []PriceSetting
+	var ps []priceSetting
 	for rows.Next() {
 		if err := rows.Scan(&id, &supplierID, &caratFrom, &caratTo, &color, &clarity, &cutGrade, &symmetry,
 			&polish, &fluo, &gradingLab, &theParaValue, &priority, &status); err != nil {
 			return nil, err
 		}
-		p := PriceSetting{
+		p := priceSetting{
 			ID:           id,
 			SupplierID:   supplierID,
 			CaratFrom:    caratFrom,

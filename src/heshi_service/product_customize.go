@@ -13,7 +13,7 @@ import (
 
 func customizeProduct(c *gin.Context) {
 	action := c.Param("action")
-	switch action {
+	switch strings.ToLower(action) {
 	case "diasize":
 		customizeDiamondSize(c)
 	case "jewelrycategory":
@@ -41,8 +41,7 @@ func customizeDiamondSize(c *gin.Context) {
 		FROM diamonds 
 		WHERE shape='BR' 
 		AND price_retail <= '%f' 
-		AND status= 'AVAILABLE'
-		 AND ordered_by IS NULL 
+		AND status IN ('AVAILABLE', 'OFFLINE') 
 		 ORDER BY carat DESC LIMIT 1`, budget-60)
 	var carat float64
 	if err := dbQueryRow(q).Scan(&carat); err != nil {
@@ -74,8 +73,7 @@ func customizeJewelryCategory(c *gin.Context) {
 		FROM diamonds 
 		WHERE shape='BR' 
 		AND carat >= '%f' 
-		AND status= 'AVAILABLE'
-		 AND ordered_by IS NULL 
+		AND status IN ('AVAILABLE', 'OFFLINE') 
 		 ORDER BY price_retail DESC LIMIT 1`, diaSize)
 
 	var diamondRetailPrice float64
@@ -93,6 +91,7 @@ func customizeJewelryCategory(c *gin.Context) {
 	q = fmt.Sprintf(`SELECT DISTINCT category 
 	FROM jewelrys 
 	WHERE need_diamond='YES' 
+	AND status IN ('AVAILABLE', 'OFFLINE') 
 	AND price <= '%f' 
 	AND dia_size_min < '%f' 
 	AND dia_size_max > '%f'`, budgetJewelry, diaSize, diaSize)
@@ -102,6 +101,8 @@ func customizeJewelryCategory(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
+	defer rows.Close()
+
 	var categorys []string
 	for rows.Next() {
 		var category string
@@ -128,7 +129,7 @@ func customizeJewelryItems(c *gin.Context) {
 		return
 	}
 	category := c.PostForm("category")
-	if !util.IsInArrayString(category, VALID_CATEGORY) {
+	if !util.IsInArrayString(category, validCategory) {
 		c.JSON(http.StatusOK, vemsgUploadProductsCategoryNotValid)
 		return
 	}
@@ -137,8 +138,7 @@ func customizeJewelryItems(c *gin.Context) {
 		FROM diamonds 
 		WHERE shape='BR' 
 		AND carat >= '%f' 
-		AND status= 'AVAILABLE'
-		 AND ordered_by IS NULL 
+		AND status IN ('AVAILABLE', 'OFFLINE') 
 		 ORDER BY price_retail DESC LIMIT 1`, diaSize)
 
 	var diamondRetailPrice float64
@@ -153,13 +153,15 @@ func customizeJewelryItems(c *gin.Context) {
 	}
 	//DollarToEuro
 	budgetJewelry := budget - diamondRetailPrice
-	q = fmt.Sprintf(`SELECT id, stock_id, category, unit_number, dia_shape, material, metal_weight, need_diamond, name, 
-	 dia_size_min, dia_size_max, small_dias, small_dia_num, small_dia_carat, mounting_type, main_dia_num, main_dia_size, 
-	 video_link, text, online, verified, in_stock, featured, price, stock_quantity, profitable,
-	 totally_scanned, free_acc, last_scan_at,offline_at 
+	q = fmt.Sprintf(`SELECT jewelrys.id, stock_id, category, unit_number, dia_shape, material, metal_weight, 
+		need_diamond, name, dia_size_min, dia_size_max, small_dias, small_dia_num, small_dia_carat, 
+	 mounting_type, main_dia_num, main_dia_size, video_link, text, jewelrys.status, verified, 
+	 featured, price, stock_quantity, profitable, totally_scanned, free_acc, last_scan_at,offline_at,
+	 promotions.id, prom_type, prom_discount, prom_price, begin_at, end_at, promotions.status 
 	FROM jewelrys 
-	WHERE need_diamond='YES'
-	AND online = "YES" 
+	LEFT JOIN promotions ON jewelrys.promotion_id=promotions.id 
+	WHERE need_diamond='YES' 
+	AND jewelrys.status IN ('AVAILABLE', 'OFFLINE') 
 	AND category = '%s'
 	AND price <= '%f' 
 	AND dia_size_min < '%f' 
@@ -170,6 +172,7 @@ func customizeJewelryItems(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
+	defer rows.Close()
 	//TODO price - > agent price, customer price base on level
 	// 	require_once('../../_includes/functions/currency_calculator.php');
 	// require_once('../../_includes/functions/accountprice.php');
@@ -223,7 +226,7 @@ func customizeJewelryDiamondsQualityFirst(c *gin.Context) {
 		diaSizeMin = diaSize - 0.3
 	}
 
-	clarityFields := strings.Join(VALID_CLARITY, "','")
+	clarityFields := strings.Join(validClarity, "','")
 	//DollarToEuro round(EuroToDollar($budget-priceforaccount_jewelry($accountlevel, $jew_price))*1.02)
 	budgetDiamond := budget - price
 	if category != "EARRING" {
@@ -239,8 +242,7 @@ func customizeJewelryDiamondsQualityFirst(c *gin.Context) {
 		AND fluorescence_intensity = 'NONE' 
 		AND (grading_lab = 'HRD' OR grading_lab = 'IGI' OR grading_lab='GIA') 
 		AND price_retail <= '%f' 
-		AND status = 'AVAILABLE' 
-		AND ordered_by IS NULL 
+		AND status IN ('AVAILABLE', 'OFFLINE') 
 		ORDER BY color ASC, Field(clarity, %s) ASC, price_retail DESC LIMIT 2`,
 			strings.Join(ss, "OR"), diaSizeMin, diaSizeMax, budgetDiamond, clarityFields)
 		fmt.Println(q)
@@ -257,8 +259,7 @@ func customizeJewelryDiamondsQualityFirst(c *gin.Context) {
 		AND fluorescence_intensity = "NONE" 
 		AND (grading_lab = "HRD" OR grading_lab = "IGI" OR grading_lab="GIA") 
 		AND price_retail <= '%f' 
-		AND status = "AVAILABLE" 
-		AND ordered_by IS NULL 
+		AND status IN ('AVAILABLE', 'OFFLINE') 
 		GROUP BY carat 
 		ORDER BY color ASC, Field(clarity, %s) ASC, price_retail DESC LIMIT 200`,
 			strings.Join(ss, "OR"), diaSizeMin, diaSizeMax, budgetDiamond, clarityFields)
@@ -268,6 +269,8 @@ func customizeJewelryDiamondsQualityFirst(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
+		defer rows.Close()
+
 		caratSameNumber := make(map[float64]int)
 		for rows.Next() {
 			var caratSize float64
@@ -296,8 +299,7 @@ func customizeJewelryDiamondsQualityFirst(c *gin.Context) {
 				AND fluorescence_intensity = 'NONE' 
 				AND (grading_lab = 'HRD' OR grading_lab = 'IGI' OR grading_lab='GIA') 
 				AND price_retail <= '%f' 
-				AND status = 'AVAILABLE' 
-				AND ordered_by IS NULL 
+				AND status IN ('AVAILABLE', 'OFFLINE') 
 				ORDER BY color ASC, Field(clarity, %s) ASC, price_retail DESC LIMIT 2`,
 				strings.Join(ss, "OR"), caratSize-0.01, caratSize+0.01, budgetDiamond, clarityFields)
 
@@ -306,6 +308,8 @@ func customizeJewelryDiamondsQualityFirst(c *gin.Context) {
 				c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 				return
 			}
+			defer rows.Close()
+
 			ds, err := composeDiamond(rows)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
@@ -368,8 +372,7 @@ func customizeJewelryDiamondsMaxCarat(c *gin.Context) {
 		AND fluorescence_intensity = 'NONE' 
 		AND (grading_lab = 'HRD' OR grading_lab = 'IGI' OR grading_lab='GIA') 
 		AND price_retail <= '%f' 
-		AND status = 'AVAILABLE' 
-		AND ordered_by IS NULL 
+		AND status IN ('AVAILABLE', 'OFFLINE') 
 		ORDER BY carat DESC LIMIT 2`,
 			strings.Join(ss, "OR"), diaSizeMin, diaSizeMax, budgetDiamond)
 		fmt.Println(q)
@@ -386,8 +389,7 @@ func customizeJewelryDiamondsMaxCarat(c *gin.Context) {
 		AND fluorescence_intensity = "NONE" 
 		AND (grading_lab = "HRD" OR grading_lab = "IGI" OR grading_lab="GIA") 
 		AND price_retail <= '%f' 
-		AND status = "AVAILABLE" 
-		AND ordered_by IS NULL 
+		AND status IN ('AVAILABLE', 'OFFLINE') 
 		GROUP BY carat 
 		ORDER BY carat DESC LIMIT 200`,
 			strings.Join(ss, "OR"), diaSizeMin, diaSizeMax, budgetDiamond)
@@ -397,6 +399,8 @@ func customizeJewelryDiamondsMaxCarat(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
+		defer rows.Close()
+
 		caratSameNumber := make(map[float64]int)
 		for rows.Next() {
 			var caratSize float64
@@ -425,8 +429,7 @@ func customizeJewelryDiamondsMaxCarat(c *gin.Context) {
 				AND fluorescence_intensity = 'NONE' 
 				AND (grading_lab = 'HRD' OR grading_lab = 'IGI' OR grading_lab='GIA') 
 				AND price_retail <= '%f' 
-				AND status = 'AVAILABLE' 
-				AND ordered_by IS NULL 
+				AND status IN ('AVAILABLE', 'OFFLINE') 
 				ORDER BY price_retail ASC LIMIT 2`,
 				strings.Join(ss, "OR"), caratSize-0.01, caratSize+0.01, budgetDiamond)
 
@@ -435,6 +438,7 @@ func customizeJewelryDiamondsMaxCarat(c *gin.Context) {
 				c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 				return
 			}
+			defer rows.Close()
 			ds, err := composeDiamond(rows)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, errors.GetMessage(err))

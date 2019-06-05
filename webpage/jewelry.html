@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+	<head>
+		<title>BEYOU DIAMOND|合适钻石</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+		<meta content="安特卫普钻石,比利时钻石" name="keywords">
+		<meta content="合适钻石立足于比利时安特卫普钻石交易所，以最为实惠的价格和最优质的服务，为您提供最适合您的钻石和首饰。华人购买钻石的理想选择，无与伦比的性价比，值得信赖的品质" name="description">
+		<meta name="keywords"   content="BEYOU DIAMOND,比利时钻石, 安特卫普钻石, 合适钻石" />
+		<meta name="description"    content="BEYOU DIAMOND,比利时钻石, 安特卫普钻石, 合适钻石"/>
+		<meta name="author" content="Maggie Ma @2018">
+		<link rel="icon" href="pic/favicon.ico">
+		<link rel="stylesheet" href="css/bootstrap.css">
+		<link rel="stylesheet" href="css/bootstrap.min.css">
+		<link rel="stylesheet" href="css/bootstrap-theme.css">
+		<link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/pageshare.css">
+    <link rel="stylesheet" href="css/product.css">
+    <script async="" src="./js/analytics.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+    <script src="js/bootstrap.js"></script>
+    <script src="js/restrequest.js"></script>
+    <script>
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+		ga('create', 'UA-72076137-1', 'auto');
+		ga('send', 'pageview');
+
+		</script>
+    </head>
+    <body onload="getproductsList('jewelrys')">
+        <div class="navbar-wrapper">
+          <div class="container">
+                <a class="logobox" href=""><img id="site-logo" alt="比利时钻石" src="./pic/beyoudiamond-logo.png"></a>
+          
+                <div class="small-buttons-container">
+                    <a id="shoppingcartbtn" href="">
+                  <span class="glyphicon glyphicon-heart" aria-hidden="true"></span> 我的收藏 
+                  <span id="num-shoppinglist-container" style="display:none;"><span id="num-shoppinglist">0</span></span></a>
+                <a id="myaccountbtn" href="login.html"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>登录 | 注册</a>
+               </div>
+              
+                <div class="small-buttons-container-mobile">
+                    <a id="shoppingcartbtn-mobile" href="shoppinglist.html">
+                  <span class="glyphicon glyphicon-heart" aria-hidden="true"></span> 收藏 
+                  <span id="num-shoppinglist-container-mobile" style="display:none;"><span id="num-shoppinglist-mobile">0</span></span>      </a>
+                    <a id="myaccountbtn-mobile" href="login.html"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>登录 | 注册</a>
+                    <br>
+                </div>
+    
+            
+                <nav class="navbar navbar-default navbar-static-top">
+                  <div class="container">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        </button>
+                        <!-- <a class="navbar-brand" href="#"></a> -->
+                    </div>
+                        <div id="navbar" class="collapse navbar-collapse">
+                            <ul class="nav navbar-nav">
+                                <li><a href="home.html"><span class="glyphicon glyphicon-home"></span> 首页</a></li>
+                                <li><a href="diamond.html">钻石</a></li>
+                                <li><a href="assdiamond.html">空托</a></li>
+                                <li><a href="jewelry.html">首饰</a></li>
+                                <li><a href="colordiamond.html">彩宝</a></li>
+                                <li><a href="custjewelry.html">定制</a></li>
+                                <li id="appobtnbox"><a href="">在线预约</a></li>
+                                <li id="contactbtnbox"><a href="">联系我们</a></li>
+                                <li id="brandstorybtnbox"><a href="">关于我们</a></li>       
+                            </ul>
+                        </div>
+                  </div>
+                </nav>
+            </div> 
+          </div>
+        </div>
+            <!-- nav end -->
+            <div class="contentmainwrapper">
+                <h2 class="pagetitle">合适首饰</h2>
+                
+                <div class="mountingorcompletebox" style="display:none;">
+                <a href="jewelry.html?class=complete" class="jew_class_btn jew_complete crr_class" id="jew-complete-btn">成品首饰</a>
+                <a href="jewelry.html?class=mounting" class="jew_class_btn jew_mounting" id="jew-mounting-btn">空托</a>
+                <a href="jewelry-custom.html" class="jew_class_btn jew_mounting" id="jew-diy-btn">自选定制</a>
+                </div>
+                
+                <div class="category-filterbox filter_complete">
+                <h6 class="titleofjewfilter">
+                成品首饰
+                <form id="searchbyrefform" method="get" action="">
+                <input onchange="getproductbyID('jewelrys')" type="text" id="searchref" name="searchref" autocomplete='off' placeholder="首饰编号"/>
+                </form>
+                
+                </h6>
+                <ul class="categoryfilter">
+                <li class="pendant cate">
+                <button onclick="getproductsbyCategory('jewelrys', 1)" class="changeJewCateBTN">吊坠</button>
+                </li>
+                <li class="ring cate">
+                <button onclick="getproductsbyCategory('jewelrys', 2)" class="changeJewCateBTN">戒指</button>
+                </li>
+                <li class="earring cate">
+                <button onclick="getproductsbyCategory('jewelrys', 3)" class="changeJewCateBTN">耳环&耳钉</button>
+                </li>
+                <li class="bracelet cate">
+                <button onclick="getproductsbyCategory('jewelrys', 9)" class="changeJewCateBTN">手链</button>
+                </li>
+                <li class="necklace cate">
+                <button onclick="getproductsbyCategory('jewelrys', 5)" class="changeJewCateBTN">项链</button>
+                </li>
+                </ul>
+                 <!-- update filter value after comfirm with season -->
+                <p class="jew-filter-box">
+                <select id="materialselection" class="filterselection" name="materialselection" onchange="getproductsJbyfilter('jewelrys')">
+                  <option value="NONE">材质:</option>
+                  <option value="GOLD">黄金</option>
+                  <option value="COLORED_GOLD">白金</option>
+                  <option value="PT">铂金</option>
+                  <option value="ROSE_GOLD">玫瑰金</option>
+                </select>
+                
+                <select id="priceselection" class="filterselection" name="priceselection" onchange="getproductsJbyfilter('jewelrys')">
+                  <option value="NONE">价位:</option>
+                  <option value="300">300欧元以内</option>
+                  <option value="500">300-500欧元</option>
+                  <option value="800">500-800欧元</option>
+                  <option value="1000">800-1000欧元</option>
+                  <option value="1500">1000欧元以上</option>
+                </select>
+                
+                <select id="mountingtypeselection" class="filterselection" name="mountingtypeselection" onchange="getproductsJbyfilter('jewelrys')">
+                  <option value="NONE">镶嵌款式:</option>
+                  <option value="3NODE">三爪</option>
+                  <option value="4NODE">四爪</option>
+                  <option value="6NODE">六爪</option>
+                  <option value="SURROUND">包镶</option>
+                  <option value="SPECIAL">独特</option>
+                </select>
+                
+                
+                <select id="diashapeselection" class="filterselection" name="diashapeselection" onchange="getproductsJbyfilter('jewelrys')" >
+                  <option value="NONE">主钻形状:</option>
+                  <option value="BR">圆形</option>
+                  <option value="PS">梨形</option>
+                  <option value="PR">公主方</option>
+                  <option value="HS">心形</option>
+                  <option value="MQ">橄榄形</option>
+                  <option value="OV">椭圆形</option>
+                  <option value="EM">祖母绿</option>
+                  <option value="RAD">雷蒂恩</option>
+                  <option value="CU">枕形</option>
+                  <option value="NON">无主钻</option>  
+                </select>
+                
+                
+                <select id="smalldiaschoiceselection" class="filterselection" name="smalldiaschoiceselection" onchange="getproductsJbyfilter('jewelrys')" >
+                  <option value="NONE">是否镶碎钻:</option>
+                  <option value="YES">镶碎钻</option>
+                  <option value="NO">素金不镶碎钻</option>
+                </select>
+                </p>
+          
+                <div id="dia-size-picker-box">
+      
+                <form method="get" action="" id="jewfilterform">
+                <input type="hidden" name="class" value="complete" />
+                <input type="hidden" name="category" id="jew_category" value="" />
+                <input type="hidden" name="size" id="dia_size" value="" />
+                <input type="hidden" name="material" id="jew_material" value="" />
+                <input type="hidden" name="price" id="jew_price" value="" />
+                <input type="hidden" name="mounting_type" id="mounting_type" value="" />
+                <input type="hidden" name="sds" id="sds" value="" />
+                <input type="hidden" name="diashape" id="diashape" value="" />
+                <input type="hidden" name="crrpage" id="crrpage" value="" />
+                </form>
+                </div> 
+              </div>
+            <div id="productsList" class="jewelry-container-box">
+            </div> 
+            <br class="clear">         
+          </div>
+            <!-- FOOTER -->
+            <div id="loadingcover">
+            <span id="loadingindicontainer">
+            <img id="loadingindiicon" src="./pic/loading-icon.gif">
+            <span id="loadingtxt">载入中...</span>
+              </span>
+              </div>
+              
+              
+              
+              <div id="bottom-infobloc" class="bottom-infobloc">
+              <div id="bottom-infobloc-inner" class="bottom-infobloc-inner">
+              <div id="why_heshi_box">
+              <span class="whyquestion">为何选择合适钻石?</span>
+              <span class="whyanswer"><span class="glyphicon glyphicon-check"></span> 性价比绝对优势</span>
+              <span class="whyanswer"><span class="glyphicon glyphicon-check"></span> 安特卫普手工品质</span>
+              <span class="whyanswer"><span class="glyphicon glyphicon-check"></span> 三年内可退可换</span>
+              <span class="whyanswer"><span class="glyphicon glyphicon-check"></span> 全球保险包邮</span>
+              </div>
+              
+              
+              <div class="blocksmall1"><img class="bottomlogo" src="./pic/beyoudiamondlogo.png" alt="比利时钻石">
+              <p style="font-size:10px; margin-top:8px;"><a href="">比利时钻石</a> <a href="">安特卫普钻石</a></p>
+              </div>
+              
+              
+              <div class="blocksmall2">
+              <h4><a href="">客服中心</a></h4>
+              <p><a href="">钻石知识</a></p>
+              <p><a href="">购买指南</a></p>
+              <p><a href="">常见问题</a></p>
+              </div>
+              
+              <div class="blocksmall3">
+              <h4>欢迎来访</h4>
+              <p>
+              Hovennierstraat 2, 1202室<br>
+              2018 Antwerpen (比利时安特卫普)<br><br>
+              </p>
+              
+              
+              <h4>咨询热线</h4>
+              <p>
+              电话：+32 (0)485 939 508<br>
+              </p>
+              </div>
+              
+              <div class="blocksmall4">
+            
+              <p class="qrcodebox"><img style="width:108px;" src="./pic/WechatIMG299.jpg" alt="安特卫普钻石"><br><span>客服微信</span></p>
+              <p class="qrcodebox"><img style="width:108px;" src="./pic/qrcode.jpg" alt="安特卫普钻石"><br><span>微信公众号</span></p>
+              </div>
+              
+              <br class="clear">
+              </div>
+              </div>
+              
+              
+              <a class="livechatlinker" href="">
+              <span class="messagebtntxt new-0">联系客服
+              <!--
+              <span id="newmessagenumindi-normal-btn" class="m-n-0">0</span>
+              -->
+              </span>  
+              
+              <span class="livechatlinkertxt-smallversion">
+              <span class="glyphicon glyphicon-comment"></span>  <span class="livechatlinkertxt-smallversion-txt">在线咨询</span>
+              </span>
+              </a>
+              
+              
+              
+              <footer>
+                <p class="pull-right"><a href="#">Back to top</a></p>
+                <p>© 2017 合适钻石 | BEYOU DIAMOND . <strong>比利时</strong> <strong>安特卫普</strong> All rights reserved <!-- &middot; --></p>
+              </footer>
+              
+              <script type="text/javascript">
+              /*! * IE10 viewport hack for Surface/desktop Windows 8 bug * Copyright 2014-2015 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE) */
+              (function () {
+                'use strict';
+              
+                if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
+                  var msViewportStyle = document.createElement('style')
+                  msViewportStyle.appendChild(
+                    document.createTextNode(
+                      '@-ms-viewport{width:auto!important}'
+                    )
+                  )
+                  document.querySelector('head').appendChild(msViewportStyle)
+                }
+              
+              })();
+              </script>
+              
+              <script type="text/javascript" src="./js/retrieve-newmessage-num.js"></script>
+    
+  </body>
+</html>

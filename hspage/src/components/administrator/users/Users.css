@@ -1,0 +1,430 @@
+br.clear {
+    clear: both;
+}
+
+h3.pagetitle {
+    text-align: center;
+}
+
+td {
+    background: #FFF9FF;
+    border-bottom-style: dotted;
+    border-width: 1px;
+    border-color: #CC6699;
+    padding: 3px;
+}
+
+.filterbtn {
+    display: inline-block;
+}
+
+a.modifybtn {
+    display: inline-block;
+    text-decoration: none;
+    color: #FFF;
+    padding: 1px 8px;
+    background-color: #CC6699;
+    border-radius: 4px;
+}
+
+a.modifybtn:hover {
+    color: #000;
+}
+
+#searchuserform {
+    text-align: center;
+}
+
+div.usersfilter {
+    text-align: center;
+    padding: 15px 0 30px 0;
+}
+
+a.filterbtn {
+    display: inline-block;
+    padding: 5px 20px;
+    background-color: #9C6;
+    color: #000;
+}
+
+ul {
+    padding: 0;
+}
+
+li.user-record {
+    list-style: none;
+    background-color: #9CC;
+    padding: 12px 20px;
+    margin: 8px auto;
+    width: 1280px;
+    height: auto;
+    overflow: hidden;
+    position: relative;
+    display: inline-block;
+    -webkit-transition: 1s ease-in-out;
+    transition: 1s ease-in-out;
+}
+
+li.agent {
+    background-color: #6C9;
+}
+
+div.userdetail-col1,
+div.userdetail-col2,
+div.userdetail-col3,
+div.userdetail-col4,
+div.userdetail-action {
+    width: 200px;
+    float: left;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 5px;
+    margin: 0 5px;
+}
+
+div.userdetail-col1,
+div.userdetail-col2 {
+    min-width: 188px;
+}
+
+div.userdetail-col3 {
+    width: 228px;
+}
+
+.userdetail-col3 span {
+    display: block;
+    padding: 0;
+}
+
+.userdetail-col1 span,
+.userdetail-col2 span {
+    display: inline-block;
+    width: 100%;
+}
+
+h4.realname {
+    padding: 2px;
+    font-size: 24px;
+    background-color: #CFF;
+}
+
+.regitime label {
+    font-size: 10px;
+}
+
+span.email,
+span.address {
+    display: inline-block;
+    width: 100%;
+}
+
+div.userdetail-action {
+    width: 268px;
+    padding: 8px 5px;
+    white-space: nowrap;
+    text-align: left;
+}
+
+.userdetail-action p {
+    padding: 5px;
+    margin: 2px;
+}
+
+select.pointasrecommender,
+select.assigned_account_level {
+    font-size: 16px;
+}
+
+div.action2,
+div.action3 {
+    padding: 15px 0;
+    background-color: transparent;
+    text-align: left;
+    width: 138px;
+}
+
+div.action3 {
+    white-space: normal;
+}
+
+.userdetail-action input {
+    width: 58px;
+}
+
+button.assignuserlevelbtn,
+button.assignresellerbtn,
+.action3 a,
+button.resignresellerbtn,
+button.agent_level_btn {
+    background-color: #063;
+    color: #FFF;
+    padding: 3px 15px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #030;
+    border-radius: 6px;
+}
+
+button.resignresellerbtn {
+    background-color: #FCC;
+    color: #000;
+    border-color: #C30;
+}
+
+button.assignresellerbtn,
+button.agent_level_btn {
+    background-color: #6C3;
+    color: #fff;
+}
+
+.action3 a.historybtn {
+    display: inline-block;
+    background-color: #FC3;
+    color: #060;
+    padding: 8px 20px;
+    margin-top: -5px;
+}
+
+.action3 a.heshibibtn,
+.action3 a.discountticketbtn {
+    display: inline-block;
+    background-color: #CFC;
+    color: #060;
+    padding: 3px 15px;
+    margin-top: 8px;
+}
+
+.action3 a.discountticketbtn {
+    background-color: #FCC;
+    color: #930;
+    border-color: #930;
+}
+
+span.nopointtoreturn {
+    display: inline-block;
+    padding: 2px 5px;
+    background-color: #CFC;
+}
+
+span.newpointtoreturn {
+    display: inline-block;
+    padding: 2px 5px;
+    background-color: #FFC;
+    color: #C00;
+    width: auto;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #C00;
+}
+
+span.newpointtoreturn span {
+    display: inline-block;
+}
+
+span.newpointnote {
+    color: #C00;
+}
+
+div.agent-contact-info-box {
+    display: block;
+    clear: both;
+    margin: 5px 15px;
+    padding: 10px;
+    background-color: #CF6;
+}
+
+.agent-contact-info-box h4 {
+    padding-top: 0;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+input.image_selecting {
+    display: block;
+    margin-top: 15px;
+}
+
+form.uploadImage {
+    display: block;
+    width: 230px;
+    background-color: #FFF;
+    padding: 20px;
+    overflow: hidden;
+    float: left;
+}
+
+div.agentinfoboxinner {
+    width: 380px;
+    padding: 20px;
+    float: left;
+    background-color: #FFF;
+    margin-left: 20px;
+}
+
+.levelinputbox {
+    font-size: 14px;
+    padding: 8px;
+    background-color: #CFC;
+    width: 458px;
+    position: relative;
+    text-align: left;
+}
+
+.levelinputbox input {
+    width: 50px;
+}
+
+input.agentlevellocked {
+    width: 20px;
+}
+
+span.agentlevellockedindiwords {
+    color: #090;
+}
+
+.agentlevellockedindiwords span.glyphicon.glyphicon-lock {
+    color: #C00;
+}
+
+span.pointchanged_inid,
+span.userlevelchanged_inid,
+span.agentlevelsetindi,
+span.referenceprice_indi,
+span.referencepriceratio_indi {
+    display: none;
+    color: #090;
+}
+
+#userlist {
+    text-align: center;
+}
+
+/*
+div.userdetail-col2, div.userdetail-col3, div.userdetail-col4, div.userdetail-action, div.agent-contact-info-box{
+	display:none;
+	-webkit-transition: 0.2s ease-in-out;
+  transition: 0.2s ease-in-out;
+	position:relative;
+}
+
+.active div.userdetail-col2, .active div.userdetail-col3, .active div.userdetail-col4, .active div.userdetail-action, .active div.agent-contact-info-box{
+	display:block;
+}
+li.active{
+	border-style:solid;
+	border-width:3px;
+	border-color:#FC0;
+	background-color:#C90;
+	width:1280px;
+	height:auto;
+}
+*/
+
+button.detailbtn {
+    position: relative;
+    margin-left: 0;
+    background-color: #01934d;
+    color: #FFF;
+    border-style: none;
+    border-radius: 6px;
+    padding: 2px 12px;
+    margin: 5px 0 0 5px;
+}
+
+span.regitime {
+    font-size: 12px;
+}
+
+.agentleveloption {
+    font-size: 16px;
+}
+
+p.totalnumbox {
+    text-align: center;
+    font-size: 18px;
+    margin: 25px 0 12px 0;
+    color: #960;
+}
+
+span.user-account-status {
+    font-size: 14px;
+    font-weight: normal;
+    color: #555;
+    display: inline-block;
+    width: 100%;
+    margin-top: 8px;
+}
+
+.user-account-status a {
+    font-size: 16px;
+    color: #060;
+}
+
+a.detaillinker {
+    font-size: 20px;
+    color: #030;
+}
+
+a.addhistorybtn {
+    display: inline-block;
+    padding: 1px 5px;
+    background-color: #FC3;
+    color: #030;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #030;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+img.usericon {
+    height: 52px;
+    display: inline-block;
+}
+
+span.wechatname {
+    color: #666;
+    font-size: 12px;
+}
+
+p.rrbox {
+    color: #000;
+    background-color: #EEE;
+}
+
+p.rrbox.disabled {
+    color: #999;
+    background-color: #EEE;
+}
+
+.progress {
+    position: relative;
+    width: 260px;
+    border: 1px solid #AAA;
+    padding: 1px;
+    border-radius: 3px;
+    margin: 12px 0px;
+    display: none;
+}
+
+.bar {
+    background-color: #CCC;
+    width: 0%;
+    height: 13px;
+    border-radius: 3px;
+    background-image: url(../../_0_image_elements/animated-overlay.gif);
+}
+
+.percent {
+    position: absolute;
+    display: inline-block;
+    top: 3px;
+    left: 48%;
+    font-size: 10px;
+    display: none;
+}
+
+#footer {
+    margin: 30px auto;
+}

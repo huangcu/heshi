@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"heshi/errors"
 	"net/http"
 	"util"
 
@@ -32,24 +33,28 @@ import (
 const (
 	// 	wxAppID          = "wx7147ea39c1a30036"               //wx02b69905483c2df2
 	// 	wxAppSecret      = "ba9e572ca65c6000c70cdb159254e32c" //wx02b69905483c2df2&secret=029248abec380aaab05b95edf58681bd
+	wxAppAccount     = "gh_5bd700510a86"
 	wxAppIDDebug     = "wxa6c9fc631124397a"
 	wxAppSecretDebug = "ad23b9ed5679d5be74f69db6875dcd7f"
 
-	wxOriID         = "oriid"
-	wxToken         = "token"
-	wxEncodedAESKey = "aeskey"
+	wxOriID           = "oriid"
+	wxToken           = "token"
+	wxEncodedAESKey   = "aeskey"
+	cdataStartLiteral = "<![CDATA["
+	cdataEndLiteral   = "]]>"
 )
 
 var (
-	redirectURI                              = "http://44c4412e.ngrok.io/api/wechat/token"
-	redirectLogin                            = "http://44c4412e.ngrok.io/webpage/login.html"
+	serverURI                                = "http://cee8c7f5.ngrok.io"
+	redirectURI                              = serverURI + "/api/wechat/token"
+	redirectLogin                            = serverURI + "/webpage/login.html"
 	endPoint                                 = mpoauth2.NewEndpoint(wxAppIDDebug, wxAppSecretDebug) //*mpoauth2.Endpoint
 	accessTokenServer core.AccessTokenServer = core.NewDefaultAccessTokenServer(wxAppIDDebug, wxAppSecretDebug, nil)
 	wechatClient                             = core.NewClient(accessTokenServer, nil) //*core.Client
 )
 
 // ec2-52-221-233-143.ap-southeast-1.compute.amazonaws.com
-// https://open.weixin.qq.com/connect/outh2/authorize?appid=wxa6c9fc631124397a&redirect_uri=https://ec2-52-221-255-156.ap-southeast-1.compute.amazonaws.com/api/wechat/token&response_type=code&scope=snsapi_base#wechat_redirect
+// https://open.weixin.qq.com/connect/outh2/authorize?appid=wxa6c9fc631124397a&redirect_uri=http://cee8c7f5.ngrok.io/api/wechat/token&response_type=code&scope=snsapi_base#wechat_redirect
 // $auth_url='https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx02b69905483c2df2
 // &redirect_uri='.urlencode("http://www.beyoudiamond.com/authreceiver.php").
 // '&response_type=code&scope=snsapi_base#wechat_redirect';
@@ -62,10 +67,10 @@ var (
 func wechatAuth(c *gin.Context) {
 	state := string(rand.NewHex())
 	s := sessions.Default(c)
-	s.Set(USER_SESSION_KEY, state)
+	s.Set(userSessionKey, state)
 	s.Save()
 	authURL := mpoauth2.AuthCodeURL(wxAppIDDebug, redirectURI, "snsapi_userinfo", state)
-	util.Println("AuthCodeURL:", authURL)
+	util.Traceln("AuthCodeURL:", authURL)
 	c.Redirect(http.StatusFound, authURL)
 }
 
@@ -87,7 +92,7 @@ func wechatToken(c *gin.Context) {
 	}
 
 	s := sessions.Default(c)
-	savedState := s.Get(USER_SESSION_KEY)
+	savedState := s.Get(userSessionKey)
 	if savedState != queryState {
 		str := fmt.Sprintf("state 不匹配, session 中的为 %q, url 传递过来的是 %q", savedState, queryState)
 		util.Println(str)
@@ -104,33 +109,34 @@ func wechatToken(c *gin.Context) {
 
 	if err != nil {
 		util.Println("error to get access token", err)
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	util.Printf("token: %+v\r\n", token)
 	exist, err := isWechatUserExist(token.OpenId)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	if !exist {
 		// https://api.weixin.qq.com/sns/userinfo?access_token=ACCESS_TOKEN&openid=OPENID
 		userinfo, err := mpoauth2.GetUserInfo(token.AccessToken, token.OpenId, "", nil)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, err.Error())
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 
-		wu := WechatUserInfo{userinfo}
+		wu := wechatUserInfo{userinfo}
 		if err := wu.newWechatUser(); err != nil {
-			c.JSON(http.StatusInternalServerError, err.Error())
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 		util.Printf("userinfo: %+v\r\n", userinfo)
 	}
-	s.Set(USER_SESSION_KEY, token.OpenId)
-	util.Println("redirect to login page " + redirectLogin)
-	c.Redirect(http.StatusFound, redirectLogin)
+	s.Set(userSessionKey, token.OpenId)
+	s.Save()
+	util.Println("redirect to home page: http://localhost:8081")
+	c.Redirect(http.StatusFound, "http://localhost:8081")
 }
 
 // subscribe	用户是否订阅该公众号标识，值为0时，代表此用户没有关注该公众号，拉取不到其余信息。

@@ -1,0 +1,638 @@
+body {}
+
+div.contentmainwrapper {
+    position: relative;
+    text-align: center;
+    max-width: 980px;
+    margin: 58px auto;
+}
+
+.pricebox {
+    margin-bottom: 35px;
+}
+
+img.jewelry-img {
+    display: block;
+    max-width: 588px;
+    max-height: 800px;
+    height: auto;
+    margin: 12px auto;
+    border-style: solid;
+    border-width: 15px;
+    border-color: #c6e3e1;
+    padding: 28px;
+    background-color: #FFF;
+}
+
+div.jewelry-pics {
+    position: relative;
+}
+
+p.choosebtnbox,
+div.choosebtnbox {
+    margin: 58px 0 25px 0;
+}
+
+a.choosebtn,
+button.choosebtn {
+    display: inline-block;
+    font-size: 20px;
+    padding: 8px 18px;
+    background-color: #01934d;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 8px;
+    color: #fff;
+    border-color: #01934d;
+}
+
+a.choosebtn:hover,
+button.choosebtn:hover {
+    text-decoration: none;
+    color: #FFF;
+    background-color: #01934d;
+}
+
+p.gobackbtnbox {
+    margin: 55px 0 88px 0;
+}
+
+span.gobackindisign {
+    font-size: 20px;
+    color: #999;
+    position: relative;
+    left: -10px;
+}
+
+a.gobackbtn {
+    display: inline-block;
+    padding: 12px;
+    font-size: 20px;
+}
+
+div#chosendiabox {
+    padding: 12px 0 30px 0;
+    margin: 12px auto 50px auto;
+    background-color: #c6e3e1;
+    max-width: 680px;
+}
+
+.needdiatitle {
+    margin-bottom: 5px;
+    font-size: 20px;
+    color: #999;
+}
+
+img#chosendiaimg {
+    width: 128px;
+}
+
+div#diamonds-reco-box {
+    background-color: #c6e3e1;
+    padding: 25px 0 15px 0;
+    margin: 38px 0 0 0;
+}
+
+h2.dia-reco-title {
+    margin-top: 5px;
+    margin-bottom: 20px;
+}
+
+ul.reco-list {
+    margin: 0;
+    padding: 0;
+}
+
+li.reco-dia {
+    display: inline-block;
+    list-style: none;
+    width: 287px;
+    background-color: #FFF;
+    margin: 12px;
+}
+
+.reco-dia h3 {
+    font-size: 22px;
+    padding: 8px 0;
+}
+
+img.reco-dia-img {
+    width: 128px;
+}
+
+p.dia-chara {
+    position: relative;
+    top: -5px;
+    font-size: 14px;
+}
+
+p.dia-chara-0 {
+    position: relative;
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 0;
+    top: -15px;
+}
+
+p.dia-chara-1 {
+    font-size: 18px;
+}
+
+span.price-dropped {
+    display: inline-block;
+    color: #999;
+    text-decoration: line-through;
+}
+
+span.price-in-currency {
+    font-size: 12px;
+}
+
+button.dia-choosebtn {
+    display: inline-block;
+    font-size: 14px;
+    padding: 5px 22px;
+    background-color: #FFF;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 8px;
+    color: #01934d;
+    border-color: #01934d;
+    margin: 12px 0 20px 0;
+}
+
+button.dia-choosebtn:hover {
+    background-color: #01934d;
+    color: #FFF;
+}
+
+.reco-dia span.glyphicon {
+    position: relative;
+    left: -5px;
+    display: none;
+}
+
+.chosen button.dia-choosebtn {
+    background-color: #01934d;
+    color: #fff;
+}
+
+.chosen span.glyphicon {
+    display: inline-block;
+}
+
+p#methodexpl {
+    font-size: 16px;
+    margin: 50px 0 38px 0;
+}
+
+span.price-special {
+    display: block;
+    margin: 9px;
+}
+
+
+/* ------------------------------- */
+
+div.thechosendia,
+div.thepairingdia {
+    width: 258px;
+    display: inline-block;
+    background-color: #FFF;
+    padding: 8px 0;
+    margin: 12px;
+}
+
+.thechosendia h3,
+.thepairingdia h3 {
+    margin: 8px 0;
+    font-size: 20px;
+}
+
+p.expl-words {
+    padding: 15px;
+    font-size: 16px;
+}
+
+span.sidetxt {
+    color: #666;
+    font-size: 12px;
+}
+
+img.chosendiaimg {
+    width: 88px;
+}
+
+p.plussigncontainer {
+    margin: 12px 0;
+    display: block;
+}
+
+.plussigncontainer span.glyphicon {
+    display: inline-block;
+    left: 0;
+}
+
+div.chooseformbox {
+    margin-top: 58px;
+}
+
+span.pricelinethrough {
+    font-size: 12px;
+    color: #999;
+    text-decoration: line-through;
+}
+
+span.dia-description {
+    display: inline-block;
+    padding: 2px 5px;
+    margin: 3px 5px;
+    background-color: #EFFCEF;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #01934d;
+}
+
+div.pricebox {
+    margin-top: 20px;
+}
+
+div#reco-words {
+    margin-top: 25px;
+    font-size: 16px;
+}
+
+p.certi-linker {
+    margin: 12px;
+}
+
+p.spreadwords {
+    margin: 35px 0;
+    padding: 15px;
+}
+
+@media (max-width: 620px) {
+    img.jewelry-img {
+        width: 100%;
+    }
+}
+
+div.jewelry-container-box,
+div#thelistofrecommendjewbox {
+    position: relative;
+    text-align: center;
+    max-width: 1000px;
+    margin: 35px auto;
+}
+
+div.jewelrybox {
+    position: relative;
+    display: inline-block;
+    float: none;
+    width: 230px;
+    height: 368px;
+    padding: 0;
+    margin: 0 7px 30px 7px;
+    background-color: #f6f6f6;
+    border-radius: 6px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #f2f2f2;
+}
+
+div.jewelrybox.mounting {
+    height: 426px;
+}
+
+a.seedetailbtn-big {
+    position: relative;
+    display: block;
+    width: 228px;
+}
+
+span.imageholder {
+    display: inline-block;
+    width: 228px;
+    height: 268px;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: auto 268px;
+    padding: 0;
+    margin: 0;
+    background-color: #fff;
+    border-radius: 6px;
+    transition: 0.1s ease-in;
+    -moz-transition: 0.1s ease-in;
+    -ms-transition: 0.1s ease-in;
+    -o-transition: 0.1s ease-in;
+    -webkit-transition: 0.1s ease-in;
+}
+
+span.imageholder:hover {
+    background-size: auto 278px;
+}
+
+span.jewelryname,
+span.jewelryprice,
+span.jewelry-dia-size,
+span.stocknum {
+    display: inline-block;
+    width: 100%;
+    font-size: 14px;
+    color: #000;
+    text-align: center;
+    overflow: hidden;
+    padding: 15px 0 3px 0;
+    white-space: nowrap;
+}
+
+span.jewelryprice,
+span.jewelry-dia-size {
+    font-size: 12px;
+    padding-top: 5px;
+}
+
+span.fitsizenum {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+span.needorder {
+    color: #960;
+}
+
+p.actionbox {
+    margin: 0;
+    padding-top: 8px;
+    text-align: center;
+}
+
+a.seedetailbtn,
+a.choosebtn {
+    position: relative;
+    display: inline-block;
+    font-size: 14px;
+    padding: 0px 10px;
+}
+
+p.jew-filter-box {
+    padding: 25px 0 15px 0;
+}
+
+div#dia-size-picker-box {
+    position: relative;
+    margin: 0 auto;
+    width: 288px;
+    text-align: center;
+}
+
+p#dia-size-picker-txt {
+    margin: 0;
+    text-align: center;
+}
+
+span#min-size-txt,
+span#max-size-txt {
+    position: relative;
+    display: inline-block;
+    width: 28px;
+}
+
+#dia-size-picker-txt label {
+    margin-bottom: 0;
+}
+
+.filterselection {
+    font-size: 12px;
+    background-color: #EFFCEF;
+    border-color: #01934d;
+    margin: 2px 0;
+    width: 90px;
+}
+
+.filter_complete .filterselection {
+    background-color: #FAf2f0;
+}
+
+span#size-txt {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+p.foundnumbox {
+    text-align: center;
+}
+
+p.returnallbtnbox {
+    margin-top: 20px;
+    margin-bottom: 0;
+}
+
+input#size-txt {
+    width: 50px;
+}
+
+button#allsizebtn,
+button#updatesizebtn {
+    position: relative;
+    margin-left: 15px;
+    background-color: #EFFCEF;
+    color: #01934d;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #01934d;
+    border-radius: 6px;
+    padding: 2px 8px 1px 8px;
+    font-size: 12px;
+}
+
+button#allsizebtn {
+    padding: 1px 5px;
+    font-size: 10px;
+    border: none;
+}
+
+button#updatesizebtn {
+    color: #FFF;
+    background-color: #01934d;
+}
+
+.filter_complete button#allsizebtn {
+    background-color: #FAf2f0;
+}
+
+.filter_complete .ui-widget-content {
+    background-color: #FAf2f0;
+}
+
+span.chosenjewpicholder {
+    display: inline-block;
+    width: 88px;
+    height: 88px;
+    background-position: center;
+    background-size: 88px auto;
+    background-repeat: no-repeat;
+}
+
+div.alreadyordered,
+div#alreadychosenbox {
+    position: relative;
+    text-align: center;
+    max-width: 556px;
+    margin: 25px auto;
+    background-color: #c6e3e1;
+    padding: 12px;
+}
+
+div#alreadychosenbox {
+    background-color: rgba(255, 228, 227, 1);
+}
+
+div#alreadychosenbox {
+    text-align: center;
+}
+
+p.reco-words {
+    text-align: center;
+}
+
+.alreadyordered label,
+p.mountingtitle {
+    font-size: 16px;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+p.ordereddia {
+    padding: 3px;
+    background-color: #FFF;
+    font-size: 16px;
+}
+
+p.reco-words {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 55px;
+    margin-bottom: 0;
+}
+
+button.choosebtn {
+    position: relative;
+    background-color: #01934d;
+    color: #FFF;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #01934d;
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 14px;
+}
+
+p#orderfinibtnbox {
+    text-align: center;
+    margin: 25px 0 55px 0;
+}
+
+a#orderfinibtn {
+    display: inline-block;
+    font-size: 18px;
+    padding: 8px 25px;
+    background-color: #01934d;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 8px;
+    color: #fff;
+    border-color: #01934d;
+}
+
+a.hiddenforpic {
+    display: none;
+}
+
+img#bigsaleicon {
+    position: absolute;
+    top: -58px;
+    left: 0;
+    width: 180px;
+}
+
+div.jewelrybox.chosen {
+    background-color: #c6e3e1;
+    border-color: #01934d;
+}
+
+.choosebtn-whole {
+    display: inline-block;
+    font-size: 20px;
+    padding: 8px 18px;
+    background-color: #01934d;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 8px;
+    color: #fff;
+    border-color: #01934d;
+}
+
+span.title-free_acc {
+    font-size: 24px;
+    color: #01934d;
+}
+
+span.specialofferexpl {
+    position: relative;
+    display: inline-block;
+    margin-top: 0px;
+    font-size: 10px;
+}
+
+.free_acc_box h3 {
+    margin-bottom: 35px;
+}
+
+img#soldouticon {
+    position: absolute;
+    left: 50%;
+    top: 57px;
+    width: 150px;
+    height: auto;
+    margin-left: 115px;
+}
+
+a.fancybox {
+    cursor: zoom-in;
+}
+
+@media (max-width: 1012px) {
+    div.jewelry-container-box {
+        width: 750px;
+    }
+}
+
+@media (max-width: 762px) {
+    div.jewelry-container-box {
+        width: 500px;
+    }
+}
+
+@media (max-width: 588px) {
+    img#soldouticon {
+        left: auto;
+        margin-left: 0;
+        right: 15px;
+        width: 100px;
+    }
+}
+
+@media (max-width: 512px) {
+    div.jewelry-container-box {
+        width: auto;
+    }
+    div.jewelrybox {
+        display: block;
+        float: none;
+        margin: 10px auto;
+    }
+    img#bigsaleicon {
+        width: 88px;
+    }
+}

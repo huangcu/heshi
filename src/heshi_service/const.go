@@ -1,6 +1,8 @@
 package main
 
-import "heshi/errors"
+import (
+	"heshi/errors"
+)
 
 var (
 	//GENERAL
@@ -8,13 +10,13 @@ var (
 	vemsgShouldNotBeEmpty   = errors.HSMessage{Code: 2000, Message: "should not be empty"}
 	vemsgAlreadyExist       = errors.HSMessage{Code: 2000, Message: "already exists."}
 	vemsgServerError        = errors.HSMessage{Code: 500, Message: "something is wrong, please try later"}
-	vemsgAlreadyRecommanded = errors.HSMessage{Code: 2000, Message: "您以前已经输入过一次推荐码，不需要再用其他推荐码了"}
-	vemsgNoNeedRecommanded  = errors.HSMessage{Code: 2000, Message: "您的用户级别已经很高，不需要再被别人推荐了"}
-	vemsgCannotRecommand    = errors.HSMessage{Code: 2000, Message: "被您推荐的人不能再推荐您"}
+	vemsgAlreadyRecommended = errors.HSMessage{Code: 2000, Message: "您以前已经输入过一次推荐码，不需要再用其他推荐码了"}
+	vemsgNoNeedRecommended  = errors.HSMessage{Code: 2000, Message: "您的用户级别已经很高，不需要再被别人推荐了"}
+	vemsgCannotRecommend    = errors.HSMessage{Code: 2000, Message: "被您推荐的人不能再推荐您"}
 
 	// //User Login (20-29)
-	vemsgLoginErrorUserName   = errors.HSMessage{Code: 20020, Message: "wrong username or password"}
-	vemsgLoginMissingUserName = errors.HSMessage{Code: 20021, Message: "missing username or password"}
+	errorLoginUserNamePassword = "wrong username or password"
+	errorLoginPassword         = "wrong password"
 
 	//fail to find in db
 	vemsgUserNotExist         = errors.HSMessage{Code: 20023, Message: "user not exist"}
@@ -34,13 +36,14 @@ var (
 	vemsgUserCellphoneNotValid   = errors.HSMessage{Code: 20008, Message: "cellphone input is not a valid cellphone number;"}
 	vemsgUserCellphoneDuplicate  = errors.HSMessage{Code: 20009, Message: "cellphone already register!"}
 	vemsgUserUsertypeNotValid    = errors.HSMessage{Code: 20010, Message: "user_type value is not valid;"}
-	vemsgUserErrorRecommandCode  = errors.HSMessage{Code: 20011, Message: "your invitation code is not correct, please verify;"}
+	vemsgUserErrorRecommendCode  = errors.HSMessage{Code: 20011, Message: "your invitation code is not correct, please verify;"}
 
 	//AGENT (11-19)
 	vemsgAdminLevelNotValid         = errors.HSMessage{Code: 20015, Message: "admin level is not valid"}
 	vemsgAgentLevelNotValid         = errors.HSMessage{Code: 20012, Message: "agent level is not valid"}
 	vemsgAgentDiscountNotValid      = errors.HSMessage{Code: 20013, Message: "agent discount is not valid"}
 	vemsgNotValid                   = errors.HSMessage{Code: 20014, Message: "input is not valid"}
+	vemsgEmpty                      = errors.HSMessage{Code: 20014, Message: "input is cannot be empty"}
 	vemsgDiamondCaratEmpty          = errors.HSMessage{Code: 20014, Message: "diamond carat size input cannot be empty"}
 	vemsgDiamondCaratNotValid       = errors.HSMessage{Code: 20014, Message: "diamond carat size input is not valid"}
 	vemsgDiamondRawPriceEmpty       = errors.HSMessage{Code: 20014, Message: "diamond raw price input cannot be empty"}
@@ -64,6 +67,9 @@ var (
 	vemsgStockQuantityNotValidJ     = errors.HSMessage{Code: 20014, Message: "jewelry stock quantity is not valid"}
 	vemsgPriceEmpty                 = errors.HSMessage{Code: 20014, Message: "jewelry price cannot be empty"}
 	vemsgPriceNotValid              = errors.HSMessage{Code: 20014, Message: "jewelry price is not valid"}
+	vemsgOrderPriceNotValid         = errors.HSMessage{Code: 20014, Message: "order price is not valid"}
+	vemsgOrderDownPaymentNotValid   = errors.HSMessage{Code: 20014, Message: "order downpaymemnt is not valid"}
+	vemsgOrderStatusNotValid        = errors.HSMessage{Code: 20014, Message: "order status input is not valid"}
 
 	//UPLOAD PRODUCTS(30-39)
 	vemsgUploadProductsCategoryNotValid = errors.HSMessage{Code: 20090, Message: "product category not valid"}
@@ -82,19 +88,64 @@ var (
 )
 
 var (
-	VALID_USERTYPE        = []string{CUSTOMER, AGENT, ADMIN}
-	VALID_AGENTLEVEL      = []string{LEVEL1, LEVEL2, LEVEL3}
-	VALID_ADMINLEVEL      = []string{LEVEL1, LEVEL2, LEVEL3, LEVEL4, LEVEL5, LEVEL6}
-	VALID_CURRENCY_SYMBOL = []string{"USD", "CNY", "EUR", "CAD", "AUD", "CHF", "RUB", "NZD"}
-	USER_SESSION_KEY      = "hs_sessionuserid"
-	ADMIN_KEY             = "hs_sessionadmin"
-	UPLOADFILEDIR         = ".uploaded"
+	validUserType       = []string{CUSTOMER, AGENT, ADMIN}
+	validCustomerLevel  = []string{LEVEL1, LEVEL2, LEVEL3, LEVEL4}
+	validAgentLevel     = []string{LEVEL1, LEVEL2, LEVEL3}
+	validAdminLevel     = []string{LEVEL1, LEVEL2, LEVEL3, LEVEL4, LEVEL5, LEVEL6}
+	validCurrencySymbol = []string{"USD", "CNY", "EUR", "CAD", "AUD", "CHF", "RUB", "NZD"}
+	validOrderStatusM   = []string{MCANCELLED, MDOWNPAYMENT, MPAID, MDELIVERED, MRECEIVED}
+	validOrderStatusA   = []string{ORDERED, CANCELLED, DOWNPAYMENT, PAID, DELIVERED, RECEIVED}
 )
 
 const (
+	userSessionKey = "hs_sessionuserid"
+	adminKey       = "hs_sessionadmin"
+	agentKey       = "hs_sessionagent"
+
+	uploadFileDir        = ".uploaded"
+	videoPath            = ".video"
+	imagePath            = ".image"
+	userIconSizeLimit    = 50 * 1024
+	imageSizeLimit       = 5 * 1024 * 1024
+	videoSizeLimit       = 10 * 1024 * 1024
+	uploadedZipFileLimit = 100 * 1024 * 1024
+
+	// CUSTOMER ...
 	CUSTOMER = "CUSTOMER"
-	AGENT    = "AGENT"
-	ADMIN    = "ADMIN"
+	// AGENT ...
+	AGENT = "AGENT"
+	// ADMIN ...
+	ADMIN = "ADMIN"
+
+	// AVAILABLE diamonds, jewelry, gem
+	AVAILABLE = "AVAILABLE"
+	// OFFLINE ...
+	OFFLINE = "OFFLINE"
+	// DELETED ...
+	DELETED = "DELETED"
+
+	// ORDERED orders
+	ORDERED = "ORDERED"
+	// CANCELLED order status by system flow - user cancel or system cancel
+	CANCELLED = "CANCELLED"
+	// DOWNPAYMENT order status by system flow
+	DOWNPAYMENT = "DOWNPAYMENT"
+	// PAID order status by system flow
+	PAID = "PAID"
+	// DELIVERED order status by system flow
+	DELIVERED = "DELIVERED"
+	// RECEIVED order status by system flow
+	RECEIVED = "RECEIVED"
+	// MCANCELLED admin changed order status
+	MCANCELLED = "M-CANCELLED"
+	// MDOWNPAYMENT admin changed order status
+	MDOWNPAYMENT = "M-DOWNPAYMENT"
+	// MPAID admin changed order status
+	MPAID = "M-PAID"
+	// MDELIVERED admin changed order status
+	MDELIVERED = "M-DELIVERED"
+	// MRECEIVED admin changed order status
+	MRECEIVED = "M-RECEIVED"
 )
 
 //TODO level comes from configs db
@@ -106,3 +157,6 @@ const (
 	LEVEL5 = "5"
 	LEVEL6 = "6"
 )
+
+const timeFormat = "2006-01-02 15:04:05"
+const timeFormatFileName = "20060102150405"

@@ -2,15 +2,18 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"heshi/errors"
 	"net/http"
+	"strings"
+	"util"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	uuid "github.com/satori/go.uuid"
 )
 
+// User ...
 type User struct {
 	ID                  string  `json:"id"`
 	Username            string  `json:"username"`
@@ -31,21 +34,35 @@ type User struct {
 	Point               int     `json:"point"`
 	TotalPurchaseAmount float64 `json:"total_purchase_amount"`
 	Icon                string  `json:"icon"`
+	Status              string  `json:"status"`
+	Admin               Admin   `json:"admin"`
+	Agent               Agent   `json:"agent"`
+	// Admin
+	// Agent
 	// CreatedAt      time.Time `json:"created_at"`
 	// UpdatedAt      time.Time `json:"updated_at"`
 }
 
 func newAdminAgentUser(c *gin.Context) {
 	adminID := c.MustGet("id").(string)
-	userType := c.PostForm("user_type")
+	userType := strings.ToUpper(c.PostForm("user_type"))
 	if userType != AGENT && userType != ADMIN {
 		vemsgUserUsertypeNotValid.Message = fmt.Sprintf("user type can only be %s or %s", ADMIN, AGENT)
 		c.JSON(http.StatusOK, vemsgUserUsertypeNotValid)
 		return
 	}
-
+	fileHeader, _ := c.FormFile("images")
+	filename, vemsg, err := validateUploadedSingleFile(fileHeader, "usericon", "image", 50000)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	if vemsg != (errors.HSMessage{}) {
+		c.JSON(http.StatusOK, vemsg)
+		return
+	}
 	nu := User{
-		ID:             uuid.NewV4().String(),
+		ID:             newV4(),
 		Username:       c.PostForm("username"),
 		Cellphone:      c.PostForm("cellphone"),
 		Email:          c.PostForm("email"),
@@ -58,21 +75,24 @@ func newAdminAgentUser(c *gin.Context) {
 		Address:        c.PostForm("address"),
 		AdditionalInfo: c.PostForm("additional_info"),
 		RecommendedBy:  c.PostForm("recommended_by"),
-		Icon:           c.PostForm("icon"),
+		Icon:           filename,
 	}
 
 	if userType == AGENT {
-		a := Agent{
-			User:        nu,
+		nu.Agent = Agent{
 			LevelStr:    c.PostForm("level"),
 			DiscountStr: c.PostForm("discount"),
 			CreatedBy:   adminID,
 		}
-		if vemsg, err := a.prevalidateNewAgent(); err != nil {
+		if vemsg, err := nu.prevalidateNewAgent(); err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		} else if len(vemsg) != 0 {
 			c.JSON(http.StatusOK, vemsg)
+			return
+		}
+		if err := saveUploadedMultipleFile(c, "usericon", "image", []string{filename}); err != nil {
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 		// q := nu.composeInsertQuery()
@@ -91,9 +111,9 @@ func newAdminAgentUser(c *gin.Context) {
 				return err
 			}
 			q = fmt.Sprintf(`INSERT INTO agents (user_id, level, discount, created_by) VALUES 
-											(%s', '%d', '%d', '%s')`, a.ID, a.Level, a.Discount, a.CreatedBy)
+											('%s', '%d', '%d', '%s')`, nu.ID, nu.Agent.Level, nu.Agent.Discount, nu.Agent.CreatedBy)
 			traceSQL(q)
-			if _, err := tx.Exec("q"); err != nil {
+			if _, err := tx.Exec(q); err != nil {
 				return err
 			}
 			return nil
@@ -102,40 +122,70 @@ func newAdminAgentUser(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
-		c.JSON(http.StatusOK, a.ID)
+		c.JSON(http.StatusOK, nu)
 	}
 
 	if userType == ADMIN {
-		a := Admin{
-			User:       nu,
+		nu.Admin = Admin{
 			LevelStr:   c.PostForm("level"),
 			WechatKefu: c.PostForm("wechat_kefu"),
 			CreatedBy:  adminID,
 		}
-		if vemsg, err := a.prevalidateNewAdmin(); err != nil {
+		if vemsg, err := nu.prevalidateNewAdmin(); err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		} else if len(vemsg) != 0 {
 			c.JSON(http.StatusOK, vemsg)
 			return
 		}
-
-		q := nu.composeInsertQuery()
-		if _, err := dbExec(q); err != nil {
-			c.JSON(http.StatusBadRequest, errors.GetMessage(err))
-			return
-		}
-		if err := a.newAdmin(); err != nil {
+		// q := nu.composeInsertQuery()
+		// if _, err := dbExec(q); err != nil {
+		// 	c.JSON(http.StatusBadRequest, errors.GetMessage(err))
+		// 	return
+		// }
+		// if err := nu.newAdmin(); err != nil {
+		// 	c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		// 	return
+		// }
+		if err := saveUploadedMultipleFile(c, "usericon", "image", []string{filename}); err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
-		c.JSON(http.StatusOK, a.ID)
+		err := dbTransact(db, func(tx *sql.Tx) error {
+			q := nu.composeInsertQuery()
+			traceSQL(q)
+			if _, err := tx.Exec(q); err != nil {
+				return err
+			}
+			q = fmt.Sprintf(`INSERT INTO admins (user_id, level, wechat_kefu, created_by) VALUES ('%s', '%d', '%s', '%s')`,
+				nu.ID, nu.Admin.Level, nu.Admin.WechatKefu, nu.Admin.CreatedBy)
+			traceSQL(q)
+			if _, err := tx.Exec(q); err != nil {
+				return err
+			}
+			return nil
+		})
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+			return
+		}
+		c.JSON(http.StatusOK, nu)
 	}
 }
 
 func newUser(c *gin.Context) {
+	fileHeader, _ := c.FormFile("images")
+	filename, vemsg, err := validateUploadedSingleFile(fileHeader, "usericon", "image", 50000)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	if vemsg != (errors.HSMessage{}) {
+		c.JSON(http.StatusOK, vemsg)
+		return
+	}
 	nu := User{
-		ID:             uuid.NewV4().String(),
+		ID:             newV4(),
 		Username:       c.PostForm("username"),
 		Cellphone:      c.PostForm("cellphone"),
 		Email:          c.PostForm("email"),
@@ -148,7 +198,7 @@ func newUser(c *gin.Context) {
 		Address:        c.PostForm("address"),
 		AdditionalInfo: c.PostForm("additional_info"),
 		RecommendedBy:  c.PostForm("recommended_by"),
-		Icon:           c.PostForm("icon"),
+		Icon:           filename,
 	}
 
 	if vemsg, err := nu.validNewUser(); err != nil {
@@ -158,20 +208,18 @@ func newUser(c *gin.Context) {
 		c.JSON(http.StatusOK, vemsg)
 		return
 	}
-
-	q := nu.composeInsertQuery()
-	if _, err := dbExec(q); err != nil {
-		c.JSON(http.StatusBadRequest, errors.GetMessage(err))
+	if err := saveUploadedMultipleFile(c, "usericon", "image", []string{filename}); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 
-	s := sessions.Default(c)
-	s.Set(USER_SESSION_KEY, nu.ID)
-	s.Save()
+	q := nu.composeInsertQuery()
+	if _, err := dbExec(q); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
 
-	//TODO redirect to login
-	// c.Redirect(http.StatusFound, redirectLogin)
-	c.JSON(http.StatusOK, nu.ID)
+	c.JSON(http.StatusOK, nu)
 }
 
 func updateAdminAgent(c *gin.Context) {
@@ -196,12 +244,29 @@ func updateUser(c *gin.Context) {
 	if id == "" {
 		id = c.MustGet("id").(string)
 	}
+	if exist, err := isUserExistByID(id); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	} else if !exist {
+		c.JSON(http.StatusBadRequest, "user doesn't exist")
+		return
+	}
+	fileHeader, _ := c.FormFile("images")
+	filename, vemsg, err := validateUploadedSingleFile(fileHeader, "usericon", "image", int64(userIconSizeLimit))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	if vemsg != (errors.HSMessage{}) {
+		c.JSON(http.StatusOK, vemsg)
+		return
+	}
 	uu := User{
-		ID:             id,
-		Username:       c.PostForm("username"),
-		Cellphone:      c.PostForm("cellphone"),
-		Email:          c.PostForm("email"),
-		Password:       c.PostForm("password"),
+		ID:        id,
+		Username:  c.PostForm("username"),
+		Cellphone: c.PostForm("cellphone"),
+		Email:     c.PostForm("email"),
+		// Password:       c.PostForm("password"), not allow update password here, call changepassword api
 		UserType:       c.PostForm("user_type"),
 		RealName:       c.PostForm("real_name"),
 		WechatID:       c.PostForm("wechat_id"),
@@ -209,10 +274,14 @@ func updateUser(c *gin.Context) {
 		WechatQR:       c.PostForm("wechat_qr"),
 		Address:        c.PostForm("address"),
 		AdditionalInfo: c.PostForm("additional_info"),
-		RecommendedBy:  c.PostForm("recommended_by"),
-		Icon:           c.PostForm("icon"),
+		// RecommendedBy:  c.PostForm("recommended_by"), not allow update recommended_by
+		Icon: filename,
 	}
 
+	if err := saveUploadedMultipleFile(c, "usericon", "image", []string{filename}); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
 	//TODO validate updated user info too!!!
 	//TODO what info can be updated!!
 	q := uu.composeUpdateQuery()
@@ -228,7 +297,7 @@ func updateUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, uu.ID)
+	c.JSON(http.StatusOK, uu)
 }
 
 func getUser(c *gin.Context) {
@@ -237,11 +306,6 @@ func getUser(c *gin.Context) {
 		id = c.MustGet("id").(string)
 	}
 
-	userType, err := getUserType(id)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
-		return
-	}
 	q := selectUserQuery(id)
 
 	rows, err := dbQuery(q)
@@ -262,36 +326,22 @@ func getUser(c *gin.Context) {
 		return
 	}
 
-	if userType == CUSTOMER {
-		c.JSON(http.StatusOK, us[0])
-		return
-	}
-	if userType == ADMIN {
-		a, err := getAdmin(id)
-		if err != nil {
-			vemsgUserNotExist.Message = fmt.Sprintf("Fail to find user with id: %s", c.Param("id"))
-			c.JSON(http.StatusOK, vemsgUserNotExist)
-			return
-		}
-		a.User = us[0]
-		c.JSON(http.StatusOK, a)
-		return
-	}
-	if userType == AGENT {
-		a, err := getAgent(id)
-		if err != nil {
-			vemsgUserNotExist.Message = fmt.Sprintf("Fail to find user with id: %s", c.Param("id"))
-			c.JSON(http.StatusOK, vemsgUserNotExist)
-			return
-		}
-		a.User = us[0]
-		c.JSON(http.StatusOK, a)
-		return
-	}
+	c.JSON(http.StatusOK, us[0])
+	return
 }
 
 func getAllUsers(c *gin.Context) {
-	q := selectUserQuery("")
+	q := `SELECT id,username,cellphone,email,real_name,user_type,wechat_id,
+	wechat_name,wechat_qr,address,additional_info,recommended_by,invitation_code,
+	level,discount,point,total_purchase_amount,icon,status FROM users WHERE status='ACTIVE'`
+	userType := strings.ToUpper(c.Query("user_type"))
+	if userType != "" {
+		if !util.IsInArrayString(userType, validUserType) {
+			c.JSON(http.StatusBadRequest, userType+" not a valid user type")
+			return
+		}
+		q = fmt.Sprintf("%s AND user_type='%s'", q, userType)
+	}
 	rows, err := dbQuery(q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
@@ -304,28 +354,63 @@ func getAllUsers(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
-	if us == nil {
-		vemsgUserNotExist.Message = "Fail to find users"
-		c.JSON(http.StatusOK, vemsgUserNotExist)
-		return
-	}
+	// if us == nil {
+	// 	vemsgUserNotExist.Message = "Fail to find users"
+	// 	c.JSON(http.StatusOK, vemsgUserNotExist)
+	// 	return
+	// }
 	c.JSON(http.StatusOK, us)
 }
 
 //TODO check return row number
 func disableUser(c *gin.Context) {
 	uid := c.Param("id")
-	q := "UPDATE users SET status='disabled' WHERE id=?"
-	if _, err := dbExec(q, uid); err != nil {
+	q := fmt.Sprintf("UPDATE users SET status='disabled' WHERE id='%s'", uid)
+	if _, err := dbExec(q); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	c.JSON(http.StatusOK, "SUCCESS")
 }
 
+func changePassword(c *gin.Context) {
+	// id := c.Param("id")
+	// if id == "" {
+	id := c.MustGet("id").(string)
+	// }
+	q := fmt.Sprintf(`SELECT password FROM users where id='%s'`, id)
+
+	var password string
+	if err := dbQueryRow(q).Scan(&password); err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusOK, vemsgUserNotExist)
+			return
+		}
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	oPass := c.PostForm("old_password")
+	if !util.IsPassOK(oPass, password) {
+		c.JSON(http.StatusBadRequest, errorLoginPassword)
+		return
+	}
+	nPass := c.PostForm("new_password")
+	q = fmt.Sprintf(`update users set password='%s',updated_at=(CURRENT_TIMESTAMP) where id='%s'`, util.Encrypt(nPass), id)
+	if _, err := dbExec(q); err != nil {
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
+		return
+	}
+	// should relogin, clean session
+	s := sessions.Default(c)
+	s.Delete(userSessionKey)
+	s.Delete(adminKey)
+	s.Save()
+	c.JSON(http.StatusOK, "PASSWORD changed!")
+}
+
 func composeUser(rows *sql.Rows) ([]User, error) {
-	var id, userType, icon, invitationCode string
-	var username, cellphone, email, realName, recommandedBy sql.NullString
+	var id, userType, icon, invitationCode, status string
+	var username, cellphone, email, realName, recommendedBy sql.NullString
 	var wechatID, wechatName, wechatQR, address, additionalInfo sql.NullString
 	var level, discount, point int
 	var totalPurchaseAmount float64
@@ -333,8 +418,8 @@ func composeUser(rows *sql.Rows) ([]User, error) {
 	var us []User
 	for rows.Next() {
 		if err := rows.Scan(&id, &username, &cellphone, &email, &realName, &userType, &wechatID,
-			&wechatName, &wechatQR, &address, &additionalInfo, &recommandedBy, &invitationCode,
-			&level, &discount, &point, &totalPurchaseAmount, &icon); err != nil {
+			&wechatName, &wechatQR, &address, &additionalInfo, &recommendedBy, &invitationCode,
+			&level, &discount, &point, &totalPurchaseAmount, &icon, &status); err != nil {
 			return nil, err
 		}
 		u := User{
@@ -342,19 +427,41 @@ func composeUser(rows *sql.Rows) ([]User, error) {
 			Username:            username.String,
 			Cellphone:           cellphone.String,
 			Email:               email.String,
+			RealName:            realName.String,
 			UserType:            userType,
 			WechatID:            wechatID.String,
 			WechatName:          wechatName.String,
 			WechatQR:            wechatID.String,
 			Address:             address.String,
 			AdditionalInfo:      additionalInfo.String,
-			RecommendedBy:       recommandedBy.String,
+			RecommendedBy:       recommendedBy.String,
 			InvitationCode:      invitationCode,
 			UserLevel:           level,
 			UserDiscount:        float64(discount) / 100,
 			Point:               point,
 			TotalPurchaseAmount: totalPurchaseAmount,
 			Icon:                icon,
+			Status:              status,
+		}
+		if userType == ADMIN {
+			a, err := getAdmin(id)
+			if err != nil {
+				if err == sql.ErrNoRows {
+					return nil, errors.Newf("Fail to find admin info with user id: %s", u.ID)
+				}
+				return nil, err
+			}
+			u.Admin = *a
+		}
+		if userType == AGENT {
+			a, err := getAgent(id)
+			if err != nil {
+				if err == sql.ErrNoRows {
+					return nil, errors.Newf("Fail to find agent info with user id: %s", u.ID)
+				}
+				return nil, err
+			}
+			u.Agent = *a
 		}
 		us = append(us, u)
 	}
@@ -364,10 +471,73 @@ func composeUser(rows *sql.Rows) ([]User, error) {
 func selectUserQuery(id string) string {
 	q := `SELECT id,username,cellphone,email,real_name,user_type,wechat_id,
 	wechat_name,wechat_qr,address,additional_info,recommended_by,invitation_code,
-	level,discount,point,total_purchase_amount,icon FROM users`
+	level,discount,point,total_purchase_amount,icon,status FROM users WHERE status='ACTIVE'`
 
 	if id != "" {
-		q = fmt.Sprintf("%s WHERE status='active' AND id='%s'", q, id)
+		q = fmt.Sprintf("%s AND id='%s'", q, id)
 	}
 	return q
+}
+
+func getUserByID(id string) (string, *User, error) {
+	q := selectUserQuery(id)
+
+	rows, err := dbQuery(q)
+	if err != nil {
+		return "", nil, err
+	}
+	defer rows.Close()
+
+	us, err := composeUser(rows)
+	if err != nil {
+		return "", nil, err
+	}
+
+	if len(us) > 0 {
+		bs, err := json.Marshal(us[0])
+		if err != nil {
+			return "", nil, err
+		}
+		return string(bs), &us[0], nil
+	}
+	return "", nil, errors.Newf("fail to find user with id %s", id)
+}
+
+//recommended_by by invitation_code link to user_id -- user_validate validateRecommendedBy
+func getUsersRecommendedBy(uid string) ([]User, error) {
+	q := fmt.Sprintf(`SELECT id,username,cellphone,email,real_name,user_type,wechat_id,
+	wechat_name,wechat_qr,address,additional_info,recommended_by,invitation_code,
+	level,discount,point,total_purchase_amount,icon,status FROM users 
+	WHERE status='ACTIVE' AND recommended_by='%s'`, uid)
+
+	rows, err := dbQuery(q)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	us, err := composeUser(rows)
+	if err != nil {
+		return nil, err
+	}
+	return us, nil
+}
+
+func getUsersIDRecommendedBy(uid string) ([]string, error) {
+	q := fmt.Sprintf(`SELECT id FROM users WHERE status='ACTIVE' AND recommended_by='%s'`, uid)
+	rows, err := dbQuery(q)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var ids []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	return ids, nil
 }

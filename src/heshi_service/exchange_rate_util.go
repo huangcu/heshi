@@ -6,8 +6,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/satori/go.uuid"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -74,32 +72,32 @@ func currencyRateReqValidator(h gin.HandlerFunc) gin.HandlerFunc {
 		cad, aud, chf, rub, nzd := 0.0, 0.0, 0.0, 0.0, 0.0
 		// aud, err := strconv.ParseFloat(c.PostForm("aud"), 6)
 		// if err != nil {
-		// 	c.String(http.StatusBadRequest, err.Error())
+		// 	c.String(http.StatusBadRequest, errors.GetMessage(err))
 		// 	return
 		// }
 		// cad, err := strconv.ParseFloat(c.PostForm("cad"), 6)
 		// if err != nil {
-		// 	c.String(http.StatusBadRequest, err.Error())
+		// 	c.String(http.StatusBadRequest, errors.GetMessage(err))
 		// 	return
 		// }
 		// chf, err := strconv.ParseFloat(c.PostForm("chf"), 6)
 		// if err != nil {
-		// 	c.String(http.StatusBadRequest, err.Error())
+		// 	c.String(http.StatusBadRequest, errors.GetMessage(err))
 		// 	return
 		// }
 		// rub, err := strconv.ParseFloat(c.PostForm("rub"), 6)
 		// if err != nil {
-		// 	c.String(http.StatusBadRequest, err.Error())
+		// 	c.String(http.StatusBadRequest, errors.GetMessage(err))
 		// 	return
 		// }
 		// nzd, err := strconv.ParseFloat(c.PostForm("nzd"), 6)
 		// if err != nil {
-		// 	c.String(http.StatusBadRequest, err.Error())
+		// 	c.String(http.StatusBadRequest, errors.GetMessage(err))
 		// 	return
 		// }
 
 		currencyRate := currency{
-			ID:   uuid.NewV4().String(),
+			ID:   newV4(),
 			Base: strings.ToUpper(c.PostForm("base")),
 			Note: "manual input",
 			Rates: Rate{

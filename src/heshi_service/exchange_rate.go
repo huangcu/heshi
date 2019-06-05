@@ -8,8 +8,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/satori/go.uuid"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -208,9 +206,10 @@ type currency struct {
 	Base      string   `json:"base"`
 	Timestamp int64    `json:"timestamp"`
 	Rates     Rate     `json:"rates"`
-	RatesFluc RateFluc `json:"-"`
+	RatesFluc rateFluc `json:"-"`
 }
 
+// Rate ...
 type Rate struct {
 	USD float64 `json:"USD"` //USD
 	CNY float64 `json:"CNY"` //RMB
@@ -222,7 +221,7 @@ type Rate struct {
 	NZD float64 `json:"NZD"` //New Zealand Dollar
 }
 
-type RateFluc struct {
+type rateFluc struct {
 	USDFluc float64 `json:"USD_Fluc"` //USD
 	CNYFluc float64 `json:"CNY_Fluc"` //RMB
 	EURFluc float64 `json:"EUR_Fluc"` //Euro
@@ -261,21 +260,26 @@ func getLatestRates() error {
 		return err
 	}
 	c.Note = "FROM Open Exchange Rates API"
-	c.ID = uuid.NewV4().String()
+	c.ID = newV4()
 
 	q := c.composeInsertQuery()
 	_, err = dbExec(q)
-	return err
+	if err != nil {
+		return err
+	}
+	//upon change, update activeCurrencyRate
+	activeCurrencyRate = &c
+	return nil
 }
 
 func getCurrencyRate(c *gin.Context) {
-	currencyRate, err := getAcitveCurrencyRate()
+	currencyRate, err := getActiveCurrencyRate()
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusOK, vemsgExchangeRateNotExist)
 			return
 		}
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	c.JSON(http.StatusOK, currencyRate)
@@ -285,14 +289,15 @@ func newCurrencyRate(c *gin.Context) {
 	currencyRate := c.MustGet("currency").(*currency)
 	q := currencyRate.composeInsertQuery()
 	if _, err := dbExec(q); err != nil {
-		c.String(http.StatusInternalServerError, errors.GetMessage(err))
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
-
-	c.String(http.StatusOK, currencyRate.ID)
+	//upon change, update activeCurrencyRate
+	activeCurrencyRate = currencyRate
+	c.JSON(http.StatusOK, currencyRate)
 }
 
-func getAcitveCurrencyRate() (*currency, error) {
+func getActiveCurrencyRate() (*currency, error) {
 	var base, note string
 	var usd, cny, eur, cad, aud, chf, rub, nzd float64
 	var createdAt time.Time

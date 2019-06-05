@@ -1,143 +1,175 @@
 package main
 
-type (
-	MsgType   string
-	EventType string
+import (
+	"database/sql"
+	"encoding/xml"
+	"fmt"
+	"heshi/errors"
+	"io"
+	"log"
+	"net/http"
+	"os"
+	"path/filepath"
+	"time"
+	"util"
+
+	"gopkg.in/chanxuehong/wechat.v2/mp/dkf/session"
+	"gopkg.in/chanxuehong/wechat.v2/mp/message/callback/response"
+
+	"gopkg.in/chanxuehong/wechat.v2/mp/core"
 )
 
-// 微信服务器推送过来的消息(事件)的通用消息头.
-type MsgHeader struct {
-	ToUserName   string  `xml:"ToUserName"   json:"ToUserName"`
-	FromUserName string  `xml:"FromUserName" json:"FromUserName"`
-	CreateTime   int64   `xml:"CreateTime"   json:"CreateTime"`
-	MsgType      MsgType `xml:"MsgType"      json:"MsgType"`
+// https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1421140453
+func handleTextMsg(msg core.MixedMsg) (string, error) {
+	ss, err := session.Get(wechatClient, msg.FromUserName)
+	if err != nil {
+		return "", err
+	}
+	if err := logTextMsgToDB(msg.FromUserName, ss.KfAccount, msg.Content, "FROM"); err != nil {
+		util.Traceln(errors.GetMessage(err))
+	}
+	//already in a session
+	//用户被客服接入以后，客服关闭会话以前，处于会话过程中时，用户发送的消息均会被直接转发至客服系统, return directly
+	if ss.KfAccount != "" {
+		return "", nil
+	}
+
+	//if not in a session
+	q := fmt.Sprintf(`SELECT COUNT(*) FROM users WHERE wechat_openid='%s'`, msg.FromUserName)
+	var count int
+	if err := dbQueryRow(q).Scan(&count); err != nil {
+		util.Traceln(errors.GetMessage(err))
+		return "", err
+	}
+	if count != 1 {
+		reply := "您尚未注册合适账户。建议您先创建一个合适账户，这样我们可以更好的为您服务。"
+		art := autoReplyText(msg, reply)
+		bs, err := xml.Marshal(art)
+		if err != nil {
+			return "", err
+		}
+		return string(bs), nil
+	}
+
+	//transfer to kf
+	q = fmt.Sprintf("SELECT kf_account FROM wechat_messages WHERE user='%s' ORDER BY created_at DESC", msg.FromUserName)
+	var kfAccount string
+	if err := dbQueryRow(q).Scan(&kfAccount); err != nil {
+		//send to 多客服
+		if err == sql.ErrNoRows {
+			art := passToAllKf(msg)
+			bs, err := xml.Marshal(art)
+			if err != nil {
+				return "", err
+			}
+			return string(bs), nil
+		}
+		util.Traceln(errors.GetMessage(err))
+		return "", err
+	}
+
+	//select the latest kf served, and check if kf available
+	available, err := isKfAvailable(kfAccount)
+	if err != nil {
+		return "", err
+	}
+	if !available {
+		art := passToAllKf(msg)
+		bs, err := xml.Marshal(art)
+		if err != nil {
+			return "", err
+		}
+		return string(bs), nil
+	}
+
+	art := passToKf(msg, kfAccount)
+	bs, err := xml.Marshal(art)
+	if err != nil {
+		return "", err
+	}
+	return string(bs), nil
 }
 
-// 微信服务器推送过来的消息(事件)的合集.
-type MixedMsg struct {
-	XMLName struct{} `xml:"xml" json:"-"`
-	MsgHeader
-	EventType EventType `xml:"Event" json:"Event"`
+// <xml><ToUserName><![CDATA[gh_5bd700510a86]]></ToUserName>
+// <FromUserName><![CDATA[om7Sh0xuvSL4h4RSzbwu1qbwePtw]]></FromUserName>
+// <CreateTime>1520414204</CreateTime>
+// <MsgType><![CDATA[image]]></MsgType>
+// <PicUrl><![CDATA[http://mmbiz.qpic.cn/mmbiz_jpg/IRxsVrZTsNAxspBTFlZH0f11wDHy1F1Y0ya8eV4zmLLNV2tnPNO7BicpdXS4icicr5yekUTpUoFRmhZA7kw9w2eiaA/0]]></PicUrl>
+// <MsgId>6530129282993985415</MsgId>
+// <MediaId><![CDATA[mCVJIBFT2-SDK3jZ9VyqwfMocdsD2eq1aSrauP1mODGZ8ZUaDikCRZU2wLyz23Qk]]></MediaId>
+func handleImageMsg(msg core.MixedMsg) error {
+	ss, err := session.Get(wechatClient, msg.FromUserName)
+	if err != nil {
+		return err
+	}
+	//Download pic, save to filepath.Join(".wechat", FromUser, .time.now().unix().JPG)
+	response, err := http.Get(msg.PicURL)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
 
-	MsgId        int64   `xml:"MsgId"        json:"MsgId"`        // request
-	Content      string  `xml:"Content"      json:"Content"`      // request
-	MediaID      string  `xml:"MediaId"      json:"MediaId"`      // request
-	PicURL       string  `xml:"PicUrl"       json:"PicUrl"`       // request
-	Format       string  `xml:"Format"       json:"Format"`       // request
-	Recognition  string  `xml:"Recognition"  json:"Recognition"`  // request
-	ThumbMediaID string  `xml:"ThumbMediaId" json:"ThumbMediaId"` // request
-	LocationX    float64 `xml:"Location_X"   json:"Location_X"`   // request
-	LocationY    float64 `xml:"Location_Y"   json:"Location_Y"`   // request
-	Scale        int     `xml:"Scale"        json:"Scale"`        // request
-	Label        string  `xml:"Label"        json:"Label"`        // request
-	Title        string  `xml:"Title"        json:"Title"`        // request
-	Description  string  `xml:"Description"  json:"Description"`  // request
-	URL          string  `xml:"Url"          json:"Url"`          // request
-	EventKey     string  `xml:"EventKey"     json:"EventKey"`     // request, menu
-	Ticket       string  `xml:"Ticket"       json:"Ticket"`       // request
-	Latitude     float64 `xml:"Latitude"     json:"Latitude"`     // request
-	Longitude    float64 `xml:"Longitude"    json:"Longitude"`    // request
-	Precision    float64 `xml:"Precision"    json:"Precision"`    // request
+	if err := os.MkdirAll(filepath.Join(".wechat", msg.FromUserName), 0755); err != nil {
+		return err
+	}
+	//open a file for writing
+	picURL := filepath.Join(".wechat", msg.FromUserName, fmt.Sprintf("%d.jpg", time.Now().Unix()))
+	file, err := os.Create(picURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// Use io.Copy to just dump the response body to the file. This supports huge files
+	_, err = io.Copy(file, response.Body)
+	if err != nil {
+		return err
+	}
+	file.Close()
 
-	// menu
-	MenuID       int64 `xml:"MenuId" json:"MenuId"`
-	ScanCodeInfo *struct {
-		ScanType   string `xml:"ScanType"   json:"ScanType"`
-		ScanResult string `xml:"ScanResult" json:"ScanResult"`
-	} `xml:"ScanCodeInfo,omitempty" json:"ScanCodeInfo,omitempty"`
-	SendPicsInfo *struct {
-		Count   int `xml:"Count" json:"Count"`
-		PicList []struct {
-			PicMd5Sum string `xml:"PicMd5Sum" json:"PicMd5Sum"`
-		} `xml:"PicList>item,omitempty" json:"PicList,omitempty"`
-	} `xml:"SendPicsInfo,omitempty" json:"SendPicsInfo,omitempty"`
-	SendLocationInfo *struct {
-		LocationX float64 `xml:"Location_X" json:"Location_X"`
-		LocationY float64 `xml:"Location_Y" json:"Location_Y"`
-		Scale     int     `xml:"Scale"      json:"Scale"`
-		Label     string  `xml:"Label"      json:"Label"`
-		PoiName   string  `xml:"Poiname"    json:"Poiname"`
-	} `xml:"SendLocationInfo,omitempty" json:"SendLocationInfo,omitempty"`
+	if err := logImageMsgToDB(msg.FromUserName, ss.KfAccount, picURL, "FROM"); err != nil {
+		util.Traceln(errors.GetMessage(err))
+	}
+	//already in a session
+	//用户被客服接入以后，客服关闭会话以前，处于会话过程中时，用户发送的消息均会被直接转发至客服系统, return directly
+	if ss.KfAccount != "" {
+		return nil
+	}
 
-	MsgID    int64  `xml:"MsgID"  json:"MsgID"`  // template, mass
-	Status   string `xml:"Status" json:"Status"` // template, mass
-	*mass           // mass
-	*account        // account
-	*dkf            // dkf
-	*poi            // poi
-	*card           // card
-	*bizwifi        // bizwifi
-
-	// shakearound
-	ChosenBeacon *struct {
-		UUID     string  `xml:"Uuid"     json:"Uuid"`
-		Major    int     `xml:"Major"    json:"Major"`
-		Minor    int     `xml:"Minor"    json:"Minor"`
-		Distance float64 `xml:"Distance" json:"Distance"`
-	} `xml:"ChosenBeacon,omitempty" json:"ChosenBeacon,omitempty"`
-	AroundBeacons []struct {
-		UUID     string  `xml:"Uuid"     json:"Uuid"`
-		Major    int     `xml:"Major"    json:"Major"`
-		Minor    int     `xml:"Minor"    json:"Minor"`
-		Distance float64 `xml:"Distance" json:"Distance"`
-	} `xml:"AroundBeacons>AroundBeacon,omitempty" json:"AroundBeacons,omitempty"`
+	return nil
 }
 
-type mass struct {
-	//MsgID       int64  `xml:"MsgID"       json:"MsgID"`
-	//Status      string `xml:"Status"      json:"Status"`
-	TotalCount  int `xml:"TotalCount"  json:"TotalCount"`
-	FilterCount int `xml:"FilterCount" json:"FilterCount"`
-	SentCount   int `xml:"SentCount"   json:"SentCount"`
-	ErrorCount  int `xml:"ErrorCount"  json:"ErrorCount"`
+func passToAllKf(msg core.MixedMsg) *transferToCustomerServiceReply {
+	return &transferToCustomerServiceReply{
+		replyMsgHeader: replyMsgHeader{
+			ToUserName:   CDATAText{Text: cdataStartLiteral + msg.FromUserName + cdataEndLiteral},
+			FromUserName: CDATAText{Text: cdataStartLiteral + msg.ToUserName + cdataEndLiteral},
+			MsgType:      CDATAText{Text: cdataStartLiteral + string(response.MsgTypeTransferCustomerService) + cdataEndLiteral},
+			CreateTime:   time.Now().Unix(),
+		},
+	}
 }
 
-type account struct {
-	ExpiredTime int64  `xml:"ExpiredTime" json:"ExpiredTime"`
-	FailTime    int64  `xml:"FailTime"    json:"FailTime"`
-	FailReason  string `xml:"FailReason"  json:"FailReason"`
+func passToKf(msg core.MixedMsg, kfAccount string) *transferToCustomerServiceReply {
+	return &transferToCustomerServiceReply{
+		replyMsgHeader: replyMsgHeader{
+			ToUserName:   CDATAText{Text: cdataStartLiteral + msg.FromUserName + cdataEndLiteral},
+			FromUserName: CDATAText{Text: cdataStartLiteral + msg.ToUserName + cdataEndLiteral},
+			MsgType:      CDATAText{Text: cdataStartLiteral + string(response.MsgTypeTransferCustomerService) + cdataEndLiteral},
+			CreateTime:   time.Now().Unix(),
+		},
+		TransInfo: &transInfo{
+			KfAccount: CDATAText{Text: cdataStartLiteral + kfAccount + cdataEndLiteral},
+		},
+	}
 }
 
-type dkf struct {
-	KfAccount     string `xml:"KfAccount"     json:"KfAccount"`
-	FromKfAccount string `xml:"FromKfAccount" json:"FromKfAccount"`
-	ToKfAccount   string `xml:"ToKfAccount"   json:"ToKfAccount"`
-}
-
-type poi struct {
-	UniqID string `xml:"UniqId" json:"UniqId"`
-	PoiID  int64  `xml:"PoiId"  json:"PoiId"`
-	Result string `xml:"Result" json:"Result"`
-	Msg    string `xml:"Msg"    json:"Msg"`
-}
-
-type card struct {
-	CardID              string `xml:"CardId"              json:"CardId"`
-	RefuseReason        string `xml:"RefuseReason"        json:"RefuseReason"`
-	IsGiveByFriend      int    `xml:"IsGiveByFriend"      json:"IsGiveByFriend"`
-	FriendUserName      string `xml:"FriendUserName"      json:"FriendUserName"`
-	UserCardCode        string `xml:"UserCardCode"        json:"UserCardCode"`
-	OldUserCardCode     string `xml:"OldUserCardCode"     json:"OldUserCardCode"`
-	ConsumeSource       string `xml:"ConsumeSource"       json:"ConsumeSource"`
-	OuterID             int64  `xml:"OuterId"             json:"OuterId"`
-	LocationName        string `xml:"LocationName"        json:"LocationName"`
-	StaffOpenID         string `xml:"StaffOpenId"         json:"StaffOpenId"`
-	VerifyCode          string `xml:"VerifyCode"          json:"VerifyCode"`
-	RemarkAmount        string `xml:"RemarkAmount"        json:"RemarkAmount"`
-	OuterStr            string `xml:"OuterStr"            json:"OuterStr"`
-	Detail              string `xml:"Detail"              json:"Detail"`
-	IsReturnBack        int    `xml:"IsReturnBack"        json:"IsReturnBack"`
-	IsChatRoom          int    `xml:"IsChatRoom"          json:"IsChatRoom"`
-	IsRestoreMemberCard int    `xml:"IsRestoreMemberCard" json:"IsRestoreMemberCard"`
-	IsRecommendByFriend int    `xml:"IsRecommendByFriend" json:"IsRecommendByFriend"`
-	PageID              string `xml:"PageId"              json:"PageId"`
-	OrderID             string `xml:"OrderId"             json:"OrderId"`
-}
-
-type bizwifi struct {
-	ConnectTime int64  `xml:"ConnectTime" json:"ConnectTime"`
-	ExpireTime  int64  `xml:"ExpireTime"  json:"ExpireTime"`
-	VendorID    string `xml:"VendorId"    json:"VendorId"`
-	PlaceID     int64  `xml:"PlaceId"     json:"PlaceId"`
-	DeviceNo    string `xml:"DeviceNo"    json:"DeviceNo"`
+func autoReplyText(msg core.MixedMsg, content string) *autoReplyMsg {
+	return &autoReplyMsg{
+		replyMsgHeader: replyMsgHeader{
+			ToUserName:   CDATAText{Text: cdataStartLiteral + msg.FromUserName + cdataEndLiteral},
+			FromUserName: CDATAText{Text: cdataStartLiteral + msg.ToUserName + cdataEndLiteral},
+			MsgType:      CDATAText{Text: cdataStartLiteral + string(response.MsgTypeText) + cdataEndLiteral},
+			CreateTime:   time.Now().Unix(),
+		},
+		Content: CDATAText{Text: cdataStartLiteral + content + cdataEndLiteral},
+	}
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"heshi/errors"
 	"regexp"
@@ -12,9 +13,19 @@ import (
 func (u *User) validNewUser() ([]errors.HSMessage, error) {
 	if vmsg := u.preValidateNewUser(); len(vmsg) != 0 {
 		return vmsg, nil
-	} else if vmsg, err := u.validUniqueKey(); err != nil {
+	}
+
+	if vmsg, err := u.validUniqueKey(); err != nil {
 		return nil, err
 	} else if len(vmsg) != 0 {
+		return vmsg, nil
+	}
+
+	if msg, err := u.validRecommendedBy(); err != nil {
+		return nil, err
+	} else if msg != (errors.HSMessage{}) {
+		var vmsg []errors.HSMessage
+		vmsg = append(vmsg, msg)
 		return vmsg, nil
 	}
 	return nil, nil
@@ -40,12 +51,8 @@ func (u *User) preValidateNewUser() []errors.HSMessage {
 		vmsgs = append(vmsgs, vmsg)
 	}
 
-	if !util.IsInArrayString(u.UserType, VALID_USERTYPE) {
+	if !util.IsInArrayString(u.UserType, validUserType) {
 		vmsgs = append(vmsgs, vemsgUserUsertypeNotValid)
-	}
-
-	if vmsg := u.validRecommnadedBy(); vmsg != (errors.HSMessage{}) {
-		vmsgs = append(vmsgs, vmsg)
 	}
 
 	if len(vmsgs) != 0 {
@@ -78,30 +85,47 @@ func (u *User) validUserName() []errors.HSMessage {
 	return vmsg
 }
 
-// TODO refine phone number valdiation
+//refine phone number valdiation
 func (u *User) validPhone() errors.HSMessage {
+	// str1 := "1(234)5678901x1234"
+	// str2 := "(+351) 282 43 50 50"
+	// str3 := "90191919908"
+	// str4 := "555-8909"
+	// str5 := "001 6867684"
+	// str6 := "001 6867684x1"
+	// str7 := "1 (234) 567-8901"
+	// str8 := "1-234-567-8901 ext1234"
+	regex := regexp.MustCompile(`^(?:(?:\(?(?:00|\+)([1-4]\d\d|[1-9]\d?)\)?)?[\-\.\ \\\/]?)?((?:\(?\d{1,}\)?[\-\.\ \\\/]?){0,})(?:[\-\.\ \\\/]?(?:#|ext\.?|extension|x)[\-\.\ \\\/]?(\d+))?$`)
+	// fmt.Printf("Pattern: %v\n", regex.String()) // print pattern
+	// fmt.Printf("\nPhone: %v\t:%v\n", str1, regex.MatchString(str1))
+	// fmt.Printf("Phone: %v\t:%v\n", str2, regex.MatchString(str2))
+	// fmt.Printf("Phone: %v\t\t:%v\n", str3, regex.MatchString(str3))
+	// fmt.Printf("Phone: %v\t\t\t:%v\n", str4, regex.MatchString(str4))
+	// fmt.Printf("Phone: %v\t\t:%v\n", str5, regex.MatchString(str5))
+	// fmt.Printf("Phone: %v\t\t:%v\n", str6, regex.MatchString(str6))
+	// fmt.Printf("Phone: %v\t\t:%v\n", str7, regex.MatchString(str7))
+	// fmt.Printf("Phone: %v\t:%v\n", str8, regex.MatchString(str8))
 	// regex := regexp.MustCompile("^(\\+\\d{1,3}[- ]?)?\\d{14}$")
 	// regex := regexp.MustCompile("^\\+{0,1}0{0,1}62[0-9]+$")
-	regex := regexp.MustCompile("^[0-9]*$")
 	if !regex.MatchString(u.Cellphone) {
 		return vemsgUserCellphoneNotValid
 	}
 	return errors.HSMessage{}
 }
 
-func (u *User) validRecommnadedBy() errors.HSMessage {
+func (u *User) validRecommendedBy() (errors.HSMessage, error) {
 	if u.RecommendedBy != "" {
-		var count int
-		q := fmt.Sprintf("SELECT COUNT(*) FROM users WHERE invitation_code=%s", u.RecommendedBy)
-		if err := dbQueryRow(q).Scan(&count); err != nil {
-			return vemsgUserErrorRecommandCode
+		var id string
+		q := fmt.Sprintf("SELECT id FROM users WHERE invitation_code=%s", u.RecommendedBy)
+		if err := dbQueryRow(q).Scan(&id); err != nil {
+			if err != sql.ErrNoRows {
+				return errors.HSMessage{}, err
+			}
+			return vemsgUserErrorRecommendCode, nil
 		}
-		if count == 0 {
-			return vemsgUserErrorRecommandCode
-		}
+		u.RecommendedBy = id
 	}
-
-	return errors.HSMessage{}
+	return errors.HSMessage{}, nil
 }
 
 func (u *User) validUniqueKey() ([]errors.HSMessage, error) {

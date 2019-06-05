@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"heshi/errors"
 	"strconv"
+	"strings"
+	"time"
 	"util"
 )
 
@@ -22,6 +24,8 @@ func (j *jewelry) composeInsertQuery() string {
 			va = fmt.Sprintf("%s, '%d'", va, v.(int))
 		case int64:
 			va = fmt.Sprintf("%s, '%d'", va, v.(int64))
+		case time.Time:
+			va = fmt.Sprintf("%s, '%s'", va, v.(time.Time).Format(timeFormat))
 		}
 	}
 	q = fmt.Sprintf("%s) %s)", q, va)
@@ -41,7 +45,39 @@ func (j *jewelry) composeUpdateQuery() string {
 			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int))
 		case int64:
 			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
+		case time.Time:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(time.Time).Format(timeFormat))
 		}
+	}
+	q = fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, j.ID)
+	return q
+}
+
+//TODO only track price/promotion_id(track in promotion section) change
+// do we need check stock and status change?? in product_order ??
+func (j *jewelry) composeUpdateQueryTrack(updatedBy string) string {
+	trackMap := make(map[string]interface{})
+	params := j.parmsKV()
+	q := `UPDATE jewelrys SET`
+	for k, v := range params {
+		if k == "price" {
+			trackMap["price"] = v
+		}
+		switch v.(type) {
+		case string:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(string))
+		case float64:
+			q = fmt.Sprintf("%s %s='%f',", q, k, v.(float64))
+		case int:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int))
+		case int64:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
+		case time.Time:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(time.Time).Format(timeFormat))
+		}
+	}
+	if len(trackMap) != 0 {
+		newHistoryRecords(updatedBy, "jewelrys", j.ID, trackMap)
 	}
 	q = fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, j.ID)
 	return q
@@ -108,17 +144,17 @@ func (j *jewelry) parmsKV() map[string]interface{} {
 	if j.VideoLink != "" {
 		params["video_link"] = j.VideoLink
 	}
+	if len(j.Images) != 0 {
+		params["images"] = strings.Join(j.Images, ";")
+	}
 	if j.Text != "" {
 		params["text"] = j.Text
 	}
-	if j.Online != "" {
-		params["online"] = j.Online
+	if j.Status != "" {
+		params["status"] = j.Status
 	}
 	if j.Verified != "" {
 		params["verified"] = j.Verified
-	}
-	if j.InStock != "" {
-		params["in_stock"] = j.InStock
 	}
 	if j.Featured != "" {
 		params["featured"] = j.Featured
@@ -139,7 +175,7 @@ func (j *jewelry) parmsKV() map[string]interface{} {
 }
 
 //if from importCSV, it is otherwize, no need to check duplication of stock_id
-func (j *jewelry) validateJewelryReq(update bool, importCSV bool) ([]errors.HSMessage, error) {
+func (j *jewelry) validateJewelryReq(update bool) ([]errors.HSMessage, error) {
 	var vemsg []errors.HSMessage
 	if !update && j.MetalWeightStr == "" {
 		vemsg = append(vemsg, vemsgMetalWeightEmpty)
@@ -240,11 +276,19 @@ func (j *jewelry) validateJewelryReq(update bool, importCSV bool) ([]errors.HSMe
 		}
 	}
 
-	if !importCSV {
-		if !update && j.StockID == "" {
-			vemsgNotValid.Message = "jewelry stock id can not be empty"
-			vemsg = append(vemsg, vemsgNotValid)
-		} else if j.StockID != "" {
+	if !update && j.StockID == "" {
+		vemsgNotValid.Message = "jewelry stock id can not be empty"
+		vemsg = append(vemsg, vemsgNotValid)
+	}
+	if j.StockID != "" {
+		if update {
+			if exist, err := isItemExistInDbByPropertyWithDifferentID("jewelrys", "stock_id", j.StockID, j.ID); err != nil {
+				return nil, err
+			} else if exist {
+				vemsgAlreadyExist.Message = "jewelry stock_ref " + j.StockID + " already exists"
+				vemsg = append(vemsg, vemsgAlreadyExist)
+			}
+		} else {
 			if exist, err := isItemExistInDbByProperty("jewelrys", "stock_id", j.StockID); err != nil {
 				return nil, err
 			} else if exist {
@@ -253,6 +297,7 @@ func (j *jewelry) validateJewelryReq(update bool, importCSV bool) ([]errors.HSMe
 			}
 		}
 	}
+
 	if !update && j.Name == "" {
 		vemsgNotValid.Message = "jewelry name can not be empty"
 		vemsg = append(vemsg, vemsgNotValid)
@@ -402,7 +447,7 @@ func (j *jewelry) validateJewelryUpdateReq() ([]errors.HSMessage, error) {
 	}
 
 	if j.StockID != "" {
-		if exist, err := isItemExistInDbByProperty("jewelrys", "stock_id", j.StockID); err != nil {
+		if exist, err := isItemExistInDbByPropertyWithDifferentID("jewelrys", "stock_id", j.StockID, j.ID); err != nil {
 			return nil, err
 		} else if exist {
 			vemsgAlreadyExist.Message = "jewelry stock_ref " + j.StockID + " already exists"
@@ -439,4 +484,23 @@ func (j *jewelry) validateJewelryUpdateReq() ([]errors.HSMessage, error) {
 	}
 	//TODO Featured/Online value validate??? - value can only be YES OR NO
 	return vemsg, nil
+}
+
+func (j *jewelry) isJewelryExistByStockID() error {
+	var id string
+	q := fmt.Sprintf("SELECT id FROM jewelrys WHERE stock_id='%s' AND status IN ('AVAILABLE', 'OFFLINE')", j.StockID)
+	if err := dbQueryRow(q).Scan(&id); err != nil {
+		return err
+	}
+	j.ID = id
+	return nil
+}
+
+func isJewelryExistByID(id string) (bool, error) {
+	var count int
+	q := fmt.Sprintf("SELECT COUNT(*) FROM jewelrys WHERE id='%s' AND status IN ('AVAILABLE', 'OFFLINE')", id)
+	if err := dbQueryRow(q).Scan(&count); err != nil {
+		return false, err
+	}
+	return count == 1, nil
 }

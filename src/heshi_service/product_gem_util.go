@@ -5,6 +5,7 @@ import (
 	"heshi/errors"
 	"strconv"
 	"strings"
+	"time"
 	"util"
 )
 
@@ -23,6 +24,8 @@ func (g *gem) composeInsertQuery() string {
 			va = fmt.Sprintf("%s, '%d'", va, v.(int))
 		case int64:
 			va = fmt.Sprintf("%s, '%d'", va, v.(int64))
+		case time.Time:
+			va = fmt.Sprintf("%s, '%s'", va, v.(time.Time).Format(timeFormat))
 		}
 	}
 	q = fmt.Sprintf("%s) %s)", q, va)
@@ -42,7 +45,38 @@ func (g *gem) composeUpdateQuery() string {
 			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int))
 		case int64:
 			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
+		case time.Time:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(time.Time).Format(timeFormat))
 		}
+	}
+	q = fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, g.ID)
+	return q
+}
+
+//only track price/promotion_id(track in promotion section) change
+func (g *gem) composeUpdateQueryTrack(updatedBy string) string {
+	trackMap := make(map[string]interface{})
+	params := g.parmsKV()
+	q := `UPDATE gems SET`
+	for k, v := range params {
+		if k == "price" {
+			trackMap["price"] = v
+		}
+		switch v.(type) {
+		case string:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(string))
+		case float64:
+			q = fmt.Sprintf("%s %s='%f',", q, k, v.(float64))
+		case int:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int))
+		case int64:
+			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
+		case time.Time:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(time.Time).Format(timeFormat))
+		}
+	}
+	if len(trackMap) != 0 {
+		newHistoryRecords(updatedBy, "gems", g.ID, trackMap)
 	}
 	q = fmt.Sprintf("%s updated_at=(CURRENT_TIMESTAMP) WHERE id='%s'", q, g.ID)
 	return q
@@ -76,17 +110,17 @@ func (g *gem) parmsKV() map[string]interface{} {
 	if g.Text != "" {
 		params["text"] = g.Text
 	}
+	if len(g.Images) != 0 {
+		params["images"] = strings.Join(g.Images, ";")
+	}
 	if g.Certificate != "" {
 		params["certificate"] = g.Certificate
 	}
-	if g.Online != "" {
-		params["online"] = g.Online
+	if g.Status != "" {
+		params["status"] = g.Status
 	}
 	if g.Verified != "" {
 		params["verified"] = g.Verified
-	}
-	if g.InStock != "" {
-		params["in_stock"] = g.InStock
 	}
 	if g.Featured != "" {
 		params["featured"] = g.Featured
@@ -106,11 +140,11 @@ func (g *gem) parmsKV() map[string]interface{} {
 	return params
 }
 
-func (g *gem) validateGemReq() ([]errors.HSMessage, error) {
+func (g *gem) validateGemReq(update bool) ([]errors.HSMessage, error) {
 	var vemsg []errors.HSMessage
-	if g.SizeStr == "" {
+	if !update && g.SizeStr == "" {
 		vemsg = append(vemsg, vemsgGemSizeEmpty)
-	} else {
+	} else if g.SizeStr != "" {
 		cValue, err := util.StringToFloat(g.SizeStr)
 		if err != nil {
 			vemsg = append(vemsg, vemsgGemSizeNotValid)
@@ -120,9 +154,9 @@ func (g *gem) validateGemReq() ([]errors.HSMessage, error) {
 			g.Size = cValue
 		}
 	}
-	if g.PriceStr == "" {
+	if !update && g.PriceStr == "" {
 		vemsg = append(vemsg, vemsgGemPriceEmpty)
-	} else {
+	} else if g.PriceStr != "" {
 		pValue, err := util.StringToFloat(g.PriceStr)
 		if err != nil {
 			vemsg = append(vemsg, vemsgGemPriceNotValid)
@@ -132,9 +166,9 @@ func (g *gem) validateGemReq() ([]errors.HSMessage, error) {
 			g.Price = pValue
 		}
 	}
-	if g.StockQuantityStr == "" {
+	if !update && g.StockQuantityStr == "" {
 		vemsg = append(vemsg, vemsgStockQuantityEmpty)
-	} else {
+	} else if g.StockQuantityStr != "" {
 		prValue, err := strconv.Atoi(g.StockQuantityStr)
 		if err != nil {
 			vemsg = append(vemsg, vemsgStockQuantityNotValid)
@@ -147,10 +181,10 @@ func (g *gem) validateGemReq() ([]errors.HSMessage, error) {
 	// return vemsg, nil
 
 	//be an array
-	if g.Shape == "" {
+	if !update && g.Shape == "" {
 		vemsgNotValid.Message = "gem shape cannot be empty"
 		vemsg = append(vemsg, vemsgNotValid)
-	} else {
+	} else if g.Shape != "" {
 		s, err := jewelryShape(g.Shape)
 		if err != nil {
 			return nil, err
@@ -158,35 +192,56 @@ func (g *gem) validateGemReq() ([]errors.HSMessage, error) {
 		g.Shape = s
 	}
 
-	if g.Text == "" {
+	if !update && g.Text == "" {
 		vemsgNotValid.Message = "gem text cannot be empty"
 		vemsg = append(vemsg, vemsgNotValid)
 	}
-	if g.Certificate == "" {
+	if !update && g.Certificate == "" {
 		vemsgNotValid.Message = "gem certificate cannot be empty"
 		vemsg = append(vemsg, vemsgNotValid)
-	} else {
-		if e, err := isItemExistInDbByProperty("gems", "certificate", g.Certificate); err != nil {
-			return nil, err
-		} else if e {
-			vemsgAlreadyExist.Message = "gem certificate already exist"
-			vemsg = append(vemsg, vemsgAlreadyExist)
+	}
+	if g.Certificate != "" {
+		if update {
+			if e, err := isItemExistInDbByPropertyWithDifferentID("gems", "certificate", g.Certificate, g.ID); err != nil {
+				return nil, err
+			} else if e {
+				vemsgAlreadyExist.Message = "gem certificate already exist"
+				vemsg = append(vemsg, vemsgAlreadyExist)
+			}
+		} else {
+			if e, err := isItemExistInDbByProperty("gems", "certificate", g.Certificate); err != nil {
+				return nil, err
+			} else if e {
+				vemsgAlreadyExist.Message = "gem certificate already exist"
+				vemsg = append(vemsg, vemsgAlreadyExist)
+			}
 		}
 	}
 
-	if g.StockID == "" {
+	if !update && g.StockID == "" {
 		vemsgNotValid.Message = "gem stock id cannot be empty"
 		vemsg = append(vemsg, vemsgNotValid)
-	} else {
-		if e, err := isItemExistInDbByProperty("gems", "stock_id", g.StockID); err != nil {
-			return nil, err
-		} else if e {
-			vemsgAlreadyExist.Message = "gem stock id already exist"
-			vemsg = append(vemsg, vemsgAlreadyExist)
+	}
+	if g.StockID != "" {
+		if update {
+			if e, err := isItemExistInDbByPropertyWithDifferentID("gems", "stock_id", g.StockID, g.ID); err != nil {
+				return nil, err
+			} else if e {
+				vemsgAlreadyExist.Message = "gem stock id already exist"
+				vemsg = append(vemsg, vemsgAlreadyExist)
+			}
+
+		} else {
+			if e, err := isItemExistInDbByProperty("gems", "stock_id", g.StockID); err != nil {
+				return nil, err
+			} else if e {
+				vemsgAlreadyExist.Message = "gem stock id already exist"
+				vemsg = append(vemsg, vemsgAlreadyExist)
+			}
 		}
 	}
 
-	if g.Name == "" {
+	if !update && g.Name == "" {
 		vemsgNotValid.Message = "gem name cannot be empty"
 		vemsg = append(vemsg, vemsgNotValid)
 	}
@@ -228,7 +283,7 @@ func (g *gem) validateGemUpdateReq() ([]errors.HSMessage, error) {
 	//be an array
 	if g.Shape != "" {
 		shapes := strings.Split(g.Shape, ",")
-		if !util.IsIn(shapes, VALID_DIAMOND_SHAPE) {
+		if !util.IsIn(shapes, validDiamondShape) {
 			vemsgNotValid.Message = "gem shape input is not valid"
 			vemsg = append(vemsg, vemsgNotValid)
 		}
@@ -236,7 +291,7 @@ func (g *gem) validateGemUpdateReq() ([]errors.HSMessage, error) {
 	}
 
 	if g.Certificate != "" {
-		if e, err := isItemExistInDbByProperty("gems", "stock_id", g.StockID); err != nil {
+		if e, err := isItemExistInDbByPropertyWithDifferentID("gems", "stock_id", g.StockID, g.ID); err != nil {
 			return nil, err
 		} else if e {
 			vemsgAlreadyExist.Message = "gem certificate already exist"
@@ -245,7 +300,7 @@ func (g *gem) validateGemUpdateReq() ([]errors.HSMessage, error) {
 	}
 
 	if g.StockID != "" {
-		if e, err := isItemExistInDbByProperty("gems", "stock_id", g.StockID); err != nil {
+		if e, err := isItemExistInDbByPropertyWithDifferentID("gems", "stock_id", g.StockID, g.ID); err != nil {
 			return nil, err
 		} else if e {
 			vemsgAlreadyExist.Message = "gem stock id already exist"
@@ -254,4 +309,21 @@ func (g *gem) validateGemUpdateReq() ([]errors.HSMessage, error) {
 	}
 
 	return vemsg, nil
+}
+
+func (g *gem) isGemExistByStockID() error {
+	var id string
+	if err := dbQueryRow(fmt.Sprintf("SELECT id FROM gems WHERE diamond_id='%s'", g.StockID)).Scan(&id); err != nil {
+		return err
+	}
+	g.ID = id
+	return nil
+}
+
+func isGemExistByID(id string) (bool, error) {
+	var count int
+	if err := dbQueryRow(fmt.Sprintf("SELECT COUNT(*) FROM gems WHERE id='%s'", id)).Scan(&count); err != nil {
+		return false, err
+	}
+	return count == 1, nil
 }

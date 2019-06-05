@@ -1,0 +1,144 @@
+Tables:
+  users                    --user property                     
+  admins                   --user property specified for admin //so far, ignore, no property specified to admin
+  agents                   --user property specified for agent //so far, ignore, no property specified to agent
+  wechat_users             --user property of wechat related //ignore for now
+
+  diamonds                 --product diamonds 
+  gems                     --product gems
+  jewelrys                 --product jewelrys
+  small_diamonds           --product small_diamonds
+
+  orders                   --customer/agent orders 
+  shopping_cart            --user shopping cart
+
+  currency_exchange_rates  --exchange rate 
+  level_rate_rules         --config customer/agent level, discounts rule; and float rate of system
+  suppliers                --track suppliers: 
+  price_settings_universal --price rule for based diamonds property 
+  historys                 --track admin/agent action regarding change of: orders, level_rate_rules, product(diamonds, jewelrys, gems, small_diamonds)
+  user_active_records      --track user api call visit -- statistic server usage
+  user_using_records       --track product items user visits -- statistic which product most interested to user 
+  action_logs              --track customer/agent level change (routine service run base on level_rate_rules)
+
+  promotions               
+  invitation_codes         
+  interested_items         
+  messages                 
+  discounts                
+
+long run service: 
+  exchange_rate            -- every 8hrs, push latest exchange rate and update activeCurrencyRate upon success change
+  longRunTransactionCheck  -- every 24hr, cancel transactions not downpayment in 24hrs since latest udpated_at
+  agentDailyCheck        -- every 24hrs, auto level change, total_purchase_amount,return point caculation
+  customerDailyCheck     -- every 24hrs, auto level change, total_purchase_amount,return point caculation
+
+
+Q1: account discount 
+--> all comes from level_rate_rules, no exception ?? 
+    or admin can grant other discount to some account??? (agent or customer)
+Q2: customer recommended, return point to customer, how much, rule?? 返点计算？
+Q22: customer level upgrade, has nothing to do with recommended customer buy???
+Q3: agent recommended, return point to agent, how much, rule??? 返点计算？ all product got return point ??
+Q33: same as Q22 
+Q4: （point - 返点）， 积分和返点不同，积分就是消费金额（一年内), 普通客户一年清零，代理？？清零 ？？
+    total_purchase_amount 积分(有效积分 一年内的？？？))
+
+
+NOTE:
+select @@GLOBAL.tx_isolation, @@Session. tx_isolation;
+SET GLOBAL tx_isolation='SERIALIZABLE'
+SET SESSION tx_isolation='READ_COMMITTED'
+show status;
+
+TINYINT – It Can Hold values from -128 to 127. Or 0 to 255 for Unsigned.
+SMALLINT -It can Hold values -32768 to 32767 or 0 to 65535 UNSIGNED. This is most commonly used field for most websites.
+MEDIUMINT – It can Hold values from -8388608 to 8388607 or 0 to 16777215 UNSIGNED.
+INT – It can hold Values from -2147483648 to 2147483647 or 0 to 4294967295 UNSIGNED.
+BIGINT – -9223372036854775808 to 9223372036854775807 normal. 0 to 18446744073709551615.
+FLOAT 
+DOUBLE 
+DECIMAL
+
+TEXT
+fixed max size of 65535 characters (you cannot limit the max size)
+takes 2 + c bytes of disk space, where c is the length of the stored string.
+cannot be part of an index
+VARCHAR(M)
+variable max size of M characters
+M needs to be between 1 and 65535
+takes 1 + c bytes (for M ≤ 255) or 2 + c (for 256 ≤ M ≤ 65535) bytes of disk space where c is the length of the stored string
+can be part of an index
+
+sql to alter column defaut value
+alter table users MODIFY column status VARCHAR(8) NOT NULL DEFAULT 'ACTIVE';
+alter table gems change online status varchar(18) NOT NULL DEFAULT 'AVAILABLE';
+alter table gems drop in_stock;
+alter table gems add promotion_id varchar(225);
+
+alter table diamonds drop picked_up;
+alter table diamonds drop ordered_by;
+alter table diamonds drop sold_price;
+drop table orders;
+
+Content-Type:[application/json]
+proms:
+[
+    {
+        "item_id": "1507cbf7-2f0b-48a2-a546-c546143211c7",
+        "promotion_id": "5d774212-bb11-4e1d-8214-b1719fcff3c4",
+        "item_category": "diamond"
+    },
+    {
+        "item_id": "23d92dfa-4d86-4b25-8f13-d67d5615be53",
+        "item_category": "diamond",
+        "promotion_id": null
+    }
+]
+
+onlineOfflineProducts:
+[
+    {
+        "item_id": "1507cbf7-2f0b-48a2-a546-c546143211c7",
+        "item_category": "diamond"
+    },
+    {
+        "item_id": "23d92dfa-4d86-4b25-8f13-d67d5615be53",
+        "item_category": "diamond"
+    }
+]
+
+orders: 
+[
+    {
+        "item_id":"a4acb846-2668-44ce-ada4-cc9680227776",
+        "item_category":"diamond",
+        "sold_price_usd":78.69,
+        "chosen_by":"huangcu"
+    },
+    {
+        "item_quantity":4,
+        "item_id":"5f456042-04ff-43ac-a7fa-534caaccfae9",
+        "item_category":"jewelrys",
+        "sold_price_usd":78.69
+    }
+]
+
+shopping_cart: /update
+
+[
+    {
+        "item_id":"a4acb846-2668-44ce-ada4-cc9680227776",
+        "item_category":"diamond"
+    },
+    {
+        "item_quantity":3,
+        "item_id":"90845ff1-62e6-4efa-b37f-965c7831e5da",
+        "item_category":"jewelry"
+    },
+        {
+        "item_id":"0317be5c-8d4b-4f06-bf5c-7caff4648d8a",
+        "item_category":"jewelry",
+        "item_quantity":1
+    }
+]

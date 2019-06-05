@@ -1,7 +1,9 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
+	"time"
 	"util"
 )
 
@@ -20,6 +22,8 @@ func (u *User) composeInsertQuery() string {
 			va = fmt.Sprintf("%s, '%d'", va, v.(int))
 		case int64:
 			va = fmt.Sprintf("%s, '%d'", va, v.(int64))
+		case time.Time:
+			va = fmt.Sprintf("%s, '%s'", va, v.(time.Time).Format(timeFormat))
 		}
 	}
 	q = fmt.Sprintf("%s) %s)", q, va)
@@ -42,6 +46,8 @@ func (u *User) composeUpdateQuery() string {
 			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int))
 		case int64:
 			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
+		case time.Time:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(time.Time).Format(timeFormat))
 		}
 	}
 
@@ -93,4 +99,31 @@ func (u *User) paramsKV() map[string]interface{} {
 		params["icon"] = u.Icon
 	}
 	return params
+}
+
+func isUserExistByID(id string) (bool, error) {
+	var count int
+	if err := dbQueryRow(fmt.Sprintf("SELECT COUNT(*) FROM users WHERE id='%s'", id)).Scan(&count); err != nil {
+		return false, err
+	}
+	return count == 1, nil
+}
+
+func isUserExistByWechatOpenID(wecahtOpenID string) (bool, error) {
+	var count int
+	if err := dbQueryRow(fmt.Sprintf("SELECT COUNT(*) FROM users WHERE wechat_id='%s'", wecahtOpenID)).Scan(&count); err != nil {
+		return false, err
+	}
+	return count == 1, nil
+}
+
+func getUserNameByID(id string) (string, error) {
+	var username string
+	if err := dbQueryRow(fmt.Sprintf("SELECT username FROM users WHERE id='%s'", id)).Scan(&username); err != nil {
+		if err == sql.ErrNoRows {
+			return "", nil
+		}
+		return "", err
+	}
+	return username, nil
 }

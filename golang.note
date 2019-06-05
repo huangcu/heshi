@@ -32,17 +32,118 @@ go get -u -v sourcegraph.com/sqs/goreturns
 golang 
 
 1: type (https://www.goinggo.net/2013/07/understanding-type-in-go.html && http://golang.org/ref/spec#Types) 
-    bool - 1byte
+    bool - 1bit
     uint, int, uintptr ->   int (int32 or int64 - 32bit OS or 64bit OS)
     uint8, uint16, uint32, uint64
     int8, int16, int32, int64
     float32, float64
     rune 
-    string 
+    string: A string type represents the set of string values. A string value is a (possibly empty) sequence of bytes
+Array type
+    An array is a numbered sequence of elements of a single type, called the element type. 
+    The number of elements is called the length of the array and is never negative.
+    Arrays do not need to be initialized explicitly; 
+    By default an array is zero-valued of that single type;(Kind of like struct)
+    the zero value of an array is a ready-to-use array whose elements are themselves zeroed:
+Slice type(make | new) -> make([]byte, 5, 5) () - > func make([]T, len, cap) []T
+    A slice is a descriptor for a contiguous segment of an underlying array and provides access to a numbered sequence of elements from that array. 
+    A slice is a descriptor of an array segment. 
+    It consists of a pointer to the array, the length of the segment, and its capacity
+    A slice type denotes the set of all slices of arrays of its element type. 
+    The number of elements is called the length of the slice and is never negative. 
+    The value of an uninitialized slice is nil.
+    The len and cap functions will both return 0 for a nil slice. has no underlying array.
+    (build-in append: append works on nil slices.The slice grows as needed.)
+Struct type:
+    A struct is a sequence of named elements, called fields, each of which has a name and a type. 
+    Field names may be specified explicitly (IdentifierList) or implicitly (EmbeddedField). 
+    Within a struct, non-blank field names must be unique.
+    The zero value of a struct value is not nil
+      Each element of such a variable or value is set to the zero value for its type: 
+        false for booleans, 
+        0 for integers,
+        0.0 for floats,
+        "" for strings,
+        nil for pointers, functions, interfaces, slices, channels, and maps.
+
+Pointer type:
+    A pointer type denotes the set of all pointers to variables of a given type, called the base type of the pointer. 
+    The value of an uninitialized pointer is nil.
+Function type:
+    A function type denotes the set of all functions with the same parameter and result types.
+    The value of an uninitialized variable of function type is nil.
+    Functions are values too. They can be passed around just like other values.
+    Go functions may be closures. A closure is a function value that references variables from outside its body. 
+    The function may access and assign to the referenced variables; in this sense the function is "bound" to the variables.
+    =================
+    For example, the adder function returns a closure. Each closure is bound to its own sum variable.
+    package main
+    import "fmt"
+
+    func adder() func(int) int {
+        sum := 0
+        return func(x int) int {
+            sum += x
+            return sum
+        }
+    }
+
+    func main() {
+        pos, neg := adder(), adder()
+        for i := 0; i < 10; i++ {
+            fmt.Println(
+                pos(i),
+                neg(-2*i),
+            )
+        }
+    }
+
+    func fibonacci() func() int {
+        a := 1
+        b := 0
+        return func() int {
+        a, b = b, a+b
+        return a
+        }
+    }
+    ==================
+Interface type: 
+    An interface type specifies a method set called its interface. 
+    A variable of interface type can store a value of any type with a method set that is any superset of the interface. 
+    Such a type is said to implement the interface. 
+    The value of an uninitialized variable of interface type is nil.
+
+    A type implements any interface comprising any subset of its methods and may therefore implement several distinct interfaces. 
+    For instance, all types implement the empty interface: interface{}
+Map type(make):
+    A map is an unordered group of elements of one type, called the element type, 
+    indexed by a set of unique keys of another type, called the key type. 
+    The value of an uninitialized map is nil.  A nil map has no keys, nor can keys be added
+    (Why can't nil maps spring into existence when assigned to?) 
+    https://www.reddit.com/r/golang/comments/4v2taq/why_cant_nil_maps_spring_into_existence_when/
+    A map is implemented using a hash table, which is providing faster lookups on the data element 
+    and you can easily retrieve a value by providing the key. maps are unordered collections, 
+    and there's no way to predict the order in which the key/value pairs will be returned. 
+    Every iteration over a map could return a different order.
+Channel type: 
+    A channel provides a mechanism for concurrently executing functions to communicate by sending and receiving values of a specified element type. 
+    The value of an uninitialized channel is nil.
 
     8 byte alignment rule; 
     Go is a type safe language. 
+    Type safety means that the compiler will validate types while compiling, 
+    and throw an error if you try to assign the wrong type to a variable.
+
     This means that the compiler will always enforce like types on each side of an assignment operator. 
+    
+    Google Go is statically typed, but a number of features make it "appear" to be (at least somewhat) dynamically typed. 
+    For example, you do not need to explicitly mark your class as implementing any interfaces. 
+    If the method signatures of your class match up with those on the interface, then your class automatically implements that interface (a kind of duck-typing). 
+    This is useful for extending built-in classes and classes in third-party libraries, 
+    because you can just make up your interface to match the methods on the third-party class and 
+    it will automatically implement it.
+
+    Go's map type is not thread-safe, it is statically typed
 
 2: Slice VS Array 
     (https://golang.org/doc/effective_go.html#slices) && 
@@ -57,34 +158,202 @@ golang
 
 3: Map 
     a nil map VS an empty map (gotour)
+    var employee = make(map[string]int)
+    var employee = map[string]int{} 
+    employee is empty map, not a nil map; 
+   while "var m map[string]int64", m declared here is a nil map
+
+    #########################
+    var m map[string]int64
+    log.Println(m == nil)
+    log.Printf("%T\n", m)
+    It will print:
+
+    $ true
+    $ map[string]int64
+    So m is actually nil at this point.
+    A nil value (can) have a type too and the formater uses that to print out something meaningful when possible.
+
+    A map is a reference type. And in Go you can call methods of a struct even if it's value is nil.
+    ###############################
 
 4: interface (gotour)
+Interface Values: 
     Under the covers, interface values can be thought of as a tuple of a value and a concrete type:(value, type)
     An interface value holds a value of a specific underlying concrete type.
     Calling a method on an interface value executes the method of the same name on its underlying type.
-    
-    a nil value interface VS empty interface; 
-    empty interface: interface{}
+        
+    Interface holds a nil concrete value: an interface value that holds a nil concrete value is itself non-nil. (it has a type)
+        If the concrete value inside the interface itself is nil, the method will be called with a nil receiver.
+        In some languages this would trigger a null pointer exception, but in Go it is common to write methods that gracefully handle being called with a nil receiver.
+    A nil interface: holds neither value nor concrete type, it is nil.
+        Calling a method on a nil interface is a run-time error because there is no type inside the interface tuple to indicate which concrete method to call.
+    Empty interface: interface{}
     It represents the empty set of methods and is satisfied by any value at all, since any value has zero or more methods.
 
 5: embedded types , method, interface (indirection) - > object oriented programming;(封装， 集成，多态) 在 go中的类似实现 
+    Methods:  Go does not have classes. However, you can define methods on types.
+              A method is a function with a special receiver argument.
+    Receiver: A receiver is a value or a pointer of a named or struct type.
+    Pointer Receiver VS Value Receiver
+        With a value receiver, the Scale method operates on a copy of the original Vertex value. 
+        (This is the same behavior as for any other function argument.) 
+        Methods with pointer receivers can modify the value to which the receiver points (as Scale does here). 
+        Since methods often need to modify their receiver, pointer receivers are more common than value receivers
+    Methods and pointer indirection:
+        Functions with a pointer argument must take a pointer
+        Functions that take a value argument must take a value of that specific type
+
+        Methods with pointer receivers take either a value or a pointer as the receiver when they are called.
+        Methods with value receivers take either a value or a pointer as the receiver when they are called.
+    Rule: 
+        1: The method set of the corresponding pointer type *T is the set of all methods with receiver *T or T
+        2: The method set of any other type T consists of all methods with receiver type T.
+
+    =======================
+    package main
+
+    import (
+        "log"
+    )
+
+    type User struct {
+        Name  string
+        Email string
+    }
+
+    func (u *User) Notify() error {
+        log.Printf("User: Sending User Email To %s<%s>\n",
+            u.Name,
+            u.Email)
+
+        return nil
+    }
+
+    type Notifier interface {
+        Notify() error
+    }
+
+    func SendNotification(notify Notifier) error {
+        return notify.Notify()
+    }
+
+    func main() {
+        user := User{
+            Name:  "janet jones",
+            Email: "janet@email.com",
+        }
+        user.Notify() //This is right. 
+                     //Method with a pointer receiver Can take a pointer or a value as Receiver when they are called
+        SendNotification(user) //This is wrong.
+                               //Function SendNotification accepts any value or pointer of a type that implements the Notifier interface, 
+                               //User (type) not implement Notifier interface, while *User (type) implement Notifier interface 
+                               //SendNotification(&user) is right
+    }
+===========================
+
+    Choosing a value or pointer receiver
+        There are two reasons to use a pointer receiver.
+        The first is so that the method can modify the value that its receiver points to.
+        The second is to avoid copying the value on each method call. 
+        This can be more efficient if the receiver is a large struct, for example.
+
     https://www.goinggo.net/2014/05/methods-interfaces-and-embedded-types.html
     important !!!!!! 
-    method promotion!!!When we embed a type, the methods of that type become methods of the outer type, but when they are invoked, the receiver of the method is the inner type, not the outer one.
-    Struct S has anonymous field T VS anonymous field *T -> methods set of S vs *S , and T , *T method promotion
+    method promotion!!
+    !When we embed a type, the methods of that type become methods of the outer type, 
+    but when they are invoked, the receiver of the method is the inner type, not the outer one.
+    ======================
+    type Admin struct {
+        User   --->(User is the embedded type, the method on User become method on Admin, it implement Notifier)
+        Level string
+    }
+    func main() {
+    admin := &Admin{
+            User: User{
+                Name:  "john smith",
+                Email: "john@email.com",
+            },
+            Level: "super",
+        }
+
+        SendNotification(admin)  (This is right. admin takes embedded (User method) which implement Notifier, so admin implement Notifier too)
+    }
+    admin.User.Notify() (This is right)
+    admin.Notify() (This is right. when invoked, the receiver of the mothed(Notify()) is the innner type User, Not outer one Admin)
+    ============================
+    Rules for inner type method set promotion: 
+    Struct S has anonymous field T -> 
+        methods set of S include promoted methods with receiver T.
+        methods set of *S include promoted methods with receiver T and *T.
+    Struct S has anonymous field *T ->
+        methods set of S include promoted methods with receiver T and *T.
+        methods set of *S include promoted methods with receiver T and *T.
 
     method define on T, *T, same method name will cause compile error, already exists.
 
-6: exported && unexported (variable, struct field, function etc) in GO 
+=================
+func (a *Admin) Notify() error {
+    log.Printf("Admin: Sending Admin Email To %s<%s>\n",
+        a.Name,
+        a.Email)
+
+    return nil
+}
+
+func main() {
+    admin := &Admin{
+        User: User{
+            Name:  "john smith",
+            Email: "john@email.com",
+        },
+        Level: "super",
+    }
+
+    SendNotification(admin)
+}
+
+// Output
+Admin: Sending Admin Email To john smith<john@email.com>
+
+admin.Notify()
+
+// Output
+Admin: Sending Admin Email To john smith<john@email.com>
+
+When Admin implement Notifier, The User type’s implementation is no longer promoted to the outer type.
+So:Would the compiler throw an error because we now had two implementations of the interface?
+No, because when we use an embedded type, the unqualified type’s name acts as the field name. 
+This has the effect of fields and methods of the embedded type having a unique name as an inner type of the struct. 
+So we can have an inner and outer implementation of the same interface with each implementation being unique and accessible.
+If the compiler accepted the type declaration, how does the compiler determine which implementation to use for interface calls?
+If the outer type contains an implementation that satisfies the interface, it will be used. 
+Otherwise, thanks to method promotion, any inner type that implements the interface can be used through the outer type.
+
+6: exported && unexported (type, variable, struct field, function etc) in GO 
     https://www.goinggo.net/2014/03/exportedunexported-identifiers-in-go.html
     
 7: all paramters (all type of) is passed by value; 
 
-8: defer, panic, recover;  (https://www.goinggo.net/2013/06/understanding-defer-panic-and-recover.html)
+8: defer, panic, recover;  (https://www.goinggo.net/2013/06/understanding-defer-panic-and-recover.html)???
     defer function paramters - > passed by value and value is at the time defer is scanned?? 
     inline defer;
     (recover panic)
+    The recover function stops the chain reaction from going any farther up the call stack.
+    The recover function can only be used inside of a defer function.
+    This is because during the panic chain reaction only defer functions will be executed.
+    If the recover function is called and there is no panic occurring, the recover function will return nil.
+    If there is a panic occurring, then the panic is stopped and the value given to the panic call will be returned.
+    Also notice that "End Test" is never displayed. The function terminated as soon as panic was called.
+    One thing to note is that Go will execute these inline defer functions in the opposite order that are defined (First In - Last Out). (Multiple defer, first one with recover())
+
 9: make VS new (effective go) - > memory allocation
+New: It's a built-in function that allocates memory, but unlike its namesakes in some other languages it does not initialize the memory, it only zeros it. 
+That is, new(T) allocates zeroed storage for a new item of type T and returns its address, a value of type *T. 
+In Go terminology, it returns a pointer to a newly allocated zero value of type T
+
+Make: The built-in function make(T, args) serves a purpose different from new(T). 
+It creates slices, maps, and channels only, and it returns an initialized (not zeroed) value of type T (not *T)
 
 10: structtag, reflection -> reflect value, type (interface can be viewed as (value, type), gettag  (https://blog.golang.org/laws-of-reflection))
                                 A variable of interface type stores a pair: the concrete value assigned to the variable, and that value's type descriptor.
@@ -116,22 +385,174 @@ golang
     time.Ticker
 18: go GB_LDFLAGS -x .....
 
-19: type assertion, type switch (gotour, reflection)
+19: type assertion, type switch (gotour, reflection) - can only swith on interface value!!!!
     type assertion in reflection, 
     t.(T) !!!!
 
     fmt package digs into a reflect.Value to show the concrete!!!!!! value inside. The String method does not
-
-
-
     gotour, effective go, goblog, www.goinggo.net
 
 2: gin 
  middleware - the sequence of middleware matters, first them move on to next 
  middleware and group sequence matters too.??? 
 
-mysql:
+21: go package
+   import "path/filepath"  filepath - > walk -> walkFn(root string, info FileInfo, err error ) error 
+   import "os" - > File, err:= os.Open("")
+        type File struct {
+            // contains filtered or unexported fields
+        }
+         
+        type FileInfo interface {
+        Name() string       // base name of the file
+        Size() int64        // length in bytes for regular files; system-dependent for others
+        Mode() FileMode     // file mode bits
+        ModTime() time.Time // modification time
+        IsDir() bool        // abbreviation for Mode().IsDir()
+        Sys() interface{}   // underlying data source (can return nil)
+        }
 
+    import "io/ioutil"
+    import "io"
+        Reader/ByteReader/ByteScanner/Writer/ReaderWriter
+GOMock: https://github.com/golang/mock  (testing framework)
+
+Goroutine
+通过使用goroutine而不是裸用操作系统的并发机制，以及使用消息传递来共享内存而不是使用共享内存来通信，Go语言让并发编程变得更加轻盈和安全。
+通过在函数调用前使用关键字go，我们即可让该函数以goroutine方式执行，goroutine是一种比线程更加轻盈、更省资源的协程.
+另外，由于一个进程内创建的所有goroutine运行在同一个内存地址空间中，因此如果不同的goroutine不得不去访问共享的内存变量，
+访问前应该先获取相应的读写锁。Go语言标准库中的sync包提供了完备的读写锁功能。
+Goroutines run in the same address space, so access to shared memory must be synchronized. 
+
+Switch: 
+    In effect, the break statement that is needed at the end of each case in those languages is provided automatically in Go.
+    Another important difference is that Go's switch cases need not be constants, and the values involved need not be integers
+    history
+
+Thread safe in go 
+In Go there are numerous constructs to achieve that (e.g. mutexes, channels, waitgroups, primitives in sync/atomic), 
+but Go's proverb is: "Do not communicate by sharing memory; instead, share memory by communicating
+
+Context 
+Context的使用最多的地方就是在Golang的web开发中，在http包的Server中，每一个请求在都有一个对应的goroutine去处理。
+请求处理函数通常会启动额外的goroutine用来访问后端服务，比如数据库和RPC服务。
+用来处理一个请求的goroutine通常需要访问一些与请求特定的数据，比如终端用户的身份认证信息、验证相关的token、请求的截止时间。
+当一个请求被取消或超时时，所有用来处理该请求的 goroutine都应该迅速退出，然后系统才能释放这些goroutine占用的资源。
+
+for 循环不会每次循环的时候都新建循环变量stu, 所以将stu变量的地址赋值给map后，循环结束后，map中所以值还是指向stu地址。
+    for _, stu := range stus {
+        s := stu  // 这里新建一个变量
+        m[stu.Name] = &s  
+        fmt.Printf("%p \n", &s)
+    }
+
+如何复制 slice、map 和 interface 的值？
+Slice: 
+    1. 直接赋值, 底层数组将不会更新
+    2. 使用 copy(), 返回值是 min(len(des), len(src)), 底层数组将会更新
+Map: 遍历所有 key
+interface:  Go 中没有内建的函数来直接拷贝 interface 的值，也不能直接赋值。
+ But what we learned is that since an address is always stored, it is the address that is being copied and never the value itself.
+struct: 不能直接复制/可以使用反射来赋值
+
+########################
+func main() {
+    fmt.Println(double1(5))
+    fmt.Println(double1(6))
+    fmt.Println()
+    fmt.Println(double2(5))
+    fmt.Println(double2(6))
+}
+// 匿名返回
+// 加倍参数，若结果超过 10 则还原
+func double1(v1 int) int {
+    var v2 int
+    defer func() {
+        if v2 > 10 {
+            v2 = v1 // v2 不会被修改
+        }
+    }()
+    v2 = v1 * 2
+    return v2 
+}
+// 有名返回
+func double2(v1 int)(v2 int) {
+    // v2 与函数一起被声明，在 defer 中能被修改
+    defer func() {
+        if v2 > 10 {
+          v2 = v1 // v2 被修改
+        } 
+    }() 
+    v2 = v1 * 2
+    return
+}
+########################
+
+########################
+3. 考察 goroutine 的传值方式
+func main() {
+    runtime.GOMAXPROCS(1) // 强制使多个 goroutine 串行执行
+    wg := sync.WaitGroup{}
+    wg.Add(10)
+    for i := 0; i < 5; i++ {
+        go func() {
+            fmt.Println("i: ", i)
+            wg.Done()
+        }()
+        // time.Sleep(1 * time.Second)  // 此时将顺序输出 1 2 3 4 5 
+    }
+  for i := 0; i < 5; i++ {
+      go func(i int) {
+          fmt.Println("i: ", i)
+          wg.Done()
+      }(i)
+  }
+  wg.Wait()
+}
+第一个 for 循环：以极快的速度分配完 5 个 goroutine，此时 i 的值为 5，gouroutine 得到的 i 都是 5
+第二个 for 循环：每次都会将 i 的值拷贝一份传给 goroutine，得到的 i 不同，输出不同
+##############################
+##############################
+func main() {
+    a := 1
+    b := 2
+    defer add("A", a, add("B", a, b))
+    a = 0
+    defer add("C", a, add("D", a, b))
+    b = 1
+}
+
+
+func add(desc string, a, b int) int {
+    sum := a + b
+    fmt.Println(desc, a, b, sum)
+    return sum
+}
+//output 
+B 1 2 3
+D 0 2 2
+C 0 2 2
+A 1 3 4
+defer 语句会计算好 func 的参数，再放入执行栈中
+#################################
+
+<<<<<<< HEAD
 order by filed('en','cn') asc 
 
 add not
+=======
+golang 中 select 多个case同时满足的情况, 会随机触发一个
+ch1 := make (chan int, 10)
+t1 := time.NewTimer(time.Second * 1)
+    for   {
+        ch1<-1
+        select {
+        case <-ch1:
+            fmt.Println("ch1 pop one element")
+        case  <-t1.C:
+            println("1s timer")
+            t1.Reset(time.Second * 1)
+        }
+    }
+1秒过后第二个case有可能会被走到
+>>>>>>> 3dac1b9be45f915b3610e00c2973f8f4f44ec465

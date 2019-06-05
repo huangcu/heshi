@@ -1,22 +1,23 @@
 package main
 
 import (
+	"heshi/errors"
 	"net/http"
 	"util"
 
 	"github.com/gin-gonic/gin"
 )
 
-func GetToken(c *gin.Context) {
+func getToken(c *gin.Context) {
 	t, err := util.GenerateToken()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"token": t})
 }
 
-func VerifyToken(c *gin.Context) {
+func verifyToken(c *gin.Context) {
 	t := c.PostForm("token")
 	if t == "" {
 		c.JSON(http.StatusForbidden, "No token")

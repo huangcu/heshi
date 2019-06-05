@@ -11,13 +11,16 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"runtime"
 	"strings"
+	"syscall"
 	"time"
 	"util"
 
 	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
 )
@@ -27,8 +30,10 @@ var (
 	ctx                 context.Context
 	cancelFn            context.CancelFunc
 	serverIsInterrupted bool
-	store               sessions.CookieStore
+	store               cookie.Store
 	activeCurrencyRate  *currency
+	activeConfig        exchangeRateFloat
+	webServer           *http.Server
 )
 var redisClient = redis.NewClient(&redis.Options{
 	Addr:     "localhost:6379",
@@ -39,11 +44,7 @@ var redisClient = redis.NewClient(&redis.Options{
 var env string
 
 func main() {
-	flag.StringVar(&env, "env", "dev", "specifiy env dev or pro, default env - dev.")
-	flag.Parse()
-	os.Setenv("STAGE", env)
-	os.Setenv("TRACE", "true")
-
+	// set log
 	lf, err := os.OpenFile("heshi.log", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
 	if err != nil {
 		log.Fatal(err)
@@ -53,39 +54,35 @@ func main() {
 	if util.ShouldTrace() {
 		log.SetOutput(io.MultiWriter(os.Stdout, lf))
 		util.Logger = log.New(io.MultiWriter(os.Stdout, lf), "", log.LstdFlags)
+		gin.DefaultWriter = io.MultiWriter(lf, os.Stdout)
+	} else {
+		log.SetOutput(lf)
+		util.Logger = log.New(lf, "", log.LstdFlags)
+		gin.DefaultWriter = io.MultiWriter(lf)
 	}
 	log.SetFlags(log.LstdFlags)
-
-	ticker := time.NewTicker(time.Hour * 8)
-	stop := make(chan bool)
-	go func() {
-		for {
-			select {
-			case <-ticker.C:
-				if err := getLatestRates(); err != nil {
-					util.FailToGetCurrencyExchangeAlert()
-				}
-				var err error
-				activeCurrencyRate, err = getAcitveCurrencyRate()
-				if err != nil {
-					util.Println("fail to get latest active currency rate")
-				}
-			case <-stop:
-				return
-			}
-		}
-	}()
+	// start long run
+	exit := make(chan bool)
+	go longRun(exit)
 	defer func() {
-		ticker.Stop()
-		stop <- true
+		exit <- true
 	}()
 
-	// log.Fatal(startWebServer(":443"))
-	log.Fatal(startWebServer(":8080"))
+	port := ":8008"
+	if os.Getenv("STAGE") != "dev" {
+		port = ":8443"
+	}
+
+	ctx, cancelFn = context.WithCancel(context.Background())
+	defer cancelFn()
+	defer db.Close()
+	go signalNotify(ctx)
+	log.Fatal(startWebServer(port))
 }
 
 func startWebServer(port string) error {
 	r := gin.New()
+
 	//if PRO
 	cer, err := tls.LoadX509KeyPair("server.crt", "server.key")
 	if err != nil {
@@ -98,25 +95,36 @@ func startWebServer(port string) error {
 		gin.SetMode(gin.ReleaseMode)
 	} else {
 		gin.SetMode(gin.DebugMode)
+		r.Use(gin.Logger())
 	}
 
 	r.Use(gin.Recovery())
+	//CORS
+	r.Use(cORSMiddleware())
+	//session
+	store = cookie.NewStore([]byte("secret"))
+	// store, _ := sessions.NewRedisStore(10, "tcp", "localhost:6379", "", []byte("secret"))
+	store.Options(sessions.Options{
+		MaxAge:   7 * 24 * 60 * 60, //set max age 1 week // 30 * 60 - 30 min - not int(30 * time.Minute),
+		Path:     "/",
+		Secure:   false,
+		HttpOnly: false,
+	})
+	r.Use(sessions.Sessions("SESSIONID", store))
 	configRoute(r)
 	if os.Getenv("STAGE") != "dev" {
-		webServer := &http.Server{Addr: port, Handler: r, TLSConfig: config}
+		webServer = &http.Server{Addr: port, Handler: r, TLSConfig: config}
 		return webServer.ListenAndServeTLS("server.crt", "server.key")
 	}
-	webServer := &http.Server{Addr: port, Handler: r}
+	webServer = &http.Server{Addr: port, Handler: r}
 	return webServer.ListenAndServe()
 }
 
 func configRoute(r *gin.Engine) {
 	api := r.Group("/api")
 	if os.Getenv("STAGE") != "dev" {
-		//auth - access service api
-		// api.Use(AuthMiddleWare())
-		//CORS
-		api.Use(CORSMiddleware())
+		// auth - access service api
+		api.Use(authMiddleWare())
 
 		// Cross-Site Request Forgery (CSRF)
 		// api.Use(csrf.Middleware(csrf.Options{
@@ -127,32 +135,29 @@ func configRoute(r *gin.Engine) {
 		// 	},
 		// }))
 	}
-	//session
-	store = sessions.NewCookieStore([]byte("secret"))
-	store.Options(sessions.Options{
-		MaxAge: int(30 * time.Minute), //30min
-		Path:   "/",
-	})
-	api.Use(sessions.Sessions("SESSIONID", store))
 	//access api log
-	api.Use(RequestLogger())
+	api.Use(requestLogger())
 
 	apiCustomer := api.Group("customer")
 	apiAdmin := api.Group("admin")
+	apiAgent := api.Group("agent")
 	apiWechat := api.Group("wechat")
-	apiCustomer.Use(UserSessionMiddleWare())
-	apiAdmin.Use(AdminSessionMiddleWare())
-	//TODO wechat - > admin and customer
-	apiWechat.Use(AdminSessionMiddleWare())
+	apiUser := api.Group("user")
 
 	if os.Getenv("STAGE") == "dev" {
-		api.POST("/login", userLogin)
+		apiCustomer.Use(devMiddleware())
+		apiAdmin.Use(devMiddleware())
+		apiAgent.Use(devMiddleware())
+		apiUser.Use(devMiddleware())
+		api.POST("/user/login", userLogin)
 	} else {
-		//jwt authentication(user login)
-		jwtMiddleware := AuthenticateMiddleWare()
+		//authentication & authorization
+		jwtMiddleware := jwtMiddleWare()
 		apiCustomer.Use(jwtMiddleware.MiddlewareFunc())
+		apiAgent.Use(jwtMiddleware.MiddlewareFunc())
+		apiUser.Use(jwtMiddleware.MiddlewareFunc())
 		apiAdmin.Use(jwtMiddleware.MiddlewareFunc())
-		api.POST("/login", jwtMiddleware.LoginHandler)
+		api.POST("/user/login", jwtMiddleware.LoginHandler)
 		api.GET("/refresh/token", jwtMiddleware.RefreshHandler)
 	}
 
@@ -203,6 +208,10 @@ func configRoute(r *gin.Engine) {
 			apiAdmin.PUT("/configs/level/:id", updateLevelConfig)
 			apiAdmin.GET("/configs/level", getAllLevelConfigs)
 			apiAdmin.POST("/configs/level", newLevelConfig)
+			apiAdmin.GET("/promotions", getAllPromotions)
+			apiAdmin.GET("/promotions/:id", getPromotion)
+			apiAdmin.POST("/promotions", newPromotion)
+			apiAdmin.PUT("/promotions/:id", updatePromotion)
 
 			//products with customize header
 			apiAdmin.POST("/upload", uploadAndGetFileHeaders)
@@ -210,6 +219,11 @@ func configRoute(r *gin.Engine) {
 
 			//upload products by csv file
 			apiAdmin.POST("/products/upload", uploadAndProcessProducts)
+			apiAdmin.GET("/products/export", exportProduct)
+			apiAdmin.GET("/products/stockhandlerecords", getAllProductStockHanldeRecords)
+			// here id is admin user id
+			apiAdmin.GET("/products/stockhandlerecords/:id", getProductStockHanldeRecordsOfUser)
+			apiAdmin.Static("/download", "./.uploaded")
 
 			//manage products
 			apiAdmin.POST("/products/diamonds", newDiamond)
@@ -219,18 +233,82 @@ func configRoute(r *gin.Engine) {
 			apiAdmin.PUT("/products/jewelrys/:id", updateJewelry)
 			apiAdmin.POST("/products/gems", newGems)
 			apiAdmin.PUT("/products/gems/:id", updateGems)
+			// online/offline products
+			apiAdmin.POST("/products/stock/:action", onlineOfflineProducts)
+			apiAdmin.POST("/products/promotion", promoteProducts)
+
+			//manage orders
+			// update not allowed to cancel, use CANCEL API
+			apiAdmin.PUT("/orders/:id", updateOrder)
+			apiAdmin.GET("/orders/:id", getOrderDetail)
+			apiAdmin.GET("/transactions/detail/:id", getTransactionDetail)
+			apiAdmin.GET("/transactions/all/:id", getAllTransactionsOfAUser)
+			apiAdmin.GET("/transactions/all", getAllTransactions)
+			apiAdmin.GET("/transactions/cancel", cancelTransaction)
+
+			//view historys
+			apiAdmin.GET("/track/history", getHistory)
+
+			//wechat kf manage
+			apiAdmin.POST("/wechat/kf", addKfAccount)
+			apiAdmin.POST("/wechat/menu", createMenu)
 		}
+
+		//agent
+		{
+			//get list of users recommended by the agent
+			apiAgent.GET("/reco/users", getUsersRecommendedByAgent)
+
+			//get list of transactions/orders of all recommended user
+			apiAgent.GET("/reco/transactions/all/:id", getAllTransactionsOfAUserRecommendedByAgent)
+			apiAgent.GET("/reco/transactions/all", getAllTransactionsOfUserRecommendedByAgent)
+			apiAgent.GET("/reco/orders/:id", getOrderDetailOfUserRecommendedByAgent)
+			apiAgent.GET("/reco/transactions/detail/:id", getTransactionDetailOfUserRecommendedByAgent)
+
+			//TODO agent is allowed to update customers order, change price only
+			apiAgent.PUT("/order/:id", updateOrder)
+		}
+
 		//customer
 		api.POST("/users", newUser)
 		{
 			apiCustomer.GET("/users", getUser)
 			apiCustomer.PATCH("/users", updateUser)
-			apiCustomer.GET("/users/:id/contactinfo", agentContactInfo)
+			// users not allowed to see recommended people's info
+			// apiCustomer.GET("/users/:id/contactinfo", agentContactInfo)
+
+			//ORDER
+			apiCustomer.POST("/orders", createOrder)
+			apiCustomer.GET("/orders/:id", getOrderDetail)
+			// TODO only can view transaction of 1 year
+			apiCustomer.GET("/transactions/detail/:id", getTransactionDetail)
+			apiCustomer.GET("/transactions/all", getAllTransactionsOfAUser)
+			apiCustomer.GET("/transactions/cancel", cancelTransaction)
 
 			//action- > add, delete
 			apiCustomer.POST("/shoppingList/:action", toShoppingList)
-			apiCustomer.POST("/logout", userLogout)
+
+			// shopping cart
+			// json, multiple items, remove, add, update base on json pass (items)
+			apiCustomer.POST("/cart/update", updateShoppingCart)
+			// only support add one to cart at a time
+			apiCustomer.POST("/cart/add", addToShoppingCart)
+			// only support remove one at a time
+			apiCustomer.GET("/cart/remove/:id", removeFromShoppingCart)
+			apiCustomer.GET("/cart", getShoppingCartList)
+
+			apiCustomer.POST("/password/change", changePassword)
 		}
+
+		{
+			apiUser.GET("/logout", userLogout)
+		}
+		// //websocket
+		// api.GET("/ws/customer", sessionMiddleWare(), customerWSService)
+		// api.GET("/ws/serve", userSessionMiddleWare(), serveWSService)
+
+		// exchange rate
+		api.GET("/exchangerate", getCurrencyRate)
 
 		//products
 		api.GET("/products", getAllProducts)
@@ -252,15 +330,18 @@ func configRoute(r *gin.Engine) {
 		apiWechat.GET("/auth", wechatAuth)
 		apiWechat.GET("/token", wechatToken)
 		apiWechat.GET("/qrcode", wechatQrCode)
-		apiWechat.GET("/temp_qrcode", wechatTempQrCode)
 
-		api.POST("/wechat/status", wechatQrCodeStatus)
+		api.GET("/wechat/temp_qrcode", wechatTempQrCode)
+		api.GET("/wechat/status", wechatQrCodeStatus)
 		api.GET("/wechat/callback", wechatCallback)
 		api.POST("/wechat/callback", wechatCallback)
 
+		api.Static("/image", ".image")
+		api.Static("/video", ".video")
 		//token
-		api.GET("/token", GetToken)
-		api.POST("/token", VerifyToken)
+		api.GET("/token", getToken)
+		api.POST("/token", verifyToken)
+		api.POST("/excel", parseExcel)
 	}
 	r.Static("../webpage", "webpage")
 }
@@ -275,14 +356,20 @@ func init() {
 	// if err := chdir(); err != nil {
 	// 	log.Fatal(err)
 	// }
+
+	// parse args
+	flag.StringVar(&env, "env", "dev", "specifiy env dev or pro, default env - dev.")
+	flag.Parse()
+	os.Setenv("STAGE", env)
+	os.Setenv("TRACE", "true")
 	var err error
+
+	//open db
 	db, err = mysql.OpenDB()
 	if db == nil && err != nil {
 		util.Println(err.Error())
 		os.Exit(1)
 	}
-
-	activeConfig = config{Rate: 0.01, CreatedBy: "system", CreatedAt: time.Now().Local()}
 	if strings.ToUpper(runtime.GOOS) != "WINDOWS" {
 		fmt.Println("OS: " + runtime.GOOS)
 		val, err := redisClient.FlushAll().Result()
@@ -291,9 +378,18 @@ func init() {
 		}
 		fmt.Printf("flushed redis db. %s \n", val)
 	}
-	// if err := getLatestRates(); err != nil {
-	// 	log.Fatalf("init fail. err: %s;", err.Error())
-	// }
+	if err := mkDir(); err != nil {
+		log.Fatalf("fail to create neccesary path. err: %s", err.Error())
+	}
+	if err := getLatestRates(); err != nil {
+		log.Fatalf("fail to get latest rate from intenet. err: %s;", err.Error())
+	}
+	activeConfig = exchangeRateFloat{ExchangeRateFloat: 0.01, CreatedBy: "SYSTEM", CreatedAt: time.Now()}
+	activeConfig.getActiveRateConfig()
+	activeCurrencyRate, err = getActiveCurrencyRate()
+	if err != nil {
+		log.Fatalf("fail to get active currency rate. Error: %s", err.Error())
+	}
 }
 
 func chdir() error {
@@ -302,4 +398,32 @@ func chdir() error {
 		return err
 	}
 	return os.Chdir(pwd)
+}
+
+func mkDir() error {
+	for _, t := range []string{videoPath, imagePath} {
+		for _, p := range []string{"diamond", "jewelry", "gem", "usericon"} {
+			if err := os.MkdirAll(filepath.Join(t, p), 0755); err != nil {
+				return err
+			}
+			if t == imagePath && p != "usericon" {
+				if err := os.MkdirAll(filepath.Join(t, p, "thumbs"), 0755); err != nil {
+					return err
+				}
+			}
+		}
+	}
+	return os.MkdirAll(uploadFileDir, 0755)
+}
+
+func signalNotify(ctx context.Context) {
+	sigc := make(chan os.Signal, 1)
+	signal.Notify(sigc, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
+	c := <-sigc
+	serverIsInterrupted = true
+	util.Traceln("Service receive signal", c)
+	if err := webServer.Shutdown(ctx); err != nil {
+		log.Fatal("Server Shut Down ERROR:", err)
+	}
+	os.Exit(0)
 }

@@ -14,87 +14,84 @@ import (
 
 //TODO search
 func searchProducts(c *gin.Context) {
-	category := c.Param("category")
-	if !util.IsInArrayString(category, []string{"diamonds", "jewelrys", "gems"}) {
+	category := strings.ToUpper(c.Param("category"))
+	if !util.IsInArrayString(category, validProductsConst) {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
-	if category == "diamonds" {
+	switch category {
+	case DIAMOND:
 		ds, err := searchDiamonds(c)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 		c.JSON(http.StatusOK, ds)
-		return
-	}
-	if category == "jewelrys" {
+	case JEWELRY:
 		js, err := searchJewelrys(c)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 		c.JSON(http.StatusOK, js)
-		return
-	}
-	if category == "gems" {
+	case GEM:
 		gs, err := searchGems(c)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 		c.JSON(http.StatusOK, gs)
-		return
 	}
 }
 
 func filterProducts(c *gin.Context) {
-	category := c.Param("category")
-	if !util.IsInArrayString(category, []string{"diamonds", "jewelrys", "gems"}) {
+	category := strings.ToUpper(c.Param("category"))
+	if !util.IsInArrayString(category, validProductsConst) {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
-	if category == "diamonds" {
+	switch category {
+	case DIAMOND:
 		ds, err := filterDiamonds(c)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 		c.JSON(http.StatusOK, ds)
-		return
-	}
-	if category == "jewelrys" {
+	case JEWELRY:
 		js, err := filterJewelrys(c)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 		c.JSON(http.StatusOK, js)
-		return
-	}
-	if category == "gems" {
+	case GEM:
 		gs, err := filterGems(c)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
 		c.JSON(http.StatusOK, gs)
-		return
 	}
 }
 
 func searchDiamonds(c *gin.Context) ([]diamond, error) {
-	ref := c.PostForm("ref")
-	q := fmt.Sprintf(`SELECT id, diamond_id, stock_ref, shape, carat, color, clarity, grading_lab, 
-		certificate_number, cut_grade, polish, symmetry, fluorescence_intensity, country, supplier, 
-		price_no_added_value, price_retail, featured, recommand_words, extra_words, status,
-		 ordered_by, picked_up, sold_price, profitable 
-	 FROM diamonds WHERE stock_ref='%s' OR certificate_number='%s'`,
+	ref := strings.ToUpper(c.PostForm("ref"))
+	q := fmt.Sprintf(`SELECT diamonds.id, diamond_id, stock_ref, shape, carat, color, clarity, grading_lab, 
+		certificate_number, cut_grade, polish, symmetry, fluorescence_intensity, country, 
+		supplier, price_no_added_value, price_retail, featured, recommend_words, extra_words, images,
+		diamonds.status, profitable, 
+		promotions.id, prom_type, prom_discount, prom_price, begin_at, end_at, promotions.status 
+	 FROM diamonds 
+	 LEFT JOIN promotions ON diamonds.promotion_id=promotions.id 
+	 WHERE diamonds.status IN ('AVAILABLE','OFFLINE') AND stock_ref='%s' OR certificate_number='%s'`,
 		ref, ref)
 	rows, err := dbQuery(q)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+
 	ds, err := composeDiamond(rows)
 	if err != nil {
 		return nil, err
@@ -111,6 +108,8 @@ func filterDiamonds(c *gin.Context) ([]diamond, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+
 	ds, err := composeDiamond(rows)
 	if err != nil {
 		return nil, err
@@ -194,7 +193,9 @@ func composeFilterDiamondsQuery(c *gin.Context) (string, error) {
 			caratTo = math.Abs(cValue) + 0.01
 		}
 	}
-	querys = append(querys, fmt.Sprintf("carat>= %f AND carat<= %f", caratFrom, caratTo))
+	if caratFrom != 0 && caratTo != 100 {
+		querys = append(querys, fmt.Sprintf("carat>= %f AND carat<= %f", caratFrom, caratTo))
+	}
 
 	var priceFrom, priceTo float64
 	priceFrom = 0
@@ -228,7 +229,9 @@ func composeFilterDiamondsQuery(c *gin.Context) (string, error) {
 			priceTo = math.Ceil(priceTo / 1.2)
 		}
 	}
-	querys = append(querys, fmt.Sprintf("price_retail between %f AND %f", caratFrom, caratTo))
+	if priceFrom != 0 && priceTo != 99999 {
+		querys = append(querys, fmt.Sprintf("price_retail between %f AND %f", priceFrom, priceTo))
+	}
 
 	//current page
 	//The SQL query below says "return only 10 records, start on record 16 (OFFSET 15)":
@@ -251,17 +254,20 @@ func composeFilterDiamondsQuery(c *gin.Context) (string, error) {
 	}
 
 	sort := sortDiamondsByQuery(c.PostForm("sorting"), direction)
-	q := fmt.Sprintf(`SELECT id, diamond_id, stock_ref, shape, carat, color, clarity, grading_lab, 
-		certificate_number, cut_grade, polish, symmetry, fluorescence_intensity, country, supplier, 
-		price_no_added_value, price_retail, featured, recommand_words, extra_words, status,
-		 ordered_by, picked_up, sold_price, profitable 
-	 FROM diamonds WHERE '(%s)' %s %s`, strings.Join(querys, ")' AND '("), limit, sort)
-	util.Println(q)
+	q := fmt.Sprintf(`SELECT diamonds.id, diamond_id, stock_ref, shape, carat, color, clarity, grading_lab, 
+		certificate_number, cut_grade, polish, symmetry, fluorescence_intensity, country, 
+		supplier, price_no_added_value, price_retail, featured, recommend_words, extra_words, images, 
+		diamonds.status, profitable,
+		promotions.id, prom_type, prom_discount, prom_price, begin_at, end_at, promotions.status 
+	 FROM diamonds 
+	 LEFT JOIN promotions ON diamonds.promotion_id=promotions.id 
+	 WHERE diamonds.status IN ('AVAILABLE','OFFLINE') AND (%s) %s %s`, strings.Join(querys, ") AND ("), limit, sort)
+	util.Traceln(q)
 	return q, nil
 }
 
 func sortDiamondsByQuery(sortBy, direction string) string {
-	switch sortBy {
+	switch strings.ToLower(sortBy) {
 	case "weight":
 		return fmt.Sprintf("ORDER BY carat %s, supplier ASC, price_retail ASC", direction)
 
@@ -269,7 +275,7 @@ func sortDiamondsByQuery(sortBy, direction string) string {
 		return fmt.Sprintf("ORDER BY color %s, supplier ASC, price_retail ASC", direction)
 
 	case "clarity":
-		clarityFields := strings.Join(VALID_CLARITY, "','")
+		clarityFields := strings.Join(validClarity, "','")
 		return fmt.Sprintf("ORDER BY Field(clarity, '%s')  %s, supplier ASC, price_retail ASC", clarityFields, direction)
 	case "price":
 		return fmt.Sprintf("ORDER BY price_retail %s, supplier ASC", direction)

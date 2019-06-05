@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 )
 
 func (s *shoppingItem) composeInsertQuery() string {
@@ -19,6 +20,8 @@ func (s *shoppingItem) composeInsertQuery() string {
 			va = fmt.Sprintf("%s, '%d'", va, v.(int))
 		case int64:
 			va = fmt.Sprintf("%s, '%d'", va, v.(int64))
+		case time.Time:
+			va = fmt.Sprintf("%s, '%s'", va, v.(time.Time).Format(timeFormat))
 		}
 	}
 	return fmt.Sprintf("%s) %s)", q, va)
@@ -37,6 +40,8 @@ func (s *shoppingItem) composeUpdateQuery() string {
 			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int))
 		case int64:
 			q = fmt.Sprintf("%s %s='%d',", q, k, v.(int64))
+		case time.Time:
+			q = fmt.Sprintf("%s %s='%s',", q, k, v.(time.Time).Format(timeFormat))
 		}
 	}
 
@@ -49,8 +54,8 @@ func (s *shoppingItem) paramsKV() map[string]interface{} {
 		params["user_id"] = s.UserID
 	}
 
-	if s.ItemType != "" {
-		params["item_type"] = s.ItemType
+	if s.ItemCategory != "" {
+		params["item_category"] = s.ItemCategory
 	}
 	if s.ItemID != "" {
 		params["item_id"] = s.ItemID

@@ -4,56 +4,16 @@ import (
 	"fmt"
 	"strings"
 	"util"
+
+	uuid "github.com/satori/go.uuid"
 )
 
 func downPayment(price float64) float64 {
 	return floatToFixed2(price * 0.3)
 }
 
-func customerLevelByAmount(amount float64) (string, error) {
-	q := fmt.Sprintf("SELECT level FROM configs WHERE type='%s' AND amount < '%f' order by level DESC",
-		CUSTOMER, amount)
-	rows, err := dbQuery(q)
-	if err != nil {
-		return "", err
-	}
-	for rows.Next() {
-		var level string
-		if err := rows.Scan(&level); err != nil {
-			return level, nil
-		}
-	}
-	return LEVEL1, nil
-	// if amount < 5000 {
-	// 	return LEVEL0
-	// } else if amount >= 5000 && amount < 10000 {
-	// 	return LEVEL1
-	// } else if amount >= 10000 && amount < 20000 {
-	// 	return LEVEL2
-	// }
-	// return LEVEL3
-}
-
-func agentLevelByAmountAndPieces(amount float64, pieces int) (string, error) {
-	q := fmt.Sprintf(`SELECT level FROM configs 
-		WHERE type='%s' 
-		AND (amount < '%f' OR pieces < '%d') order by level DESC`,
-		AGENT, amount, pieces)
-	rows, err := dbQuery(q)
-	if err != nil {
-		return "", err
-	}
-	for rows.Next() {
-		var level string
-		if err := rows.Scan(&level); err != nil {
-			return level, nil
-		}
-	}
-	return LEVEL1, nil
-}
-
 func priceForCustomer(level string, price float64) (float64, error) {
-	q := fmt.Sprintf("SELECT discount FROM configs WHERE type='%s' AND level = '%s' limit 1",
+	q := fmt.Sprintf("SELECT discount FROM level_rate_rules WHERE rule_type='%s' AND level = '%s' limit 1",
 		CUSTOMER, level)
 	var discount float64
 	if err := dbQueryRow(q).Scan(&discount); err != nil {
@@ -82,7 +42,7 @@ func priceForCustomer(level string, price float64) (float64, error) {
 
 //TODO agentLevelDiscount
 func priceForAgent(level string, price float64) (float64, error) {
-	q := fmt.Sprintf("SELECT discount FROM configs WHERE type='%s' AND level = '%s' limit 1",
+	q := fmt.Sprintf("SELECT discount FROM level_rate_rules WHERE rule_type='%s' AND level = '%s' limit 1",
 		AGENT, level)
 	var discount float64
 	if err := dbQueryRow(q).Scan(&discount); err != nil {
@@ -139,8 +99,20 @@ func isItemExistInDbByProperty(dbName, property, propertyValue string) (bool, er
 	return true, nil
 }
 
-func ItemsNotInArray(item string, items []string) []string {
-	itemStr := FormatInputString(item)
+func isItemExistInDbByPropertyWithDifferentID(dbName, property, propertyValue, id string) (bool, error) {
+	var count int
+	q := fmt.Sprintf("SELECT count(*) FROM %s WHERE %s='%s' AND id!='%s'", dbName, property, propertyValue, id)
+	if err := dbQueryRow(q).Scan(&count); err != nil {
+		return false, err
+	}
+	if count == 0 {
+		return false, nil
+	}
+	return true, nil
+}
+
+func itemsNotInArray(item string, items []string) []string {
+	itemStr := formatInputString(item)
 	var notIn []string
 	for _, v := range strings.Split(itemStr, ",") {
 		if !util.IsInArrayString(v, items) {
@@ -150,10 +122,15 @@ func ItemsNotInArray(item string, items []string) []string {
 	return notIn
 }
 
-func FormatInputString(input string) string {
+func formatInputString(input string) string {
 	return strings.ToUpper(strings.Replace(input, " ", "", -1))
 }
 
 func floatToFixed2(v float64) float64 {
 	return float64(int(v*100)) / 100
+}
+
+func newV4() string {
+	v4, _ := uuid.NewV4()
+	return v4.String()
 }

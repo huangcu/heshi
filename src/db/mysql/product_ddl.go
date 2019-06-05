@@ -1,18 +1,19 @@
 package mysql
 
+// status, AVAILABLE, OFFLINE, DELETED, ORDERED, DELIVERED, RECEIVED (FROM ORDER STATUS)
 const diamondDdl = `
 CREATE TABLE IF NOT EXISTS diamonds
 (
 	id VARCHAR(225) PRIMARY KEY NOT NULL,
 	diamond_id VARCHAR(225) NOT NULL unique,
 	stock_ref VARCHAR(225) NOT NULL unique,
-	shape VARCHAR(225) NOT NULL,
-	carat FLOAT NOT NULL,
-	color VARCHAR(225),
-	clarity VARCHAR(225),
+	shape VARCHAR(58) NOT NULL,
+	carat DECIMAL(12,3) NOT NULL,
+	color VARCHAR(58),
+	clarity VARCHAR(58),
 	grading_lab VARCHAR(58) NOT NULL,
 	certificate_number VARCHAR(225) NOT NULL,
-	cut_grade VARCHAR(225) NOT NULL,
+	cut_grade VARCHAR(58) NOT NULL,
 	polish VARCHAR(58) NOT NULL,
 	symmetry VARCHAR(58) NOT NULL,
 	fluorescence_intensity VARCHAR(58) NOT NULL,
@@ -21,13 +22,12 @@ CREATE TABLE IF NOT EXISTS diamonds
 	price_no_added_value DECIMAL(12,2) NOT NULL,
 	price_retail DECIMAL(12,2) NOT NULL,
 	featured VARCHAR(5) NOT NULL DEFAULT 'NO',
-	recommand_words TEXT,
+	recommend_words TEXT,
 	extra_words VARCHAR(255),
-	status VARCHAR(58) NOT NULL DEFAULT 'AVAIABLE',
-	ordered_by VARCHAR(225),
-	picked_up VARCHAR(8),
-	sold_price FLOAT,
+	images VARCHAR(225),
+	status VARCHAR(20) NOT NULL DEFAULT 'AVAILABLE',
 	profitable varchar(5) NOT NULL DEFAULT 'YES',
+	promotion_id VARCHAR(225),
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 ) ENGINE=INNODB;
@@ -58,6 +58,7 @@ CREATE TABLE IF NOT EXISTS diamonds
 // <td width="88">价格</td> price
 // unit_number 盒子号(库存归档)
 // name_suffix INT,
+// status: AVAILABLE=ONLINE, OFFLINE, DELETED
 const jewelryDdl = `
 CREATE TABLE IF NOT EXISTS jewelrys
 (
@@ -65,36 +66,68 @@ CREATE TABLE IF NOT EXISTS jewelrys
 	stock_id VARCHAR(225) NOT NULL unique,
 	name VARCHAR(58) NOT NULL,
 	need_diamond VARCHAR(5) NOT NULL,
-	category VARCHAR(12) NOT NULL,
-	mounting_type VARCHAR(225) NOT NULL,
+	category VARCHAR(20) NOT NULL,
+	mounting_type VARCHAR(15) NOT NULL,
 	material VARCHAR(15) NOT NULL,
-	metal_weight DECIMAL(12,2) NOT NULL,
+	metal_weight DECIMAL(12,3) NOT NULL,
 	dia_shape VARCHAR(18) NOT NULL,
 	price DECIMAL(12,2) NOT NULL,
 	unit_number VARCHAR(28),
-	dia_size_min FLOAT,
-	dia_size_max FLOAT,
-	main_dia_num INT,
-	main_dia_size FLOAT,
+	dia_size_min DECIMAL(12,3),
+	dia_size_max DECIMAL(12,3),
+	main_dia_num TINYINT(4),
+	main_dia_size DECIMAL(12,3),
 	small_dias VARCHAR(8),
-	small_dia_num INT,
+	small_dia_num SMALLINT,
 	small_dia_carat DECIMAL(5,3),
 	video_link VARCHAR(225),
+	images TEXT,
 	text TEXT,
-	online VARCHAR(8) NOT NULL DEFAULT 'NO',
+	status VARCHAR(20) NOT NULL DEFAULT 'AVAILABLE',
+	stock_quantity SMALLINT NOT NULL DEFAULT 1,
 	verified VARCHAR(12) NOT NULL DEFAULT 'NO',
-	in_stock VARCHAR(5) NOT NULL DEFAULT 'YES',
-	featured VARCHAR(28) NOT NULL DEFAULT 'NO',
-	stock_quantity TINYINT(4) NOT NULL DEFAULT 1,
+	featured VARCHAR(5) NOT NULL DEFAULT 'NO',
 	profitable varchar(5) NOT NULL DEFAULT 'YES',
 	totally_scanned INT NOT NULL DEFAULT 0,
 	free_acc VARCHAR(8) NOT NULL DEFAULT 'NO',
 	offline_at TIMESTAMP,
 	last_scan_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	promotion_id VARCHAR(225),
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 ) ENGINE=INNODB;
 	`
+
+// status: AVAILABLE=ONLINE, OFFLINE, DELETED
+// name
+const gemDdl = `
+CREATE TABLE IF NOT EXISTS gems
+(
+	id VARCHAR(225) PRIMARY KEY NOT NULL,
+	name VARCHAR(58) NOT NULL,
+	stock_id VARCHAR(225) NOT NULL unique,
+	size DECIMAL(12,3) NOT NULL,
+	material VARCHAR(15) NOT NULL,
+	price DECIMAL(12,2) NOT NULL,
+	shape VARCHAR(18) NOT NULL,
+	text TEXT NOT NULL,
+	images VARCHAR(225),
+	certificate VARCHAR(225) NOT NULL unique,
+	status VARCHAR(20) NOT NULL DEFAULT 'AVAILABLE',
+	stock_quantity SMALLINT NOT NULL DEFAULT 1,
+	verified VARCHAR(12) NOT NULL DEFAULT 'NO',
+	featured VARCHAR(5) NOT NULL DEFAULT 'NO',
+	profitable varchar(5) NOT NULL DEFAULT 'YES',
+	totally_scanned INT NOT NULL DEFAULT 0,
+	free_acc VARCHAR(8) NOT NULL DEFAULT 'NO',
+	offline_at TIMESTAMP,
+	last_scan_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	promotion_id VARCHAR(225),
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+) ENGINE=INNODB;
+	`
+
 const smallDiamondDdl = `
 CREATE TABLE IF NOT EXISTS small_diamonds
 (
@@ -102,35 +135,22 @@ CREATE TABLE IF NOT EXISTS small_diamonds
 	size_from DECIMAL(4,3) NOT NULL,
 	size_to DECIMAL(4,3) NOT NULL,
 	price DECIMAL(12,2) NOT NULL,
-	quantity TINYINT(4) NOT NULL,
+	stock_quantity TINYINT(4) NOT NULL,
+	promotion_id VARCHAR(225),
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 ) ENGINE=INNODB;
 `
 
-const gemDdl = `
-CREATE TABLE IF NOT EXISTS gems
+const productStockHandleHistoryDdl = `
+CREATE TABLE IF NOT EXISTS product_stock_handle_records
 (
 	id VARCHAR(225) PRIMARY KEY NOT NULL,
-	name VARCHAR(58) NOT NULL,
-	stock_id VARCHAR(225) NOT NULL unique,
-	size FLOAT NOT NULL,
-	material VARCHAR(15) NOT NULL,
-	price DECIMAL(12,2) NOT NULL,
-	shape VARCHAR(18) NOT NULL,
-	text TEXT NOT NULL,
-	certificate VARCHAR(225) NOT NULL unique,
-	online VARCHAR(8) NOT NULL DEFAULT 'NO',
-	verified VARCHAR(12) NOT NULL DEFAULT 'NO',
-	in_stock VARCHAR(5) NOT NULL DEFAULT 'YES',
-	featured VARCHAR(28) NOT NULL DEFAULT 'NO',
-	stock_quantity TINYINT(4) NOT NULL DEFAULT 1,
-	profitable varchar(5) NOT NULL DEFAULT 'NO',
-	totally_scanned INT NOT NULL DEFAULT 0,
-	free_acc VARCHAR(8) NOT NULL DEFAULT 'NO',
-	offline_at TIMESTAMP,
-	last_scan_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+	user_id VARCHAR(225) NOT NULL,
+	category VARCHAR(20) NOT NULL,
+	action VARCHAR(20) NOT NULL,
+	filename VARCHAR(255),
+	filenameondisk VARCHAR(255),
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 ) ENGINE=INNODB;
 	`

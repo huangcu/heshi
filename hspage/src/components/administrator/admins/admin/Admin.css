@@ -1,0 +1,316 @@
+#maincontent {
+    position: relative;
+    max-width: 1024px;
+    min-width: 1022px;
+    margin: 15px auto;
+    padding: 0;
+}
+
+div.currencybox {
+    max-width: 300px;
+    text-align: center;
+    padding: 5px 0;
+    margin: 15px auto;
+    background-color: #FFC;
+    border-style: solid;
+    border-width: 3px;
+    border-color: #9C9;
+}
+
+.currencybox p {
+    margin-bottom: 5px;
+}
+
+input.currencyfield {
+    display: inline-block;
+    width: 88px;
+    background-color: #CFC;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #693;
+}
+
+span.currencyunit {
+    display: inline-block;
+    width: 52px;
+}
+
+#currencysavebtn {
+    background-color: #093;
+    color: #FFF;
+    padding: 5px 28px;
+    border-width: 1px;
+}
+
+p.buttonbox {
+    margin-top: 18px;
+}
+
+div.procedurebtnbox {
+    position: relative;
+    padding-top: 8px;
+}
+
+div.step {
+    display: inline-block;
+    position: relative;
+    margin: 0px;
+    height: 158px;
+    width: 198px;
+    margin: 8px;
+    padding-top: 20px;
+    border-style: dotted;
+    border-width: 2px;
+    border-color: #690;
+    border-radius: 8px;
+    background-color: #CFF;
+}
+
+div#step1 {}
+
+.step span.glyphicon.glyphicon-arrow-right {
+    position: absolute;
+    font-size: 28px;
+    color: #9CC;
+    top: 68px;
+    right: -18px;
+    z-index: 1;
+}
+
+#step2 {
+    width: 436px;
+}
+
+div.point-confirmbox {
+    max-width: 1028px;
+    margin: 25px auto;
+}
+
+li.pointtocheck {
+    list-style: none;
+    display: block;
+    position: relative;
+    padding: 20px 20px 15px 20px;
+    text-align: left;
+    margin-bottom: 15px;
+    background-color: #d0dfd5;
+}
+
+span.pointtime {
+    position: absolute;
+    font-size: 12px;
+    top: 2px;
+    right: 5px;
+}
+
+button.approvebtn,
+button.deleteheshibibtn {
+    position: relative;
+    margin-left: 15px;
+    background-color: #01934d;
+    color: #FFF;
+    border-style: solid;
+    border-bottom-width: 1px;
+    border-color: #01934d;
+    border-radius: 6px;
+    padding: 2px 12px;
+}
+
+button.deleteheshibibtn {
+    background-color: #F6C;
+    border-color: #F6C;
+}
+
+p.verifybtnbox {
+    margin: 25px;
+    padding: 25px;
+}
+
+a.verifyrequestbtn {
+    display: inline-block;
+    padding: 8px 26px;
+    background-color: #390;
+    color: #FFF;
+    border-radius: 6px;
+    font-size: 18px;
+    margin-top: 35px;
+}
+
+a.thebtn {
+    display: inline-block;
+    font-size: 18px;
+    color: #FFF;
+    padding: 8px 18px;
+    background-color: #390;
+    margin: 5px;
+    border-radius: 6px;
+}
+
+a.customers {
+    background-color: #F96;
+    margin-top: 35px;
+}
+
+#maincontent h3 {
+    margin: 25px 0 10px 0;
+}
+
+span.num {
+    color: #FFC;
+    font-size: 22px;
+}
+
+div#appointmentbox {
+    position: absolute;
+    top: 158px;
+    left: 20px;
+    width: 238px;
+    background-color: #9C9;
+    padding: 6px;
+}
+
+ul#apppiecbox {
+    position: relative;
+    width: 100%;
+    height: 238px;
+    background-color: #9C9;
+    overflow: auto;
+    margin: 0;
+    padding: 0;
+}
+
+li.app-piece {
+    list-style: none;
+    padding: 3px;
+    margin: 0;
+    font-size: 12px;
+    margin-bottom: 5px;
+    background-color: #FC6;
+}
+
+span.apptime {
+    display: inline-block;
+    width: 100%;
+}
+
+a.orderusername {
+    font-size: 14px;
+    color: #030;
+    font-weight: bold;
+    display: inline-block;
+    margin-right: 5px;
+}
+
+div#pointreturnnoti-box {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 338px;
+    text-align: left;
+    padding: 8px;
+    max-height: 228px;
+    color: #000;
+    border-style: solid;
+    border-width: 2px;
+    border-color: #099;
+    overflow: auto;
+}
+
+#pointreturnnoti-box ul {
+    margin: 0;
+    padding: 0;
+}
+
+li.pointpiece {
+    list-style: none;
+    font-size: 12px;
+    padding: 5px 0;
+    margin: 5px 0;
+    border-top-style: solid;
+    border-bottom-style: solid;
+    border-width: 1px;
+    border-color: #6CF;
+}
+
+a.username-linker {
+    font-size: 14px;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+strong.theamountp {
+    color: #930;
+    font-size: 16px;
+}
+
+span.transactionfiniexpl {
+    display: inline-block;
+    font-size: 12px;
+    text-align: center;
+    width: 100%;
+    padding-top: 12px;
+}
+
+div#ordereditembtnbox {
+    position: relative;
+    display: inline-block;
+    width: 188px;
+    padding: 15px;
+    border-style: dotted;
+    border-width: 1px;
+    border-color: #690;
+    background-color: #fff;
+    background-color: rgba(255, 255, 255);
+    border-radius: 6px;
+    margin-left: 15px;
+}
+
+a.thebtn.transactionsordersbtn,
+div#ordereditembtnbox {
+    float: left;
+}
+
+a.transactionsordersbtn {
+    margin: 36px 0 0 35px;
+    padding: 8px 28px;
+}
+
+a.thebtn.item {
+    font-size: 14px;
+    padding: 2px 12px;
+    background-color: #CFC;
+    color: #060;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #060;
+    white-space: nowrap;
+}
+
+.thebtn.item span.num {
+    font-size: 16px;
+    color: #660;
+}
+
+a.pointchecklinker {
+    display: inline-block;
+    font-size: 14px;
+    color: #FFF;
+    padding: 2px 8px;
+    background-color: #390;
+    margin: 5px 0;
+    border-radius: 2px;
+}
+
+a#specialbtn {
+    display: inline-block;
+    padding: 5px 20px;
+    background-color: #930;
+    color: #fff;
+    font-size: 20px;
+}
+
+img.adminiconpic {
+    width: 32px;
+    background-color: #fff;
+    margin-left: 12px;
+}

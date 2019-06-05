@@ -3,13 +3,16 @@ package main
 import (
 	"bytes"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"heshi/errors"
 	"io"
 	"io/ioutil"
 	"jwt"
+	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 	"util"
 
@@ -19,10 +22,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CORSMiddleware() gin.HandlerFunc {
+func cORSMiddleware() gin.HandlerFunc {
 	config := cors.Config{
 		AllowAllOrigins: true,
-		// AllowOrigins:     []string{"*"},
+		// AllowOrigins:     []string{"http://localhost:8080"},
 		AllowMethods:     []string{"PUT", "POST", "GET", "DELETE"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
@@ -34,54 +37,136 @@ func CORSMiddleware() gin.HandlerFunc {
 	allowHeaders = append(allowHeaders, []string{"Authorization", "Cookie", "Cache-Control", "X-Auth-Token"}...)
 	allowHeaders = append(allowHeaders, []string{"Cache-Control", "Connection", "User-Agent"}...)
 	config.AddAllowHeaders(allowHeaders...)
+	if os.Getenv("STAGE") != "dev" {
+		config.AllowAllOrigins = false
+		config.AllowOrigins = []string{"http://localhost:8080", "https://localhost:8443"}
+	}
 	return cors.New(config)
 	// cors.DefaultConfig()
 }
 
-func AuthenticateMiddleWare() *jwt.GinJWTMiddleware {
-	return &jwt.GinJWTMiddleware{
+//set exp(timeout) to 1 day, cache token to 30 mins
+func jwtMiddleWare() *jwt.GinJWTMiddleware {
+	mw, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:            "HESHI",
 		Key:              []byte("secret key"),
-		Timeout:          time.Hour,
-		MaxRefresh:       time.Hour,
-		Authenticator:    userLogin1,
+		Timeout:          24 * time.Hour,
+		MaxRefresh:       30 * time.Minute,
+		Authenticator:    jwtAuthenticator,
+		Authorizator:     jwtAuthorizator,
 		TokenLookup:      "header:Authorization",
 		TokenHeadName:    "Bearer",
 		PrivKeyFile:      "token.key",
 		PubKeyFile:       "token_pk.pem",
 		SigningAlgorithm: "RS512",
+		IdentityKey:      "userprofile",
+		IdentityHandler:  identityHandler,
+		LoginResponse:    loginResponse,
 		// TimeFunc provides the current time. You can override it to use another time value. This is useful for testing or if your server uses a different time zone than your tokens.
 		TimeFunc: time.Now,
+	})
+	if err != nil {
+		log.Fatalln(err.Error())
+		return nil
 	}
+	return mw
 }
 
-func userLogin1(username string, password1 string, c *gin.Context) (string, bool) {
-	q := fmt.Sprintf(`SELECT id, password, user_type FROM users where username='%s' or cellphone='%s' or email='%s'`,
+func jwtAuthenticator(c *gin.Context) (interface{}, error) {
+	username := c.PostForm("username")
+	password1 := c.PostForm("password")
+	q := fmt.Sprintf(`SELECT id, password, user_type, status FROM users where username='%s' or cellphone='%s' or email='%s'`,
 		username, username, username)
-
-	var id, password, userType string
-	if err := dbQueryRow(q).Scan(&id, &password, &userType); err != nil {
+	usertype := c.PostForm("user_type")
+	var id, password, userType, status string
+	if err := dbQueryRow(q).Scan(&id, &password, &userType, &status); err != nil {
 		if err == sql.ErrNoRows {
-			return "", false
+			return nil, errors.New(errorLoginUserNamePassword)
 		}
-		return "", false
+		return nil, errors.New("System error, please try again later")
+	}
+
+	if status != "ACTIVE" {
+		return nil, errors.Newf("%s is not an active user!", username)
+	}
+
+	if usertype != "" && usertype != userType {
+		return nil, errors.Newf("%s is not %s", username, usertype)
 	}
 
 	if !util.IsPassOK(password1, password) {
-		return vemsgLoginErrorUserName.Message, false
+		return nil, errors.New(errorLoginUserNamePassword)
 	}
 
-	s := sessions.Default(c)
-	s.Set(USER_SESSION_KEY, id)
-
-	if userType == ADMIN {
-		s.Set(ADMIN_KEY, id)
+	userProfile, _, err := getUserByID(id)
+	if err != nil {
+		return nil, err
 	}
-	s.Save()
-	return id, true
+
+	return userProfile, nil
 }
 
-func AuthMiddleWare() gin.HandlerFunc {
+func jwtAuthorizator(data interface{}, c *gin.Context) bool {
+	token := jwt.GetToken(c)
+	if !isValidCacheToken(token) {
+		return false
+	}
+	var user User
+	userprofile := data.(string)
+	if err := json.Unmarshal([]byte(userprofile), &user); err != nil {
+		return false
+	}
+	if strings.HasPrefix(c.Request.RequestURI, "/api/admin") && user.UserType == ADMIN {
+		return true
+	}
+	if strings.HasPrefix(c.Request.RequestURI, "/api/agent") && user.UserType == AGENT {
+		return true
+	}
+
+	if user.UserType == CUSTOMER {
+		if strings.HasPrefix(c.Request.RequestURI, "/api/admin") || strings.HasPrefix(c.Request.RequestURI, "/api/agent") {
+			return false
+		}
+	}
+	c.Set("id", user.ID)
+	c.Set("user", user)
+	return true
+}
+
+func identityHandler(c *gin.Context) interface{} {
+	claims := jwt.ExtractClaims(c)
+	ip := claims["ip"]
+	userAgent := claims["user-agent"]
+	// 	ipFormat := regexp.MustCompile(`^(\d+).(\d+).(\d+).(\d+):\d+$`)
+	// previousIP := ipFormat.FindStringSubmatch(ip)
+	// currentIP := ipFormat.FindStringSubmatch(request.RemoteAddr)
+	// if len(previousIP) == 5 && len(currentIP) == 5 && AcceptRemoteIP <= 4 {
+	// 	for i := 1; i < AcceptRemoteIP; i++ {
+	// 		if previousIP[i] != currentIP[i] {
+	// 			valid = false
+	// 			break
+	// 		}
+	// 	}
+	// }
+	// For now, request must from same ip and same agent
+	if ip != util.GetRequestIP(c.Request) && userAgent != c.Request.Header.Get("User-Agent") {
+		return ""
+	}
+	return claims["userprofile"]
+}
+
+func loginResponse(c *gin.Context, code int, token string, data string, expire time.Time) {
+	redisClient.Set(token, token, time.Minute*30)
+	var user User
+	json.Unmarshal([]byte(data), &user)
+	c.JSON(http.StatusOK, gin.H{
+		"code":   http.StatusOK,
+		"token":  token,
+		"user":   user,
+		"expire": expire.Format(time.RFC3339),
+	})
+}
+func authMiddleWare() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		t := c.Request.Header.Get("X-Auth-Token")
 		if t == "" {
@@ -94,59 +179,36 @@ func AuthMiddleWare() gin.HandlerFunc {
 	}
 }
 
-func UserSessionMiddleWare() gin.HandlerFunc {
+func devMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if os.Getenv("STAGE") == "dev" {
-			c.Set("id", "system_dev_user")
+		userprofile := c.Request.Header.Get("token")
+		if userprofile == "" {
+			c.AbortWithStatusJSON(http.StatusBadRequest, "for dev, please pass user profile in header as token")
+		} else {
+			var user User
+			json.Unmarshal([]byte(userprofile), &user)
+			c.Set("id", user.ID)
+			c.Set("user", user)
 			c.Next()
-			return
 		}
-		s := sessions.Default(c)
-		if s.Get(USER_SESSION_KEY) == nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, "Must login first")
-			return
-		}
-		c.Set("id", s.Get(USER_SESSION_KEY))
-		c.Next()
 	}
 }
 
-func AdminSessionMiddleWare() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		if os.Getenv("STAGE") == "dev" {
-			c.Set("id", "system_dev_admin")
-			c.Next()
-			return
-		}
-		s := sessions.Default(c)
-		if s.Get(USER_SESSION_KEY) == nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, "Must login first")
-			return
-		}
-		if s.Get(ADMIN_KEY) == nil {
-			c.AbortWithStatusJSON(http.StatusForbidden, "Login User is not admin")
-			return
-		}
-		c.Set("id", s.Get(USER_SESSION_KEY))
-		c.Next()
-	}
-}
-
-func RequestLogger() gin.HandlerFunc {
+func requestLogger() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		buf, _ := ioutil.ReadAll(c.Request.Body)
 		rdr1 := ioutil.NopCloser(bytes.NewBuffer(buf))
 		rdr2 := ioutil.NopCloser(bytes.NewBuffer(buf)) //We have to create a new Buffer, because rdr1 will be read.
 		platform := detect.Platform(c.Request.Header.Get("User-Agent")).String()
-		util.Printf("=======GOT REQUEST - METHOD: %s; FROM: %s; URL %s=====", c.Request.Method, platform, c.Request.URL)
-		util.Printf("=======REQUEST HEADER: %v========", c.Request.Header)
-		util.Printf("=======REQUEST BODY: %s========", readBody(rdr1)) // Print request body
+		util.Tracef("=======GOT REQUEST - METHOD: %s; FROM: %s; URL %s=====", c.Request.Method, platform, c.Request.URL)
+		util.Tracef("=======REQUEST HEADER: %v========", c.Request.Header)
+		util.Tracef("=======REQUEST BODY: %s========", readBody(rdr1)) // Print request body
 		s := sessions.Default(c)
-		user := s.Get(USER_SESSION_KEY)
+		user := s.Get(userSessionKey)
 		if user == nil {
 			user = "guest"
 		}
-		if err := userUsingRecord(c.Request.URL.Path, user.(string), platform); err != nil {
+		if err := userUsingRecord(c.Request.URL.Path, user.(string), platform, util.GetRequestIP(c.Request)); err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, errors.GetMessage(err))
 			return
 		}
@@ -160,5 +222,8 @@ func readBody(reader io.Reader) string {
 	buf.ReadFrom(reader)
 
 	s := buf.String()
+	if len(s) > 2000 {
+		return string(s[0:2000])
+	}
 	return s
 }

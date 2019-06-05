@@ -7,11 +7,11 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 	"util"
 
 	"github.com/gin-gonic/gin"
-	uuid "github.com/satori/go.uuid"
 )
 
 type product struct {
@@ -34,7 +34,7 @@ func uploadAndGetFileHeaders(c *gin.Context) {
 		return
 	}
 	// Upload the file to specific dst.
-	filename := file.Filename + time.Now().Format("20060102150405")
+	filename := file.Filename + time.Now().Format(timeFormatFileName)
 	dst := filepath.Join(os.TempDir(), id, filename)
 	err = c.SaveUploadedFile(file, dst)
 	if err != nil {
@@ -50,11 +50,11 @@ func uploadAndGetFileHeaders(c *gin.Context) {
 }
 
 func uploadAndProcessProducts(c *gin.Context) {
-	id := c.MustGet("id").(string)
-	product := c.PostForm("product")
-	category := c.PostForm("jewelryCategory")
-	if !util.IsInArrayString(product, VALID_PRODUCTS) {
-		vemsgUploadProductsCategoryNotValid.Message = fmt.Sprintf("%s is not valid product type", product)
+	uid := c.MustGet("id").(string)
+	category := strings.ToUpper(c.PostForm("category"))
+	jewelrySubCategory := strings.ToUpper(c.PostForm("jewelryCategory"))
+	if !util.IsInArrayString(category, validProductsConst) {
+		vemsgUploadProductsCategoryNotValid.Message = fmt.Sprintf("%s is not valid product type", category)
 		c.JSON(http.StatusOK, vemsgUploadProductsCategoryNotValid)
 		return
 	}
@@ -64,13 +64,19 @@ func uploadAndProcessProducts(c *gin.Context) {
 		return
 	}
 	// Upload the file to specific dst.
-	filename := file.Filename + time.Now().Format("20060102150405")
-
-	if err := os.MkdirAll(filepath.Join(UPLOADFILEDIR, id), 0644); err != nil {
+	if err := os.MkdirAll(filepath.Join(uploadFileDir, category, uid), 0755); err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
 		return
 	}
-	dst := filepath.Join(UPLOADFILEDIR, id, filename)
+	// TODO must be excel
+	var filename string
+	exts := strings.SplitN(file.Filename, ".", 2)
+	if len(exts) == 2 {
+		filename = exts[0] + time.Now().Format(timeFormatFileName) + exts[1]
+	} else {
+		filename = file.Filename + time.Now().Format(timeFormatFileName)
+	}
+	dst := filepath.Join(uploadFileDir, category, uid, filename)
 	err = c.SaveUploadedFile(file, dst)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errors.GetMessage(err))
@@ -82,25 +88,39 @@ func uploadAndProcessProducts(c *gin.Context) {
 		return
 	}
 
-	missingHeaders := validateHeaders(product, headers)
+	missingHeaders := validateHeaders(category, headers)
 	if len(missingHeaders) != 0 {
 		c.JSON(http.StatusOK, gin.H{"missing-headers": missingHeaders})
 		return
 	}
 
-	importProducts(product, dst, category)
+	go func() {
+		//here to track, who uploaded which file, and and filename saved on disk
+		p := productStockHandleRecord{
+			ID:             newV4(),
+			UserID:         uid,
+			Category:       category,
+			Action:         "UPLOAD STOCK",
+			Filename:       file.Filename,
+			FileNameOnDisk: filename,
+		}
+		p.newProductStockHanldeRecords()
+	}()
+	importProducts(uid, category, dst, jewelrySubCategory)
 }
 
-func importProducts(product, file, cate string) ([]util.Row, error) {
-	switch product {
-	case "diamond":
-		return importDiamondProducts(file)
-	case "small_diamond":
+func importProducts(uid, category, file, cate string) ([]util.Row, error) {
+	switch strings.ToUpper(category) {
+	case DIAMOND:
+		return importDiamondProducts(uid, file)
+	case SMALLDIAMOND:
 		return importSmallDiamondProducts(file)
-	case "jewelry":
-		return importJewelryProducts(file, cate)
+	case JEWELRY:
+		return importJewelryProducts(uid, file, cate)
+	case GEM:
+		return importGemProducts(uid, file)
 	default:
-		return nil, nil
+		return nil, errors.Newf("product category:%s not right", category)
 	}
 }
 
@@ -117,6 +137,7 @@ func importSmallDiamondProducts(file string) ([]util.Row, error) {
 	originalHeaders := records[0]
 
 	//process records
+	util.Println("start process small diamond")
 	for index := 1; index < len(records); index++ {
 		sd := smallDiamond{}
 		row := records[index]
@@ -178,7 +199,7 @@ func importSmallDiamondProducts(file string) ([]util.Row, error) {
 		//insert into db
 		if !row.Ignored {
 			q := `INSERT INTO small_diamonds (id, size_from, size_to, price, quantity) VALUSE('%s', '%f', '%f', '%f', '%d')`
-			if _, err := dbExec(fmt.Sprintf(q, uuid.NewV4().String()), sd.SizeFrom, sd.SizeTo, sd.Price, sd.Quantity); err != nil {
+			if _, err := dbExec(fmt.Sprintf(q, newV4()), sd.SizeFrom, sd.SizeTo, sd.Price, sd.Quantity); err != nil {
 				return nil, err
 			}
 		}
@@ -189,11 +210,11 @@ func importSmallDiamondProducts(file string) ([]util.Row, error) {
 
 func validateHeaders(product string, headers []string) []string {
 	switch product {
-	case "diamond":
+	case DIAMOND:
 		return validateDiamondHeaders(headers)
-	case "small_diamond":
+	case SMALLDIAMOND:
 		return validateSmallDiamondHeaders(headers)
-	case "jewelry":
+	case JEWELRY:
 		return validateJewelryHeaders(headers)
 	default:
 		return nil
