@@ -126,10 +126,12 @@ golang
 
     gotour, effective go, goblog, www.goinggo.net
 
-20: gin 
+2: gin 
  middleware - the sequence of middleware matters, first them move on to next 
  middleware and group sequence matters too.??? 
 
 mysql:
 
 order by filed('en','cn') asc 
+
+add not
